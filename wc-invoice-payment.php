@@ -10,7 +10,7 @@
  *
  * @link              https://www.linknacional.com/
  * @since             1.0.0
- * @package           Invoice_Payment_Wc
+ * @package           Wc_Payment_Invoice
  *
  * @wordpress-plugin
  * Plugin Name:       Invoice Payment for WooCommerce
@@ -21,7 +21,7 @@
  * Author URI:        https://www.linknacional.com/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       invoice-payment-wc
+ * Text Domain:       wc-invoice-payment
  * Domain Path:       /languages
  */
 
@@ -35,34 +35,34 @@ if (!defined('WPINC')) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('INVOICE_PAYMENT_WC_VERSION', '1.0.0');
+define('WC_PAYMENT_INVOICE_VERSION', '1.0.0');
 
 /**
  * The code that runs during plugin activation.
- * This action is documented in includes/class-invoice-payment-wc-activator.php
+ * This action is documented in includes/class-wc-invoice-payment-activator.php
  */
-function activate_invoice_payment_wc() {
-    require_once plugin_dir_path(__FILE__) . 'includes/class-invoice-payment-wc-activator.php';
-    Invoice_Payment_Wc_Activator::activate();
+function activate_Wc_Payment_Invoice() {
+    require_once plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment-activator.php';
+    Wc_Payment_Invoice_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-invoice-payment-wc-deactivator.php
+ * This action is documented in includes/class-wc-invoice-payment-deactivator.php
  */
-function deactivate_invoice_payment_wc() {
-    require_once plugin_dir_path(__FILE__) . 'includes/class-invoice-payment-wc-deactivator.php';
-    Invoice_Payment_Wc_Deactivator::deactivate();
+function deactivate_Wc_Payment_Invoice() {
+    require_once plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment-deactivator.php';
+    Wc_Payment_Invoice_Deactivator::deactivate();
 }
 
-register_activation_hook(__FILE__, 'activate_invoice_payment_wc');
-register_deactivation_hook(__FILE__, 'deactivate_invoice_payment_wc');
+register_activation_hook(__FILE__, 'activate_wc_payment_invoice');
+register_deactivation_hook(__FILE__, 'deactivate_wc_payment_invoice');
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path(__FILE__) . 'includes/class-invoice-payment-wc.php';
+require plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment.php';
 
 /**
  * Begins execution of the plugin.
@@ -73,8 +73,8 @@ require plugin_dir_path(__FILE__) . 'includes/class-invoice-payment-wc.php';
  *
  * @since    1.0.0
  */
-function run_invoice_payment_wc() {
-    $plugin = new Invoice_Payment_Wc();
+function run_wc_payment_invoice() {
+    $plugin = new Wc_Payment_Invoice();
     $plugin->run();
 }
-run_invoice_payment_wc();
+run_wc_payment_invoice();

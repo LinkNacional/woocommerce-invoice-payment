@@ -9,8 +9,8 @@
  * @link       https://www.linknacional.com/
  * @since      1.0.0
  *
- * @package    Invoice_Payment_Wc
- * @subpackage Invoice_Payment_Wc/includes
+ * @package    Wc_Payment_Invoice
+ * @subpackage Wc_Payment_Invoice/includes
  */
 
 /**
@@ -20,11 +20,11 @@
  * so that it is ready for translation.
  *
  * @since      1.0.0
- * @package    Invoice_Payment_Wc
- * @subpackage Invoice_Payment_Wc/includes
+ * @package    Wc_Payment_Invoice
+ * @subpackage Wc_Payment_Invoice/includes
  * @author     Link Nacional
  */
-class Invoice_Payment_Wc_i18n {
+class Wc_Payment_Invoice_i18n {
     /**
      * Load the plugin text domain for translation.
      *
@@ -32,7 +32,7 @@ class Invoice_Payment_Wc_i18n {
      */
     public function load_plugin_textdomain() {
         load_plugin_textdomain(
-            'invoice-payment-wc',
+            'wc-invoice-payment',
             false,
             dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
         );

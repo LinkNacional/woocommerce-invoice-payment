@@ -8,8 +8,8 @@
  * @link       https://www.linknacional.com/
  * @since      1.0.0
  *
- * @package    Invoice_Payment_Wc
- * @subpackage Invoice_Payment_Wc/public/partials
+ * @package    Wc_Payment_Invoice
+ * @subpackage Wc_Payment_Invoice/public/partials
  */
 ?>
 

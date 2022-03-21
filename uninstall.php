@@ -22,7 +22,7 @@
  * @link       https://www.linknacional.com/
  * @since      1.0.0
  *
- * @package    Invoice_Payment_Wc
+ * @package    Wc_Payment_Invoice
  */
 
 // If uninstall not called from WordPress, then exit.
