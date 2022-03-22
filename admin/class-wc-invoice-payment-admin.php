@@ -135,14 +135,14 @@ class Wc_Payment_Invoice_Admin {
         if (!current_user_can('manage_options')) {
             return;
         } ?>
-    <h1> <?php esc_html_e('Welcome to my custom admin page.', 'my-plugin-textdomain'); ?> </h1>
-    <form method="POST" action="options.php">
+    <div class="wrap">
+        <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
         
     <?php
         settings_fields('wc-invoice-payment');
         do_settings_sections('wc-invoice-payment');
         submit_button(); ?>
-    </form>
+    </div>
     <?php
     }
 
@@ -218,53 +218,69 @@ class Wc_Payment_Invoice_Admin {
     public function new_invoice_form() {
         if (!current_user_can('manage_options')) {
             return;
-        } ?>
+        }
+        $currencies = get_woocommerce_currencies();
+        $active_currency = get_woocommerce_currency();
+        $gateways = WC()->payment_gateways->get_available_payment_gateways();
+        $enabled_gateways = [];
+
+        if ($gateways) {
+            foreach ($gateways as $gateway) {
+                if ($gateway->enabled == 'yes') {
+                    $enabled_gateways[] = $gateway;
+                }
+            }
+        }
+
+        // $enabled_gateways[1]->id;
+        // $enabled_gateways[1]->title;?>
       <div class="wrap">
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-        <form action="<?php menu_page_url('wporg') ?>" method="post">
-        <table class="form-table" role="presentation">
-            <tbody>
-            <?php wp_nonce_field('save_config_whmcs_login', 'nonce'); ?>
-            <h2 class="title"><?php _e('Whmcs API information', 'whmcs-wordpress')?></h2>
-            <p><?php _e('API information can be obtained by following the step by step ', 'whmcs-wordpress')?> <a href="https://docs.whmcs.com/API_Authentication_Credentials#Creating_Admin_API_Authentication_Credentials"><?php _e('here', 'whmcs-wordpress') ?></a> </p>
-                <tr>
-                    <th scope="row">
-                        <label for="whmcs_login_identifier"><?php _e('WHMCS API identifier', 'whmcs-wordpress')?></label>
-                    </th>
-                    <td>
-                        <input name="whmcs_login_identifier" type="password" id="whmcs_login_identifier" onfocus="this.value='';" value="<?php echo get_option('whmcs_login_identifier') ?>" class="regular-text">
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">
-                        <label for="whmcs_login_secret"><?php _e('WHMCS API secret', 'whmcs-wordpress')?></label>
-                    </th>
-                    <td>
-                        <input name="whmcs_login_secret" type="password" id="whmcs_login_secret" onfocus="this.value='';" value="<?php echo get_option('whmcs_login_secret') ?>" class="regular-text">
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">
-                        <label for="whmcs_login_url"><?php _e('WHMCS url', 'whmcs-wordpress')?></label>
-                    </th>
-                    <td>
-                        <input name="whmcs_login_url" type="text" id="whmcs_login_url" value="<?php echo get_option('whmcs_login_url') ?>" class="regular-text">
-                    </td>
-                </tr>
- 
-                    <th scope="row">
-                        <label for="whmcs_login_register_user"><?php _e('link to register a new WHMCS user', 'whmcs-wordpress')?></label>
-                    </th>
-                    <td>
-                        <input name="whmcs_login_register_user" type="text" id="whmcs_login_register_user" value="<?php echo get_option('whmcs_login_register_user') ?>" class="regular-text">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <form action="<?php menu_page_url('new-invoice') ?>" method="post" class="wc-invoice-data">
+        <h2 class="title"><?php _e('Invoice details', 'whmcs-wordpress')?> <?php echo '#' . get_option('lkn_invoice_max_id', 1) ?></h2>
+        <div class="invoice-row-wrap">
+            <div class="invoice-column-wrap">
+                <div class="input-row-wrap">
+                    <label for="lkn_wcip_payment_status"><?php _e('Status', 'whmcs-wordpress')?></label>
+                    <select name="lkn_wcip_payment_status" id="lkn_wcip_payment_status_input" value="<?php echo get_option('lkn_wcip_payment_status') ?>" class="regular-text">
+                        <option value="wc-pending"><?php echo _x('Pending payment', 'Order status', 'woocommerce'); ?></option>
+                        <option value="wc-processing"><?php echo _x('Processing', 'Order status', 'woocommerce'); ?></option>
+                        <option value="wc-on-hold"><?php echo _x('On hold', 'Order status', 'woocommerce'); ?></option>
+                        <option value="wc-completed"><?php echo _x('Completed', 'Order status', 'woocommerce'); ?></option>
+                        <option value="wc-cancelled"><?php echo _x('Cancelled', 'Order status', 'woocommerce'); ?></option>
+                        <option value="wc-refunded"><?php echo _x('Refunded', 'Order status', 'woocommerce'); ?></option>
+                        <option value="wc-failed"><?php echo _x('Failed', 'Order status', 'woocommerce'); ?></option>
+                    </select>
+                </div>
+                <div class="input-row-wrap">
+                    <label for="lkn_wcip_default_payment_method"><?php _e('Default payment method', 'whmcs-wordpress')?></label>
+                    <select name="lkn_wcip_default_payment_method" id="lkn_wcip_default_payment_method_input" value="<?php echo get_option('lkn_wcip_default_payment_method') ?>" class="regular-text">
+                        <option value="pagseguro">Cartão de crédito PagSeguro</option>
+                    </select>
+                </div>
+                <div class="input-row-wrap">
+                    <label for="lkn_wcip_currency"><?php _e('Currency', 'whmcs-wordpress')?></label>
+                    <select name="lkn_wcip_currency" id="lkn_wcip_currency_input" value="<?php echo get_option('lkn_wcip_currency') ?>" class="regular-text">
+                        <option value="BRL" selected>Real Brasileiro - R$</option>
+                        <option value="USD">Dólar Americano - $</option>
+                    </select>
+                </div>
+            </div>
+            <div class="invoice-column-wrap">
+                <div class="input-row-wrap">
+                    <label for="whmcs_login_identifier"><?php _e('Status', 'whmcs-wordpress')?></label>
+                    <input name="whmcs_login_identifier" type="password" id="whmcs_login_identifier" onfocus="this.value='';" value="<?php echo get_option('whmcs_login_identifier') ?>" class="regular-text">
+                </div>
+                <div class="input-row-wrap">
+                    <label for="whmcs_login_identifier"><?php _e('Status', 'whmcs-wordpress')?></label>
+                    <input name="whmcs_login_identifier" type="password" id="whmcs_login_identifier" onfocus="this.value='';" value="<?php echo get_option('whmcs_login_identifier') ?>" class="regular-text">
+                </div>
+            </div>
+        </div>
             <?php
-        settings_fields('whmcs_login');
-        do_settings_sections('whmcs_login_session');
-        submit_button(__('Save'), 'textdomain'); ?>
+        // settings_fields('whmcs_login');
+        // do_settings_sections('whmcs_login_session');
+        // submit_button(__('Save'), 'textdomain');?>
         </form>
     </div>
     <?php

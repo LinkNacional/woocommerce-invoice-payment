@@ -2,3 +2,22 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
+.wc-invoice-data {
+    background-color: white;
+    border: solid 1px black;
+    padding: 23px 24px 12px;
+    margin-top: 20px;
+}
+.invoice-row-wrap {
+    display: flex;
+    gap: 10px;
+}
+.invoice-column-wrap {
+    display: flex;
+    flex-direction: column;
+}
+.input-row-wrap {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 0px;
+}
