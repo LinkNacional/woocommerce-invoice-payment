@@ -214,13 +214,14 @@ class Wc_Payment_Invoice_Admin {
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
         <?php settings_errors(); ?>
         <form action="<?php menu_page_url('new-invoice') ?>" method="post" class="wcip-form-wrap">
+        <?php wp_nonce_field('lkn_wcip_add_invoice', 'nonce'); ?>
         <div class="wcip-invoice-data">    
             <h2 class="title"><?php _e('Invoice details', 'wc-invoice-payment')?> <?php echo '#' . get_option('lkn_invoice_max_id', 1) ?></h2>
             <div class="invoice-row-wrap">
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_payment_status_input"><?php _e('Status', 'wc-invoice-payment')?></label>
-                        <select name="lkn_wcip_payment_status" id="lkn_wcip_payment_status_input" value="<?php echo get_option('lkn_wcip_payment_status') ?>" class="regular-text">
+                        <select name="lkn_wcip_payment_status" id="lkn_wcip_payment_status_input" class="regular-text">
                             <option value="wc-pending"><?php echo _x('Pending payment', 'Order status', 'woocommerce'); ?></option>
                             <option value="wc-processing"><?php echo _x('Processing', 'Order status', 'woocommerce'); ?></option>
                             <option value="wc-on-hold"><?php echo _x('On hold', 'Order status', 'woocommerce'); ?></option>
@@ -232,7 +233,7 @@ class Wc_Payment_Invoice_Admin {
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_default_payment_method_input"><?php _e('Default payment method', 'wc-invoice-payment')?></label>
-                        <select name="lkn_wcip_default_payment_method" id="lkn_wcip_default_payment_method_input" value="<?php echo get_option('lkn_wcip_default_payment_method') ?>" class="regular-text">
+                        <select name="lkn_wcip_default_payment_method" id="lkn_wcip_default_payment_method_input" class="regular-text">
                             <?php
                             foreach ($enabled_gateways as $key => $gateway) {
                                 echo '<option value="' . $gateway->id . '">' . $gateway->title . '</option>';
@@ -241,7 +242,7 @@ class Wc_Payment_Invoice_Admin {
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_currency_input"><?php _e('Currency', 'wc-invoice-payment')?></label>
-                        <select name="lkn_wcip_currency" id="lkn_wcip_currency_input" value="<?php echo get_option('lkn_wcip_currency') ?>" class="regular-text">
+                        <select name="lkn_wcip_currency" id="lkn_wcip_currency_input" class="regular-text">
                             <?php
                                 foreach ($currencies as $code => $currency) {
                                     if ($active_currency === $code) {
@@ -256,11 +257,11 @@ class Wc_Payment_Invoice_Admin {
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_name_input"><?php _e('Name', 'wc-invoice-payment')?></label>
-                        <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" value="<?php echo get_option('lkn_wcip_name') ?>" class="regular-text">
+                        <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" class="regular-text">
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_email_input"><?php _e('E-mail', 'wc-invoice-payment')?></label>
-                        <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" value="<?php echo get_option('lkn_wcip_email') ?>" class="regular-text">
+                        <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" class="regular-text">
                     </div>
                 </div>
             </div>
@@ -271,7 +272,7 @@ class Wc_Payment_Invoice_Admin {
             <div class="wcip-row">
                 <div class="input-row-wrap">
                     <label for="lkn_wcip_due_date_input"><?php _e('Due date', 'wc-invoice-payment'); ?></label>
-                    <input name="lkn_wcip_due_date" type="date" id="lkn_wcip_due_date_input" value="<?php echo get_option('lkn_wcip_due_date'); ?>" class="regular-text">
+                    <input name="lkn_wcip_due_date" type="date" id="lkn_wcip_due_date_input" class="regular-text">
                 </div>
             </div>
             <div class="action-btn">
@@ -290,7 +291,7 @@ class Wc_Payment_Invoice_Admin {
                         <input name="lkn_wcip_name_invoice_0" type="text" id="lkn_wcip_name_invoice_0" class="regular-text">
                     </div>
                     <div class="input-row-wrap">
-                        <label><?php _e('Charge', 'wc-invoice-payment')?></label>
+                        <label><?php _e('Amount', 'wc-invoice-payment')?></label>
                         <input name="lkn_wcip_charge_invoice_0" type="tel" id="lkn_wcip_charge_invoice_0" class="regular-text">
                     </div>
                 </div>
@@ -316,19 +317,8 @@ class Wc_Payment_Invoice_Admin {
      */
     public function form_submit_handle() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'save_config_whmcs_login')) {
-                if (substr($_POST['whmcs_login_url'], -1) != '/') {
-                    $_POST['whmcs_login_url'] = $_POST['whmcs_login_url'] . '/';
-                }
-                if ($_POST['whmcs_login_secret'] != '') {
-                    update_option('whmcs_login_secret', $_POST['whmcs_login_secret']);
-                }
-                if ($_POST['whmcs_login_identifier'] != '') {
-                    update_option('whmcs_login_identifier', $_POST['whmcs_login_identifier']);
-                }
-                update_option('whmcs_login_url', $_POST['whmcs_login_url']);
-                update_option('whmcs_login_register_user', $_POST['whmcs_login_register_user']);
-                update_option('whmcs_login_password_reset', $_POST['whmcs_login_password_reset']);
+            if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_add_invoice')) {
+                echo var_export($_POST, true);
             }
         }
     }
