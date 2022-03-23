@@ -52,7 +52,6 @@ class Wc_Payment_Invoice_Admin {
 
         add_action('admin_menu', [$this, 'add_setting_session']);
         add_action('admin_menu', [$this, 'add_new_invoice_submenu_section']);
-        // add_action('admin_init', [$this, 'my_settings_init']);
     }
 
     /**
@@ -106,7 +105,7 @@ class Wc_Payment_Invoice_Admin {
      */
     public function add_setting_session() {
         add_menu_page(
-            __('Listar faturas', 'wc-invoice-payment'),
+            __('List invoices', 'wc-invoice-payment'),
             __('WooCommerce Invoice Payment', 'wc-invoice-payment'),
             'manage_options',
             'wc-invoice-payment',
@@ -117,8 +116,8 @@ class Wc_Payment_Invoice_Admin {
 
         add_submenu_page(
             'wc-invoice-payment',
-            __('Listar faturas', 'wc-invoice-payment'),
-            __('Faturas', 'wc-invoice-payment'),
+            __('List invoices', 'wc-invoice-payment'),
+            __('Invoices', 'wc-invoice-payment'),
             'manage_options',
             'wc-invoice-payment',
             [$this, 'render_invoice_list_page'],
@@ -139,35 +138,11 @@ class Wc_Payment_Invoice_Admin {
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
         
     <?php
-        settings_fields('wc-invoice-payment');
-        do_settings_sections('wc-invoice-payment');
-        submit_button(); ?>
+        // settings_fields('wc-invoice-payment');
+        // do_settings_sections('wc-invoice-payment');
+        // submit_button();?>
     </div>
     <?php
-    }
-
-    /**
-     * Add new settings to existing sections
-     *
-     * @return void
-     */
-    public function my_settings_init() {
-        /* add_settings_section(
-            'sample_page_setting_section',
-            __('Custom settings', 'my-textdomain'),
-            [$this, 'my_setting_section_callback_function'],
-            'wc-invoice-payment'
-        );
-
-        add_settings_field(
-            'my_setting_field',
-            __('My custom setting field', 'my-textdomain'),
-            [$this, 'my_setting_markup'],
-            'wc-invoice-payment',
-            'sample_page_setting_section'
-        );
-
-        register_setting('wc-invoice-payment', 'my_setting_field'); */
     }
 
     /**
@@ -199,8 +174,8 @@ class Wc_Payment_Invoice_Admin {
     public function add_new_invoice_submenu_section() {
         $hookname = add_submenu_page(
             'wc-invoice-payment',
-            'Nova fatura',
-            'Nova fatura',
+            __('Add invoice', 'wc-invoice-payment'),
+            __('Add invoice', 'wc-invoice-payment'),
             'manage_options',
             'new-invoice',
             [$this, 'new_invoice_form'],
@@ -221,6 +196,7 @@ class Wc_Payment_Invoice_Admin {
         }
         $currencies = get_woocommerce_currencies();
         $active_currency = get_woocommerce_currency();
+
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
         $enabled_gateways = [];
 
@@ -236,45 +212,92 @@ class Wc_Payment_Invoice_Admin {
         // $enabled_gateways[1]->title;?>
       <div class="wrap">
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-        <form action="<?php menu_page_url('new-invoice') ?>" method="post" class="wc-invoice-data">
-        <h2 class="title"><?php _e('Invoice details', 'whmcs-wordpress')?> <?php echo '#' . get_option('lkn_invoice_max_id', 1) ?></h2>
-        <div class="invoice-row-wrap">
-            <div class="invoice-column-wrap">
-                <div class="input-row-wrap">
-                    <label for="lkn_wcip_payment_status"><?php _e('Status', 'whmcs-wordpress')?></label>
-                    <select name="lkn_wcip_payment_status" id="lkn_wcip_payment_status_input" value="<?php echo get_option('lkn_wcip_payment_status') ?>" class="regular-text">
-                        <option value="wc-pending"><?php echo _x('Pending payment', 'Order status', 'woocommerce'); ?></option>
-                        <option value="wc-processing"><?php echo _x('Processing', 'Order status', 'woocommerce'); ?></option>
-                        <option value="wc-on-hold"><?php echo _x('On hold', 'Order status', 'woocommerce'); ?></option>
-                        <option value="wc-completed"><?php echo _x('Completed', 'Order status', 'woocommerce'); ?></option>
-                        <option value="wc-cancelled"><?php echo _x('Cancelled', 'Order status', 'woocommerce'); ?></option>
-                        <option value="wc-refunded"><?php echo _x('Refunded', 'Order status', 'woocommerce'); ?></option>
-                        <option value="wc-failed"><?php echo _x('Failed', 'Order status', 'woocommerce'); ?></option>
-                    </select>
+        <?php settings_errors(); ?>
+        <form action="<?php menu_page_url('new-invoice') ?>" method="post" class="wcip-form-wrap">
+        <div class="wcip-invoice-data">    
+            <h2 class="title"><?php _e('Invoice details', 'wc-invoice-payment')?> <?php echo '#' . get_option('lkn_invoice_max_id', 1) ?></h2>
+            <div class="invoice-row-wrap">
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_payment_status_input"><?php _e('Status', 'wc-invoice-payment')?></label>
+                        <select name="lkn_wcip_payment_status" id="lkn_wcip_payment_status_input" value="<?php echo get_option('lkn_wcip_payment_status') ?>" class="regular-text">
+                            <option value="wc-pending"><?php echo _x('Pending payment', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-processing"><?php echo _x('Processing', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-on-hold"><?php echo _x('On hold', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-completed"><?php echo _x('Completed', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-cancelled"><?php echo _x('Cancelled', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-refunded"><?php echo _x('Refunded', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-failed"><?php echo _x('Failed', 'Order status', 'woocommerce'); ?></option>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_default_payment_method_input"><?php _e('Default payment method', 'wc-invoice-payment')?></label>
+                        <select name="lkn_wcip_default_payment_method" id="lkn_wcip_default_payment_method_input" value="<?php echo get_option('lkn_wcip_default_payment_method') ?>" class="regular-text">
+                            <?php
+                            foreach ($enabled_gateways as $key => $gateway) {
+                                echo '<option value="' . $gateway->id . '">' . $gateway->title . '</option>';
+                            } ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_currency_input"><?php _e('Currency', 'wc-invoice-payment')?></label>
+                        <select name="lkn_wcip_currency" id="lkn_wcip_currency_input" value="<?php echo get_option('lkn_wcip_currency') ?>" class="regular-text">
+                            <?php
+                                foreach ($currencies as $code => $currency) {
+                                    if ($active_currency === $code) {
+                                        echo '<option value="' . $code . '" selected>' . $currency . ' - ' . $code . '</option>';
+                                    } else {
+                                        echo '<option value="' . $code . '">' . $currency . ' - ' . $code . '</option>';
+                                    }
+                                } ?>
+                        </select>
+                    </div>
                 </div>
-                <div class="input-row-wrap">
-                    <label for="lkn_wcip_default_payment_method"><?php _e('Default payment method', 'whmcs-wordpress')?></label>
-                    <select name="lkn_wcip_default_payment_method" id="lkn_wcip_default_payment_method_input" value="<?php echo get_option('lkn_wcip_default_payment_method') ?>" class="regular-text">
-                        <option value="pagseguro">Cartão de crédito PagSeguro</option>
-                    </select>
-                </div>
-                <div class="input-row-wrap">
-                    <label for="lkn_wcip_currency"><?php _e('Currency', 'whmcs-wordpress')?></label>
-                    <select name="lkn_wcip_currency" id="lkn_wcip_currency_input" value="<?php echo get_option('lkn_wcip_currency') ?>" class="regular-text">
-                        <option value="BRL" selected>Real Brasileiro - R$</option>
-                        <option value="USD">Dólar Americano - $</option>
-                    </select>
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_name_input"><?php _e('Name', 'wc-invoice-payment')?></label>
+                        <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" value="<?php echo get_option('lkn_wcip_name') ?>" class="regular-text">
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_email_input"><?php _e('E-mail', 'wc-invoice-payment')?></label>
+                        <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" value="<?php echo get_option('lkn_wcip_email') ?>" class="regular-text">
+                    </div>
                 </div>
             </div>
-            <div class="invoice-column-wrap">
+        </div>
+        <div class="wcip-invoice-data wcip-postbox">
+            <span class="text-bold"><?php _e('Invoice actions', 'wc-invoice-payment'); ?></span>
+            <hr>
+            <div class="wcip-row">
                 <div class="input-row-wrap">
-                    <label for="whmcs_login_identifier"><?php _e('Status', 'whmcs-wordpress')?></label>
-                    <input name="whmcs_login_identifier" type="password" id="whmcs_login_identifier" onfocus="this.value='';" value="<?php echo get_option('whmcs_login_identifier') ?>" class="regular-text">
+                    <label for="lkn_wcip_due_date_input"><?php _e('Due date', 'wc-invoice-payment'); ?></label>
+                    <input name="lkn_wcip_due_date" type="date" id="lkn_wcip_due_date_input" value="<?php echo get_option('lkn_wcip_due_date'); ?>" class="regular-text">
                 </div>
-                <div class="input-row-wrap">
-                    <label for="whmcs_login_identifier"><?php _e('Status', 'whmcs-wordpress')?></label>
-                    <input name="whmcs_login_identifier" type="password" id="whmcs_login_identifier" onfocus="this.value='';" value="<?php echo get_option('whmcs_login_identifier') ?>" class="regular-text">
+            </div>
+            <div class="action-btn">
+                <?php submit_button(__('Save')) ?>
+            </div>
+        </div>
+        <div class="wcip-invoice-data">
+        <h2 class="title"><?php _e('Price', 'wc-invoice-payment')?></h2>
+            <div id="wcip-invoice-price-row" class="invoice-column-wrap">
+                <div class="price-row-wrap">
+                    <div class="input-row-wrap">
+                        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_charge_row(0)"><span class="dashicons dashicons-trash"></span></button>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label><?php _e('Name', 'wc-invoice-payment')?></label>
+                        <input name="lkn_wcip_name_invoice_0" type="text" id="lkn_wcip_name_invoice_0" class="regular-text">
+                    </div>
+                    <div class="input-row-wrap">
+                        <label><?php _e('Charge', 'wc-invoice-payment')?></label>
+                        <input name="lkn_wcip_charge_invoice_0" type="tel" id="lkn_wcip_charge_invoice_0" class="regular-text">
+                    </div>
                 </div>
+            </div>
+            <hr>
+            <div class="invoice-row-wrap">
+                <button type="button" class="btn btn-add-line" onclick="lkn_wcip_add_charge_row()"><?php _e('Add line', 'wc-invoice-payment') ?></button>
             </div>
         </div>
             <?php

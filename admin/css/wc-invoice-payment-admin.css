@@ -2,7 +2,7 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
-.wc-invoice-data {
+.wcip-invoice-data {
     background-color: white;
     border: solid 1px black;
     padding: 23px 24px 12px;
@@ -11,13 +11,75 @@
 .invoice-row-wrap {
     display: flex;
     gap: 10px;
+    margin: 20px 0px;
 }
 .invoice-column-wrap {
     display: flex;
     flex-direction: column;
+    margin: 20px 0px;
 }
 .input-row-wrap {
     display: flex;
     flex-direction: column;
     padding: 6px 0px;
+}
+.wcip-form-wrap {
+    display: flex;
+    flex-flow: wrap;
+    gap: 2%;
+}
+.wcip-postbox {
+    min-width: 255px;
+    /* max-height: 128px; */
+}
+.wcip-row {
+    display: flex;
+}
+.text-bold {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+.action-btn {
+    display: flex;
+    justify-content: end;
+}
+.price-row-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 15px;
+    margin: 10px 0px;
+}
+.btn {
+    border: none; /* Remove borders */
+    font-size: 13px; /* Set a font size */
+    cursor: pointer; /* Mouse pointer on hover */
+}
+.btn-delete {
+    background-color: rgba(255, 0, 0, 0.822);
+    color: white;
+    padding: 4px 10px;
+}
+.btn-delete:hover {
+    background-color: rgba(202, 0, 0, 0.767);
+}
+.btn-add-line {
+    background-color: #f6f7f7;
+    color: #2271b1;
+    border-color: #2271b1;
+    border: solid 1px;
+    padding: 0px 30px;
+    min-height: 30px;
+    border-radius: 3px;
+}
+.btn-add-line:hover {
+    background: #f0f0f1;
+    border-color: #0a4b78;
+    color: #0a4b78;
+}
+#lkn_wcip_charge_invoice {
+    width: 80%;
+}
+#lkn_wcip_due_date_input {
+    width: 100%;
 }

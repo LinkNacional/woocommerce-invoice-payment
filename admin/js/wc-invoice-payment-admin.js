@@ -1,32 +1,36 @@
-(function( $ ) {
-	'use strict';
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('página carregada!');
+}, false);
 
-	/**
-	 * All of the code for your admin-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
 
-})( jQuery );
+function lkn_wcip_add_charge_row() {
+    let priceLines = document.getElementsByClassName('price-row-wrap');
+    let lineQtd = priceLines.length;
+
+    // Get the element where the inputs will be added to
+    let container = document.getElementById('wcip-invoice-price-row');
+    let inputRow = document.createElement('div');
+    inputRow.classList.add('price-row-wrap');
+
+    // Append a node with a random text
+    container.appendChild(inputRow);
+    
+    inputRow.innerHTML = 
+    '    <div class="input-row-wrap">' +
+    '        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_charge_row(' + lineQtd + ')"><span class="dashicons dashicons-trash"></span></button>' +
+    '    </div>' +
+    '    <div class="input-row-wrap">' +
+    '        <label>Name</label>' +
+    '        <input name="lkn_wcip_name_invoice_' + lineQtd + '" type="text" id="lkn_wcip_name_invoice_' + lineQtd + '"  class="regular-text">' +
+    '    </div>' +
+    '    <div class="input-row-wrap">' +
+    '        <label>Charge</label>' +
+    '        <input name="lkn_wcip_charge_invoice_' + lineQtd + '" type="tel" id="lkn_wcip_charge_invoice_' + lineQtd + '" class="regular-text">' +
+    '    </div>';
+}
+
+function lkn_wcip_remove_charge_row(id) {
+    console.log('delete line');
+    let inputRow = document.getElementsByClassName('price-row-wrap')[id];
+    inputRow.remove();
+}
