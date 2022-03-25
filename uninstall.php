@@ -29,3 +29,5 @@
 if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
+
+delete_option('lkn_wcip_invoices');

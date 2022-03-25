@@ -23,15 +23,15 @@ function lkn_wcip_add_amount_row() {
     
     inputRow.innerHTML = 
     '    <div class="input-row-wrap">' +
-    '        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(' + lineQtd + ')"><span class="dashicons dashicons-trash"></span></button>' +
-    '    </div>' +
-    '    <div class="input-row-wrap">' +
     '        <label>Name</label>' +
     '        <input name="lkn_wcip_name_invoice_' + lineQtd + '" type="text" id="lkn_wcip_name_invoice_' + lineQtd + '"  class="regular-text" required>' +
     '    </div>' +
     '    <div class="input-row-wrap">' +
     '        <label>Amount</label>' +
     '        <input name="lkn_wcip_amount_invoice_' + lineQtd + '" type="tel" id="lkn_wcip_amount_invoice_' + lineQtd + '" class="regular-text lkn_wcip_amount_input" oninput="lkn_wcip_filter_amount_input(this.value, ' + lineQtd + ')" required>' +
+    '    </div>' +
+    '    <div class="input-row-wrap">' +
+    '        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(' + lineQtd + ')"><span class="dashicons dashicons-trash"></span></button>' +
     '    </div>';
 }
 

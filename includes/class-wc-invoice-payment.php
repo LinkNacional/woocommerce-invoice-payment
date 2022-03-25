@@ -115,6 +115,11 @@ class Wc_Payment_Invoice {
         require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wc-invoice-payment-admin.php';
 
         /**
+         * The class responsible for rendering the invoice table.
+         */
+        require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wc-invoice-payment-table.php';
+
+        /**
          * The class responsible for defining all actions that occur in the public-facing
          * side of the site.
          */

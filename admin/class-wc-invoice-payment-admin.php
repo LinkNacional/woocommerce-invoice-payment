@@ -123,6 +123,138 @@ class Wc_Payment_Invoice_Admin {
             [$this, 'render_invoice_list_page'],
             1
         );
+
+        add_submenu_page(
+            null,
+            __('Edit invoice', 'wc-invoice-payment'),
+            __('Edit invoice', 'wc-invoice-payment'),
+            'manage_options',
+            'edit-invoice',
+            [$this, 'render_edit_invoice_page'],
+            1
+        );
+    }
+
+    /**
+     * Render html page for invoice edit
+     *
+     * @return void
+     */
+    public function render_edit_invoice_page() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        $invoiceId = $_GET['invoice'];
+        $today = date('Y-m-d');
+
+        $currencies = get_woocommerce_currencies();
+        $active_currency = get_woocommerce_currency();
+
+        $gateways = WC()->payment_gateways->get_available_payment_gateways();
+        $enabled_gateways = [];
+
+        if ($gateways) {
+            foreach ($gateways as $gateway) {
+                if ($gateway->enabled == 'yes') {
+                    $enabled_gateways[] = $gateway;
+                }
+            }
+        } ?>
+    <div class="wrap">
+        <h1><?php _e('Edit invoice', 'wc-invoice-payment'); ?></h1>
+        <?php settings_errors(); ?>
+        <form action="<?php menu_page_url('new-invoice') ?>" method="post" class="wcip-form-wrap">
+        <?php wp_nonce_field('lkn_wcip_add_invoice', 'nonce'); ?>
+        <div class="wcip-invoice-data">    
+            <h2 class="title"><?php _e('Invoice details', 'wc-invoice-payment')?> <?php echo '#' . $invoiceId ?></h2>
+            <div class="invoice-row-wrap">
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_payment_status_input"><?php _e('Status', 'wc-invoice-payment')?></label>
+                        <select name="lkn_wcip_payment_status" id="lkn_wcip_payment_status_input" class="regular-text">
+                            <option value="wc-pending"><?php echo _x('Pending payment', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-processing"><?php echo _x('Processing', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-on-hold"><?php echo _x('On hold', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-completed"><?php echo _x('Completed', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-cancelled"><?php echo _x('Cancelled', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-refunded"><?php echo _x('Refunded', 'Order status', 'woocommerce'); ?></option>
+                            <option value="wc-failed"><?php echo _x('Failed', 'Order status', 'woocommerce'); ?></option>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_default_payment_method_input"><?php _e('Default payment method', 'wc-invoice-payment')?></label>
+                        <select name="lkn_wcip_default_payment_method" id="lkn_wcip_default_payment_method_input" class="regular-text">
+                            <?php
+                            foreach ($enabled_gateways as $key => $gateway) {
+                                echo '<option value="' . $gateway->id . '">' . $gateway->title . '</option>';
+                            } ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_currency_input"><?php _e('Currency', 'wc-invoice-payment')?></label>
+                        <select name="lkn_wcip_currency" id="lkn_wcip_currency_input" class="regular-text">
+                            <?php
+                                foreach ($currencies as $code => $currency) {
+                                    if ($active_currency === $code) {
+                                        echo '<option value="' . $code . '" selected>' . $currency . ' - ' . $code . '</option>';
+                                    } else {
+                                        echo '<option value="' . $code . '">' . $currency . ' - ' . $code . '</option>';
+                                    }
+                                } ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_name_input"><?php _e('Name', 'wc-invoice-payment')?></label>
+                        <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" class="regular-text" required>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_email_input"><?php _e('E-mail', 'wc-invoice-payment')?></label>
+                        <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" class="regular-text" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="wcip-invoice-data wcip-postbox">
+            <span class="text-bold"><?php _e('Invoice actions', 'wc-invoice-payment'); ?></span>
+            <hr>
+            <div class="wcip-row">
+                <div class="input-row-wrap">
+                    <label for="lkn_wcip_due_date_input"><?php _e('Due date', 'wc-invoice-payment'); ?></label>
+                    <input name="lkn_wcip_due_date" type="date" id="lkn_wcip_due_date_input" min="<?php echo $today; ?>" class="regular-text" required>
+                </div>
+            </div>
+            <div class="action-btn">
+                <?php submit_button(__('Save')) ?>
+            </div>
+        </div>
+        <div class="wcip-invoice-data">
+        <h2 class="title"><?php _e('Price', 'wc-invoice-payment')?></h2>
+            <div id="wcip-invoice-price-row" class="invoice-column-wrap">
+                <div class="price-row-wrap price-row-0">
+                    <div class="input-row-wrap">
+                        <label><?php _e('Name', 'wc-invoice-payment')?></label>
+                        <input name="lkn_wcip_name_invoice_0" type="text" id="lkn_wcip_name_invoice_0" class="regular-text" required>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label><?php _e('Amount', 'wc-invoice-payment')?></label>
+                        <input name="lkn_wcip_amount_invoice_0" type="tel" id="lkn_wcip_amount_invoice_0" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required>
+                    </div>
+                    <div class="input-row-wrap">
+                        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(0)"><span class="dashicons dashicons-trash"></span></button>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="invoice-row-wrap">
+                <button type="button" class="btn btn-add-line" onclick="lkn_wcip_add_amount_row()"><?php _e('Add line', 'wc-invoice-payment') ?></button>
+            </div>
+        </div>
+        </form>
+    </div>
+    </div>
+    <?php
     }
 
     /**
@@ -136,11 +268,17 @@ class Wc_Payment_Invoice_Admin {
         } ?>
     <div class="wrap">
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+        <div>
+            <?php echo json_encode(get_option('lkn_wcip_invoices')); ?>
         
     <?php
         // settings_fields('wc-invoice-payment');
         // do_settings_sections('wc-invoice-payment');
-        // submit_button();?>
+        // submit_button();
+        $object = new Lkn_Wcip_List_Table();
+        $object->prepare_items();
+        $object->display(); ?>
+        </div>
     </div>
     <?php
     }
@@ -215,7 +353,7 @@ class Wc_Payment_Invoice_Admin {
         <form action="<?php menu_page_url('new-invoice') ?>" method="post" class="wcip-form-wrap">
         <?php wp_nonce_field('lkn_wcip_add_invoice', 'nonce'); ?>
         <div class="wcip-invoice-data">    
-            <h2 class="title"><?php _e('Invoice details', 'wc-invoice-payment')?> <?php echo '#' . get_option('lkn_invoice_max_id', 1) ?></h2>
+            <h2 class="title"><?php _e('Invoice details', 'wc-invoice-payment')?></h2>
             <div class="invoice-row-wrap">
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
@@ -283,15 +421,15 @@ class Wc_Payment_Invoice_Admin {
             <div id="wcip-invoice-price-row" class="invoice-column-wrap">
                 <div class="price-row-wrap price-row-0">
                     <div class="input-row-wrap">
-                        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(0)"><span class="dashicons dashicons-trash"></span></button>
-                    </div>
-                    <div class="input-row-wrap">
                         <label><?php _e('Name', 'wc-invoice-payment')?></label>
                         <input name="lkn_wcip_name_invoice_0" type="text" id="lkn_wcip_name_invoice_0" class="regular-text" required>
                     </div>
                     <div class="input-row-wrap">
                         <label><?php _e('Amount', 'wc-invoice-payment')?></label>
                         <input name="lkn_wcip_amount_invoice_0" type="tel" id="lkn_wcip_amount_invoice_0" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required>
+                    </div>
+                    <div class="input-row-wrap">
+                        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(0)"><span class="dashicons dashicons-trash"></span></button>
                     </div>
                 </div>
             </div>
@@ -311,36 +449,34 @@ class Wc_Payment_Invoice_Admin {
      * @return void
      */
     public function form_submit_handle() {
-        echo 'hello world!';
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_add_invoice')) {
-                echo 'nonce found ' . var_export($_POST, true);
                 $invoices = [];
-                $products = [];
                 $totalAmount = 0;
                 $c = 0;
                 foreach ($_POST as $key => $value) {
                     // Get invoice description
                     if (preg_match('/lkn_wcip_name_invoice_/i', $key)) {
-                        $invoices[$c]['desc'] = $value;
+                        $invoices[$c]['desc'] = strip_tags($value);
                     }
                     // Get invoice amount
                     if (preg_match('/lkn_wcip_amount_invoice_/i', $key)) {
                         // Save amount and description in same index because they are related
-                        $invoices[$c]['amount'] = $value;
-                        $totalAmount += $value;
+                        $invoices[$c]['amount'] = number_format($value, 2, '.', '');
+                        $totalAmount += number_format($value, 2, '.', '');
                         // Only increment when amount is found
                         $c++;
                     }
                 }
-                // TODO review order metadata to store these attributes
-                $paymentStatus = $_POST['lkn_wcip_payment_status'];
-                $paymentMethod = $_POST['lkn_wcip_default_payment_method'];
-                $currency = $_POST['lkn_wcip_currency'];
-                $name = $_POST['lkn_wcip_name'];
-                $email = $_POST['lkn_wcip_email'];
-                $dueDate = $_POST['lkn_wcip_due_date'];
 
+                $paymentStatus = sanitize_text_field($_POST['lkn_wcip_payment_status']);
+                $paymentMethod = sanitize_text_field($_POST['lkn_wcip_default_payment_method']);
+                $currency = sanitize_text_field($_POST['lkn_wcip_currency']);
+                $name = sanitize_text_field($_POST['lkn_wcip_name']);
+                $firstName = explode(' ', $name)[0];
+                $lastname = substr(strstr($name, ' '), 1);
+                $email = sanitize_email($_POST['lkn_wcip_email']);
+                $dueDate = preg_replace('/[^0-9\-]+/i', '', $_POST['lkn_wcip_due_date']);
 
                 /*
                 $username = sanitize_title( 'testusername-' . microtime( true ) . wp_generate_password( 6, false, false ) );
@@ -368,15 +504,32 @@ class Wc_Payment_Invoice_Admin {
                     $product->set_name($invoices[$i]['desc']);
                     $product->set_regular_price($invoices[$i]['amount']);
                     $product->save();
-                    $product = wc_get_product($product->get_id());
+                    $productId = wc_get_product($product->get_id());
 
-                    $order->add_product($product);
+                    $order->add_product($productId);
+
+                    $product->delete(true);
                 }
+
+                $order->set_billing_email($email);
+                $order->set_billing_first_name($firstName);
+                $order->set_billing_last_name($lastname);
+                $order->set_payment_method($paymentMethod);
+                $order->set_currency($currency);
 
                 $order->calculate_totals();
                 $order->save();
+                // $order->get_checkout_payment_url();
+                $orderId = $order->get_id();
 
-                echo 'PEDIDO CRIADO: ' . var_export(json_encode($invoices), true);
+                $invoiceList = get_option('lkn_wcip_invoices');
+
+                if ($invoiceList !== false) {
+                    $invoiceList[] = $orderId;
+                    update_option('lkn_wcip_invoices', $invoiceList);
+                } else {
+                    update_option('lkn_wcip_invoices', [$orderId]);
+                }
             } else {
                 echo 'nonce not found ' . var_export($_POST, true);
             }
