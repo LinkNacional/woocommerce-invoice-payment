@@ -1,8 +1,3 @@
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('página carregada!');
-}, false);
-
-
 function lkn_wcip_add_amount_row() {
     let priceLines = document.getElementsByClassName('price-row-wrap');
     let lineQtd = priceLines.length;
