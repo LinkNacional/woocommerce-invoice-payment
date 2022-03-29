@@ -949,7 +949,12 @@ class Lkn_Wcip_List_Table {
      * @return array
      */
     protected function get_sortable_columns() {
-        return [];
+        $sortable_columns = [
+            'lkn_wcip_id'  => ['lkn_wcip_id', false],
+            'lkn_wcip_status' => ['lkn_wcip_status', false],
+        ];
+
+        return $sortable_columns;
     }
 
     /**
@@ -1423,78 +1428,108 @@ class Lkn_Wcip_List_Table {
 
     /**
      * Prepares the list of items for displaying.
+     *
+     * @return void
      */
     public function prepare_items() {
         $order_by = isset($_GET['orderby']) ? $_GET['orderby'] : '';
         $order = isset($_GET['order']) ? $_GET['order'] : '';
         $search_term = isset($_POST['s']) ? $_POST['s'] : '';
+        $invoiceList = get_option('lkn_wcip_invoices');
 
-        $this->items = $this->lkn_wcip_list_table_data($order_by, $order, $search_term);
+        $per_page = 10;
+        $current_page = $this->get_pagenum();
+        $total_items = count($invoiceList);
+
+        // only ncessary because we have sample data
+        $found_data = $this->lkn_wcip_list_table_data($order_by, $order, $search_term, $invoiceList);
+        $this->items = array_slice($found_data, (($current_page-1)*$per_page), $per_page);
+
+        $this->set_pagination_args([
+            'total_items' => $total_items,  //WE have to calculate the total number of items
+            'per_page'    => $per_page,     //WE have to determine how many items to show on a page
+        ]);
 
         $lkn_wcip_columns = $this->get_columns();
         $lkn_wcip_hidden = $this->get_hidden_columns();
         $ldul_sortable = $this->get_sortable_columns();
 
         $this->_column_headers = [$lkn_wcip_columns, $lkn_wcip_hidden, $ldul_sortable];
+        $this->proccess_bulk_action();
     }
 
     /**
      * Wp list table bulk actions
+     *
+     * @return array
      */
     public function get_bulk_actions() {
         return [
 
-            'lkn_wcip_delete'	=> __('Delete', 'wc-invoice-payment'),
+            'delete'	=> __('Delete'),
             // 'lkn_wcip_edit'		=> __('Edit', 'wc-invoice-payment'),
         ];
     }
 
     /**
      * WP list table row actions
+     *
+     * @param  array $item
+     * @param  string $column_name
+     * @param  string $primary
+     *
+     * @return void
      */
     public function handle_row_actions($item, $column_name, $primary) {
         if ($primary !== $column_name) {
             return '';
         }
 
+        $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $item['lkn_wcip_id']);
 
         $action = [];
-        // $action['edit'] = '<a href="' . $editUrl . '" class="thickbox lkn-wcip-edit">' . __('Edit', 'wc-invoice-payment') . '</a>';
-        // $action['delete'] = 'a';
-        /*$action['quick-edit'] = '<a>' . __('Update', 'wc-invoice-payment') . '</a>';
-        $action['view'] = '<a>' . __('View', 'wc-invoice-payment') . '</a>';*/
+        $action['edit'] = '<a href="' . $editUrl . '" class="thickbox lkn-wcip-edit">' . __('Edit') . '</a>';
+        // $action['delete'] = '<a href="">' . __('Delete') . '</a>';
 
         return $this->row_actions($action);
     }
 
     /**
-     * Display columns datas
+     * Display columns data
+     *
+     * @param  string $order_by
+     * @param  string $order
+     * @param  string $search_term
+     * @param  array $invoiceList
+     *
+     * @return array
      */
-    public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '') {
+    public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '', $invoiceList) {
         ?><section style="margin: 30px 0 0 0; ">
 			<?php
         $data_array = [];
 
-        $invoiceList = get_option('lkn_wcip_invoices');
-
         if ($invoiceList) {
             foreach ($invoiceList as $invoiceId) {
-                $order = wc_get_order($invoiceId);
-                $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $invoiceId);
+                $invoice = wc_get_order($invoiceId);
 
                 $data_array[] = [
-                    'lkn_wcip_id' => '<a href="' . $editUrl . '"> ' . $invoiceId . ' </a>',
-                    'lkn_wcip_client' => $order->get_billing_first_name(),
-                    'lkn_wcip_status' => ucfirst(__($order->get_status(), 'woocommerce')),
-                    'lkn_wcip_total_price' => get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($order->get_total(), 2, ',', '.'),
+                    'lkn_wcip_id' => $invoiceId,
+                    'lkn_wcip_client' => $invoice->get_billing_first_name(),
+                    'lkn_wcip_status' => ucfirst(__($invoice->get_status(), 'woocommerce')),
+                    'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), 2, ',', '.'),
                 ];
             }
         } ?></section><?php
+        usort($data_array, [$this, 'usort_reorder']);
+
         return $data_array;
     }
 
     /**
      * Gets a list of all, hidden and sortable columns
+     *
+     * @return array
      */
     public function get_hidden_columns() {
         return [];
@@ -1502,6 +1537,8 @@ class Lkn_Wcip_List_Table {
 
     /**
      * Gets a list of columns.
+     *
+     * @return array
      */
     public function get_columns() {
         $columns = [
@@ -1517,6 +1554,8 @@ class Lkn_Wcip_List_Table {
 
     /**
      * Return column value
+     *
+     * @return string
      */
     public function column_default($item, $column_name) {
         switch ($column_name) {
@@ -1532,10 +1571,55 @@ class Lkn_Wcip_List_Table {
 
     /**
      * Rows check box
+     *
+     * @return string
      */
     public function column_cb($items) {
-        $top_checkbox = '<input type="checkbox" class="lkn-wcip-selected" />';
+        $top_checkbox = '<input type="checkbox" name="invoices[]" class="lkn-wcip-selected" value="' . $items['lkn_wcip_id'] . '" />';
 
         return $top_checkbox;
+    }
+
+    /**
+     * Sort an array and reorder in ascending or descending
+     *
+     * @param  array $a
+     * @param  array $b
+     *
+     * @return int $result
+     */
+    public function usort_reorder($a, $b) {
+        // If no sort, default to title
+        $orderby = (!empty($_GET['orderby'])) ? $_GET['orderby'] : 'lkn_wcip_id';
+        // If no order, default to desc
+        $order = (!empty($_GET['order'])) ? $_GET['order'] : 'desc';
+        // Determine sort order
+        $result = strcmp($a[$orderby], $b[$orderby]);
+        // Send final sort direction to usort
+        return ($order === 'asc') ? $result : -$result;
+    }
+
+    /**
+     * Handles bulk actions requests
+     *
+     * @return void
+     */
+    public function proccess_bulk_action() {
+        if ('delete' === $this->current_action()) {
+            $invoicesDelete = $_POST['invoices'];
+            $invoices = get_option('lkn_wcip_invoices');
+
+            $invoices = array_diff($invoices, $invoicesDelete);
+
+            for ($c = 0; $c < count($invoicesDelete); $c++) {
+                $order = wc_get_order($invoicesDelete[$c]);
+                $order->delete();
+            }
+            update_option('lkn_wcip_invoices', $invoices);
+
+            echo 'SUCESSO AO DELETAR ' . json_encode($invoices);
+
+            wp_redirect($_SERVER['HTTP_REFERER']);
+        }
     }
 }

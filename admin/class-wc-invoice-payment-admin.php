@@ -289,18 +289,17 @@ class Wc_Payment_Invoice_Admin {
         if (!current_user_can('manage_options')) {
             return;
         } ?>
-    <div class="wrap">
-        <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-        <div>        
-    <?php
-        // settings_fields('wc-invoice-payment');
-        // do_settings_sections('wc-invoice-payment');
-        // submit_button();
+    <form id="invoices-filter" method="POST">
+        <div class="wrap">
+            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+            <div>        
+        <?php
         $object = new Lkn_Wcip_List_Table();
         $object->prepare_items();
         $object->display(); ?>
+            </div>
         </div>
-    </div>
+    </form>
     <?php
     }
 
