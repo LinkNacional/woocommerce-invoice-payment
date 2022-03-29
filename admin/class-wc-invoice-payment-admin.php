@@ -218,7 +218,7 @@ class Wc_Payment_Invoice_Admin {
                         <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" class="regular-text" required value="<?php echo $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(); ?>">
                     </div>
                     <div class="input-row-wrap">
-                        <label for="lkn_wcip_email_input"><?php _e('E-mail', 'wc-invoice-payment')?></label>
+                        <label for="lkn_wcip_email_input"><?php _e('Email', 'wc-invoice-payment')?></label>
                         <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" class="regular-text" required value="<?php echo $order->get_billing_email(); ?>">
                     </div>
                 </div>
@@ -428,7 +428,7 @@ class Wc_Payment_Invoice_Admin {
                         <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" class="regular-text" required>
                     </div>
                     <div class="input-row-wrap">
-                        <label for="lkn_wcip_email_input"><?php _e('E-mail', 'wc-invoice-payment')?></label>
+                        <label for="lkn_wcip_email_input"><?php _e('Email', 'wc-invoice-payment')?></label>
                         <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" class="regular-text" required>
                     </div>
                 </div>

@@ -1,0 +1,54 @@
+# WooCommerce Invoice Payment tradução pt_BR
+msgid "List invoices"
+msgstr "Listar faturas"
+
+msgid "WooCommerce Invoice Payment"
+msgstr "WooCommerce Pagamento de Faturas"
+
+msgid "Invoices"
+msgstr "Faturas"
+
+msgid "Invoice"
+msgstr "Fatura"
+
+msgid "Edit invoice"
+msgstr "Editar faturas"
+
+msgid "Invoice details"
+msgstr "Detalhes da fatura"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Default payment method"
+msgstr "Método de pagamento padrão"
+
+msgid "Currency"
+msgstr "Moeda"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Invoice actions"
+msgstr "Ações de fatura"
+
+msgid "Select an action..."
+msgstr "Selecione uma ação..."
+
+msgid "Send invoice to customer"
+msgstr "Envia a fatura ao cliente"
+
+msgid "Price"
+msgstr "Preço"
+
+msgid "Add invoice"
+msgstr "Adicionar fatura"
+
+msgid "Payment status"
+msgstr "Status de pagamento"
+
+msgid "Total"
+msgstr "Total"

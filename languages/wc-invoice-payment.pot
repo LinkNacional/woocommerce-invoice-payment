@@ -1,0 +1,54 @@
+# WooCommerce Invoice Payment en_US translation
+msgid "List invoices"
+msgstr ""
+
+msgid "WooCommerce Invoice Payment"
+msgstr ""
+
+msgid "Invoices"
+msgstr ""
+
+msgid "Invoice"
+msgstr ""
+
+msgid "Edit invoice"
+msgstr ""
+
+msgid "Invoice details"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Default payment method"
+msgstr ""
+
+msgid "Currency"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Invoice actions"
+msgstr ""
+
+msgid "Select an action..."
+msgstr ""
+
+msgid "Send invoice to customer"
+msgstr ""
+
+msgid "Price"
+msgstr ""
+
+msgid "Add invoice"
+msgstr ""
+
+msgid "Payment status"
+msgstr ""
+
+msgid "Total"
+msgstr ""
