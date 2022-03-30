@@ -1,9 +1,9 @@
 # WooCommerce Invoice Payment tradução pt_BR
+msgid "Invoice payment generation and management for WooCommerce."
+msgstr "Gerenciador de faturas para pagamento para WooCommerce"
+
 msgid "List invoices"
 msgstr "Listar faturas"
-
-msgid "WooCommerce Invoice Payment"
-msgstr "WooCommerce Pagamento de Faturas"
 
 msgid "Invoices"
 msgstr "Faturas"
@@ -13,6 +13,15 @@ msgstr "Fatura"
 
 msgid "Edit invoice"
 msgstr "Editar faturas"
+
+msgid "Invoice successfully saved"
+msgstr "Fatura salva com sucesso"
+
+msgid "Error on invoice generation"
+msgstr "Erro na geração da fatura"
+
+msgid "Invoices successfully deleted"
+msgstr "Faturas excluídas com sucesso"
 
 msgid "Invoice details"
 msgstr "Detalhes da fatura"
@@ -28,6 +37,12 @@ msgstr "Moeda"
 
 msgid "Name"
 msgstr "Nome"
+
+msgid "Amount"
+msgstr "Valor"
+
+msgid "Add line"
+msgstr "Adicionar linha"
 
 msgid "Email"
 msgstr "E-mail"

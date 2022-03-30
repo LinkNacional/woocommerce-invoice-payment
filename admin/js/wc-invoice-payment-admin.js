@@ -1,3 +1,6 @@
+// Implements script internationalization
+const { __, _x, _n, sprintf } = wp.i18n;
+
 function lkn_wcip_add_amount_row() {
     let priceLines = document.getElementsByClassName('price-row-wrap');
     let lineQtd = priceLines.length;
@@ -18,11 +21,11 @@ function lkn_wcip_add_amount_row() {
     
     inputRow.innerHTML = 
     '    <div class="input-row-wrap">' +
-    '        <label>Name</label>' +
+    '        <label>' + __('Name', 'wc-invoice-payment') + '</label>' +
     '        <input name="lkn_wcip_name_invoice_' + lineQtd + '" type="text" id="lkn_wcip_name_invoice_' + lineQtd + '"  class="regular-text" required>' +
     '    </div>' +
     '    <div class="input-row-wrap">' +
-    '        <label>Amount</label>' +
+    '        <label>' + __('Amount', 'wc-invoice-payment') + '</label>' +
     '        <input name="lkn_wcip_amount_invoice_' + lineQtd + '" type="tel" id="lkn_wcip_amount_invoice_' + lineQtd + '" class="regular-text lkn_wcip_amount_input" oninput="lkn_wcip_filter_amount_input(this.value, ' + lineQtd + ')" required>' +
     '    </div>' +
     '    <div class="input-row-wrap">' +
@@ -31,7 +34,6 @@ function lkn_wcip_add_amount_row() {
 }
 
 function lkn_wcip_remove_amount_row(id) {
-    console.log('delete line');
     let priceLines = document.getElementsByClassName('price-row-wrap');
     let lineQtd = priceLines.length;
     if(lineQtd > 1) {
