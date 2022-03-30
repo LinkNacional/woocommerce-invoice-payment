@@ -36,6 +36,7 @@ if (!defined('WPINC')) {
  * Rename this for your plugin and update it as you release new versions.
  */
 define('WC_PAYMENT_INVOICE_VERSION', '1.0.0');
+define('WC_PAYMENT_INVOICE_TRANSLATION_PATH', plugin_dir_path(__FILE__) . 'languages/');
 
 /**
  * The code that runs during plugin activation.
