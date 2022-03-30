@@ -1467,7 +1467,6 @@ class Lkn_Wcip_List_Table {
         return [
 
             'delete'	=> __('Delete'),
-            // 'lkn_wcip_edit'		=> __('Edit', 'wc-invoice-payment'),
         ];
     }
 
@@ -1517,7 +1516,7 @@ class Lkn_Wcip_List_Table {
                     'lkn_wcip_id' => $invoiceId,
                     'lkn_wcip_client' => $invoice->get_billing_first_name(),
                     'lkn_wcip_status' => ucfirst(__($invoice->get_status(), 'woocommerce')),
-                    'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), 2, ',', '.'),
+                    'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
                 ];
             }
         } ?></section><?php
@@ -1616,8 +1615,6 @@ class Lkn_Wcip_List_Table {
                 $order->delete();
             }
             update_option('lkn_wcip_invoices', $invoices);
-
-            echo 'SUCESSO AO DELETAR ' . json_encode($invoices);
 
             wp_redirect($_SERVER['HTTP_REFERER']);
         }

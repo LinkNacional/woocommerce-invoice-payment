@@ -10,6 +10,7 @@
  * @subpackage Wc_Payment_Invoice/admin
  */
 
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -73,7 +74,7 @@ class Wc_Payment_Invoice_Admin {
          * class.
          */
 
-        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', [], $this->version, 'all');
+        wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', [], $this->version, 'all');
     }
 
     /**
@@ -95,7 +96,8 @@ class Wc_Payment_Invoice_Admin {
          * class.
          */
 
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', ['jquery'], $this->version, false);
+        wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', ['wp-i18n'], $this->version, false);
+        wp_set_script_translations($this->plugin_name . '-admin-js', 'wc-invoice-payment', WC_PAYMENT_INVOICE_TRANSLATION_PATH);
     }
 
     /**
@@ -106,7 +108,7 @@ class Wc_Payment_Invoice_Admin {
     public function add_setting_session() {
         add_menu_page(
             __('List invoices', 'wc-invoice-payment'),
-            __('WooCommerce Invoice Payment', 'wc-invoice-payment'),
+            'WooCommerce Invoice Payment',
             'manage_options',
             'wc-invoice-payment',
             false,
@@ -135,6 +137,10 @@ class Wc_Payment_Invoice_Admin {
             return;
         }
         $invoiceId = $_GET['invoice'];
+
+        $decimalSeparator = wc_get_price_decimal_separator();
+        $thousandSeparator = wc_get_price_thousand_separator();
+        $decimalQtd = wc_get_price_decimals();
 
         $statusWc = [];
         $statusWc[] = ['status' => 'wc-pending', 'label' => _x('Pending payment', 'Order status', 'woocommerce')];
@@ -244,6 +250,7 @@ class Wc_Payment_Invoice_Admin {
                 } ?>
             </div>
             <div class="action-btn">
+                <!-- <p class="submit"><input type="submit" name="delete" id="submit" class="button lkn_wcip_delete_btn_form" value="<?php _e('Delete') ?>"></p> -->
                 <?php submit_button(__('Update')) ?>
             </div>
         </div>
@@ -260,7 +267,7 @@ class Wc_Payment_Invoice_Admin {
                         </div>
                         <div class="input-row-wrap">
                             <label><?php _e('Amount', 'wc-invoice-payment')?></label>
-                            <input name="lkn_wcip_amount_invoice_<?php echo $c ?>" type="tel" id="lkn_wcip_amount_invoice_<?php echo $c ?>" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required value="<?php echo $item->get_total(); ?>">
+                            <input name="lkn_wcip_amount_invoice_<?php echo $c ?>" type="tel" id="lkn_wcip_amount_invoice_<?php echo $c ?>" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required value="<?php echo number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
                         </div>
                         <div class="input-row-wrap">
                             <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(<?php echo $c ?>)"><span class="dashicons dashicons-trash"></span></button>
@@ -484,6 +491,9 @@ class Wc_Payment_Invoice_Admin {
     public function form_submit_handle() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_add_invoice')) {
+                $decimalSeparator = wc_get_price_decimal_separator();
+                $thousandSeparator = wc_get_price_thousand_separator();
+
                 $invoices = [];
                 $totalAmount = 0;
                 $c = 0;
@@ -495,8 +505,11 @@ class Wc_Payment_Invoice_Admin {
                     // Get invoice amount
                     if (preg_match('/lkn_wcip_amount_invoice_/i', $key)) {
                         // Save amount and description in same index because they are related
-                        $invoices[$c]['amount'] = number_format($value, 2, '.', '');
-                        $totalAmount += number_format($value, 2, '.', '');
+                        $amount = str_replace($thousandSeparator, '', $value);
+                        $amount = str_replace($decimalSeparator, '.', $amount);
+
+                        $invoices[$c]['amount'] = $amount;
+                        $totalAmount += $amount;
                         // Only increment when amount is found
                         $c++;
                     }
@@ -557,8 +570,10 @@ class Wc_Payment_Invoice_Admin {
                     // Note the event.
                     $order->add_order_note(__('Order details manually sent to customer.', 'woocommerce'), false, true);
                 }
+
+                echo '<div class="lkn_wcip_notice_positive">' . __('Invoice successfully saved', 'wc-invoice-payment') . '</div>';
             } else {
-                echo 'Error nonce not found';
+                echo '<div class="lkn_wcip_notice_negative">' . __('Error on invoice generation', 'wc-invoice-payment') . '</div>';
             }
         }
     }
@@ -571,6 +586,9 @@ class Wc_Payment_Invoice_Admin {
     public function edit_invoice_form_submit_handle() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_edit_invoice')) {
+                $decimalSeparator = wc_get_price_decimal_separator();
+                $thousandSeparator = wc_get_price_thousand_separator();
+
                 $invoiceId = $_GET['invoice'];
                 $order = wc_get_order($invoiceId);
                 $order->remove_order_items();
@@ -586,8 +604,11 @@ class Wc_Payment_Invoice_Admin {
                     // Get invoice amount
                     if (preg_match('/lkn_wcip_amount_invoice_/i', $key)) {
                         // Save amount and description in same index because they are related
-                        $invoices[$c]['amount'] = number_format($value, 2, '.', '');
-                        $totalAmount += number_format($value, 2, '.', '');
+                        $amount = str_replace($thousandSeparator, '', $value);
+                        $amount = str_replace($decimalSeparator, '.', $amount);
+
+                        $invoices[$c]['amount'] = $amount;
+                        $totalAmount += $amount;
                         // Only increment when amount is found
                         $c++;
                     }
@@ -630,8 +651,10 @@ class Wc_Payment_Invoice_Admin {
                     // Note the event.
                     $order->add_order_note(__('Order details manually sent to customer.', 'woocommerce'), false, true);
                 }
+
+                echo '<div class="lkn_wcip_notice_positive">' . __('Invoice successfully saved', 'wc-invoice-payment') . '</div>';
             } else {
-                echo 'Error nonce not found';
+                echo '<div class="lkn_wcip_notice_negative">' . __('Error on invoice generation', 'wc-invoice-payment') . '</div>';
             }
         }
     }

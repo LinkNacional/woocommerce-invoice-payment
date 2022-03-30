@@ -85,3 +85,35 @@
 #lkn_wcip_due_date_input {
     width: 100%;
 }
+.lkn_wcip_notice_positive {
+    background-color: green;
+    display: flex;
+    justify-content: center;
+    color: white;
+    padding: 8px;
+    font-size: 1.1em;
+    animation: hideAnimation 0s ease-in 5s;
+    animation-fill-mode: forwards;
+}
+.lkn_wcip_notice_negative {
+    background-color: rgb(175, 2, 2);
+    display: flex;
+    justify-content: center;
+    color: white;
+    padding: 8px;
+    font-size: 1.1em;
+    animation: hideAnimation 0s ease-in 5s;
+    animation-fill-mode: forwards;
+}
+@keyframes hideAnimation {
+    to {
+      visibility: hidden;
+      width: 0;
+      height: 0;
+    }
+}
+.lkn_wcip_delete_btn_form {
+    color: #ee0000 !important;
+    border-color: #ee0000 !important;
+    margin: 0px 7px 0px 0px !important;
+}
