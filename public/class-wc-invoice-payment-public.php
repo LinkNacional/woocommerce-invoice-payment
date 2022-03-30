@@ -70,7 +70,7 @@ class Wc_Payment_Invoice_Public {
          * class.
          */
 
-        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-public.css', [], $this->version, 'all');
+        wp_enqueue_style($this->plugin_name . '-public-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-public.css', [], $this->version, 'all');
     }
 
     /**
@@ -92,6 +92,6 @@ class Wc_Payment_Invoice_Public {
          * class.
          */
 
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-public.js', ['jquery'], $this->version, false);
+        wp_enqueue_script($this->plugin_name . '-public-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-public.js', ['jquery'], $this->version, false);
     }
 }
