@@ -23,6 +23,9 @@ msgstr "Erro na geração da fatura"
 msgid "Invoices successfully deleted"
 msgstr "Faturas excluídas com sucesso"
 
+msgid "Error on invoice deletion"
+msgstr "Erro ao excluir a fatura"
+
 msgid "Invoice details"
 msgstr "Detalhes da fatura"
 
@@ -54,7 +57,7 @@ msgid "Select an action..."
 msgstr "Selecione uma ação..."
 
 msgid "Send invoice to customer"
-msgstr "Envia a fatura ao cliente"
+msgstr "Enviar fatura para o cliente"
 
 msgid "Price"
 msgstr "Preço"

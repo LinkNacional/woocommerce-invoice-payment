@@ -23,6 +23,9 @@ msgstr ""
 msgid "Invoices successfully deleted"
 msgstr ""
 
+msgid "Error on invoice deletion"
+msgstr ""
+
 msgid "Invoice details"
 msgstr ""
 
