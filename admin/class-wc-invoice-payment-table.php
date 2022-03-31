@@ -1487,7 +1487,7 @@ class Lkn_Wcip_List_Table {
         $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $item['lkn_wcip_id']);
 
         $action = [];
-        $action['edit'] = '<a href="' . $editUrl . '" class="thickbox lkn-wcip-edit">' . __('Edit') . '</a>';
+        $action['edit'] = '<a href="' . $editUrl . '">' . __('Edit') . '</a>';
         // $action['delete'] = '<a href="">' . __('Delete') . '</a>';
 
         return $this->row_actions($action);
