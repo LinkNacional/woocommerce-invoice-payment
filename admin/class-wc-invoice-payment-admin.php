@@ -142,6 +142,7 @@ class Wc_Payment_Invoice_Admin {
         $thousandSeparator = wc_get_price_thousand_separator();
         $decimalQtd = wc_get_price_decimals();
 
+        // Get all translated WooCommerce order status
         $statusWc = [];
         $statusWc[] = ['status' => 'wc-pending', 'label' => _x('Pending payment', 'Order status', 'woocommerce')];
         $statusWc[] = ['status' => 'wc-processing', 'label' => _x('Processing', 'Order status', 'woocommerce')];
@@ -162,6 +163,7 @@ class Wc_Payment_Invoice_Admin {
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
         $enabled_gateways = [];
 
+        // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
                 if ($gateway->enabled == 'yes') {
@@ -174,7 +176,8 @@ class Wc_Payment_Invoice_Admin {
         <?php settings_errors(); ?>
         <form action="<?php menu_page_url('edit-invoice&invoice=' . $invoiceId) ?>" method="post" class="wcip-form-wrap">
         <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
-        <div class="wcip-invoice-data">    
+        <div class="wcip-invoice-data">
+            <!-- Invoice details -->
             <h2 class="title"><?php _e('Invoice details', 'wc-invoice-payment')?> <?php echo '#' . $invoiceId ?></h2>
             <div class="invoice-row-wrap">
                 <div class="invoice-column-wrap">
@@ -230,6 +233,7 @@ class Wc_Payment_Invoice_Admin {
                 </div>
             </div>
         </div>
+        <!-- Form actions -->
         <div class="wcip-invoice-data wcip-postbox">
             <span class="text-bold"><?php _e('Invoice actions', 'wc-invoice-payment'); ?></span>
             <hr>
@@ -250,10 +254,13 @@ class Wc_Payment_Invoice_Admin {
                 } ?>
             </div>
             <div class="action-btn">
-                <!-- <p class="submit"><input type="submit" name="delete" id="submit" class="button lkn_wcip_delete_btn_form" value="<?php _e('Delete') ?>"></p> -->
+                <p class="submit">
+                    <button type="button" class="button lkn_wcip_delete_btn_form" onclick="lkn_wcip_delete_invoice()"><?php _e('Delete') ?></button>
+                </p>
                 <?php submit_button(__('Update')) ?>
             </div>
         </div>
+        <!-- Invoice charges -->
         <div class="wcip-invoice-data">
         <h2 class="title"><?php _e('Price', 'wc-invoice-payment')?></h2>
             <div id="wcip-invoice-price-row" class="invoice-column-wrap">
@@ -261,6 +268,9 @@ class Wc_Payment_Invoice_Admin {
                 foreach ($items as $item_id => $item) {
                     ?>
                     <div class="price-row-wrap price-row-<?php echo $c ?>">
+                        <?php
+                        if ($orderStatus === 'pending') {
+                            ?>
                         <div class="input-row-wrap">
                             <label><?php _e('Name', 'wc-invoice-payment')?></label>
                             <input name="lkn_wcip_name_invoice_<?php echo $c ?>" type="text" id="lkn_wcip_name_invoice_<?php echo $c ?>" class="regular-text" required value="<?php echo $item->get_name(); ?>">
@@ -269,18 +279,41 @@ class Wc_Payment_Invoice_Admin {
                             <label><?php _e('Amount', 'wc-invoice-payment')?></label>
                             <input name="lkn_wcip_amount_invoice_<?php echo $c ?>" type="tel" id="lkn_wcip_amount_invoice_<?php echo $c ?>" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required value="<?php echo number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
                         </div>
+                        <?php
+                        } else {
+                            ?>
+                        <div class="input-row-wrap">
+                            <label><?php _e('Name', 'wc-invoice-payment')?></label>
+                            <input name="lkn_wcip_name_invoice_<?php echo $c ?>" type="text" id="lkn_wcip_name_invoice_<?php echo $c ?>" class="regular-text" required readonly value="<?php echo $item->get_name(); ?>">
+                        </div>
+                        <div class="input-row-wrap">
+                            <label><?php _e('Amount', 'wc-invoice-payment')?></label>
+                            <input name="lkn_wcip_amount_invoice_<?php echo $c ?>" type="tel" id="lkn_wcip_amount_invoice_<?php echo $c ?>" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required readonly value="<?php echo number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
+                        </div>
+                        <?php
+                        }
+
+                    if ($orderStatus === 'pending') {
+                        ?>
                         <div class="input-row-wrap">
                             <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(<?php echo $c ?>)"><span class="dashicons dashicons-trash"></span></button>
                         </div>
+                        <?php
+                    } ?>
                     </div>
                 <?php
                 $c++;
                 } ?>
             </div>
             <hr>
+            <?php
+            if ($orderStatus === 'pending') {
+                ?>
             <div class="invoice-row-wrap">
                 <button type="button" class="btn btn-add-line" onclick="lkn_wcip_add_amount_row()"><?php _e('Add line', 'wc-invoice-payment') ?></button>
             </div>
+            <?php
+            } ?>
         </div>
         </form>
     </div>
@@ -311,27 +344,6 @@ class Wc_Payment_Invoice_Admin {
     }
 
     /**
-     * Undocumented function
-     *
-     * @return void
-     */
-    public function my_setting_section_callback_function() {
-        echo '<p>Intro text for our settings section</p>';
-    }
-
-    /**
-     * Undocumented function
-     *
-     * @return void
-     */
-    public function my_setting_markup() {
-        ?>
-    <label for="my-input"><?php _e('My Input'); ?></label>
-    <input type="text" id="my_setting_field" name="my_setting_field" value="<?php echo get_option('my_setting_field'); ?>">
-    <?php
-    }
-
-    /**
      * Adds new invoice submenu page and edit invoice submenu page
      *
      * @return void
@@ -347,7 +359,7 @@ class Wc_Payment_Invoice_Admin {
             2
         );
 
-        add_action('load-' . $hookname, [$this, 'form_submit_handle']);
+        add_action('load-' . $hookname, [$this, 'add_invoice_form_submit_handle']);
 
         $editHookname = add_submenu_page(
             null,
@@ -378,6 +390,7 @@ class Wc_Payment_Invoice_Admin {
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
         $enabled_gateways = [];
 
+        // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
                 if ($gateway->enabled == 'yes') {
@@ -488,7 +501,7 @@ class Wc_Payment_Invoice_Admin {
      *
      * @return void
      */
-    public function form_submit_handle() {
+    public function add_invoice_form_submit_handle() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_add_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
@@ -497,6 +510,7 @@ class Wc_Payment_Invoice_Admin {
                 $invoices = [];
                 $totalAmount = 0;
                 $c = 0;
+
                 foreach ($_POST as $key => $value) {
                     // Get invoice description
                     if (preg_match('/lkn_wcip_name_invoice_/i', $key)) {
@@ -504,10 +518,11 @@ class Wc_Payment_Invoice_Admin {
                     }
                     // Get invoice amount
                     if (preg_match('/lkn_wcip_amount_invoice_/i', $key)) {
-                        // Save amount and description in same index because they are related
+                        // Format the amount attribute with default float value representation 00000.00
                         $amount = str_replace($thousandSeparator, '', $value);
                         $amount = str_replace($decimalSeparator, '.', $amount);
 
+                        // Save amount and description in same index because they are related
                         $invoices[$c]['amount'] = $amount;
                         $totalAmount += $amount;
                         // Only increment when amount is found
@@ -515,6 +530,7 @@ class Wc_Payment_Invoice_Admin {
                     }
                 }
 
+                // Filter all order attributes before saving in the DB
                 $paymentStatus = sanitize_text_field($_POST['lkn_wcip_payment_status']);
                 $paymentMethod = sanitize_text_field($_POST['lkn_wcip_default_payment_method']);
                 $currency = sanitize_text_field($_POST['lkn_wcip_currency']);
@@ -532,6 +548,7 @@ class Wc_Payment_Invoice_Admin {
                     ]
                 );
 
+                // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); $i++) {
                     $product = new WC_Product();
                     $product->set_name($invoices[$i]['desc']);
@@ -541,9 +558,11 @@ class Wc_Payment_Invoice_Admin {
 
                     $order->add_product($productId);
 
+                    // Delete after adding to prevent residue
                     $product->delete(true);
                 }
 
+                // Set all order attributes
                 $order->set_billing_email($email);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);
@@ -552,7 +571,7 @@ class Wc_Payment_Invoice_Admin {
 
                 $order->calculate_totals();
                 $order->save();
-                // $order->get_checkout_payment_url();
+
                 $orderId = $order->get_id();
 
                 $invoiceList = get_option('lkn_wcip_invoices');
@@ -564,27 +583,33 @@ class Wc_Payment_Invoice_Admin {
                     update_option('lkn_wcip_invoices', [$orderId]);
                 }
 
+                // If the action 'send email' is set send a notification email to the customer
                 if (isset($_POST['lkn_wcip_form_actions']) && $_POST['lkn_wcip_form_actions'] === 'send_email') {
                     WC()->mailer()->customer_invoice($order);
 
                     // Note the event.
                     $order->add_order_note(__('Order details manually sent to customer.', 'woocommerce'), false, true);
                 }
+                // Success message
 
                 echo '<div class="lkn_wcip_notice_positive">' . __('Invoice successfully saved', 'wc-invoice-payment') . '</div>';
             } else {
+                // Error message
+
                 echo '<div class="lkn_wcip_notice_negative">' . __('Error on invoice generation', 'wc-invoice-payment') . '</div>';
             }
         }
     }
 
     /**
-     * Handles submission from edit invoice form
+     * Handles submission from edit invoice form and delete invoice action
      *
      * @return void
      */
     public function edit_invoice_form_submit_handle() {
+        // Validates request method
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Validates WP nonce
             if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_edit_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
@@ -596,6 +621,7 @@ class Wc_Payment_Invoice_Admin {
                 $invoices = [];
                 $totalAmount = 0;
                 $c = 0;
+
                 foreach ($_POST as $key => $value) {
                     // Get invoice description
                     if (preg_match('/lkn_wcip_name_invoice_/i', $key)) {
@@ -603,10 +629,11 @@ class Wc_Payment_Invoice_Admin {
                     }
                     // Get invoice amount
                     if (preg_match('/lkn_wcip_amount_invoice_/i', $key)) {
-                        // Save amount and description in same index because they are related
+                        // Format the amount attribute with default float value representation 00000.00
                         $amount = str_replace($thousandSeparator, '', $value);
                         $amount = str_replace($decimalSeparator, '.', $amount);
 
+                        // Save amount and description in same index because they are related
                         $invoices[$c]['amount'] = $amount;
                         $totalAmount += $amount;
                         // Only increment when amount is found
@@ -614,6 +641,7 @@ class Wc_Payment_Invoice_Admin {
                     }
                 }
 
+                // Filter all order attributes before saving in the DB
                 $paymentStatus = sanitize_text_field($_POST['lkn_wcip_payment_status']);
                 $paymentMethod = sanitize_text_field($_POST['lkn_wcip_default_payment_method']);
                 $currency = sanitize_text_field($_POST['lkn_wcip_currency']);
@@ -622,6 +650,7 @@ class Wc_Payment_Invoice_Admin {
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
 
+                // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); $i++) {
                     $product = new WC_Product();
                     $product->set_name($invoices[$i]['desc']);
@@ -631,9 +660,11 @@ class Wc_Payment_Invoice_Admin {
 
                     $order->add_product($productId);
 
+                    // Delete after adding to prevent residue
                     $product->delete(true);
                 }
 
+                // Set all order attributes
                 $order->set_billing_email($email);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);
@@ -641,10 +672,11 @@ class Wc_Payment_Invoice_Admin {
                 $order->set_currency($currency);
                 $order->set_status($paymentStatus);
 
+                // Get order total and saves in the DB
                 $order->calculate_totals();
                 $order->save();
-                // $checkoutUrl = $order->get_checkout_payment_url();
 
+                // If the action 'send email' is set send a notification email to the customer
                 if (isset($_POST['lkn_wcip_form_actions']) && $_POST['lkn_wcip_form_actions'] === 'send_email') {
                     WC()->mailer()->customer_invoice($order);
 
@@ -652,9 +684,31 @@ class Wc_Payment_Invoice_Admin {
                     $order->add_order_note(__('Order details manually sent to customer.', 'woocommerce'), false, true);
                 }
 
+                // Success message
                 echo '<div class="lkn_wcip_notice_positive">' . __('Invoice successfully saved', 'wc-invoice-payment') . '</div>';
             } else {
+                // Error message
                 echo '<div class="lkn_wcip_notice_negative">' . __('Error on invoice generation', 'wc-invoice-payment') . '</div>';
+            }
+        } elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['lkn_wcip_delete'])) {
+            // Validates request for deleting invoice
+            if ($_GET['lkn_wcip_delete'] === 'true') {
+                $invoiceDelete = [$_GET['invoice']];
+                $invoices = get_option('lkn_wcip_invoices');
+
+                $invoices = array_diff($invoices, $invoiceDelete);
+
+                $order = wc_get_order($invoiceDelete[0]);
+                $order->delete();
+
+                update_option('lkn_wcip_invoices', $invoices);
+
+                // Redirect to invoice list
+                wp_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
+            } else {
+                // Show error message
+
+                echo '<div class="lkn_wcip_notice_negative">' . __('Error on invoice deletion', 'wc-invoice-payment') . '</div>';
             }
         }
     }
