@@ -70,3 +70,12 @@ msgstr ""
 
 msgid "Total"
 msgstr ""
+
+msgid "depends on the last version of WooCommerce to work!"
+msgstr ""
+
+msgid "Active WooCommerce"
+msgstr ""
+
+msgid "Install WooCommerce"
+msgstr ""

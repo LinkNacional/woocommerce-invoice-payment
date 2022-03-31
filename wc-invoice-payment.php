@@ -78,6 +78,8 @@ require plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment.php';
 function run_wc_payment_invoice() {
     $plugin = new Wc_Payment_Invoice();
     $plugin->run();
+
+    add_action('admin_notices', 'lkn_wcip_woocommerce_missing_notice');
 }
 run_wc_payment_invoice();
 
@@ -95,3 +97,12 @@ function lkn_woocommerce_invoice_payment_updater() {
 }
 
 lkn_woocommerce_invoice_payment_updater();
+
+/**
+ * WooCommerce missing notice
+ *
+ * @return void
+ */
+function lkn_wcip_woocommerce_missing_notice() {
+    include_once dirname(__FILE__) . '/admin/partials/wc-invoice-payment-admin-missing-woocommerce.php';
+}

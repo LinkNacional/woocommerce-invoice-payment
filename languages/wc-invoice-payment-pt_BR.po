@@ -70,3 +70,12 @@ msgstr "Status de pagamento"
 
 msgid "Total"
 msgstr "Total"
+
+msgid "depends on the last version of WooCommerce to work!"
+msgstr "necessita da última versão do WooCommerce para funcionar!"
+
+msgid "Active WooCommerce"
+msgstr "Ativar WooCommerce"
+
+msgid "Install WooCommerce"
+msgstr "Instalar WooCommerce"
