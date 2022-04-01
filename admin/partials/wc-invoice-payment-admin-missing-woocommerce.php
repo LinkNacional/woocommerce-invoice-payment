@@ -14,7 +14,9 @@ if (function_exists('get_plugins')) {
     $is_installed = !empty($all_plugins['woocommerce/woocommerce.php']);
 }
 
-?>
+// Verifies if WooCommerce is inactive
+if (!class_exists('WooCommerce')) {
+    ?>
 
 <div class="error">
 	<p><strong>WooCommerce Invoice Payment</strong> <?php esc_html_e('depends on the last version of WooCommerce to work!', 'wc-invoice-payment'); ?></p>
@@ -26,8 +28,10 @@ if (function_exists('get_plugins')) {
             $url = wp_nonce_url(self_admin_url('update.php?action=install-plugin&plugin=woocommerce'), 'install-plugin_woocommerce');
         } else {
             $url = 'http://wordpress.org/plugins/woocommerce/';
-        }
-    ?>
+        } ?>
 		<p><a href="<?php echo esc_url($url); ?>" class="button button-primary"><?php esc_html_e('Install WooCommerce', 'wc-invoice-payment'); ?></a></p>
 	<?php endif; ?>
 </div>
+<?php
+}
+?>
