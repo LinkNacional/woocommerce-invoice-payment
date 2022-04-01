@@ -79,3 +79,6 @@ msgstr ""
 
 msgid "Install WooCommerce"
 msgstr ""
+
+msgid "Invoice payment link"
+msgstr ""

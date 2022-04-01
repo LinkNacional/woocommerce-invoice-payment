@@ -248,7 +248,7 @@ class Wc_Payment_Invoice_Admin {
                 if ($orderStatus === 'pending') {
                     ?>
                     <div class="input-row-wrap">
-                        <a href="<?php echo $checkoutUrl; ?>" target="_blank"><?php _e('Customer payment page &rarr;', 'woocommerce'); ?></a>
+                        <a href="<?php echo $checkoutUrl; ?>" target="_blank"><?php _e('Invoice payment link', 'wc-invoice-payment'); ?></a>
                     </div>
                     <?php
                 } ?>
