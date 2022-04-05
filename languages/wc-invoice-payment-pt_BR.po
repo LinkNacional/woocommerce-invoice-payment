@@ -1,0 +1,84 @@
+# WooCommerce Invoice Payment tradução pt_BR
+msgid "Invoice payment generation and management for WooCommerce."
+msgstr "Gerenciador de faturas para pagamento para WooCommerce"
+
+msgid "List invoices"
+msgstr "Listar faturas"
+
+msgid "Invoices"
+msgstr "Faturas"
+
+msgid "Invoice"
+msgstr "Fatura"
+
+msgid "Edit invoice"
+msgstr "Editar faturas"
+
+msgid "Invoice successfully saved"
+msgstr "Fatura salva com sucesso"
+
+msgid "Error on invoice generation"
+msgstr "Erro na geração da fatura"
+
+msgid "Invoices successfully deleted"
+msgstr "Faturas excluídas com sucesso"
+
+msgid "Error on invoice deletion"
+msgstr "Erro ao excluir a fatura"
+
+msgid "Invoice details"
+msgstr "Detalhes da fatura"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Default payment method"
+msgstr "Método de pagamento padrão"
+
+msgid "Currency"
+msgstr "Moeda"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "Amount"
+msgstr "Valor"
+
+msgid "Add line"
+msgstr "Adicionar linha"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Invoice actions"
+msgstr "Ações de fatura"
+
+msgid "Select an action..."
+msgstr "Selecione uma ação..."
+
+msgid "Send invoice to customer"
+msgstr "Enviar fatura para o cliente"
+
+msgid "Price"
+msgstr "Preço"
+
+msgid "Add invoice"
+msgstr "Adicionar fatura"
+
+msgid "Payment status"
+msgstr "Status de pagamento"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "depends on the last version of WooCommerce to work!"
+msgstr "necessita da última versão do WooCommerce para funcionar!"
+
+msgid "Active WooCommerce"
+msgstr "Ativar WooCommerce"
+
+msgid "Install WooCommerce"
+msgstr "Instalar WooCommerce"
+
+msgid "Invoice payment link"
+msgstr "Link de pagamento da fatura"

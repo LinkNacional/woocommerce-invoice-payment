@@ -9,8 +9,8 @@
  * @link       https://www.linknacional.com/
  * @since      1.0.0
  *
- * @package    Invoice_Payment_Wc
- * @subpackage Invoice_Payment_Wc/includes
+ * @package    Wc_Payment_Invoice
+ * @subpackage Wc_Payment_Invoice/includes
  */
 
 /**
@@ -23,18 +23,18 @@
  * version of the plugin.
  *
  * @since      1.0.0
- * @package    Invoice_Payment_Wc
- * @subpackage Invoice_Payment_Wc/includes
+ * @package    Wc_Payment_Invoice
+ * @subpackage Wc_Payment_Invoice/includes
  * @author     Link Nacional
  */
-class Invoice_Payment_Wc {
+class Wc_Payment_Invoice {
     /**
      * The loader that's responsible for maintaining and registering all hooks that power
      * the plugin.
      *
      * @since    1.0.0
      * @access   protected
-     * @var      Invoice_Payment_Wc_Loader    $loader    Maintains and registers all hooks for the plugin.
+     * @var      Wc_Payment_Invoice_Loader    $loader    Maintains and registers all hooks for the plugin.
      */
     protected $loader;
 
@@ -66,12 +66,12 @@ class Invoice_Payment_Wc {
      * @since    1.0.0
      */
     public function __construct() {
-        if (defined('INVOICE_PAYMENT_WC_VERSION')) {
-            $this->version = INVOICE_PAYMENT_WC_VERSION;
+        if (defined('WC_PAYMENT_INVOICE_VERSION')) {
+            $this->version = WC_PAYMENT_INVOICE_VERSION;
         } else {
             $this->version = '1.0.0';
         }
-        $this->plugin_name = 'invoice-payment-wc';
+        $this->plugin_name = 'wc-invoice-payment';
 
         $this->load_dependencies();
         $this->set_locale();
@@ -84,10 +84,10 @@ class Invoice_Payment_Wc {
      *
      * Include the following files that make up the plugin:
      *
-     * - Invoice_Payment_Wc_Loader. Orchestrates the hooks of the plugin.
-     * - Invoice_Payment_Wc_i18n. Defines internationalization functionality.
-     * - Invoice_Payment_Wc_Admin. Defines all hooks for the admin area.
-     * - Invoice_Payment_Wc_Public. Defines all hooks for the public side of the site.
+     * - Wc_Payment_Invoice_Loader. Orchestrates the hooks of the plugin.
+     * - Wc_Payment_Invoice_i18n. Defines internationalization functionality.
+     * - Wc_Payment_Invoice_Admin. Defines all hooks for the admin area.
+     * - Wc_Payment_Invoice_Public. Defines all hooks for the public side of the site.
      *
      * Create an instance of the loader which will be used to register the hooks
      * with WordPress.
@@ -101,39 +101,44 @@ class Invoice_Payment_Wc {
          * The class responsible for orchestrating the actions and filters of the
          * core plugin.
          */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-invoice-payment-wc-loader.php';
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wc-invoice-payment-loader.php';
 
         /**
          * The class responsible for defining internationalization functionality
          * of the plugin.
          */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-invoice-payment-wc-i18n.php';
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wc-invoice-payment-i18n.php';
 
         /**
          * The class responsible for defining all actions that occur in the admin area.
          */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-invoice-payment-wc-admin.php';
+        require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wc-invoice-payment-admin.php';
+
+        /**
+         * The class responsible for rendering the invoice table.
+         */
+        require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wc-invoice-payment-table.php';
 
         /**
          * The class responsible for defining all actions that occur in the public-facing
          * side of the site.
          */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-invoice-payment-wc-public.php';
+        require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-wc-invoice-payment-public.php';
 
-        $this->loader = new Invoice_Payment_Wc_Loader();
+        $this->loader = new Wc_Payment_Invoice_Loader();
     }
 
     /**
      * Define the locale for this plugin for internationalization.
      *
-     * Uses the Invoice_Payment_Wc_i18n class in order to set the domain and to register the hook
+     * Uses the Wc_Payment_Invoice_i18n class in order to set the domain and to register the hook
      * with WordPress.
      *
      * @since    1.0.0
      * @access   private
      */
     private function set_locale() {
-        $plugin_i18n = new Invoice_Payment_Wc_i18n();
+        $plugin_i18n = new Wc_Payment_Invoice_i18n();
 
         $this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
     }
@@ -146,7 +151,7 @@ class Invoice_Payment_Wc {
      * @access   private
      */
     private function define_admin_hooks() {
-        $plugin_admin = new Invoice_Payment_Wc_Admin($this->get_plugin_name(), $this->get_version());
+        $plugin_admin = new Wc_Payment_Invoice_Admin($this->get_plugin_name(), $this->get_version());
 
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
@@ -160,7 +165,7 @@ class Invoice_Payment_Wc {
      * @access   private
      */
     private function define_public_hooks() {
-        $plugin_public = new Invoice_Payment_Wc_Public($this->get_plugin_name(), $this->get_version());
+        $plugin_public = new Wc_Payment_Invoice_Public($this->get_plugin_name(), $this->get_version());
 
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
@@ -190,7 +195,7 @@ class Invoice_Payment_Wc {
      * The reference to the class that orchestrates the hooks with the plugin.
      *
      * @since     1.0.0
-     * @return    Invoice_Payment_Wc_Loader    Orchestrates the hooks of the plugin.
+     * @return    Wc_Payment_Invoice_Loader    Orchestrates the hooks of the plugin.
      */
     public function get_loader() {
         return $this->loader;

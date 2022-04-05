@@ -6,8 +6,8 @@
  * @link       https://www.linknacional.com/
  * @since      1.0.0
  *
- * @package    Invoice_Payment_Wc
- * @subpackage Invoice_Payment_Wc/includes
+ * @package    Wc_Payment_Invoice
+ * @subpackage Wc_Payment_Invoice/includes
  */
 
 /**
@@ -16,11 +16,11 @@
  * This class defines all code necessary to run during the plugin's deactivation.
  *
  * @since      1.0.0
- * @package    Invoice_Payment_Wc
- * @subpackage Invoice_Payment_Wc/includes
+ * @package    Wc_Payment_Invoice
+ * @subpackage Wc_Payment_Invoice/includes
  * @author     Link Nacional
  */
-class Invoice_Payment_Wc_Deactivator {
+class Wc_Payment_Invoice_Deactivator {
     /**
      * Short Description. (use period)
      *

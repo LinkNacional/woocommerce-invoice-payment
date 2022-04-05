@@ -1,0 +1,119 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+.wcip-invoice-data {
+    background-color: white;
+    border: 1px solid #c3c4c7;
+    padding: 23px 24px 12px;
+    margin-top: 20px;
+    min-width: 714px;
+}
+.invoice-row-wrap {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0px;
+}
+.invoice-column-wrap {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0px;
+}
+.input-row-wrap {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 0px;
+}
+.wcip-form-wrap {
+    display: flex;
+    flex-flow: wrap;
+    gap: 2%;
+}
+.wcip-postbox {
+    min-width: 255px;
+    /* max-height: 128px; */
+}
+.wcip-row {
+    display: flex;
+    flex-direction: column;
+}
+.text-bold {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+.action-btn {
+    display: flex;
+    justify-content: end;
+}
+.price-row-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 15px;
+    margin: 10px 0px;
+}
+.btn {
+    border: none; /* Remove borders */
+    font-size: 13px; /* Set a font size */
+    cursor: pointer; /* Mouse pointer on hover */
+}
+.btn-delete {
+    background-color: white;
+    color: black;
+    padding: 4px 10px;
+}
+.btn-delete:hover {
+    background-color: rgba(202, 0, 0, 0.767);
+}
+.btn-add-line {
+    background-color: #f6f7f7;
+    color: #2271b1;
+    border-color: #2271b1;
+    border: solid 1px;
+    padding: 0px 30px;
+    min-height: 30px;
+    border-radius: 3px;
+}
+.btn-add-line:hover {
+    background: #f0f0f1;
+    border-color: #0a4b78;
+    color: #0a4b78;
+}
+.lkn_wcip_amount_input {
+    width: 193px;
+}
+#lkn_wcip_due_date_input {
+    width: 100%;
+}
+.lkn_wcip_notice_positive {
+    background-color: green;
+    display: flex;
+    justify-content: center;
+    color: white;
+    padding: 8px;
+    font-size: 1.1em;
+    animation: hideAnimation 0s ease-in 5s;
+    animation-fill-mode: forwards;
+}
+.lkn_wcip_notice_negative {
+    background-color: rgb(175, 2, 2);
+    display: flex;
+    justify-content: center;
+    color: white;
+    padding: 8px;
+    font-size: 1.1em;
+    animation: hideAnimation 0s ease-in 5s;
+    animation-fill-mode: forwards;
+}
+@keyframes hideAnimation {
+    to {
+      visibility: hidden;
+      width: 0;
+      height: 0;
+    }
+}
+.lkn_wcip_delete_btn_form {
+    color: #ee0000 !important;
+    border-color: #ee0000 !important;
+    margin: 0px 7px 0px 0px !important;
+}

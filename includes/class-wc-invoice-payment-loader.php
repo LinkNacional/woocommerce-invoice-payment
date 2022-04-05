@@ -6,8 +6,8 @@
  * @link       https://www.linknacional.com/
  * @since      1.0.0
  *
- * @package    Invoice_Payment_Wc
- * @subpackage Invoice_Payment_Wc/includes
+ * @package    Wc_Payment_Invoice
+ * @subpackage Wc_Payment_Invoice/includes
  */
 
 /**
@@ -17,11 +17,11 @@
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @package    Invoice_Payment_Wc
- * @subpackage Invoice_Payment_Wc/includes
+ * @package    Wc_Payment_Invoice
+ * @subpackage Wc_Payment_Invoice/includes
  * @author     Link Nacional
  */
-class Invoice_Payment_Wc_Loader {
+class Wc_Payment_Invoice_Loader {
     /**
      * The array of actions registered with WordPress.
      *

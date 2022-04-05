@@ -1,0 +1,84 @@
+# WooCommerce Invoice Payment en_US translation
+msgid "Invoice payment generation and management for WooCommerce."
+msgstr ""
+
+msgid "List invoices"
+msgstr ""
+
+msgid "Invoices"
+msgstr ""
+
+msgid "Invoice"
+msgstr ""
+
+msgid "Edit invoice"
+msgstr ""
+
+msgid "Invoice successfully saved"
+msgstr ""
+
+msgid "Error on invoice generation"
+msgstr ""
+
+msgid "Invoices successfully deleted"
+msgstr ""
+
+msgid "Error on invoice deletion"
+msgstr ""
+
+msgid "Invoice details"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Default payment method"
+msgstr ""
+
+msgid "Currency"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Amount"
+msgstr ""
+
+msgid "Add line"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Invoice actions"
+msgstr ""
+
+msgid "Select an action..."
+msgstr ""
+
+msgid "Send invoice to customer"
+msgstr ""
+
+msgid "Price"
+msgstr ""
+
+msgid "Add invoice"
+msgstr ""
+
+msgid "Payment status"
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "depends on the last version of WooCommerce to work!"
+msgstr ""
+
+msgid "Active WooCommerce"
+msgstr ""
+
+msgid "Install WooCommerce"
+msgstr ""
+
+msgid "Invoice payment link"
+msgstr ""
