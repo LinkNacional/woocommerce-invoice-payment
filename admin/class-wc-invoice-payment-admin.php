@@ -108,7 +108,7 @@ class Wc_Payment_Invoice_Admin {
     public function add_setting_session() {
         add_menu_page(
             __('List invoices', 'wc-invoice-payment'),
-            'WooCommerce Invoice Payment',
+            'Invoice Payment for WooCommerce',
             'manage_options',
             'wc-invoice-payment',
             false,
