@@ -90,7 +90,7 @@ run_wc_payment_invoice();
  */
 function lkn_wc_invoice_payment_updater() {
     return new Lkn_Puc_Plugin_UpdateChecker(
-        'https://api.linknacional.com.br/app/u/link_api_update.php?slug=woocommerce-invoice-payment',
+        'https://api.linknacional.com.br/v2/u/slug=woocommerce-invoice-payment',
         __FILE__,
         'woocommerce-invoice-payment'
     );
