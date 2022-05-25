@@ -136,7 +136,7 @@ class Wc_Payment_Invoice_Admin {
         if (!current_user_can('manage_options')) {
             return;
         }
-        $invoiceId = $_GET['invoice'];
+        $invoiceId = sanitize_text_field($_GET['invoice']);
 
         $decimalSeparator = wc_get_price_decimal_separator();
         $thousandSeparator = wc_get_price_thousand_separator();
@@ -178,18 +178,18 @@ class Wc_Payment_Invoice_Admin {
         <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
         <div class="wcip-invoice-data">
             <!-- Invoice details -->
-            <h2 class="title"><?php _e('Invoice details', 'wc-invoice-payment')?> <?php echo '#' . $invoiceId ?></h2>
+            <h2 class="title"><?php _e('Invoice details', 'wc-invoice-payment')?> <?php esc_html_e('#' . $invoiceId) ?></h2>
             <div class="invoice-row-wrap">
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_payment_status_input"><?php _e('Status', 'wc-invoice-payment')?></label>
-                        <select name="lkn_wcip_payment_status" id="lkn_wcip_payment_status_input" class="regular-text" value="<?php echo 'wc-' . $order->get_status(); ?>">
+                        <select name="lkn_wcip_payment_status" id="lkn_wcip_payment_status_input" class="regular-text" value="<?php esc_html_e('wc-' . $order->get_status()); ?>">
                             <?php
                                 for ($i = 0; $i < count($statusWc); $i++) {
                                     if ($orderStatus === explode('-', $statusWc[$i]['status'])[1]) {
-                                        echo '<option value="' . $statusWc[$i]['status'] . '" selected>' . $statusWc[$i]['label'] . '</option>';
+                                        echo '<option value="' . esc_attr($statusWc[$i]['status']) . '" selected>' . esc_attr($statusWc[$i]['label']) . '</option>';
                                     } else {
-                                        echo '<option value="' . $statusWc[$i]['status'] . '">' . $statusWc[$i]['label'] . '</option>';
+                                        echo '<option value="' . esc_attr($statusWc[$i]['status']) . '">' . esc_attr($statusWc[$i]['label']) . '</option>';
                                     }
                                 } ?>
                         </select>
@@ -200,9 +200,9 @@ class Wc_Payment_Invoice_Admin {
                             <?php
                             foreach ($enabled_gateways as $key => $gateway) {
                                 if ($gateway->id === $order->get_payment_method()) {
-                                    echo '<option value="' . $gateway->id . '" selected>' . $gateway->title . '</option>';
+                                    echo '<option value="' . esc_attr($gateway->id) . '" selected>' . esc_attr($gateway->title) . '</option>';
                                 } else {
-                                    echo '<option value="' . $gateway->id . '">' . $gateway->title . '</option>';
+                                    echo '<option value="' . esc_attr($gateway->id) . '">' . esc_attr($gateway->title) . '</option>';
                                 }
                             } ?>
                         </select>
@@ -213,9 +213,9 @@ class Wc_Payment_Invoice_Admin {
                             <?php
                                 foreach ($currencies as $code => $currency) {
                                     if ($order->get_currency() === $code) {
-                                        echo '<option value="' . $code . '" selected>' . $currency . ' - ' . $code . '</option>';
+                                        echo '<option value="' . esc_attr($code) . '" selected>' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
                                     } else {
-                                        echo '<option value="' . $code . '">' . $currency . ' - ' . $code . '</option>';
+                                        echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
                                     }
                                 } ?>
                         </select>
@@ -224,11 +224,11 @@ class Wc_Payment_Invoice_Admin {
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_name_input"><?php _e('Name', 'wc-invoice-payment')?></label>
-                        <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" class="regular-text" required value="<?php echo $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(); ?>">
+                        <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" class="regular-text" required value="<?php esc_html_e($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()); ?>">
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_email_input"><?php _e('Email', 'wc-invoice-payment')?></label>
-                        <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" class="regular-text" required value="<?php echo $order->get_billing_email(); ?>">
+                        <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" class="regular-text" required value="<?php esc_html_e($order->get_billing_email()); ?>">
                     </div>
                 </div>
             </div>
@@ -248,7 +248,7 @@ class Wc_Payment_Invoice_Admin {
                 if ($orderStatus === 'pending') {
                     ?>
                     <div class="input-row-wrap">
-                        <a href="<?php echo $checkoutUrl; ?>" target="_blank"><?php _e('Invoice payment link', 'wc-invoice-payment'); ?></a>
+                        <a href="<?php esc_url_e($checkoutUrl); ?>" target="_blank"><?php _e('Invoice payment link', 'wc-invoice-payment'); ?></a>
                     </div>
                     <?php
                 } ?>
@@ -267,28 +267,28 @@ class Wc_Payment_Invoice_Admin {
                 <?php
                 foreach ($items as $item_id => $item) {
                     ?>
-                    <div class="price-row-wrap price-row-<?php echo $c ?>">
+                    <div class="price-row-wrap price-row-<?php esc_attr_e($c) ?>">
                         <?php
                         if ($orderStatus === 'pending') {
                             ?>
                         <div class="input-row-wrap">
                             <label><?php _e('Name', 'wc-invoice-payment')?></label>
-                            <input name="lkn_wcip_name_invoice_<?php echo $c ?>" type="text" id="lkn_wcip_name_invoice_<?php echo $c ?>" class="regular-text" required value="<?php echo $item->get_name(); ?>">
+                            <input name="lkn_wcip_name_invoice_<?php esc_attr_e($c) ?>" type="text" id="lkn_wcip_name_invoice_<?php esc_attr_e($c) ?>" class="regular-text" required value="<?php esc_attr_e($item->get_name()); ?>">
                         </div>
                         <div class="input-row-wrap">
                             <label><?php _e('Amount', 'wc-invoice-payment')?></label>
-                            <input name="lkn_wcip_amount_invoice_<?php echo $c ?>" type="tel" id="lkn_wcip_amount_invoice_<?php echo $c ?>" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required value="<?php echo number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
+                            <input name="lkn_wcip_amount_invoice_<?php esc_attr_e($c) ?>" type="tel" id="lkn_wcip_amount_invoice_<?php esc_attr_e($c) ?>" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required value="<?php esc_attr_e(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
                         </div>
                         <?php
                         } else {
                             ?>
                         <div class="input-row-wrap">
                             <label><?php _e('Name', 'wc-invoice-payment')?></label>
-                            <input name="lkn_wcip_name_invoice_<?php echo $c ?>" type="text" id="lkn_wcip_name_invoice_<?php echo $c ?>" class="regular-text" required readonly value="<?php echo $item->get_name(); ?>">
+                            <input name="lkn_wcip_name_invoice_<?php esc_attr_e($c) ?>" type="text" id="lkn_wcip_name_invoice_<?php esc_attr_e($c) ?>" class="regular-text" required readonly value="<?php esc_attr_e($item->get_name()); ?>">
                         </div>
                         <div class="input-row-wrap">
                             <label><?php _e('Amount', 'wc-invoice-payment')?></label>
-                            <input name="lkn_wcip_amount_invoice_<?php echo $c ?>" type="tel" id="lkn_wcip_amount_invoice_<?php echo $c ?>" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required readonly value="<?php echo number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
+                            <input name="lkn_wcip_amount_invoice_<?php esc_attr_e($c) ?>" type="tel" id="lkn_wcip_amount_invoice_<?php esc_attr_e($c) ?>" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required readonly value="<?php esc_attr_e(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
                         </div>
                         <?php
                         }
@@ -296,7 +296,7 @@ class Wc_Payment_Invoice_Admin {
                     if ($orderStatus === 'pending') {
                         ?>
                         <div class="input-row-wrap">
-                            <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(<?php echo $c ?>)"><span class="dashicons dashicons-trash"></span></button>
+                            <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(<?php esc_attr_e($c) ?>)"><span class="dashicons dashicons-trash"></span></button>
                         </div>
                         <?php
                     } ?>
@@ -331,7 +331,7 @@ class Wc_Payment_Invoice_Admin {
         } ?>
     <form id="invoices-filter" method="POST">
         <div class="wrap">
-            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+            <h1><?php esc_html_e(get_admin_page_title()); ?></h1>
             <div>        
         <?php
         $object = new Lkn_Wcip_List_Table();
@@ -399,7 +399,7 @@ class Wc_Payment_Invoice_Admin {
             }
         } ?>
       <div class="wrap">
-        <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+        <h1><?php esc_html_e(get_admin_page_title()); ?></h1>
         <?php settings_errors(); ?>
         <form action="<?php menu_page_url('new-invoice') ?>" method="post" class="wcip-form-wrap">
         <?php wp_nonce_field('lkn_wcip_add_invoice', 'nonce'); ?>
@@ -424,7 +424,7 @@ class Wc_Payment_Invoice_Admin {
                         <select name="lkn_wcip_default_payment_method" id="lkn_wcip_default_payment_method_input" class="regular-text">
                             <?php
                             foreach ($enabled_gateways as $key => $gateway) {
-                                echo '<option value="' . $gateway->id . '">' . $gateway->title . '</option>';
+                                echo '<option value="' . esc_attr($gateway->id) . '">' . esc_html($gateway->title) . '</option>';
                             } ?>
                         </select>
                     </div>
@@ -434,9 +434,9 @@ class Wc_Payment_Invoice_Admin {
                             <?php
                                 foreach ($currencies as $code => $currency) {
                                     if ($active_currency === $code) {
-                                        echo '<option value="' . $code . '" selected>' . $currency . ' - ' . $code . '</option>';
+                                        echo '<option value="' . esc_attr($code) . '" selected>' . esc_html($currency . ' - ' . $code) . '</option>';
                                     } else {
-                                        echo '<option value="' . $code . '">' . $currency . ' - ' . $code . '</option>';
+                                        echo '<option value="' . esc_attr($code) . '">' . esc_html($currency . ' - ' . $code) . '</option>';
                                     }
                                 } ?>
                         </select>
@@ -511,10 +511,11 @@ class Wc_Payment_Invoice_Admin {
                 $totalAmount = 0;
                 $c = 0;
 
+                // Invoice items
                 foreach ($_POST as $key => $value) {
                     // Get invoice description
                     if (preg_match('/lkn_wcip_name_invoice_/i', $key)) {
-                        $invoices[$c]['desc'] = strip_tags($value);
+                        $invoices[$c]['desc'] = sanitize_text_field($value);
                     }
                     // Get invoice amount
                     if (preg_match('/lkn_wcip_amount_invoice_/i', $key)) {
@@ -584,7 +585,7 @@ class Wc_Payment_Invoice_Admin {
                 }
 
                 // If the action 'send email' is set send a notification email to the customer
-                if (isset($_POST['lkn_wcip_form_actions']) && $_POST['lkn_wcip_form_actions'] === 'send_email') {
+                if (isset($_POST['lkn_wcip_form_actions']) && sanitize_text_field($_POST['lkn_wcip_form_actions']) === 'send_email') {
                     WC()->mailer()->customer_invoice($order);
 
                     // Note the event.
@@ -614,7 +615,7 @@ class Wc_Payment_Invoice_Admin {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
-                $invoiceId = $_GET['invoice'];
+                $invoiceId = sanitize_text_field($_GET['invoice']);
                 $order = wc_get_order($invoiceId);
                 $order->remove_order_items();
 
@@ -622,10 +623,11 @@ class Wc_Payment_Invoice_Admin {
                 $totalAmount = 0;
                 $c = 0;
 
+                // Invoice items
                 foreach ($_POST as $key => $value) {
                     // Get invoice description
                     if (preg_match('/lkn_wcip_name_invoice_/i', $key)) {
-                        $invoices[$c]['desc'] = strip_tags($value);
+                        $invoices[$c]['desc'] = sanitize_text_field($value);
                     }
                     // Get invoice amount
                     if (preg_match('/lkn_wcip_amount_invoice_/i', $key)) {
@@ -677,7 +679,7 @@ class Wc_Payment_Invoice_Admin {
                 $order->save();
 
                 // If the action 'send email' is set send a notification email to the customer
-                if (isset($_POST['lkn_wcip_form_actions']) && $_POST['lkn_wcip_form_actions'] === 'send_email') {
+                if (isset($_POST['lkn_wcip_form_actions']) && sanitize_text_field($_POST['lkn_wcip_form_actions']) === 'send_email') {
                     WC()->mailer()->customer_invoice($order);
 
                     // Note the event.
@@ -693,7 +695,7 @@ class Wc_Payment_Invoice_Admin {
         } elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['lkn_wcip_delete'])) {
             // Validates request for deleting invoice
             if ($_GET['lkn_wcip_delete'] === 'true') {
-                $invoiceDelete = [$_GET['invoice']];
+                $invoiceDelete = [sanitize_text_field($_GET['invoice'])];
                 $invoices = get_option('lkn_wcip_invoices');
 
                 $invoices = array_diff($invoices, $invoiceDelete);
