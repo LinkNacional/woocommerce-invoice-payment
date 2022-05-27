@@ -115,9 +115,7 @@ class Lkn_Wcip_List_Table {
      *     @type string $singular Singular label for an object being listed, e.g. 'post'.
      *                            Default empty
      *     @type bool   $ajax     Whether the list table supports Ajax. This includes loading
-     *                            and sorting data, for example. If true, the class will call
-     *                            the _js_vars() method in the footer to provide variables
-     *                            to any scripts handling Ajax events. Default false.
+     *                            and sorting data, for example. Default false.
      *     @type string $screen   String containing the hook name used to determine the current
      *                            screen. If left null, the current screen will be automatically set.
      *                            Default null.
@@ -146,11 +144,6 @@ class Lkn_Wcip_List_Table {
         $args['singular'] = sanitize_key($args['singular']);
 
         $this->_args = $args;
-
-        if ($args['ajax']) {
-            // wp_enqueue_script( 'list-table' );
-            add_action('admin_footer', [$this, '_js_vars']);
-        }
 
         if (empty($this->modes)) {
             $this->modes = [
@@ -1409,23 +1402,6 @@ class Lkn_Wcip_List_Table {
         }
 
         die(wp_json_encode($response));
-    }
-
-    /**
-     * Sends required variables to JavaScript land.
-     *
-     * @since 3.1.0
-     */
-    public function _js_vars() {
-        $args = [
-            'class'  => get_class($this),
-            'screen' => [
-                'id'   => $this->screen->id,
-                'base' => $this->screen->base,
-            ],
-        ];
-
-        printf("<script type='text/javascript'>list_args = %s;</script>\n", wp_json_encode($args));
     }
 
 
