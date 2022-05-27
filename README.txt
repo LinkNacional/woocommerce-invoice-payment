@@ -1,11 +1,11 @@
-=== Plugin Name ===
+=== Invoice Payment for WooCommerce ===
 Contributors: @linknacional
 Donate link: https://www.linknacional.com.br/wordpress/
 Tags: woocommerce, invoice, payment
-Requires at least: 4.7
-Tested up to: 5.9
-Stable tag: 4.3
-Requires PHP: 7.0
+Requires at least: 5.7
+Tested up to: 6.0
+Stable tag: 1.0.0
+Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,11 +15,11 @@ Invoice payment generation and management for WooCommerce.
 
 **Dependencies**
 
-WooCommerce Invoice Payment plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting WooCommerce Invoice Payment installation.
+Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Invoice Payment for WooCommerce installation.
 
 **User instructions**
 
-1. Search the WordPress sidebar for 'WooCommerce Invoice Payment';
+1. Search the WordPress sidebar for 'Invoice Payment for WooCommerce';
 
 2. In the plugin options look for 'Add invoice';
 
@@ -29,7 +29,7 @@ WooCommerce Invoice Payment plugin is dependent on WooCommerce plugin, please ma
 
 5. Click save;
 
-You have created your first invoice with the WooCommerce Invoice Payment plugin.
+You have created your first invoice with the Invoice Payment for WooCommerce plugin.
 
 == Installation ==
 
@@ -41,15 +41,25 @@ You have created your first invoice with the WooCommerce Invoice Payment plugin.
 
 4. Click on the 'install now' button and then activate the installed plugin;
 
-The WooCommerce Invoice Payment plugin is now live and working.
+The Invoice Payment for WooCommerce plugin is now live and working.
+
+== Frequently Asked Questions ==
+
+= What is the plugin license? =
+
+* This plugin is released under a GPL license.
+
+= What is needed to use this plugin? =
+
+* WooCommerce version 4.0 or latter installed and active.
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. Add new invoice utilizing our convenient invoice builder;
+
+2. Get an URL for your client to pay;
+
+3. See all generated invoices and their status.
 
 == Changelog ==
 
@@ -59,4 +69,4 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 == Upgrade Notice ==
 
 = 1.0.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
+* Plugin launch.

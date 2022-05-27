@@ -115,9 +115,7 @@ class Lkn_Wcip_List_Table {
      *     @type string $singular Singular label for an object being listed, e.g. 'post'.
      *                            Default empty
      *     @type bool   $ajax     Whether the list table supports Ajax. This includes loading
-     *                            and sorting data, for example. If true, the class will call
-     *                            the _js_vars() method in the footer to provide variables
-     *                            to any scripts handling Ajax events. Default false.
+     *                            and sorting data, for example. Default false.
      *     @type string $screen   String containing the hook name used to determine the current
      *                            screen. If left null, the current screen will be automatically set.
      *                            Default null.
@@ -146,11 +144,6 @@ class Lkn_Wcip_List_Table {
         $args['singular'] = sanitize_key($args['singular']);
 
         $this->_args = $args;
-
-        if ($args['ajax']) {
-            // wp_enqueue_script( 'list-table' );
-            add_action('admin_footer', [$this, '_js_vars']);
-        }
 
         if (empty($this->modes)) {
             $this->modes = [
@@ -344,9 +337,9 @@ class Lkn_Wcip_List_Table {
             echo '<input type="hidden" name="detached" value="' . esc_attr($_REQUEST['detached']) . '" />';
         } ?>
 <p class="search-box">
-	<label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo $text; ?>:</label>
+	<label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_html($text); ?>:</label>
 	<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s" value="<?php _admin_search_query(); ?>" />
-		<?php submit_button($text, '', '', false, ['id' => 'search-submit']); ?>
+		<?php submit_button(esc_html($text), '', '', false, ['id' => 'search-submit']); ?>
 </p>
 		<?php
     }
@@ -433,7 +426,7 @@ class Lkn_Wcip_List_Table {
         }
 
         echo '<label for="bulk-action-selector-' . esc_attr($which) . '" class="screen-reader-text">' . __('Select bulk action') . '</label>';
-        echo '<select name="action' . $two . '" id="bulk-action-selector-' . esc_attr($which) . "\">\n";
+        echo '<select name="action' . esc_attr($two) . '" id="bulk-action-selector-' . esc_attr($which) . "\">\n";
         echo '<option value="-1">' . __('Bulk actions') . "</option>\n";
 
         foreach ($this->_actions as $key => $value) {
@@ -556,10 +549,12 @@ class Lkn_Wcip_List_Table {
 
         if (!is_array($months)) {
             $extra_checks = "AND post_status != 'auto-draft'";
-            if (!isset($_GET['post_status']) || 'trash' !== $_GET['post_status']) {
+            $postStatus = sanitize_text_field($_GET['post_status']);
+
+            if (!isset($_GET['post_status']) || 'trash' !== $postStatus) {
                 $extra_checks .= " AND post_status != 'trash'";
             } elseif (isset($_GET['post_status'])) {
-                $extra_checks = $wpdb->prepare(' AND post_status = %s', $_GET['post_status']);
+                $extra_checks = $wpdb->prepare(' AND post_status = %s', $postStatus);
             }
 
             $months = $wpdb->get_results(
@@ -592,7 +587,7 @@ class Lkn_Wcip_List_Table {
             return;
         }
 
-        $m = isset($_GET['m']) ? (int) $_GET['m'] : 0; ?>
+        $m = isset($_GET['m']) ? (int) sanitize_text_field($_GET['m']) : 0; ?>
 		<label for="filter-by-date" class="screen-reader-text"><?php echo get_post_type_object($post_type)->labels->filter_by_date; ?></label>
 		<select name="m" id="filter-by-date">
 			<option<?php selected($m, 0); ?> value="0"><?php _e('All dates'); ?></option>
@@ -834,8 +829,8 @@ class Lkn_Wcip_List_Table {
         $current              = $this->get_pagenum();
         $removable_query_args = wp_removable_query_args();
 
-        $current_url = set_url_scheme('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-
+        $sanitizedUrl = sanitize_url($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $current_url = set_url_scheme('http://' . $sanitizedUrl);
         $current_url = remove_query_arg($removable_query_args, $current_url);
 
         $page_links = [];
@@ -1117,16 +1112,17 @@ class Lkn_Wcip_List_Table {
     public function print_column_headers($with_id = true) {
         list($columns, $hidden, $sortable, $primary) = $this->get_column_info();
 
-        $current_url = set_url_scheme('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $sanitizedUrl = sanitize_url($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $current_url = set_url_scheme('http://' . $sanitizedUrl);
         $current_url = remove_query_arg('paged', $current_url);
 
         if (isset($_GET['orderby'])) {
-            $current_orderby = $_GET['orderby'];
+            $current_orderby = sanitize_text_field($_GET['orderby']);
         } else {
             $current_orderby = '';
         }
 
-        if (isset($_GET['order']) && 'desc' === $_GET['order']) {
+        if (isset($_GET['order']) && 'desc' === sanitize_text_field($_GET['order'])) {
             $current_order = 'desc';
         } else {
             $current_order = 'asc';
@@ -1408,23 +1404,6 @@ class Lkn_Wcip_List_Table {
         die(wp_json_encode($response));
     }
 
-    /**
-     * Sends required variables to JavaScript land.
-     *
-     * @since 3.1.0
-     */
-    public function _js_vars() {
-        $args = [
-            'class'  => get_class($this),
-            'screen' => [
-                'id'   => $this->screen->id,
-                'base' => $this->screen->base,
-            ],
-        ];
-
-        printf("<script type='text/javascript'>list_args = %s;</script>\n", wp_json_encode($args));
-    }
-
 
     /**
      * Prepares the list of items for displaying.
@@ -1432,9 +1411,9 @@ class Lkn_Wcip_List_Table {
      * @return void
      */
     public function prepare_items() {
-        $order_by = isset($_GET['orderby']) ? $_GET['orderby'] : '';
-        $order = isset($_GET['order']) ? $_GET['order'] : '';
-        $search_term = isset($_POST['s']) ? $_POST['s'] : '';
+        $order_by = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
+        $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
+        $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
         $invoiceList = get_option('lkn_wcip_invoices');
 
         $per_page = 10;
@@ -1589,9 +1568,9 @@ class Lkn_Wcip_List_Table {
      */
     public function usort_reorder($a, $b) {
         // If no sort, default to title
-        $orderby = (!empty($_GET['orderby'])) ? $_GET['orderby'] : 'lkn_wcip_id';
+        $orderby = (!empty($_GET['orderby'])) ? sanitize_text_field($_GET['orderby']) : 'lkn_wcip_id';
         // If no order, default to desc
-        $order = (!empty($_GET['order'])) ? $_GET['order'] : 'desc';
+        $order = (!empty($_GET['order'])) ? sanitize_text_field($_GET['order']) : 'desc';
         // Determine sort order
         $result = strcmp($a[$orderby], $b[$orderby]);
         // Send final sort direction to usort

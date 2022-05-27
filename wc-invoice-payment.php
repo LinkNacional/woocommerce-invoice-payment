@@ -13,7 +13,7 @@
  * @package           Wc_Payment_Invoice
  *
  * @wordpress-plugin
- * Plugin Name:       WooCommerce Invoice Payment
+ * Plugin Name:       Invoice Payment for WooCommerce
  * Plugin URI:        https://www.linknacional.com/wordpress/
  * Description:       Invoice payment generation and management for WooCommerce.
  * Version:           1.0.0
@@ -29,7 +29,6 @@
 if (!defined('WPINC')) {
     die;
 }
-require_once __DIR__ . '/plugin-updater/plugin-update-checker.php';
 
 /**
  * Currently plugin version.
@@ -82,21 +81,6 @@ function run_wc_payment_invoice() {
     add_action('admin_notices', 'lkn_wcip_woocommerce_missing_notice');
 }
 run_wc_payment_invoice();
-
-/**
- * Instance for the Plugin Updater lib
- *
- * @return Lkn_Puc_Plugin_UpdateChecker
- */
-function lkn_woocommerce_invoice_payment_updater() {
-    return new Lkn_Puc_Plugin_UpdateChecker(
-        'https://api.linknacional.com.br/app/u/link_api_update.php?slug=woocommerce-invoice-payment',
-        __FILE__,
-        'woocommerce-invoice-payment'
-    );
-}
-
-lkn_woocommerce_invoice_payment_updater();
 
 /**
  * WooCommerce missing notice

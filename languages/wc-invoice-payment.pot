@@ -1,4 +1,4 @@
-# WooCommerce Invoice Payment en_US translation
+# Invoice Payment for WooCommerce en_US translation
 msgid "Invoice payment generation and management for WooCommerce."
 msgstr ""
 
