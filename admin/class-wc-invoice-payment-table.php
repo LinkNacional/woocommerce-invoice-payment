@@ -1414,7 +1414,7 @@ class Lkn_Wcip_List_Table {
         $order_by = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
         $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
         $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
-        $invoiceList = get_option('lkn_wcip_invoices');
+        $invoiceList = get_option('lkn_wcip_invoices', []);
 
         $per_page = 10;
         $current_page = $this->get_pagenum();
