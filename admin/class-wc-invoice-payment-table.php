@@ -387,7 +387,7 @@ class Lkn_Wcip_List_Table {
         foreach ($views as $class => $view) {
             $views[$class] = "\t<li class='$class'>$view";
         }
-        echo implode(" |</li>\n", $views) . "</li>\n";
+        echo implode(" |</li>\n", esc_attr($views)) . "</li>\n";
         echo '</ul>';
     }
 
@@ -830,8 +830,7 @@ class Lkn_Wcip_List_Table {
         $removable_query_args = wp_removable_query_args();
 
         $sanitizedUrl = sanitize_url($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        $current_url = set_url_scheme('http://' . $sanitizedUrl);
-        $current_url = remove_query_arg($removable_query_args, $current_url);
+        $current_url = remove_query_arg($removable_query_args, $sanitizedUrl);
 
         $page_links = [];
 
@@ -1113,8 +1112,7 @@ class Lkn_Wcip_List_Table {
         list($columns, $hidden, $sortable, $primary) = $this->get_column_info();
 
         $sanitizedUrl = sanitize_url($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        $current_url = set_url_scheme('http://' . $sanitizedUrl);
-        $current_url = remove_query_arg('paged', $current_url);
+        $current_url = remove_query_arg('paged', $sanitizedUrl);
 
         if (isset($_GET['orderby'])) {
             $current_orderby = sanitize_text_field($_GET['orderby']);
@@ -1414,7 +1412,7 @@ class Lkn_Wcip_List_Table {
         $order_by = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
         $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
         $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
-        $invoiceList = get_option('lkn_wcip_invoices');
+        $invoiceList = get_option('lkn_wcip_invoices', []);
 
         $per_page = 10;
         $current_page = $this->get_pagenum();
