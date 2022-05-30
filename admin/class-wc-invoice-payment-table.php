@@ -387,7 +387,7 @@ class Lkn_Wcip_List_Table {
         foreach ($views as $class => $view) {
             $views[$class] = "\t<li class='$class'>$view";
         }
-        echo implode(" |</li>\n", $views) . "</li>\n";
+        echo implode(" |</li>\n", esc_attr($views)) . "</li>\n";
         echo '</ul>';
     }
 
