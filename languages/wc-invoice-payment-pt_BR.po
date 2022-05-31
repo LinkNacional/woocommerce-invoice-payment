@@ -82,3 +82,6 @@ msgstr "Instalar WooCommerce"
 
 msgid "Invoice payment link"
 msgstr "Link de pagamento da fatura"
+
+msgid "Payment link"
+msgstr "Link de pagamento"
