@@ -436,19 +436,19 @@ class Lkn_Wcip_List_Table {
                 foreach ($value as $name => $title) {
                     $class = ('edit' === $name) ? ' class="hide-if-no-js"' : '';
 
-                    echo "\t\t" . '<option value="' . esc_attr($name) . '"' . $class . '>' . $title . "</option>\n";
+                    echo "\t\t" . '<option value="' . esc_attr($name) . '"' . esc_attr($class) . '>' . esc_html($title) . "</option>\n";
                 }
                 echo "\t" . "</optgroup>\n";
             } else {
                 $class = ('edit' === $key) ? ' class="hide-if-no-js"' : '';
 
-                echo "\t" . '<option value="' . esc_attr($key) . '"' . $class . '>' . $value . "</option>\n";
+                echo "\t" . '<option value="' . esc_attr($key) . '"' . esc_attr($class) . '>' . esc_html($value) . "</option>\n";
             }
         }
 
         echo "</select>\n";
 
-        submit_button(__('Apply'), 'action', '', false, ['id' => "doaction$two"]);
+        submit_button(__('Apply'), 'action', '', false, ['id' => 'doaction' . esc_attr($two)]);
         echo "\n";
     }
 
@@ -636,7 +636,7 @@ class Lkn_Wcip_List_Table {
             printf(
                 "<a href='%s' class='%s' id='view-switch-$mode'$aria_current><span class='screen-reader-text'>%s</span></a>\n",
                 esc_url(remove_query_arg('attachment-filter', add_query_arg('mode', $mode))),
-                implode(' ', $classes),
+                esc_attr(implode(' ', $classes)),
                 $title
             );
         } ?>
@@ -1128,8 +1128,8 @@ class Lkn_Wcip_List_Table {
 
         if (!empty($columns['cb'])) {
             static $cb_counter = 1;
-            $columns['cb']     = '<label class="screen-reader-text" for="cb-select-all-' . $cb_counter . '">' . __('Select All') . '</label>'
-                . '<input id="cb-select-all-' . $cb_counter . '" type="checkbox" />';
+            $columns['cb']     = '<label class="screen-reader-text" for="cb-select-all-' . esc_attr($cb_counter) . '">' . __('Select All') . '</label>'
+                . '<input id="cb-select-all-' . esc_attr($cb_counter) . '" type="checkbox" />';
             $cb_counter++;
         }
 
@@ -1172,18 +1172,19 @@ class Lkn_Wcip_List_Table {
                 $column_display_name = sprintf(
                     '<a href="%s"><span>%s</span><span class="sorting-indicator"></span></a>',
                     esc_url(add_query_arg(compact('orderby', 'order'), $current_url)),
-                    $column_display_name
+                    esc_attr($column_display_name)
                 );
             }
 
             $tag   = ('cb' === $column_key) ? 'td' : 'th';
             $scope = ('th' === $tag) ? 'scope="col"' : '';
-            $id    = $with_id ? "id='$column_key'" : '';
+            $id    = $with_id ? "id='" . esc_attr($column_key) . "'" : '';
 
             if (!empty($class)) {
-                $class = "class='" . implode(' ', $class) . "'";
+                $class = "class='" . esc_attr(implode(' ', $class)) . "'";
             }
 
+            // All attributes are previously escaped
             echo "<$tag $scope $id $class>$column_display_name</$tag>";
         }
     }
@@ -1199,7 +1200,7 @@ class Lkn_Wcip_List_Table {
         $this->display_tablenav('top');
 
         $this->screen->render_screen_reader_content('heading_list'); ?>
-<table class="wp-list-table <?php echo implode(' ', $this->get_table_classes()); ?>">
+<table class="wp-list-table <?php esc_attr_e(implode(' ', $this->get_table_classes())); ?>">
 	<thead>
 	<tr>
 		<?php $this->print_column_headers(); ?>
@@ -1209,7 +1210,7 @@ class Lkn_Wcip_List_Table {
 	<tbody id="the-list"
 		<?php
         if ($singular) {
-            echo " data-wp-lists='list:$singular'";
+            echo " data-wp-lists='list:" . esc_attr($singular) . "'";
         } ?>
 		>
 		<?php $this->display_rows_or_placeholder(); ?>
@@ -1460,11 +1461,16 @@ class Lkn_Wcip_List_Table {
         if ($primary !== $column_name) {
             return '';
         }
+        $invoiceId = $item['lkn_wcip_id'];
 
-        $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $item['lkn_wcip_id']);
+        $order = wc_get_order($invoiceId);
+
+        $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $invoiceId);
+        $paymentUrl = $order->get_checkout_payment_url();
 
         $action = [];
         $action['edit'] = '<a href="' . $editUrl . '">' . __('Edit') . '</a>';
+        $action['payment'] = '<a href="' . $paymentUrl . '" target="_blank">' . __('Payment link', 'wc-invoice-payment') . '</a>';
         // $action['delete'] = '<a href="">' . __('Delete') . '</a>';
 
         return $this->row_actions($action);
@@ -1551,7 +1557,7 @@ class Lkn_Wcip_List_Table {
      * @return string
      */
     public function column_cb($items) {
-        $top_checkbox = '<input type="checkbox" name="invoices[]" class="lkn-wcip-selected" value="' . $items['lkn_wcip_id'] . '" />';
+        $top_checkbox = '<input type="checkbox" name="invoices[]" class="lkn-wcip-selected" value="' . esc_attr($items['lkn_wcip_id']) . '" />';
 
         return $top_checkbox;
     }
@@ -1593,7 +1599,7 @@ class Lkn_Wcip_List_Table {
             }
             update_option('lkn_wcip_invoices', $invoices);
 
-            wp_redirect($_SERVER['HTTP_REFERER']);
+            wp_redirect(sanitize_url($_SERVER['HTTP_REFERER']));
         }
     }
 }
