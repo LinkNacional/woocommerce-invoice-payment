@@ -636,7 +636,7 @@ class Lkn_Wcip_List_Table {
             printf(
                 "<a href='%s' class='%s' id='view-switch-$mode'$aria_current><span class='screen-reader-text'>%s</span></a>\n",
                 esc_url(remove_query_arg('attachment-filter', add_query_arg('mode', $mode))),
-                implode(' ', $classes),
+                esc_attr(implode(' ', $classes)),
                 $title
             );
         } ?>
@@ -1128,8 +1128,8 @@ class Lkn_Wcip_List_Table {
 
         if (!empty($columns['cb'])) {
             static $cb_counter = 1;
-            $columns['cb']     = '<label class="screen-reader-text" for="cb-select-all-' . $cb_counter . '">' . __('Select All') . '</label>'
-                . '<input id="cb-select-all-' . $cb_counter . '" type="checkbox" />';
+            $columns['cb']     = '<label class="screen-reader-text" for="cb-select-all-' . esc_attr($cb_counter) . '">' . __('Select All') . '</label>'
+                . '<input id="cb-select-all-' . esc_attr($cb_counter) . '" type="checkbox" />';
             $cb_counter++;
         }
 
@@ -1172,18 +1172,19 @@ class Lkn_Wcip_List_Table {
                 $column_display_name = sprintf(
                     '<a href="%s"><span>%s</span><span class="sorting-indicator"></span></a>',
                     esc_url(add_query_arg(compact('orderby', 'order'), $current_url)),
-                    $column_display_name
+                    esc_attr($column_display_name)
                 );
             }
 
             $tag   = ('cb' === $column_key) ? 'td' : 'th';
             $scope = ('th' === $tag) ? 'scope="col"' : '';
-            $id    = $with_id ? "id='$column_key'" : '';
+            $id    = $with_id ? "id='" . esc_attr($column_key) . "'" : '';
 
             if (!empty($class)) {
-                $class = "class='" . implode(' ', $class) . "'";
+                $class = "class='" . esc_attr(implode(' ', $class)) . "'";
             }
 
+            // All attributes are previously escaped
             echo "<$tag $scope $id $class>$column_display_name</$tag>";
         }
     }
@@ -1199,7 +1200,7 @@ class Lkn_Wcip_List_Table {
         $this->display_tablenav('top');
 
         $this->screen->render_screen_reader_content('heading_list'); ?>
-<table class="wp-list-table <?php echo implode(' ', $this->get_table_classes()); ?>">
+<table class="wp-list-table <?php esc_attr_e(implode(' ', $this->get_table_classes())); ?>">
 	<thead>
 	<tr>
 		<?php $this->print_column_headers(); ?>
