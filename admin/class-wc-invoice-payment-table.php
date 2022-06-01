@@ -436,19 +436,19 @@ class Lkn_Wcip_List_Table {
                 foreach ($value as $name => $title) {
                     $class = ('edit' === $name) ? ' class="hide-if-no-js"' : '';
 
-                    echo "\t\t" . '<option value="' . esc_attr($name) . '"' . $class . '>' . $title . "</option>\n";
+                    echo "\t\t" . '<option value="' . esc_attr($name) . '"' . esc_attr($class) . '>' . esc_html($title) . "</option>\n";
                 }
                 echo "\t" . "</optgroup>\n";
             } else {
                 $class = ('edit' === $key) ? ' class="hide-if-no-js"' : '';
 
-                echo "\t" . '<option value="' . esc_attr($key) . '"' . $class . '>' . $value . "</option>\n";
+                echo "\t" . '<option value="' . esc_attr($key) . '"' . esc_attr($class) . '>' . esc_html($value) . "</option>\n";
             }
         }
 
         echo "</select>\n";
 
-        submit_button(__('Apply'), 'action', '', false, ['id' => "doaction$two"]);
+        submit_button(__('Apply'), 'action', '', false, ['id' => 'doaction' . esc_attr($two)]);
         echo "\n";
     }
 
@@ -1209,7 +1209,7 @@ class Lkn_Wcip_List_Table {
 	<tbody id="the-list"
 		<?php
         if ($singular) {
-            echo " data-wp-lists='list:$singular'";
+            echo " data-wp-lists='list:" . esc_attr($singular) . "'";
         } ?>
 		>
 		<?php $this->display_rows_or_placeholder(); ?>
@@ -1460,11 +1460,16 @@ class Lkn_Wcip_List_Table {
         if ($primary !== $column_name) {
             return '';
         }
+        $invoiceId = $item['lkn_wcip_id'];
 
-        $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $item['lkn_wcip_id']);
+        $order = wc_get_order($invoiceId);
+
+        $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $invoiceId);
+        $paymentUrl = $order->get_checkout_payment_url();
 
         $action = [];
         $action['edit'] = '<a href="' . $editUrl . '">' . __('Edit') . '</a>';
+        $action['payment'] = '<a href="' . $paymentUrl . '" target="_blank">' . __('Payment link', 'wc-invoice-payment') . '</a>';
         // $action['delete'] = '<a href="">' . __('Delete') . '</a>';
 
         return $this->row_actions($action);
@@ -1551,7 +1556,7 @@ class Lkn_Wcip_List_Table {
      * @return string
      */
     public function column_cb($items) {
-        $top_checkbox = '<input type="checkbox" name="invoices[]" class="lkn-wcip-selected" value="' . $items['lkn_wcip_id'] . '" />';
+        $top_checkbox = '<input type="checkbox" name="invoices[]" class="lkn-wcip-selected" value="' . esc_attr($items['lkn_wcip_id']) . '" />';
 
         return $top_checkbox;
     }
@@ -1593,7 +1598,7 @@ class Lkn_Wcip_List_Table {
             }
             update_option('lkn_wcip_invoices', $invoices);
 
-            wp_redirect($_SERVER['HTTP_REFERER']);
+            wp_redirect(sanitize_url($_SERVER['HTTP_REFERER']));
         }
     }
 }
