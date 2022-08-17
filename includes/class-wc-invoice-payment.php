@@ -155,6 +155,7 @@ class Wc_Payment_Invoice {
 
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
+        $this->loader->add_action('lkn_wcip_cron_hook', $plugin_admin, 'check_invoice_exp_date', 10, 1);
     }
 
     /**
@@ -169,6 +170,7 @@ class Wc_Payment_Invoice {
 
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+        // $this->loader->add_action('woocommerce_review_order_before_order_total', $plugin_public, 'check_invoice_exp_date', 10, 1);
     }
 
     /**

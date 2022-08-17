@@ -56,6 +56,34 @@ class Wc_Payment_Invoice_Admin {
     }
 
     /**
+     * Check if invoice is expired and mark as cancelled
+     *
+     * @param  string $orderId
+     *
+     * @return boolean
+     */
+    public function check_invoice_exp_date($orderId) {
+        $order = wc_get_order($orderId);
+
+        $todayObj = new DateTime();
+        $expDate = $order->get_meta('lkn_exp_date') . ' 23:59'; // Needs to set the hour to not cancel invoice in the last day of payment
+        $format = 'Y-m-d H:i';
+        $expDateObj = DateTime::createFromFormat($format, $expDate);
+
+        if ($todayObj > $expDateObj) {
+            $order->set_status('wc-cancelled', __('Invoice expired', 'wc-invoice-payment'));
+            $order->save();
+
+            $timestamp = wp_next_scheduled('lkn_wcip_cron_hook', [$orderId]);
+            wp_unschedule_event($timestamp, 'lkn_wcip_cron_hook', [$orderId]);
+
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Register the stylesheets for the admin area.
      *
      * @since    1.0.0
@@ -243,6 +271,10 @@ class Wc_Payment_Invoice_Admin {
                         <option value="no_action" selected><?php _e('Select an action...', 'wc-invoice-payment'); ?></option>
                         <option value="send_email"><?php _e('Send invoice to customer', 'wc-invoice-payment') ?></option>
                     </select>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_exp_date_input"><?php _e('Due date', 'wc-invoice-payment')?></label>
+                        <input id="lkn_wcip_exp_date_input" type="date" name="lkn_wcip_exp_date" value="<?php esc_attr_e($order->get_meta('lkn_exp_date')); ?>" min="<?php esc_attr_e(date('Y-m-d')); ?>">
+                    </div>
                 </div>
                 <?php
                 if ($orderStatus === 'pending') {
@@ -464,6 +496,10 @@ class Wc_Payment_Invoice_Admin {
                         <option value="send_email"><?php _e('Send invoice to customer', 'wc-invoice-payment') ?></option>
                     </select>
                 </div>
+                <div class="input-row-wrap">
+                    <label for="lkn_wcip_exp_date_input"><?php _e('Due date', 'wc-invoice-payment')?></label>
+                    <input id="lkn_wcip_exp_date_input" type="date" name="lkn_wcip_exp_date" min="<?php esc_attr_e(date('Y-m-d')); ?>">
+                </div>
             </div>
             <div class="action-btn">
                 <?php submit_button(__('Save')) ?>
@@ -539,6 +575,7 @@ class Wc_Payment_Invoice_Admin {
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
+                $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
 
                 $order = wc_create_order(
                     [
@@ -569,6 +606,7 @@ class Wc_Payment_Invoice_Admin {
                 $order->set_billing_last_name($lastname);
                 $order->set_payment_method($paymentMethod);
                 $order->set_currency($currency);
+                $order->add_meta_data('lkn_exp_date', $expDate);
 
                 $order->calculate_totals();
                 $order->save();
@@ -582,6 +620,20 @@ class Wc_Payment_Invoice_Admin {
                     update_option('lkn_wcip_invoices', $invoiceList);
                 } else {
                     update_option('lkn_wcip_invoices', [$orderId]);
+                }
+
+                if (!empty($expDate) && $paymentStatus === 'wc-pending') {
+                    $todayTime = time();
+                    $expDateTime = strtotime($expDate);
+                    $nextVerification = 0;
+
+                    if ($todayTime > $expDateTime) {
+                        $nextVerification = $todayTime - $expDateTime;
+                    } else {
+                        $nextVerification = $expDateTime - $todayTime;
+                    }
+
+                    wp_schedule_event(time() + $nextVerification, 'daily', 'lkn_wcip_cron_hook', [$orderId]);
                 }
 
                 // If the action 'send email' is set send a notification email to the customer
@@ -651,6 +703,7 @@ class Wc_Payment_Invoice_Admin {
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
+                $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); $i++) {
@@ -673,10 +726,28 @@ class Wc_Payment_Invoice_Admin {
                 $order->set_payment_method($paymentMethod);
                 $order->set_currency($currency);
                 $order->set_status($paymentStatus);
+                $order->update_meta_data('lkn_exp_date', $expDate);
 
                 // Get order total and saves in the DB
                 $order->calculate_totals();
                 $order->save();
+
+                if (!empty($expDate) && $paymentStatus === 'wc-pending') {
+                    $todayTime = time();
+                    $expDateTime = strtotime($expDate);
+                    $nextVerification = 0;
+
+                    if ($todayTime > $expDateTime) {
+                        $nextVerification = $todayTime - $expDateTime;
+                    } else {
+                        $nextVerification = $expDateTime - $todayTime;
+                    }
+
+                    wp_schedule_event(time() + $nextVerification, 'daily', 'lkn_wcip_cron_hook', [$invoiceId]);
+                } else {
+                    $timestamp = wp_next_scheduled('lkn_wcip_cron_hook', [$invoiceId]);
+                    wp_unschedule_event($timestamp, 'lkn_wcip_cron_hook', [$invoiceId]);
+                }
 
                 // If the action 'send email' is set send a notification email to the customer
                 if (isset($_POST['lkn_wcip_form_actions']) && sanitize_text_field($_POST['lkn_wcip_form_actions']) === 'send_email') {
