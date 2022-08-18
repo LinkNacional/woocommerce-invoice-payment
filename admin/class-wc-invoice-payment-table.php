@@ -1497,13 +1497,15 @@ class Lkn_Wcip_List_Table {
 
             foreach ($invoiceList as $invoiceId) {
                 $invoice = wc_get_order($invoiceId);
+                $dueDate = $invoice->get_meta('lkn_exp_date');
+                $dueDate = empty($dueDate) ? '-' : date($dateFormat, strtotime($dueDate));
 
                 $data_array[] = [
                     'lkn_wcip_id' => $invoiceId,
                     'lkn_wcip_client' => $invoice->get_billing_first_name(),
                     'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
                     'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
-                    'lkn_wcip_exp_date' => date($dateFormat, strtotime($invoice->get_meta('lkn_exp_date'))),
+                    'lkn_wcip_exp_date' => $dueDate,
                 ];
             }
         } ?></section><?php
