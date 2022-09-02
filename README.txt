@@ -1,5 +1,5 @@
 === Invoice Payment for WooCommerce ===
-Contributors: @linknacional
+Contributors: linknacional
 Donate link: https://www.linknacional.com.br/wordpress/
 Tags: woocommerce, invoice, payment
 Requires at least: 5.7
