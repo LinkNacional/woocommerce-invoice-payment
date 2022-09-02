@@ -147,7 +147,7 @@ class Wc_Payment_Invoice_Admin {
         add_menu_page(
             __('List invoices', 'wc-invoice-payment'),
             'Invoice Payment for WooCommerce',
-            'manage_options',
+            'manage_woocommerce',
             'wc-invoice-payment',
             false,
             'dashicons-money-alt',
@@ -158,7 +158,7 @@ class Wc_Payment_Invoice_Admin {
             'wc-invoice-payment',
             __('List invoices', 'wc-invoice-payment'),
             __('Invoices', 'wc-invoice-payment'),
-            'manage_options',
+            'manage_woocommerce',
             'wc-invoice-payment',
             [$this, 'render_invoice_list_page'],
             1
@@ -171,7 +171,7 @@ class Wc_Payment_Invoice_Admin {
      * @return void
      */
     public function render_edit_invoice_page() {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can('manage_woocommerce')) {
             return;
         }
         $invoiceId = sanitize_text_field($_GET['invoice']);
@@ -368,7 +368,7 @@ class Wc_Payment_Invoice_Admin {
      * @return void
      */
     public function render_invoice_list_page() {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can('manage_woocommerce')) {
             return;
         } ?>
     <form id="invoices-filter" method="POST">
@@ -395,7 +395,7 @@ class Wc_Payment_Invoice_Admin {
             'wc-invoice-payment',
             __('Add invoice', 'wc-invoice-payment'),
             __('Add invoice', 'wc-invoice-payment'),
-            'manage_options',
+            'manage_woocommerce',
             'new-invoice',
             [$this, 'new_invoice_form'],
             2
@@ -407,7 +407,7 @@ class Wc_Payment_Invoice_Admin {
             null,
             __('Edit invoice', 'wc-invoice-payment'),
             __('Edit invoice', 'wc-invoice-payment'),
-            'manage_options',
+            'manage_woocommerce',
             'edit-invoice',
             [$this, 'render_edit_invoice_page'],
             1
@@ -422,7 +422,7 @@ class Wc_Payment_Invoice_Admin {
      * @return void
      */
     public function new_invoice_form() {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can('manage_woocommerce')) {
             return;
         }
 
