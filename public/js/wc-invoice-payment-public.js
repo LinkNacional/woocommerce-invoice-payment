@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function () {
         let inputPaymethod = document.getElementById('payment_method_' + defaultPaymethod);
 
         if (inputPaymethod) {
-            console.log('default paymethod recognized: ' + inputPaymethod.value);
             inputPaymethod.click();
         }
     }
