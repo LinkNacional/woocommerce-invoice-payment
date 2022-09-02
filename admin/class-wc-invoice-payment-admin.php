@@ -88,7 +88,7 @@ class Wc_Payment_Invoice_Admin {
      *
      * @since    1.0.0
      */
-    public function enqueue_styles() {
+    public function enqueue_styles($hook) {
 
         /**
          * This function is provided for demonstration purposes only.
@@ -102,7 +102,12 @@ class Wc_Payment_Invoice_Admin {
          * class.
          */
 
-        wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', [], $this->version, 'all');
+        if (
+            'invoice-payment-for-woocommerce_page_new-invoice' === $hook ||
+            'toplevel_page_wc-invoice-payment' === $hook
+        ) {
+            wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', [], $this->version, 'all');
+        }
     }
 
     /**
@@ -110,7 +115,7 @@ class Wc_Payment_Invoice_Admin {
      *
      * @since    1.0.0
      */
-    public function enqueue_scripts() {
+    public function enqueue_scripts($hook) {
 
         /**
          * This function is provided for demonstration purposes only.
@@ -124,8 +129,13 @@ class Wc_Payment_Invoice_Admin {
          * class.
          */
 
-        wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', ['wp-i18n'], $this->version, false);
-        wp_set_script_translations($this->plugin_name . '-admin-js', 'wc-invoice-payment', WC_PAYMENT_INVOICE_TRANSLATION_PATH);
+        if (
+            'invoice-payment-for-woocommerce_page_new-invoice' === $hook ||
+            'toplevel_page_wc-invoice-payment' === $hook
+        ) {
+            wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', ['wp-i18n'], $this->version, false);
+            wp_set_script_translations($this->plugin_name . '-admin-js', 'wc-invoice-payment', WC_PAYMENT_INVOICE_TRANSLATION_PATH);
+        }
     }
 
     /**

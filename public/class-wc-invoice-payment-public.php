@@ -90,7 +90,11 @@ HTML;
          * class.
          */
 
-        wp_enqueue_style($this->plugin_name . '-public-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-public.css', [], $this->version, 'all');
+        $checkoutPage = get_option('woocommerce_checkout_page_id');
+
+        if (is_page($checkoutPage) === true) {
+            wp_enqueue_style($this->plugin_name . '-public-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-public.css', [], $this->version, 'all');
+        }
     }
 
     /**
@@ -112,6 +116,10 @@ HTML;
          * class.
          */
 
-        wp_enqueue_script($this->plugin_name . '-public-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-public.js', ['jquery'], $this->version, false);
+        $checkoutPage = get_option('woocommerce_checkout_page_id');
+
+        if (is_page($checkoutPage) === true) {
+            wp_enqueue_script($this->plugin_name . '-public-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-public.js', ['jquery'], $this->version, false);
+        }
     }
 }
