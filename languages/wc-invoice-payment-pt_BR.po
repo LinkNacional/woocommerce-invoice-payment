@@ -85,3 +85,6 @@ msgstr "Link de pagamento da fatura"
 
 msgid "Payment link"
 msgstr "Link de pagamento"
+
+msgid "Due date"
+msgstr "Data de vencimento"

@@ -946,6 +946,7 @@ class Lkn_Wcip_List_Table {
         $sortable_columns = [
             'lkn_wcip_id'  => ['lkn_wcip_id', false],
             'lkn_wcip_status' => ['lkn_wcip_status', false],
+            'lkn_wcip_exp_date' => ['lkn_wcip_exp_date', false]
         ];
 
         return $sortable_columns;
@@ -1259,7 +1260,7 @@ class Lkn_Wcip_List_Table {
 			<?php $this->bulk_actions($which); ?>
 		</div>
 			<?php
-        endif;
+		endif;
         $this->extra_tablenav($which);
         $this->pagination($which); ?>
 
@@ -1492,14 +1493,19 @@ class Lkn_Wcip_List_Table {
         $data_array = [];
 
         if ($invoiceList) {
+            $dateFormat = get_option('date_format');
+
             foreach ($invoiceList as $invoiceId) {
                 $invoice = wc_get_order($invoiceId);
+                $dueDate = $invoice->get_meta('lkn_exp_date');
+                $dueDate = empty($dueDate) ? '-' : date($dateFormat, strtotime($dueDate));
 
                 $data_array[] = [
                     'lkn_wcip_id' => $invoiceId,
                     'lkn_wcip_client' => $invoice->get_billing_first_name(),
-                    'lkn_wcip_status' => ucfirst(__($invoice->get_status(), 'woocommerce')),
+                    'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
                     'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
+                    'lkn_wcip_exp_date' => $dueDate,
                 ];
             }
         } ?></section><?php
@@ -1529,6 +1535,7 @@ class Lkn_Wcip_List_Table {
             'lkn_wcip_client'			=> __('Name', 'wc-invoice-payment'),
             'lkn_wcip_status'	=> __('Payment status', 'wc-invoice-payment'),
             'lkn_wcip_total_price'		=> __('Total', 'wc-invoice-payment'),
+            'lkn_wcip_exp_date' => __('Due date', 'wc-invoice-payment'),
         ];
 
         return $columns;
@@ -1545,9 +1552,10 @@ class Lkn_Wcip_List_Table {
             case 'lkn_wcip_client':
             case 'lkn_wcip_status':
             case 'lkn_wcip_total_price':
-            return $item[$column_name];
+            case 'lkn_wcip_exp_date':
+                return $item[$column_name];
             default:
-            return 'no list found';
+                return 'no list found';
         }
     }
 

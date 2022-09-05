@@ -56,11 +56,39 @@ class Wc_Payment_Invoice_Admin {
     }
 
     /**
+     * Check if invoice is expired and mark as cancelled
+     *
+     * @param  string $orderId
+     *
+     * @return boolean
+     */
+    public function check_invoice_exp_date($orderId) {
+        $order = wc_get_order($orderId);
+
+        $todayObj = new DateTime();
+        $expDate = $order->get_meta('lkn_exp_date') . ' 23:59'; // Needs to set the hour to not cancel invoice in the last day of payment
+        $format = 'Y-m-d H:i';
+        $expDateObj = DateTime::createFromFormat($format, $expDate);
+
+        if ($todayObj > $expDateObj) {
+            $order->set_status('wc-cancelled', __('Invoice expired', 'wc-invoice-payment'));
+            $order->save();
+
+            $timestamp = wp_next_scheduled('lkn_wcip_cron_hook', [$orderId]);
+            wp_unschedule_event($timestamp, 'lkn_wcip_cron_hook', [$orderId]);
+
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Register the stylesheets for the admin area.
      *
      * @since    1.0.0
      */
-    public function enqueue_styles() {
+    public function enqueue_styles($hook) {
 
         /**
          * This function is provided for demonstration purposes only.
@@ -74,7 +102,13 @@ class Wc_Payment_Invoice_Admin {
          * class.
          */
 
-        wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', [], $this->version, 'all');
+        if (
+            'invoice-payment-for-woocommerce_page_new-invoice' === $hook ||
+            'toplevel_page_wc-invoice-payment' === $hook ||
+            'admin_page_edit-invoice' === $hook
+        ) {
+            wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', [], $this->version, 'all');
+        }
     }
 
     /**
@@ -82,7 +116,7 @@ class Wc_Payment_Invoice_Admin {
      *
      * @since    1.0.0
      */
-    public function enqueue_scripts() {
+    public function enqueue_scripts($hook) {
 
         /**
          * This function is provided for demonstration purposes only.
@@ -96,8 +130,14 @@ class Wc_Payment_Invoice_Admin {
          * class.
          */
 
-        wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', ['wp-i18n'], $this->version, false);
-        wp_set_script_translations($this->plugin_name . '-admin-js', 'wc-invoice-payment', WC_PAYMENT_INVOICE_TRANSLATION_PATH);
+        if (
+            'invoice-payment-for-woocommerce_page_new-invoice' === $hook ||
+            'toplevel_page_wc-invoice-payment' === $hook ||
+            'admin_page_edit-invoice' === $hook
+        ) {
+            wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', ['wp-i18n'], $this->version, false);
+            wp_set_script_translations($this->plugin_name . '-admin-js', 'wc-invoice-payment', WC_PAYMENT_INVOICE_TRANSLATION_PATH);
+        }
     }
 
     /**
@@ -109,7 +149,7 @@ class Wc_Payment_Invoice_Admin {
         add_menu_page(
             __('List invoices', 'wc-invoice-payment'),
             'Invoice Payment for WooCommerce',
-            'manage_options',
+            'manage_woocommerce',
             'wc-invoice-payment',
             false,
             'dashicons-money-alt',
@@ -120,7 +160,7 @@ class Wc_Payment_Invoice_Admin {
             'wc-invoice-payment',
             __('List invoices', 'wc-invoice-payment'),
             __('Invoices', 'wc-invoice-payment'),
-            'manage_options',
+            'manage_woocommerce',
             'wc-invoice-payment',
             [$this, 'render_invoice_list_page'],
             1
@@ -133,7 +173,7 @@ class Wc_Payment_Invoice_Admin {
      * @return void
      */
     public function render_edit_invoice_page() {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can('manage_woocommerce')) {
             return;
         }
         $invoiceId = sanitize_text_field($_GET['invoice']);
@@ -243,6 +283,10 @@ class Wc_Payment_Invoice_Admin {
                         <option value="no_action" selected><?php _e('Select an action...', 'wc-invoice-payment'); ?></option>
                         <option value="send_email"><?php _e('Send invoice to customer', 'wc-invoice-payment') ?></option>
                     </select>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_exp_date_input"><?php _e('Due date', 'wc-invoice-payment')?></label>
+                        <input id="lkn_wcip_exp_date_input" type="date" name="lkn_wcip_exp_date" value="<?php esc_attr_e($order->get_meta('lkn_exp_date')); ?>" min="<?php esc_attr_e(date('Y-m-d')); ?>">
+                    </div>
                 </div>
                 <?php
                 if ($orderStatus === 'pending') {
@@ -326,7 +370,7 @@ class Wc_Payment_Invoice_Admin {
      * @return void
      */
     public function render_invoice_list_page() {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can('manage_woocommerce')) {
             return;
         } ?>
     <form id="invoices-filter" method="POST">
@@ -353,7 +397,7 @@ class Wc_Payment_Invoice_Admin {
             'wc-invoice-payment',
             __('Add invoice', 'wc-invoice-payment'),
             __('Add invoice', 'wc-invoice-payment'),
-            'manage_options',
+            'manage_woocommerce',
             'new-invoice',
             [$this, 'new_invoice_form'],
             2
@@ -365,7 +409,7 @@ class Wc_Payment_Invoice_Admin {
             null,
             __('Edit invoice', 'wc-invoice-payment'),
             __('Edit invoice', 'wc-invoice-payment'),
-            'manage_options',
+            'manage_woocommerce',
             'edit-invoice',
             [$this, 'render_edit_invoice_page'],
             1
@@ -380,7 +424,7 @@ class Wc_Payment_Invoice_Admin {
      * @return void
      */
     public function new_invoice_form() {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can('manage_woocommerce')) {
             return;
         }
 
@@ -464,6 +508,10 @@ class Wc_Payment_Invoice_Admin {
                         <option value="send_email"><?php _e('Send invoice to customer', 'wc-invoice-payment') ?></option>
                     </select>
                 </div>
+                <div class="input-row-wrap">
+                    <label for="lkn_wcip_exp_date_input"><?php _e('Due date', 'wc-invoice-payment')?></label>
+                    <input id="lkn_wcip_exp_date_input" type="date" name="lkn_wcip_exp_date" min="<?php esc_attr_e(date('Y-m-d')); ?>">
+                </div>
             </div>
             <div class="action-btn">
                 <?php submit_button(__('Save')) ?>
@@ -539,6 +587,7 @@ class Wc_Payment_Invoice_Admin {
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
+                $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
 
                 $order = wc_create_order(
                     [
@@ -569,6 +618,7 @@ class Wc_Payment_Invoice_Admin {
                 $order->set_billing_last_name($lastname);
                 $order->set_payment_method($paymentMethod);
                 $order->set_currency($currency);
+                $order->add_meta_data('lkn_exp_date', $expDate);
 
                 $order->calculate_totals();
                 $order->save();
@@ -582,6 +632,20 @@ class Wc_Payment_Invoice_Admin {
                     update_option('lkn_wcip_invoices', $invoiceList);
                 } else {
                     update_option('lkn_wcip_invoices', [$orderId]);
+                }
+
+                if (!empty($expDate) && $paymentStatus === 'wc-pending') {
+                    $todayTime = time();
+                    $expDateTime = strtotime($expDate);
+                    $nextVerification = 0;
+
+                    if ($todayTime > $expDateTime) {
+                        $nextVerification = $todayTime - $expDateTime;
+                    } else {
+                        $nextVerification = $expDateTime - $todayTime;
+                    }
+
+                    wp_schedule_event(time() + $nextVerification, 'daily', 'lkn_wcip_cron_hook', [$orderId]);
                 }
 
                 // If the action 'send email' is set send a notification email to the customer
@@ -651,6 +715,7 @@ class Wc_Payment_Invoice_Admin {
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
+                $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); $i++) {
@@ -673,10 +738,28 @@ class Wc_Payment_Invoice_Admin {
                 $order->set_payment_method($paymentMethod);
                 $order->set_currency($currency);
                 $order->set_status($paymentStatus);
+                $order->update_meta_data('lkn_exp_date', $expDate);
 
                 // Get order total and saves in the DB
                 $order->calculate_totals();
                 $order->save();
+
+                if (!empty($expDate) && $paymentStatus === 'wc-pending') {
+                    $todayTime = time();
+                    $expDateTime = strtotime($expDate);
+                    $nextVerification = 0;
+
+                    if ($todayTime > $expDateTime) {
+                        $nextVerification = $todayTime - $expDateTime;
+                    } else {
+                        $nextVerification = $expDateTime - $todayTime;
+                    }
+
+                    wp_schedule_event(time() + $nextVerification, 'daily', 'lkn_wcip_cron_hook', [$invoiceId]);
+                } else {
+                    $timestamp = wp_next_scheduled('lkn_wcip_cron_hook', [$invoiceId]);
+                    wp_unschedule_event($timestamp, 'lkn_wcip_cron_hook', [$invoiceId]);
+                }
 
                 // If the action 'send email' is set send a notification email to the customer
                 if (isset($_POST['lkn_wcip_form_actions']) && sanitize_text_field($_POST['lkn_wcip_form_actions']) === 'send_email') {

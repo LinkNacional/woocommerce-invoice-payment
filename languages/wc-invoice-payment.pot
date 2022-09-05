@@ -85,3 +85,6 @@ msgstr ""
 
 msgid "Payment link"
 msgstr ""
+
+msgid "Due date"
+msgstr ""

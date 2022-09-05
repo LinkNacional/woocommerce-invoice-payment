@@ -52,6 +52,26 @@ class Wc_Payment_Invoice_Public {
     }
 
     /**
+     * Undocumented function
+     *
+     * @param  [type] $orderId
+     *
+     * @return void
+     */
+    public function check_invoice_exp_date() {
+        $orderId = sanitize_text_field(get_query_var('order-pay'));
+        $order = wc_get_order($orderId);
+        $defaultPaymethod = esc_attr($order->get_payment_method());
+        $dueDate = esc_attr($order->get_meta('lkn_exp_date'));
+
+        $html = <<<HTML
+        <input id="lkn_wcip_default_paymethod" type="hidden" value="$defaultPaymethod">
+        <input id="lkn_wcip_due_date" type="hidden" value="$dueDate">
+HTML;
+        echo $html;
+    }
+
+    /**
      * Register the stylesheets for the public-facing side of the site.
      *
      * @since    1.0.0
@@ -70,7 +90,11 @@ class Wc_Payment_Invoice_Public {
          * class.
          */
 
-        wp_enqueue_style($this->plugin_name . '-public-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-public.css', [], $this->version, 'all');
+        $checkoutPage = get_option('woocommerce_checkout_page_id');
+
+        if (is_page($checkoutPage) === true) {
+            wp_enqueue_style($this->plugin_name . '-public-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-public.css', [], $this->version, 'all');
+        }
     }
 
     /**
@@ -92,6 +116,10 @@ class Wc_Payment_Invoice_Public {
          * class.
          */
 
-        wp_enqueue_script($this->plugin_name . '-public-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-public.js', ['jquery'], $this->version, false);
+        $checkoutPage = get_option('woocommerce_checkout_page_id');
+
+        if (is_page($checkoutPage) === true) {
+            wp_enqueue_script($this->plugin_name . '-public-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-public.js', ['jquery'], $this->version, false);
+        }
     }
 }

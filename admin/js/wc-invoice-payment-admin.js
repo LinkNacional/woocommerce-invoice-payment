@@ -11,7 +11,7 @@ function lkn_wcip_add_amount_row() {
     let lineQtd = priceLines.length;
     let rowExists = document.getElementsByClassName('price-row-' + lineQtd)[0];
 
-    if(rowExists) {
+    if (rowExists) {
         lineQtd++;
     }
 
@@ -23,19 +23,19 @@ function lkn_wcip_add_amount_row() {
 
     // Append a node with a random text
     container.appendChild(inputRow);
-    
-    inputRow.innerHTML = 
-    '    <div class="input-row-wrap">' +
-    '        <label>' + __('Name', 'wc-invoice-payment') + '</label>' +
-    '        <input name="lkn_wcip_name_invoice_' + lineQtd + '" type="text" id="lkn_wcip_name_invoice_' + lineQtd + '"  class="regular-text" required>' +
-    '    </div>' +
-    '    <div class="input-row-wrap">' +
-    '        <label>' + __('Amount', 'wc-invoice-payment') + '</label>' +
-    '        <input name="lkn_wcip_amount_invoice_' + lineQtd + '" type="tel" id="lkn_wcip_amount_invoice_' + lineQtd + '" class="regular-text lkn_wcip_amount_input" oninput="lkn_wcip_filter_amount_input(this.value, ' + lineQtd + ')" required>' +
-    '    </div>' +
-    '    <div class="input-row-wrap">' +
-    '        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(' + lineQtd + ')"><span class="dashicons dashicons-trash"></span></button>' +
-    '    </div>';
+
+    inputRow.innerHTML =
+        '    <div class="input-row-wrap">' +
+        '        <label>' + __('Name', 'wc-invoice-payment') + '</label>' +
+        '        <input name="lkn_wcip_name_invoice_' + lineQtd + '" type="text" id="lkn_wcip_name_invoice_' + lineQtd + '"  class="regular-text" required>' +
+        '    </div>' +
+        '    <div class="input-row-wrap">' +
+        '        <label>' + __('Amount', 'wc-invoice-payment') + '</label>' +
+        '        <input name="lkn_wcip_amount_invoice_' + lineQtd + '" type="tel" id="lkn_wcip_amount_invoice_' + lineQtd + '" class="regular-text lkn_wcip_amount_input" oninput="lkn_wcip_filter_amount_input(this.value, ' + lineQtd + ')" required>' +
+        '    </div>' +
+        '    <div class="input-row-wrap">' +
+        '        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(' + lineQtd + ')"><span class="dashicons dashicons-trash"></span></button>' +
+        '    </div>';
 }
 
 /**
@@ -48,7 +48,7 @@ function lkn_wcip_add_amount_row() {
 function lkn_wcip_remove_amount_row(id) {
     let priceLines = document.getElementsByClassName('price-row-wrap');
     let lineQtd = priceLines.length;
-    if(lineQtd > 1) {
+    if (lineQtd > 1) {
         let inputRow = document.getElementsByClassName('price-row-' + id)[0];
         inputRow.remove();
     }
@@ -73,8 +73,8 @@ function lkn_wcip_filter_amount_input(val, row) {
  * 
  * @return void
  */
-function lkn_wcip_delete_invoice () {
-    if(confirm(__('Are you sure you want to delete the invoice?','wc-invoice-payment')) === true) {
+function lkn_wcip_delete_invoice() {
+    if (confirm(__('Are you sure you want to delete the invoice?', 'wc-invoice-payment')) === true) {
         window.location.href += '&lkn_wcip_delete=true';
     }
 }
