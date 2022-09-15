@@ -2,6 +2,9 @@
 
 Invoice Payment for WooCommerce is an extension plugin for WooCommerce that aims to facilitate the management of invoices through the platform. It sends a new invoice email notification for the client and invoice creation with a direct payment link.
 
+Plugin at WordPress marketplace 
+https://wordpress.org/plugins/lkn-wc-gateway-cielo/
+
 ## Dependencies
 
 Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Invoice Payment for WooCommerce installation.
