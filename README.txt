@@ -3,7 +3,7 @@ Contributors: linknacional
 Donate link: https://www.linknacional.com.br/wordpress/
 Tags: woocommerce, invoice, payment
 Requires at least: 5.7
-Tested up to: 6.0
+Tested up to: 6.1
 Stable tag: 1.1.0
 Requires PHP: 7.2
 License: GPLv2 or later
