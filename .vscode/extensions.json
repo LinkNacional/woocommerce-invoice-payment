@@ -1,0 +1,19 @@
+{
+  "recommendations": [
+    "natizyskunk.sftp",
+    "wakatime.vscode-wakatime",
+    "mehedidracula.php-namespace-resolver",
+    "eamodio.gitlens",
+    "vivaxy.vscode-conventional-commits",
+    "ms-vscode-remote.remote-containers",
+    "yzhang.markdown-all-in-one",
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-portuguese-brazilian",
+    "junstyle.php-cs-fixer",
+    "bmewburn.vscode-intelephense-client",
+    "neilbrayfield.php-docblocker",
+    "dbaeumer.vscode-eslint",
+    "aswinkumar863.smarty-template-support",
+    "ms-vscode-remote.remote-containers"
+  ]
+}

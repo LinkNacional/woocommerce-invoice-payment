@@ -1,0 +1,6 @@
+{
+    "intelephense.environment.phpVersion": "7.4",
+    "intelephense.environment.includePaths": [
+        "/home/vscode/_wordpress"
+    ]
+}
