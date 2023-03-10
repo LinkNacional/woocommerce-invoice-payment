@@ -1,3 +1,6 @@
+### v1.1.2
+- Bug corrections;
+
 ### v1.1.1
 - Links update;
 - Setting title change;
