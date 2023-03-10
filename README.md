@@ -36,14 +36,3 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 
 You have created your first invoice with the Invoice Payment for WooCommerce plugin.
 
-## Changelog
-
-### v1.1.0
-- Implemented invoice due date;
-- On invoice payment page load the defined payment method is open;
-- Users with shop_manager permission can generate and edit invoices;
-- Optimized JS and CSS load.
-
-### v1.0.0
-- Plugin launch.
-

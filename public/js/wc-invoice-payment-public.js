@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Select default paymethod
-    let defaultPaymethod = document.getElementById('lkn_wcip_default_paymethod');
+  // Select default paymethod
+  let defaultPaymethod = document.getElementById('lkn_wcip_default_paymethod')
 
-    if (defaultPaymethod) {
-        defaultPaymethod = defaultPaymethod.value;
+  if (defaultPaymethod) {
+    defaultPaymethod = defaultPaymethod.value
 
-        let inputPaymethod = document.getElementById('payment_method_' + defaultPaymethod);
+    const inputPaymethod = document.getElementById('payment_method_' + defaultPaymethod)
 
-        if (inputPaymethod) {
-            inputPaymethod.click();
-        }
+    if (inputPaymethod) {
+      inputPaymethod.click()
     }
-});
+  }
+})

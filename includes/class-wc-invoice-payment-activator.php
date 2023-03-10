@@ -1,13 +1,10 @@
 <?php
 
 /**
- * Fired during plugin activation
+ * Fired during plugin activation.
  *
- * @link       https://www.linknacional.com/
+ * @see       https://www.linknacional.com/
  * @since      1.0.0
- *
- * @package    Wc_Payment_Invoice
- * @subpackage Wc_Payment_Invoice/includes
  */
 
 /**
@@ -16,18 +13,17 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @since      1.0.0
- * @package    Wc_Payment_Invoice
- * @subpackage Wc_Payment_Invoice/includes
+ *
  * @author     Link Nacional
  */
-class Wc_Payment_Invoice_Activator {
+final class Wc_Payment_Invoice_Activator {
     /**
-     * Short Description. (use period)
+     * Short Description. (use period).
      *
      * Long Description.
      *
      * @since    1.0.0
      */
-    public static function activate() {
+    public static function activate(): void {
     }
 }

@@ -3,11 +3,8 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       https://www.linknacional.com/
+ * @see       https://www.linknacional.com/
  * @since      1.0.0
- *
- * @package    Wc_Payment_Invoice
- * @subpackage Wc_Payment_Invoice/public
  */
 
 /**
@@ -16,17 +13,15 @@
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the public-facing stylesheet and JavaScript.
  *
- * @package    Wc_Payment_Invoice
- * @subpackage Wc_Payment_Invoice/public
  * @author     Link Nacional
  */
-class Wc_Payment_Invoice_Public {
+final class Wc_Payment_Invoice_Public {
     /**
      * The ID of this plugin.
      *
      * @since    1.0.0
-     * @access   private
-     * @var      string    $plugin_name    The ID of this plugin.
+     *
+     * @var string the ID of this plugin
      */
     private $plugin_name;
 
@@ -34,8 +29,8 @@ class Wc_Payment_Invoice_Public {
      * The version of this plugin.
      *
      * @since    1.0.0
-     * @access   private
-     * @var      string    $version    The current version of this plugin.
+     *
+     * @var string the current version of this plugin
      */
     private $version;
 
@@ -43,8 +38,9 @@ class Wc_Payment_Invoice_Public {
      * Initialize the class and set its properties.
      *
      * @since    1.0.0
-     * @param      string    $plugin_name       The name of the plugin.
-     * @param      string    $version    The version of this plugin.
+     *
+     * @param string $plugin_name the name of the plugin
+     * @param string $version     the version of this plugin
      */
     public function __construct($plugin_name, $version) {
         $this->plugin_name = $plugin_name;
@@ -52,21 +48,19 @@ class Wc_Payment_Invoice_Public {
     }
 
     /**
-     * Undocumented function
+     * Undocumented function.
      *
      * @param  [type] $orderId
-     *
-     * @return void
      */
-    public function check_invoice_exp_date() {
+    public function check_invoice_exp_date(): void {
         $orderId = sanitize_text_field(get_query_var('order-pay'));
         $order = wc_get_order($orderId);
         $defaultPaymethod = esc_attr($order->get_payment_method());
         $dueDate = esc_attr($order->get_meta('lkn_exp_date'));
 
         $html = <<<HTML
-        <input id="lkn_wcip_default_paymethod" type="hidden" value="$defaultPaymethod">
-        <input id="lkn_wcip_due_date" type="hidden" value="$dueDate">
+        <input id="lkn_wcip_default_paymethod" type="hidden" value="{$defaultPaymethod}">
+        <input id="lkn_wcip_due_date" type="hidden" value="{$dueDate}">
 HTML;
         echo $html;
     }
@@ -76,8 +70,7 @@ HTML;
      *
      * @since    1.0.0
      */
-    public function enqueue_styles() {
-
+    public function enqueue_styles(): void {
         /**
          * This function is provided for demonstration purposes only.
          *
@@ -89,11 +82,10 @@ HTML;
          * between the defined hooks and the functions defined in this
          * class.
          */
-
         $checkoutPage = get_option('woocommerce_checkout_page_id');
 
         if (is_page($checkoutPage) === true) {
-            wp_enqueue_style($this->plugin_name . '-public-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-public.css', [], $this->version, 'all');
+            wp_enqueue_style($this->plugin_name . '-public-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-public.css', array(), $this->version, 'all');
         }
     }
 
@@ -102,8 +94,7 @@ HTML;
      *
      * @since    1.0.0
      */
-    public function enqueue_scripts() {
-
+    public function enqueue_scripts(): void {
         /**
          * This function is provided for demonstration purposes only.
          *
@@ -115,11 +106,10 @@ HTML;
          * between the defined hooks and the functions defined in this
          * class.
          */
-
         $checkoutPage = get_option('woocommerce_checkout_page_id');
 
         if (is_page($checkoutPage) === true) {
-            wp_enqueue_script($this->plugin_name . '-public-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-public.js', ['jquery'], $this->version, false);
+            wp_enqueue_script($this->plugin_name . '-public-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-public.js', array('jquery'), $this->version, false);
         }
     }
 }

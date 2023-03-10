@@ -1,16 +1,13 @@
 <?php
 
 /**
- * The file that defines the core plugin class
+ * The file that defines the core plugin class.
  *
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       https://www.linknacional.com/
+ * @see       https://www.linknacional.com/
  * @since      1.0.0
- *
- * @package    Wc_Payment_Invoice
- * @subpackage Wc_Payment_Invoice/includes
  */
 
 /**
@@ -23,38 +20,37 @@
  * version of the plugin.
  *
  * @since      1.0.0
- * @package    Wc_Payment_Invoice
- * @subpackage Wc_Payment_Invoice/includes
+ *
  * @author     Link Nacional
  */
-class Wc_Payment_Invoice {
+final class Wc_Payment_Invoice {
     /**
      * The loader that's responsible for maintaining and registering all hooks that power
      * the plugin.
      *
      * @since    1.0.0
-     * @access   protected
-     * @var      Wc_Payment_Invoice_Loader    $loader    Maintains and registers all hooks for the plugin.
+     *
+     * @var Wc_Payment_Invoice_Loader maintains and registers all hooks for the plugin
      */
-    protected $loader;
+    private $loader;
 
     /**
      * The unique identifier of this plugin.
      *
      * @since    1.0.0
-     * @access   protected
-     * @var      string    $plugin_name    The string used to uniquely identify this plugin.
+     *
+     * @var string the string used to uniquely identify this plugin
      */
-    protected $plugin_name;
+    private $plugin_name;
 
     /**
      * The current version of the plugin.
      *
      * @since    1.0.0
-     * @access   protected
-     * @var      string    $version    The current version of the plugin.
+     *
+     * @var string the current version of the plugin
      */
-    protected $version;
+    private $version;
 
     /**
      * Define the core functionality of the plugin.
@@ -80,6 +76,49 @@ class Wc_Payment_Invoice {
     }
 
     /**
+     * Run the loader to execute all of the hooks with WordPress.
+     *
+     * @since    1.0.0
+     */
+    public function run(): void {
+        $this->loader->run();
+    }
+
+    /**
+     * The name of the plugin used to uniquely identify it within the context of
+     * WordPress and to define internationalization functionality.
+     *
+     * @since     1.0.0
+     *
+     * @return string the name of the plugin
+     */
+    public function get_plugin_name() {
+        return $this->plugin_name;
+    }
+
+    /**
+     * The reference to the class that orchestrates the hooks with the plugin.
+     *
+     * @since     1.0.0
+     *
+     * @return Wc_Payment_Invoice_Loader orchestrates the hooks of the plugin
+     */
+    public function get_loader() {
+        return $this->loader;
+    }
+
+    /**
+     * Retrieve the version number of the plugin.
+     *
+     * @since     1.0.0
+     *
+     * @return string the version number of the plugin
+     */
+    public function get_version() {
+        return $this->version;
+    }
+
+    /**
      * Load the required dependencies for this plugin.
      *
      * Include the following files that make up the plugin:
@@ -93,37 +132,35 @@ class Wc_Payment_Invoice {
      * with WordPress.
      *
      * @since    1.0.0
-     * @access   private
      */
-    private function load_dependencies() {
-
+    private function load_dependencies(): void {
         /**
          * The class responsible for orchestrating the actions and filters of the
          * core plugin.
          */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wc-invoice-payment-loader.php';
+        require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-loader.php';
 
         /**
          * The class responsible for defining internationalization functionality
          * of the plugin.
          */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wc-invoice-payment-i18n.php';
+        require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-i18n.php';
 
         /**
          * The class responsible for defining all actions that occur in the admin area.
          */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wc-invoice-payment-admin.php';
+        require_once plugin_dir_path(__DIR__) . 'admin/class-wc-invoice-payment-admin.php';
 
         /**
          * The class responsible for rendering the invoice table.
          */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wc-invoice-payment-table.php';
+        require_once plugin_dir_path(__DIR__) . 'admin/class-wc-invoice-payment-table.php';
 
         /**
          * The class responsible for defining all actions that occur in the public-facing
          * side of the site.
          */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-wc-invoice-payment-public.php';
+        require_once plugin_dir_path(__DIR__) . 'public/class-wc-invoice-payment-public.php';
 
         $this->loader = new Wc_Payment_Invoice_Loader();
     }
@@ -135,9 +172,8 @@ class Wc_Payment_Invoice {
      * with WordPress.
      *
      * @since    1.0.0
-     * @access   private
      */
-    private function set_locale() {
+    private function set_locale(): void {
         $plugin_i18n = new Wc_Payment_Invoice_i18n();
 
         $this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
@@ -148,9 +184,8 @@ class Wc_Payment_Invoice {
      * of the plugin.
      *
      * @since    1.0.0
-     * @access   private
      */
-    private function define_admin_hooks() {
+    private function define_admin_hooks(): void {
         $plugin_admin = new Wc_Payment_Invoice_Admin($this->get_plugin_name(), $this->get_version());
 
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
@@ -163,53 +198,12 @@ class Wc_Payment_Invoice {
      * of the plugin.
      *
      * @since    1.0.0
-     * @access   private
      */
-    private function define_public_hooks() {
+    private function define_public_hooks(): void {
         $plugin_public = new Wc_Payment_Invoice_Public($this->get_plugin_name(), $this->get_version());
 
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
-    }
-
-    /**
-     * Run the loader to execute all of the hooks with WordPress.
-     *
-     * @since    1.0.0
-     */
-    public function run() {
-        $this->loader->run();
-    }
-
-    /**
-     * The name of the plugin used to uniquely identify it within the context of
-     * WordPress and to define internationalization functionality.
-     *
-     * @since     1.0.0
-     * @return    string    The name of the plugin.
-     */
-    public function get_plugin_name() {
-        return $this->plugin_name;
-    }
-
-    /**
-     * The reference to the class that orchestrates the hooks with the plugin.
-     *
-     * @since     1.0.0
-     * @return    Wc_Payment_Invoice_Loader    Orchestrates the hooks of the plugin.
-     */
-    public function get_loader() {
-        return $this->loader;
-    }
-
-    /**
-     * Retrieve the version number of the plugin.
-     *
-     * @since     1.0.0
-     * @return    string    The version number of the plugin.
-     */
-    public function get_version() {
-        return $this->version;
     }
 }
