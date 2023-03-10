@@ -99,7 +99,7 @@ final class Wc_Payment_Invoice_Admin {
          */
 
         if (
-            'invoice-payment-for-woocommerce_page_new-invoice' === $hook
+            strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_new-invoice' === $hook
             || 'toplevel_page_wc-invoice-payment' === $hook
             || 'admin_page_edit-invoice' === $hook
         ) {
@@ -128,7 +128,7 @@ final class Wc_Payment_Invoice_Admin {
          */
 
         if (
-            'invoice-payment-for-woocommerce_page_new-invoice' === $hook
+            strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_new-invoice' === $hook
             || 'toplevel_page_wc-invoice-payment' === $hook
             || 'admin_page_edit-invoice' === $hook
         ) {
@@ -979,3 +979,4 @@ final class Wc_Payment_Invoice_Admin {
         }
     }
 }
+?>
