@@ -1,21 +1,21 @@
 {
-    "domain": "wc-invoice-payment",
-    "locale_data": {
-       "messages": {
-          "": {
-             "domain": "wc-invoice-payment",
-             "plural_forms": "nplurals=2; plural=(n != 1);",
-             "lang": "pt_BR"
-          },
-          "Name": [
-             "Nome"
-          ],
-          "Amount": [
-             "Valor"
-          ],
-          "Are you sure you want to delete the invoice?": [
-              "Tem certeza que deseja deletar a fatura?"
-          ]
-       }
-    }
- }
+   "domain": "wc-invoice-payment",
+   "locale_data": {
+      "messages": {
+         "": {
+            "domain": "wc-invoice-payment",
+            "plural_forms": "nplurals=2; plural=(n != 1);",
+            "lang": "pt_BR"
+         },
+         "Name": [
+            "Nome"
+         ],
+         "Amount": [
+            "Valor"
+         ],
+         "Are you sure you want to delete the invoice?": [
+            "Tem certeza que deseja deletar a fatura?"
+         ]
+      }
+   }
+}

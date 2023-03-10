@@ -1,13 +1,10 @@
 <?php
 
 /**
- * Fired during plugin deactivation
+ * Fired during plugin deactivation.
  *
- * @link       https://www.linknacional.com/
+ * @see       https://www.linknacional.com/
  * @since      1.0.0
- *
- * @package    Wc_Payment_Invoice
- * @subpackage Wc_Payment_Invoice/includes
  */
 
 /**
@@ -16,18 +13,17 @@
  * This class defines all code necessary to run during the plugin's deactivation.
  *
  * @since      1.0.0
- * @package    Wc_Payment_Invoice
- * @subpackage Wc_Payment_Invoice/includes
+ *
  * @author     Link Nacional
  */
-class Wc_Payment_Invoice_Deactivator {
+final class Wc_Payment_Invoice_Deactivator {
     /**
-     * Short Description. (use period)
+     * Short Description. (use period).
      *
      * Long Description.
      *
      * @since    1.0.0
      */
-    public static function deactivate() {
+    public static function deactivate(): void {
     }
 }

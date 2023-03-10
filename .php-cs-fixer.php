@@ -87,7 +87,7 @@ return (new PhpCsFixer\Config())
         'final_internal_class' => true,
         'final_public_method_for_abstract_class' => true,
         'void_return' => true,
-        'logical_operators' => true
+        'logical_operators' => true,
     ))
     ->setIndent('    ')
     ->setLineEnding("\n")

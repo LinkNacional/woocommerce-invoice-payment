@@ -1,16 +1,15 @@
 <?php
 
 /**
- * The plugin bootstrap file
+ * The plugin bootstrap file.
  *
  * This file is read by WordPress to generate the plugin information in the plugin
  * admin area. This file also includes all of the dependencies used by the plugin,
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              https://www.linknacional.com/
+ * @see              https://www.linknacional.com/
  * @since             1.0.0
- * @package           Wc_Payment_Invoice
  *
  * @wordpress-plugin
  * Plugin Name:       Invoice Payment for WooCommerce
@@ -26,11 +25,11 @@
  */
 
 // If this file is called directly, abort.
-if (!defined('WPINC')) {
-    die;
+if ( ! defined('WPINC')) {
+    exit;
 }
 
-/**
+/*
  * Currently plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
@@ -40,18 +39,18 @@ define('WC_PAYMENT_INVOICE_TRANSLATION_PATH', plugin_dir_path(__FILE__) . 'langu
 
 /**
  * The code that runs during plugin activation.
- * This action is documented in includes/class-wc-invoice-payment-activator.php
+ * This action is documented in includes/class-wc-invoice-payment-activator.php.
  */
-function activate_Wc_Payment_Invoice() {
+function activate_Wc_Payment_Invoice(): void {
     require_once plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment-activator.php';
     Wc_Payment_Invoice_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-wc-invoice-payment-deactivator.php
+ * This action is documented in includes/class-wc-invoice-payment-deactivator.php.
  */
-function deactivate_Wc_Payment_Invoice() {
+function deactivate_Wc_Payment_Invoice(): void {
     require_once plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment-deactivator.php';
     Wc_Payment_Invoice_Deactivator::deactivate();
 }
@@ -74,7 +73,7 @@ require plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment.php';
  *
  * @since    1.0.0
  */
-function run_wc_payment_invoice() {
+function run_wc_payment_invoice(): void {
     $plugin = new Wc_Payment_Invoice();
     $plugin->run();
 
@@ -83,10 +82,8 @@ function run_wc_payment_invoice() {
 run_wc_payment_invoice();
 
 /**
- * WooCommerce missing notice
- *
- * @return void
+ * WooCommerce missing notice.
  */
-function lkn_wcip_woocommerce_missing_notice() {
-    include_once dirname(__FILE__) . '/admin/partials/wc-invoice-payment-admin-missing-woocommerce.php';
+function lkn_wcip_woocommerce_missing_notice(): void {
+    include_once __DIR__ . '/admin/partials/wc-invoice-payment-admin-missing-woocommerce.php';
 }
