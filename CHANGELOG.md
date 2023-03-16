@@ -1,3 +1,6 @@
+### v1.1.3
+- Payment methods bug correction;
+
 ### v1.1.2
 - Bug corrections;
 
