@@ -1416,6 +1416,21 @@ class Lkn_Wcip_List_Table {
         $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
         $invoiceList = get_option('lkn_wcip_invoices', []);
 
+        // Deletes invoices that have no order.
+        $invoicesWithExistingOrder = array_filter(
+            $invoiceList,
+            function ($invoiceId): bool {
+                $orderExists = wc_get_order($invoiceId) !== false;
+
+                return $orderExists;
+            }
+        );
+
+        if (count($invoiceList) !== count($invoicesWithExistingOrder)) {
+            $invoiceList = $invoicesWithExistingOrder;
+            update_option('lkn_wcip_invoices', $invoiceList);
+        }
+
         $per_page = 10;
         $current_page = $this->get_pagenum();
         $total_items = count($invoiceList);

@@ -1,3 +1,6 @@
+### v1.1.4 - 07/06/23
+- Fix invoices table error when the invoice order is deleted.
+
 ### v1.1.3
 - Payment methods bug correction;
 
