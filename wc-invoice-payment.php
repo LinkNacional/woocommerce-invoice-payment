@@ -41,7 +41,8 @@ define('WC_PAYMENT_INVOICE_TRANSLATION_PATH', plugin_dir_path(__FILE__) . 'langu
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wc-invoice-payment-activator.php.
  */
-function activate_Wc_Payment_Invoice(): void {
+function activate_Wc_Payment_Invoice(): void
+{
     require_once plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment-activator.php';
     Wc_Payment_Invoice_Activator::activate();
 }
@@ -50,7 +51,8 @@ function activate_Wc_Payment_Invoice(): void {
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-wc-invoice-payment-deactivator.php.
  */
-function deactivate_Wc_Payment_Invoice(): void {
+function deactivate_Wc_Payment_Invoice(): void
+{
     require_once plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment-deactivator.php';
     Wc_Payment_Invoice_Deactivator::deactivate();
 }
@@ -73,7 +75,8 @@ require plugin_dir_path(__FILE__) . 'includes/class-wc-invoice-payment.php';
  *
  * @since    1.0.0
  */
-function run_wc_payment_invoice(): void {
+function run_wc_payment_invoice(): void
+{
     $plugin = new Wc_Payment_Invoice();
     $plugin->run();
 
@@ -84,6 +87,7 @@ run_wc_payment_invoice();
 /**
  * WooCommerce missing notice.
  */
-function lkn_wcip_woocommerce_missing_notice(): void {
+function lkn_wcip_woocommerce_missing_notice(): void
+{
     include_once __DIR__ . '/admin/partials/wc-invoice-payment-admin-missing-woocommerce.php';
 }
