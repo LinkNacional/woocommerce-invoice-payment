@@ -169,6 +169,7 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
+
         $invoiceId = sanitize_text_field($_GET['invoice']);
 
         $decimalSeparator = wc_get_price_decimal_separator();
@@ -187,6 +188,7 @@ final class Wc_Payment_Invoice_Admin {
 
         $c = 0;
         $order = wc_get_order($invoiceId);
+
         $items = $order->get_items();
         $checkoutUrl = $order->get_checkout_payment_url();
         $orderStatus = $order->get_status();
@@ -195,7 +197,7 @@ final class Wc_Payment_Invoice_Admin {
 
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
         $enabled_gateways = array();
-
+        wp_enqueue_editor();
         // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
@@ -488,13 +490,35 @@ final class Wc_Payment_Invoice_Admin {
                     <textarea
                         name="lkn-wc-invoice-payment-footer-notes"
                         id="lkn-wc-invoice-payment-footer-notes"
-                        class="regular-text"
                     ><?php echo $order->get_meta('wcip_footer_notes'); ?></textarea>
                 </div>
             </div>
         </div>
     </form>
 </div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        wp.editor.initialize('lkn-wc-invoice-payment-footer-notes', {
+            tinymce: {
+                toolbar1: 'bold italic underline strikethrough | bullist numlist outdent indent | link',
+                style_formats: [
+                    {
+                        title: 'Underline',
+                        inline: 'u'
+                    }
+                ]
+            },
+            quicktags: true
+        })
+
+        const btnSubmit = document.getElementById('submit')
+        const footerNotesTextarea = document.getElementById('lkn-wc-invoice-payment-footer-notes')
+
+        btnSubmit.addEventListener('click', () => {
+            footerNotesTextarea.innerHTML = wp.editor.getContent('lkn-wc-invoice-payment-footer-notes')
+        })
+    })
+</script>
 <?php
     }
 
@@ -558,6 +582,8 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
+
+        wp_enqueue_editor();
 
         $currencies = get_woocommerce_currencies();
         $active_currency = get_woocommerce_currency();
@@ -795,6 +821,29 @@ final class Wc_Payment_Invoice_Admin {
         </div>
     </form>
 </div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        wp.editor.initialize('lkn-wc-invoice-payment-footer-notes', {
+            tinymce: {
+                toolbar1: 'bold italic underline strikethrough | bullist numlist outdent indent | link',
+                style_formats: [
+                    {
+                        title: 'Underline',
+                        inline: 'u'
+                    }
+                ]
+            },
+            quicktags: true
+        })
+
+        const btnSubmit = document.getElementById('submit')
+        const footerNotesTextarea = document.getElementById('lkn-wc-invoice-payment-footer-notes')
+
+        btnSubmit.addEventListener('click', () => {
+            footerNotesTextarea.innerHTML = wp.editor.getContent('lkn-wc-invoice-payment-footer-notes')
+        })
+    })
+</script>
 <?php
     }
 
@@ -841,7 +890,16 @@ final class Wc_Payment_Invoice_Admin {
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
                 $extraData = sanitize_text_field($_POST['lkn_wcip_extra_data']);
-                $footerNotes = wp_kses($_POST['lkn-wc-invoice-payment-footer-notes'], array());
+                $footerNotes = wp_kses(
+                    $_POST['lkn-wc-invoice-payment-footer-notes'],
+                    array(
+                        'b' => array(),
+                        'i' => array(),
+                        'em' => array(),
+                        'strong' => array(),
+                        'p' => array()
+                    )
+                );
 
                 $order = wc_create_order(
                     array(
@@ -972,7 +1030,16 @@ final class Wc_Payment_Invoice_Admin {
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
                 $extraData = sanitize_text_field($_POST['lkn_wcip_extra_data']);
-                $footerNotes = wp_kses($_POST['lkn-wc-invoice-payment-footer-notes'], array());
+                $footerNotes = wp_kses(
+                    $_POST['lkn-wc-invoice-payment-footer-notes'],
+                    array(
+                        'b' => array(),
+                        'i' => array(),
+                        'em' => array(),
+                        'strong' => array(),
+                        'p' => array()
+                    )
+                );
 
                 $order->update_meta_data('wcip_extra_data', $extraData);
                 $order->update_meta_data('wcip_footer_notes', $footerNotes);
