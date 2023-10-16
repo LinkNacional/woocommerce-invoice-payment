@@ -78,3 +78,27 @@ function lkn_wcip_delete_invoice () {
     window.location.href += '&lkn_wcip_delete=true'
   }
 }
+
+function lkn_wcip_generate_invoice_pdf () {
+  fetch('/wp-json/wc-invoice-payment/v1/generate-pdf', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(response => response.blob())
+    .then(blob => {
+      // Create a blob link to download the PDF
+      const url = window.URL.createObjectURL(new Blob([blob]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'invoice.pdf')
+      document.body.appendChild(link)
+      link.click()
+      link.parentNode.removeChild(link)
+    })
+    .catch(error => {
+      // Handle any errors
+      console.error('Error:', error)
+    })
+}

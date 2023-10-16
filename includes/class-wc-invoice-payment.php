@@ -162,6 +162,10 @@ final class Wc_Payment_Invoice {
          */
         require_once plugin_dir_path(__DIR__) . 'public/class-wc-invoice-payment-public.php';
 
+        require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-rest.php';
+
+        require_once __DIR__ . '/dompdf/autoload.inc.php';
+
         $this->loader = new Wc_Payment_Invoice_Loader();
     }
 
@@ -191,6 +195,9 @@ final class Wc_Payment_Invoice {
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
         $this->loader->add_action('lkn_wcip_cron_hook', $plugin_admin, 'check_invoice_exp_date', 10, 1);
+
+        $api_handler = new Wc_Payment_Invoice_Loader_Rest();
+        $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
     }
 
     /**

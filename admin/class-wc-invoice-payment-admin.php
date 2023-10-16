@@ -170,6 +170,9 @@ final class Wc_Payment_Invoice_Admin {
             return;
         }
 
+        wp_enqueue_editor();
+        wp_create_nonce('wp_rest');
+
         $invoiceId = sanitize_text_field($_GET['invoice']);
 
         $decimalSeparator = wc_get_price_decimal_separator();
@@ -197,7 +200,7 @@ final class Wc_Payment_Invoice_Admin {
 
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
         $enabled_gateways = array();
-        wp_enqueue_editor();
+
         // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
