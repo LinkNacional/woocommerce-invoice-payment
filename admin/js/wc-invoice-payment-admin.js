@@ -80,7 +80,9 @@ function lkn_wcip_delete_invoice () {
 }
 
 function lkn_wcip_generate_invoice_pdf () {
-  fetch('/wp-json/wc-invoice-payment/v1/generate-pdf', {
+  const invoiceId = (new URLSearchParams(window.location.search)).get('invoice')
+
+  fetch(`/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'

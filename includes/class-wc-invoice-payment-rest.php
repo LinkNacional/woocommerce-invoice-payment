@@ -1,6 +1,7 @@
 <?php
 
 use Dompdf\Dompdf;
+use Dompdf\Options;
 
 /**
  * @see       https://www.linknacional.com/
@@ -24,11 +25,15 @@ final class Wc_Payment_Invoice_Loader_Rest {
         return current_user_can('administrator');
     }
 
-    public function generate_invoice(): void {
-        $html = '<html><body><h1>Invoice</h1><p>This is a sample invoice.</p></body></html>';
+    public function generate_invoice(WP_REST_Request $request): void {
+        $invoice_id = $request->get_param( 'invoice_id' );
+
+        $getHtml = function () use ($invoice_id) {
+            return require_once __DIR__ . '/templates/linknacional/main.php';
+        };
 
         $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
+        $dompdf->loadHtml($getHtml());
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
@@ -40,9 +45,6 @@ final class Wc_Payment_Invoice_Loader_Rest {
         header('Content-Disposition: attachment; filename="' . $file_name . '"');
         header('Content-Length: ' . strlen($output));
         header('Content-Transfer-Encoding: binary');
-        header('Cache-Control: public, must-revalidate, max-age=0');
-        header('Pragma: public');
-        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
         echo $output;
         exit;
     }

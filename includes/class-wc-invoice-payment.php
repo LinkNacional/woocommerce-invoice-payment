@@ -164,8 +164,7 @@ final class Wc_Payment_Invoice {
 
         require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-rest.php';
 
-        require_once __DIR__ . '/dompdf/autoload.inc.php';
-
+        require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/libs/dompdf/autoload.inc.php';
         $this->loader = new Wc_Payment_Invoice_Loader();
     }
 

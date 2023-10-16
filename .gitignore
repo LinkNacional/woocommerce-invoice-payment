@@ -3,3 +3,6 @@
 vendor
 .phan/stubs
 node_modules
+includes/phpqrcode/cache/*/
+includes/phpqrcode/cache/*.png
+includes/phpqrcode/cache/*.dat

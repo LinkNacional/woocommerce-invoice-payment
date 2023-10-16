@@ -503,13 +503,11 @@ final class Wc_Payment_Invoice_Admin {
     document.addEventListener('DOMContentLoaded', () => {
         wp.editor.initialize('lkn-wc-invoice-payment-footer-notes', {
             tinymce: {
-                toolbar1: 'bold italic underline strikethrough | bullist numlist outdent indent | link',
-                style_formats: [
-                    {
-                        title: 'Underline',
-                        inline: 'u'
-                    }
-                ]
+                toolbar1: 'bold italic underline',
+                style_formats: [{
+                    title: 'Underline',
+                    inline: 'u'
+                }]
             },
             quicktags: true
         })
@@ -828,13 +826,11 @@ final class Wc_Payment_Invoice_Admin {
     document.addEventListener('DOMContentLoaded', () => {
         wp.editor.initialize('lkn-wc-invoice-payment-footer-notes', {
             tinymce: {
-                toolbar1: 'bold italic underline strikethrough | bullist numlist outdent indent | link',
-                style_formats: [
-                    {
-                        title: 'Underline',
-                        inline: 'u'
-                    }
-                ]
+                toolbar1: 'bold italic underline',
+                style_formats: [{
+                    title: 'Underline',
+                    inline: 'u'
+                }]
             },
             quicktags: true
         })
@@ -1032,7 +1028,7 @@ final class Wc_Payment_Invoice_Admin {
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
-                $extraData = sanitize_text_field($_POST['lkn_wcip_extra_data']);
+                $extraData = wp_kses($_POST['lkn_wcip_extra_data'], array('br' => array()));
                 $footerNotes = wp_kses(
                     $_POST['lkn-wc-invoice-payment-footer-notes'],
                     array(
@@ -1040,7 +1036,8 @@ final class Wc_Payment_Invoice_Admin {
                         'i' => array(),
                         'em' => array(),
                         'strong' => array(),
-                        'p' => array()
+                        'p' => array(),
+                        'br' => array()
                     )
                 );
 

@@ -1,0 +1,165 @@
+<?php
+
+require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/libs/phpqrcode.php';
+
+function to_wc_monetary_format(float $amount): string {
+    return number_format(
+        $amount,
+        wc_get_price_decimals(),
+        wc_get_price_decimal_separator(),
+        wc_get_price_thousand_separator()
+    );
+}
+
+$order = wc_get_order($invoice_id);
+
+$order_currency = $order->get_currency();
+$order_total = $order->get_total();
+$invoice_number = $order->get_order_number();
+$invoice_created_at = $invoice_date = $order->get_date_created()->format('d/m/y');
+
+$items = $order->get_items();
+$invoice_payment_link = $order->get_checkout_payment_url();
+
+// Generates the HTML rows for the invoice items.
+$invoice_items_html = implode(
+    array_map(function (WC_Order_Item $item) use ($order_currency): string {
+        $item_descrip = $item->get_name();
+        $item_price = to_wc_monetary_format($item->get_total());
+
+        return <<<HTML
+    <tr>
+        <td>{$item_descrip}</td>
+        <td>{$order_currency} {$item_price}</td>
+    </tr>
+HTML;
+    }, $items )
+);
+
+$wcip_extra_data = $order->get_meta('wcip_extra_data');
+$wcip_footer_notes = $order->get_meta('wcip_footer_notes');
+
+// Load CSS styles.
+$styles = file_get_contents(__DIR__ . '/styles.css');
+
+// Load logo as base 64.
+$logo_path = WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/templates/linknacional/logo.jpg';
+$type = pathinfo($logo_path, PATHINFO_EXTENSION);
+$data = file_get_contents($logo_path);
+$logo_base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+// Generates the QR Code as base 64 for the payment link.
+ob_start();
+QRcode::png($invoice_payment_link, null, QR_ECLEVEL_L, 10, 2, false, 0xFFFFFF, 0x000000);
+$qrCodeData = ob_get_clean();
+
+$payment_link_qr_code = base64_encode($qrCodeData);
+
+ob_start();
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, user-scalable=1"
+    />
+    <style>
+        <?php echo $styles; ?>
+    </style>
+</head>
+
+<body>
+    <header>
+        <table id="">
+            <tr>
+                <td>
+                    <img
+                        src="<?php echo $logo_base64; ?>"
+                        width="160"
+                        height="160"
+                    >
+                </td>
+                <td id="invoice-details-column">
+                    <table>
+                        <tr>
+                            <td>
+                                <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
+                            </td>
+                            <td>
+                                <?php echo "#$invoice_number"; ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <?php esc_html_e('Date', 'wc-invoice-payment'); ?>
+                            </td>
+                            <td>
+                                <?php echo $invoice_created_at; ?>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </header>
+
+    <section id="bill-to-container">
+        <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?>
+        </h1>
+
+        <div><?php echo nl2br($wcip_extra_data); ?></div>
+    </section>
+
+    <section id="order-items-table-container">
+        <table id="order-items-table">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e('Description', 'wc-invoice-payment'); ?>
+                    </th>
+                    <th><?php esc_html_e('Price', 'wc-invoice-payment'); ?>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <?php echo $invoice_items_html; ?>
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <th>Totals</th>
+                    <td><?php echo "$order_currency " . to_wc_monetary_format($order_total); ?>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </section>
+
+    <section id="qr-code-container">
+        <figure>
+            <img
+                src="data:image/png;base64, <?php echo $payment_link_qr_code; ?>"
+                width="180"
+                height="180"
+            >
+            <figcaption><?php echo $invoice_payment_link; ?>
+            </figcaption>
+        </figure>
+    </section>
+
+    <footer id="main-footer">
+        <?php echo $wcip_footer_notes; ?>
+    </footer>
+</body>
+
+</html>
+
+<?php
+
+return ob_get_clean();
+
+?>
