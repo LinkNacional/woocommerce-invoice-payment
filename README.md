@@ -33,3 +33,9 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 
 You have created your first invoice with the Invoice Payment for WooCommerce plugin.
 
+
+## Development notes
+
+HTML to PDF lib: https://github.com/dompdf/dompdf
+
+Setup a WYSIWYG editor in a textarea: https://codex.wordpress.org/Javascript_Reference/wp.editor
