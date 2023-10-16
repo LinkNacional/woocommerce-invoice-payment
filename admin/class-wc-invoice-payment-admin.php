@@ -303,6 +303,15 @@ final class Wc_Payment_Invoice_Admin {
                             value="<?php esc_html_e($order->get_billing_email()); ?>"
                         >
                     </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_extra_data"><?php _e('Extra data', 'wc-invoice-payment'); ?></label>
+                        <textarea
+                            name="lkn_wcip_extra_data"
+                            id="lkn_wcip_extra_data"
+                            class="regular-text"
+                        ><?php echo $order->get_meta('wcip_extra_data'); ?></textarea>
+                    </div>
                 </div>
             </div>
         </div>
@@ -333,6 +342,12 @@ final class Wc_Payment_Invoice_Admin {
                             value="<?php esc_attr_e($order->get_meta('lkn_exp_date')); ?>"
                             min="<?php esc_attr_e(date('Y-m-d')); ?>"
                         >
+                    </div>
+                    <div class="input-row-wrap">
+                        <a
+                            for="lkn_wcip_generate_pdf_btn"
+                            href=""
+                        ><?php _e('Generate PDF', 'wc-invoice-payment'); ?></a>
                     </div>
                 </div>
                 <?php
@@ -458,6 +473,25 @@ final class Wc_Payment_Invoice_Admin {
             </div>
             <?php
             } ?>
+        </div>
+        <div style="width: 100%;"></div>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php _e('Footer notes', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <div class="input-row-wrap">
+                    <label><?php _e('Details in HTML', 'wc-invoice-payment'); ?></label>
+                    <textarea
+                        name="lkn-wc-invoice-payment-footer-notes"
+                        id="lkn-wc-invoice-payment-footer-notes"
+                        class="regular-text"
+                    ><?php echo $order->get_meta('wcip_footer_notes'); ?></textarea>
+                </div>
+            </div>
         </div>
     </form>
 </div>
@@ -641,6 +675,15 @@ final class Wc_Payment_Invoice_Admin {
                             required
                         >
                     </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_extra_data"><?php _e('Extra data', 'wc-invoice-payment'); ?></label>
+                        <textarea
+                            name="lkn_wcip_extra_data"
+                            id="lkn_wcip_extra_data"
+                            class="regular-text"
+                        ></textarea>
+                    </div>
                 </div>
             </div>
         </div>
@@ -670,6 +713,12 @@ final class Wc_Payment_Invoice_Admin {
                         name="lkn_wcip_exp_date"
                         min="<?php esc_attr_e(date('Y-m-d')); ?>"
                     >
+                </div>
+                <div class="input-row-wrap">
+                    <a
+                        for="lkn_wcip_generate_pdf_btn"
+                        href=""
+                    ><?php _e('Generate PDF', 'wc-invoice-payment'); ?></a>
                 </div>
             </div>
             <div class="action-btn">
@@ -724,6 +773,26 @@ final class Wc_Payment_Invoice_Admin {
                 ><?php _e('Add line', 'wc-invoice-payment'); ?></button>
             </div>
         </div>
+        <div style="width: 100%;"></div>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php _e('Footer notes', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <div class="input-row-wrap">
+                    <label><?php _e('Details in HTML', 'wc-invoice-payment'); ?></label>
+                    <textarea
+                        name="lkn-wc-invoice-payment-footer-notes"
+                        id="lkn-wc-invoice-payment-footer-notes"
+                        class="regular-text"
+                        required
+                    ></textarea>
+                </div>
+            </div>
+        </div>
     </form>
 </div>
 <?php
@@ -771,6 +840,8 @@ final class Wc_Payment_Invoice_Admin {
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
+                $extraData = sanitize_text_field($_POST['lkn_wcip_extra_data']);
+                $footerNotes = wp_kses($_POST['lkn-wc-invoice-payment-footer-notes'], array());
 
                 $order = wc_create_order(
                     array(
@@ -780,6 +851,9 @@ final class Wc_Payment_Invoice_Admin {
                         'total' => $totalAmount,
                     )
                 );
+
+                $order->update_meta_data('wcip_extra_data', $extraData);
+                $order->update_meta_data('wcip_footer_notes', $footerNotes);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); ++$i) {
@@ -897,6 +971,11 @@ final class Wc_Payment_Invoice_Admin {
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
+                $extraData = sanitize_text_field($_POST['lkn_wcip_extra_data']);
+                $footerNotes = wp_kses($_POST['lkn-wc-invoice-payment-footer-notes'], array());
+
+                $order->update_meta_data('wcip_extra_data', $extraData);
+                $order->update_meta_data('wcip_footer_notes', $footerNotes);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); ++$i) {
