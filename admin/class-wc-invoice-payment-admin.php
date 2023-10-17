@@ -350,8 +350,9 @@ final class Wc_Payment_Invoice_Admin {
                     </div>
                     <div class="input-row-wrap">
                         <a
-                            for="lkn_wcip_generate_pdf_btn"
-                            href=""
+                            class="lkn_wcip_generate_pdf_btn"
+                            href="#"
+                            data-invoice-id="<?php echo $invoiceId; ?>"
                         ><?php _e('Generate PDF', 'wc-invoice-payment'); ?></a>
                     </div>
                 </div>
@@ -740,12 +741,6 @@ final class Wc_Payment_Invoice_Admin {
                         name="lkn_wcip_exp_date"
                         min="<?php esc_attr_e(date('Y-m-d')); ?>"
                     >
-                </div>
-                <div class="input-row-wrap">
-                    <a
-                        for="lkn_wcip_generate_pdf_btn"
-                        href=""
-                    ><?php _e('Generate PDF', 'wc-invoice-payment'); ?></a>
                 </div>
             </div>
             <div class="action-btn">

@@ -79,9 +79,7 @@ function lkn_wcip_delete_invoice () {
   }
 }
 
-function lkn_wcip_generate_invoice_pdf () {
-  const invoiceId = (new URLSearchParams(window.location.search)).get('invoice')
-
+function lkn_wcip_generate_invoice_pdf (invoiceId) {
   fetch(`/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
     method: 'GET',
     headers: {
@@ -90,17 +88,26 @@ function lkn_wcip_generate_invoice_pdf () {
   })
     .then(response => response.blob())
     .then(blob => {
-      // Create a blob link to download the PDF
       const url = window.URL.createObjectURL(new Blob([blob]))
       const link = document.createElement('a')
+
       link.href = url
       link.setAttribute('download', 'invoice.pdf')
       document.body.appendChild(link)
+
       link.click()
+
       link.parentNode.removeChild(link)
     })
     .catch(error => {
-      // Handle any errors
       console.error('Error:', error)
     })
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btnGenerateInvoicePdf = document.querySelectorAll('.lkn_wcip_generate_pdf_btn') ?? []
+
+  btnGenerateInvoicePdf.forEach(btn => {
+    btn.addEventListener('click', () => lkn_wcip_generate_invoice_pdf(btn.dataset.invoiceId))
+  })
+})
