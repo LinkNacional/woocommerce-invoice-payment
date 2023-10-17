@@ -88,3 +88,19 @@ msgstr "Link de pagamento"
 
 msgid "Due date"
 msgstr "Data de vencimento"
+
+msgid "Payment details"
+msgstr "Detalhes do pagamento"
+
+msgid "Payment method"
+msgstr "Método de pagamento"
+
+msgid "Description"
+msgstr "Descrição"
+
+msgid "Bill To"
+msgstr "Destinatário"
+
+
+msgid "Date"
+msgstr "Data"

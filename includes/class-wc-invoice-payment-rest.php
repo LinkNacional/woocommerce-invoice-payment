@@ -29,9 +29,27 @@ final class Wc_Payment_Invoice_Loader_Rest {
         $invoice_id = $request->get_param( 'invoice_id' );
 
         $getHtml = function () use ($invoice_id) {
-            return require_once __DIR__ . '/templates/linknacional/main.php';
+            return require_once __DIR__ . '/templates/saturno/main.php';
         };
+        // Prints the HTML
+        // header('Content-Type: text/html');
+        // echo $getHtml();
+        // exit;
 
+        // Displays the PDF in the browser
+        // $dompdf = new Dompdf();
+        // $dompdf->loadHtml($getHtml());
+        // $dompdf->setPaper('A4', 'portrait');
+        // $dompdf->render();
+        // $output = $dompdf->output();
+        // $file_name = 'invoice_' . $invoice_id . '.pdf';
+        // header('Content-Type: application/pdf');
+        // header('Content-Disposition: inline; filename="' . $file_name . '"');
+        // header('Content-Length: ' . strlen($output));
+        // echo $output;
+        // die();
+
+        // Downloads the PDF
         $dompdf = new Dompdf();
         $dompdf->loadHtml($getHtml());
         $dompdf->setPaper('A4', 'portrait');

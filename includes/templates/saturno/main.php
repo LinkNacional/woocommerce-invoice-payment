@@ -17,6 +17,7 @@ $order_currency = $order->get_currency();
 $order_total = $order->get_total();
 $invoice_number = $order->get_order_number();
 $invoice_created_at = $invoice_date = $order->get_date_created()->format('d/m/y');
+$invoice_payment_method = wc_get_payment_gateway_by_order($order)->title;
 
 $items = $order->get_items();
 $invoice_payment_link = $order->get_checkout_payment_url();
@@ -41,12 +42,6 @@ $wcip_footer_notes = $order->get_meta('wcip_footer_notes');
 
 // Load CSS styles.
 $styles = file_get_contents(__DIR__ . '/styles.css');
-
-// Load logo as base 64.
-$logo_path = WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/templates/linknacional/logo.jpg';
-$type = pathinfo($logo_path, PATHINFO_EXTENSION);
-$data = file_get_contents($logo_path);
-$logo_base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
 
 // Generates the QR Code as base 64 for the payment link.
 ob_start();
@@ -77,16 +72,19 @@ ob_start();
         <table>
             <tr>
                 <td>
-                    <img
-                        src="<?php echo $logo_base64; ?>"
-                        width="160"
-                        height="160"
-                    >
+                    <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?></h1>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 50%;">
+                    <section id="bill-to-container">
+                        <div><?php echo nl2br($wcip_extra_data); ?></div>
+                    </section>
                 </td>
                 <td id="invoice-details-column">
                     <table>
                         <tr>
-                            <td>
+                            <td style="width: 70%;">
                                 <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
                             </td>
                             <td>
@@ -101,27 +99,26 @@ ob_start();
                                 <?php echo $invoice_created_at; ?>
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                <?php esc_html_e('Payment method', 'wc-invoice-payment'); ?>
+                            </td>
+                            <td>
+                                <?php echo $invoice_payment_method; ?>
+                            </td>
+                        </tr>
                     </table>
                 </td>
             </tr>
         </table>
     </header>
 
-    <section id="bill-to-container">
-        <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?>
-        </h1>
-
-        <div><?php echo nl2br($wcip_extra_data); ?></div>
-    </section>
-
     <section id="order-items-table-container">
         <table id="order-items-table">
             <thead>
                 <tr>
-                    <th><?php esc_html_e('Description', 'wc-invoice-payment'); ?>
-                    </th>
-                    <th><?php esc_html_e('Price', 'wc-invoice-payment'); ?>
-                    </th>
+                    <th><?php esc_html_e('Description', 'wc-invoice-payment'); ?></th>
+                    <th><?php esc_html_e('Price', 'wc-invoice-payment'); ?></th>
                 </tr>
             </thead>
 
@@ -131,7 +128,7 @@ ob_start();
 
             <tfoot>
                 <tr>
-                    <th>Totals</th>
+                    <th><?php esc_html_e('Total', 'wc-invoice-payment'); ?></th>
                     <td><?php echo "$order_currency " . to_wc_monetary_format($order_total); ?>
                     </td>
                 </tr>
@@ -152,6 +149,7 @@ ob_start();
     </section>
 
     <footer id="main-footer">
+        <h1><?php esc_html_e('Payment details', 'wc-invoice-payment'); ?></h1>
         <?php echo $wcip_footer_notes; ?>
     </footer>
 </body>

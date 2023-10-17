@@ -88,3 +88,18 @@ msgstr ""
 
 msgid "Due date"
 msgstr ""
+
+msgid "Payment details"
+msgstr ""
+
+msgid "Payment method"
+msgstr "Date"
+
+msgid "Description"
+msgstr ""
+
+msgid "Bill To"
+msgstr ""
+
+msgid "Date"
+msgstr ""

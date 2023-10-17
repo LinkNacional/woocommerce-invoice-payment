@@ -15,13 +15,14 @@ body {
 }
 
 h1 {
-	font-size: 1.5em;
+	font-size: 1.2em;
 	margin-bottom: 12px;
 }
 
 header {
 	width: 100%;
 	position: relative;
+	margin-bottom: 64px;
 }
 
 header img {
@@ -29,7 +30,7 @@ header img {
 }
 
 #bill-to-container {
-	margin: 50px 0px;
+	/* margin: 50px 0px; */
 }
 
 header table {
@@ -37,13 +38,10 @@ header table {
 }
 
 #invoice-details-column {
-	vertical-align: bottom;
 	text-transform: uppercase;
 	font-size: 0.9em;
-}
-
-#invoice-details-column {
 	font-weight: bold;
+	vertical-align: top;
 }
 
 #qr-code-container {
@@ -61,27 +59,26 @@ header table {
 
 #order-items-table {
 	width: 100%;
-	border: 1px solid rgba(0, 0, 0, .12);
+	border-collapse: collapse;
 	font-size: 0.95em;
 }
 
-#order-items-table thead th:first-child {
-	width: 70%;
-}
+#order-items-table thead th:first-child {}
 
-#order-items-table th {
-	padding: 16px;
-	border-bottom: 1px solid rgba(0, 0, 0, .12);
+#order-items-table thead th {
+	padding: 12px 18px;
+	background-color: #343b4521;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	text-transform: uppercase;
 }
 
 #order-items-table th {
 	text-align: left;
-	/* border-bottom: 1px solid rgba(0, 0, 0, .12); */
 }
 
 #order-items-table tbody td {
-	padding: 8px 16px;
-	border-bottom: 1px solid rgba(0, 0, 0, .12);
+	padding: 8px 18px;
 }
 
 #order-items-table tfoot th:first-child {
@@ -90,16 +87,17 @@ header table {
 
 #order-items-table tfoot th {
 	text-align: right;
+	text-transform: uppercase;
 }
 
 #order-items-table tfoot td {
 	text-align: left;
-	padding: 8px 16px;
+	padding: 24px 18px;
 }
 
 #order-items-table tfoot * {
+	font-size: 1.1em;
 	border-bottom: none;
-	font-size: 1.2em;
 	font-weight: bold;
 }
 
