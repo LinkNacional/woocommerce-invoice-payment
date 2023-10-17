@@ -97,9 +97,9 @@ final class Wc_Payment_Invoice_Admin {
          * between the defined hooks and the functions defined in this
          * class.
          */
-
         if (
             strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_new-invoice' === $hook
+            || strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_settings' === $hook
             || 'toplevel_page_wc-invoice-payment' === $hook
             || 'admin_page_edit-invoice' === $hook
         ) {
@@ -160,6 +160,68 @@ final class Wc_Payment_Invoice_Admin {
             array($this, 'render_invoice_list_page'),
             1
         );
+
+        add_submenu_page(
+            'wc-invoice-payment',
+            __('Settings', 'wc-invoice-payment'),
+            __('Settings', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'settings',
+            array($this, 'render_settings_page'),
+            1
+        );
+    }
+
+    public function render_settings_page(): void {
+        if ( ! current_user_can('manage_woocommerce')) {
+            return;
+        }
+
+        $paths = glob(WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/templates/*/*.webp');
+
+        $paths = array_map(function (string $path): string {
+            return str_replace(WC_PAYMENT_INVOICE_ROOT_DIR, WC_PAYMENT_INVOICE_ROOT_URL, $path);
+        }, $paths);
+
+        wp_create_nonce('wp_rest');
+        ?>
+<div class="wrap">
+    <h1><?php _e('Settings', 'wc-invoice-payment'); ?>
+    </h1>
+    <?php settings_errors(); ?>
+    <form
+        action="<?php menu_page_url('settings'); ?>"
+        method="post"
+        class="wcip-form-wrap"
+    >
+        <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php _e('PDF template settings', 'wc-invoice-payment'); ?>
+            </h2>
+            <div class="invoice-row-wrap">
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_payment_status_input"><?php _e('Template', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_payment_status"
+                            id="lkn_wcip_payment_status_input"
+                            class="regular-text"
+                        >
+                            <option data-preview-url="">Template com logo</option>
+                            <option data-preview-url="">Template sem logo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<?php
+    }
+
+    public function settings_page_form_submit_handle(): void {
     }
 
     /**
@@ -218,6 +280,7 @@ final class Wc_Payment_Invoice_Admin {
         method="post"
         class="wcip-form-wrap"
     >
+        <input id="wcip_rest_nonce" type="hidden" value="<?php echo wp_create_nonce('wp_rest'); ?>">
         <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
         <div class="wcip-invoice-data">
             <!-- Invoice details -->
@@ -530,11 +593,14 @@ final class Wc_Payment_Invoice_Admin {
     public function render_invoice_list_page(): void {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
-        } ?>
+        }
+        ?>
 <form
     id="invoices-filter"
     method="POST"
 >
+    <input id="wcip_rest_nonce" type="hidden" value="<?php echo wp_create_nonce('wp_rest'); ?>">
+
     <div class="wrap">
         <h1><?php esc_html_e(get_admin_page_title()); ?></h1>
         <div>

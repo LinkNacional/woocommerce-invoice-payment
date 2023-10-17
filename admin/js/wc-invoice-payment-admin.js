@@ -83,7 +83,8 @@ function lkn_wcip_generate_invoice_pdf (invoiceId) {
   fetch(`/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json'
+      'content-type': 'application/json',
+      'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
     }
   })
     .then(response => response.blob())

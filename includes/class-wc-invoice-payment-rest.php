@@ -1,7 +1,6 @@
 <?php
 
 use Dompdf\Dompdf;
-use Dompdf\Options;
 
 /**
  * @see       https://www.linknacional.com/
@@ -21,7 +20,6 @@ final class Wc_Payment_Invoice_Loader_Rest {
     }
 
     public function check_permission() {
-        return true;
         return current_user_can('administrator');
     }
 
@@ -29,7 +27,7 @@ final class Wc_Payment_Invoice_Loader_Rest {
         $invoice_id = $request->get_param( 'invoice_id' );
 
         $getHtml = function () use ($invoice_id) {
-            return require_once __DIR__ . '/templates/linknacional/main.php';
+            return require_once __DIR__ . '/templates/saturno/main.php';
         };
         // Prints the HTML
         // header('Content-Type: text/html');
