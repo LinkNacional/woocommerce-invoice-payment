@@ -104,3 +104,6 @@ msgstr "Destinatário"
 
 msgid "Date"
 msgstr "Data"
+
+msgid "Generate PDF"
+msgstr "Gerar PDF"

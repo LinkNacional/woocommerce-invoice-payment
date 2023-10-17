@@ -29,7 +29,7 @@ final class Wc_Payment_Invoice_Loader_Rest {
         $invoice_id = $request->get_param( 'invoice_id' );
 
         $getHtml = function () use ($invoice_id) {
-            return require_once __DIR__ . '/templates/saturno/main.php';
+            return require_once __DIR__ . '/templates/linknacional/main.php';
         };
         // Prints the HTML
         // header('Content-Type: text/html');
@@ -56,7 +56,7 @@ final class Wc_Payment_Invoice_Loader_Rest {
         $dompdf->render();
 
         $output = $dompdf->output();
-        $file_name = 'invoice.pdf';
+        $file_name = __('Invoice', 'wc-invoice-payment') . '-' . $invoice_id . '.pdf';
 
         header('Content-Description: File Transfer');
         header('Content-Type: application/pdf');

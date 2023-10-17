@@ -40,8 +40,11 @@ header table {
 #invoice-details-column {
 	text-transform: uppercase;
 	font-size: 0.9em;
-	font-weight: bold;
 	vertical-align: top;
+}
+
+#invoice-details-column td:first-child {
+	font-weight: bold;
 }
 
 #qr-code-container {

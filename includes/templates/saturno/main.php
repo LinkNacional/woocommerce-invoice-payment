@@ -50,6 +50,8 @@ $qrCodeData = ob_get_clean();
 
 $payment_link_qr_code = base64_encode($qrCodeData);
 
+$document_title = __('Invoice', 'wc-invoice-payment') . $invoice_id . '.pdf';
+
 ob_start();
 ?>
 
@@ -57,6 +59,7 @@ ob_start();
 <html lang="pt-BR">
 
 <head>
+    <title><?php echo $document_title; ?></title>
     <meta charset="utf-8" />
     <meta
         name="viewport"
@@ -140,8 +143,8 @@ ob_start();
         <figure>
             <img
                 src="data:image/png;base64, <?php echo $payment_link_qr_code; ?>"
-                width="180"
-                height="180"
+                width="230"
+                height="230"
             >
             <figcaption><?php echo $invoice_payment_link; ?>
             </figcaption>

@@ -55,6 +55,8 @@ $qrCodeData = ob_get_clean();
 
 $payment_link_qr_code = base64_encode($qrCodeData);
 
+$document_title = __('Invoice', 'wc-invoice-payment') . $invoice_id . '.pdf';
+
 ob_start();
 ?>
 
@@ -62,6 +64,7 @@ ob_start();
 <html lang="pt-BR">
 
 <head>
+    <title><?php echo $document_title; ?></title>
     <meta charset="utf-8" />
     <meta
         name="viewport"

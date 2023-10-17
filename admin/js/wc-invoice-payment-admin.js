@@ -92,7 +92,7 @@ function lkn_wcip_generate_invoice_pdf (invoiceId) {
       const link = document.createElement('a')
 
       link.href = url
-      link.setAttribute('download', 'invoice.pdf')
+      link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf')
       document.body.appendChild(link)
 
       link.click()

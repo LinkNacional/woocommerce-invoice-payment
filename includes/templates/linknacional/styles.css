@@ -42,7 +42,7 @@ header table {
 	font-size: 0.9em;
 }
 
-#invoice-details-column {
+#invoice-details-column td:first-child {
 	font-weight: bold;
 }
 
