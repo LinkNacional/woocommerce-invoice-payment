@@ -1,3 +1,6 @@
+### 1.2.0 - 18/10/23
+- Add PDF generation for invoices
+
 ### v1.1.4 - 07/06/23
 - Fix invoices table error when the invoice order is deleted.
 

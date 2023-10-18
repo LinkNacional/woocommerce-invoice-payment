@@ -88,3 +88,51 @@ msgstr ""
 
 msgid "Due date"
 msgstr ""
+
+msgid "Payment details"
+msgstr ""
+
+msgid "Payment method"
+msgstr "Date"
+
+msgid "Description"
+msgstr ""
+
+msgid "Bill To"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Download invoice"
+msgstr ""
+
+msgid "Unable to generate the PDF. Please, contact support."
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Default PDF template for invoices"
+msgstr ""
+
+msgid "Invoice PDF template"
+msgstr ""
+
+msgid "Extra data"
+msgstr ""
+
+msgid "Footer notes"
+msgstr ""
+
+msgid "Details in HTML"
+msgstr ""
+
+msgid "Default template"
+msgstr ""
+
+msgid "Logo URL"
+msgstr ""
+
+msgid "Invoice By Link Nacional"
+msgstr ""

@@ -35,6 +35,12 @@ final class Wc_Payment_Invoice_Admin {
     private $version;
 
     /**
+     * @since 1.2.0
+     * @var Wc_Payment_Invoice_Pdf_Templates
+     */
+    private $handler_invoice_templates;
+
+    /**
      * Initialize the class and set its properties.
      *
      * @since    1.0.0
@@ -48,6 +54,8 @@ final class Wc_Payment_Invoice_Admin {
 
         add_action('admin_menu', array($this, 'add_setting_session'));
         add_action('admin_menu', array($this, 'add_new_invoice_submenu_section'));
+
+        $this->handler_invoice_templates = new Wc_Payment_Invoice_Pdf_Templates($this->plugin_name, $this->version);
     }
 
     /**
@@ -97,9 +105,9 @@ final class Wc_Payment_Invoice_Admin {
          * between the defined hooks and the functions defined in this
          * class.
          */
-
         if (
             strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_new-invoice' === $hook
+            || strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_settings' === $hook
             || 'toplevel_page_wc-invoice-payment' === $hook
             || 'admin_page_edit-invoice' === $hook
         ) {
@@ -129,6 +137,7 @@ final class Wc_Payment_Invoice_Admin {
 
         if (
             strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_new-invoice' === $hook
+            || strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_settings' === $hook
             || 'toplevel_page_wc-invoice-payment' === $hook
             || 'admin_page_edit-invoice' === $hook
         ) {
@@ -160,6 +169,103 @@ final class Wc_Payment_Invoice_Admin {
             array($this, 'render_invoice_list_page'),
             1
         );
+
+        add_submenu_page(
+            'wc-invoice-payment',
+            __('Settings', 'wc-invoice-payment'),
+            __('Settings', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'settings',
+            array($this, 'render_settings_page'),
+            1
+        );
+    }
+
+    public function render_settings_page(): void {
+        if ( ! current_user_can('manage_woocommerce')) {
+            return;
+        }
+
+        if ( ! empty($_POST)) {
+            $global_pdf_template = sanitize_text_field($_POST['lkn_wcip_payment_global_template']);
+            $template_logo_url = sanitize_text_field($_POST['lkn_wcip_template_logo_url']);
+
+            update_option('lkn_wcip_global_pdf_template_id', $global_pdf_template);
+            update_option('lkn_wcip_template_logo_url', $template_logo_url);
+        }
+
+        $templates_list = $this->handler_invoice_templates->get_templates_list();
+        $global_template = get_option('lkn_wcip_global_pdf_template_id', 'linknacional');
+        $template_logo_url = get_option('lkn_wcip_template_logo_url');
+
+        $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
+            $template_id = $template['id'];
+            $friendly_template_name = $template['friendly_name'];
+            $preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+
+            $selected = $global_template === $template_id ? 'selected' : '';
+
+            return "<option $selected data-preview-url='$preview_url' value='$template_id'>$friendly_template_name</option>";
+        }, $templates_list));
+
+        wp_create_nonce('wp_rest');
+        ?>
+<div class="wrap">
+    <h1><?php _e('Settings', 'wc-invoice-payment'); ?>
+    </h1>
+    <?php settings_errors(); ?>
+    <form
+        action="<?php menu_page_url('settings'); ?>"
+        method="post"
+        class="wcip-form-wrap"
+    >
+        <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php _e('Invoice settings', 'wc-invoice-payment'); ?>
+            </h2>
+            <div class="invoice-row-wrap">
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_payment_global_template">
+                            <?php _e('Default PDF template for invoices', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select
+                            name="lkn_wcip_payment_global_template"
+                            id="lkn_wcip_payment_global_template"
+                            class="regular-text"
+                        >
+                            <?php echo $html_templates_list; ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
+                    </div>
+
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_payment_global_template">
+                            <?php _e('Logo URL', 'wc-invoice-payment'); ?>
+                        </label>
+                        <input
+                            name="lkn_wcip_template_logo_url"
+                            id="lkn_wcip_template_logo_url"
+                            class="regular-text"
+                            type="url"
+                            value="<?php echo $template_logo_url; ?>"
+                        >
+                    </div>
+                </div>
+            </div>
+            <div class="action-btn">
+                <?php submit_button(__('Save')); ?>
+            </div>
+        </div>
+    </form>
+</div>
+<?php
+    }
+
+    public function settings_page_form_submit_handle(): void {
     }
 
     /**
@@ -169,6 +275,10 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
+
+        wp_enqueue_editor();
+        wp_create_nonce('wp_rest');
+
         $invoiceId = sanitize_text_field($_GET['invoice']);
 
         $decimalSeparator = wc_get_price_decimal_separator();
@@ -187,9 +297,24 @@ final class Wc_Payment_Invoice_Admin {
 
         $c = 0;
         $order = wc_get_order($invoiceId);
+
         $items = $order->get_items();
         $checkoutUrl = $order->get_checkout_payment_url();
         $orderStatus = $order->get_status();
+
+        $invoice_template = $order->get_meta('wcip_select_invoice_template_id') ?? get_option('lkn_wcip_global_pdf_template_id', 'global');
+
+        $templates_list = $this->handler_invoice_templates->get_templates_list();
+
+        $html_templates_list = implode(array_map(function ($template) use ($invoice_template): string {
+            $template_id = $template['id'];
+            $friendly_template_name = $template['friendly_name'];
+            $preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+
+            $selected = $invoice_template === $template_id ? 'selected' : '';
+
+            return "<option $selected data-preview-url='$preview_url' value='$template_id'>$friendly_template_name</option>";
+        }, $templates_list));
 
         $currencies = get_woocommerce_currencies();
 
@@ -213,6 +338,11 @@ final class Wc_Payment_Invoice_Admin {
         method="post"
         class="wcip-form-wrap"
     >
+        <input
+            id="wcip_rest_nonce"
+            type="hidden"
+            value="<?php echo wp_create_nonce('wp_rest'); ?>"
+        >
         <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
         <div class="wcip-invoice-data">
             <!-- Invoice details -->
@@ -277,6 +407,24 @@ final class Wc_Payment_Invoice_Admin {
                                 } ?>
                         </select>
                     </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_select_invoice_template">
+                            <?php _e('Invoice PDF template', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select
+                            name="lkn_wcip_select_invoice_template"
+                            id="lkn_wcip_select_invoice_template"
+                            class="regular-text"
+                            value="<?php echo $invoice_template; ?>"
+                            required
+                        >
+                            <option value="global"><?php _e('Default template', 'wc-invoice-payment'); ?></option>
+                            <?php echo $html_templates_list; ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
+                    </div>
                 </div>
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
@@ -302,6 +450,15 @@ final class Wc_Payment_Invoice_Admin {
                             required
                             value="<?php esc_html_e($order->get_billing_email()); ?>"
                         >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_extra_data"><?php _e('Extra data', 'wc-invoice-payment'); ?></label>
+                        <textarea
+                            name="lkn_wcip_extra_data"
+                            id="lkn_wcip_extra_data"
+                            class="regular-text"
+                        ><?php echo $order->get_meta('wcip_extra_data'); ?></textarea>
                     </div>
                 </div>
             </div>
@@ -333,6 +490,13 @@ final class Wc_Payment_Invoice_Admin {
                             value="<?php esc_attr_e($order->get_meta('lkn_exp_date')); ?>"
                             min="<?php esc_attr_e(date('Y-m-d')); ?>"
                         >
+                    </div>
+                    <div class="input-row-wrap">
+                        <a
+                            class="lkn_wcip_generate_pdf_btn"
+                            href="#"
+                            data-invoice-id="<?php echo $invoiceId; ?>"
+                        ><?php _e('Download invoice', 'wc-invoice-payment'); ?></a>
                     </div>
                 </div>
                 <?php
@@ -459,8 +623,47 @@ final class Wc_Payment_Invoice_Admin {
             <?php
             } ?>
         </div>
+        <div style="width: 100%;"></div>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php _e('Footer notes', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <div class="input-row-wrap">
+                    <label><?php _e('Details in HTML', 'wc-invoice-payment'); ?></label>
+                    <textarea
+                        name="lkn-wc-invoice-payment-footer-notes"
+                        id="lkn-wc-invoice-payment-footer-notes"
+                    ><?php echo $order->get_meta('wcip_footer_notes'); ?></textarea>
+                </div>
+            </div>
+        </div>
     </form>
 </div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        wp.editor.initialize('lkn-wc-invoice-payment-footer-notes', {
+            tinymce: {
+                toolbar1: 'bold italic underline',
+                style_formats: [{
+                    title: 'Underline',
+                    inline: 'u'
+                }]
+            },
+            quicktags: true
+        })
+
+        const btnSubmit = document.getElementById('submit')
+        const footerNotesTextarea = document.getElementById('lkn-wc-invoice-payment-footer-notes')
+
+        btnSubmit.addEventListener('click', () => {
+            footerNotesTextarea.innerHTML = wp.editor.getContent('lkn-wc-invoice-payment-footer-notes')
+        })
+    })
+</script>
 <?php
     }
 
@@ -470,11 +673,18 @@ final class Wc_Payment_Invoice_Admin {
     public function render_invoice_list_page(): void {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
-        } ?>
+        }
+        ?>
 <form
     id="invoices-filter"
     method="POST"
 >
+    <input
+        id="wcip_rest_nonce"
+        type="hidden"
+        value="<?php echo wp_create_nonce('wp_rest'); ?>"
+    >
+
     <div class="wrap">
         <h1><?php esc_html_e(get_admin_page_title()); ?></h1>
         <div>
@@ -525,11 +735,23 @@ final class Wc_Payment_Invoice_Admin {
             return;
         }
 
+        wp_enqueue_editor();
+
         $currencies = get_woocommerce_currencies();
         $active_currency = get_woocommerce_currency();
 
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
         $enabled_gateways = array();
+
+        $templates_list = $this->handler_invoice_templates->get_templates_list();
+
+        $html_templates_list = implode(array_map(function ($template): string {
+            $template_id = $template['id'];
+            $friendly_template_name = $template['friendly_name'];
+            $preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+
+            return "<option data-preview-url='$preview_url' value='$template_id'>$friendly_template_name</option>";
+        }, $templates_list));
 
         // Get all WooCommerce enabled gateways
         if ($gateways) {
@@ -617,6 +839,23 @@ final class Wc_Payment_Invoice_Admin {
                                 } ?>
                         </select>
                     </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_select_invoice_template">
+                            <?php _e('Invoice PDF template', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select
+                            name="lkn_wcip_select_invoice_template"
+                            id="lkn_wcip_select_invoice_template"
+                            class="regular-text"
+                            required
+                        >
+                            <option value="global"><?php _e('Default template', 'wc-invoice-payment'); ?></option>
+                            <?php echo $html_templates_list; ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
+                    </div>
                 </div>
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
@@ -640,6 +879,15 @@ final class Wc_Payment_Invoice_Admin {
                             class="regular-text"
                             required
                         >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_extra_data"><?php _e('Extra data', 'wc-invoice-payment'); ?></label>
+                        <textarea
+                            name="lkn_wcip_extra_data"
+                            id="lkn_wcip_extra_data"
+                            class="regular-text"
+                        ></textarea>
                     </div>
                 </div>
             </div>
@@ -724,8 +972,48 @@ final class Wc_Payment_Invoice_Admin {
                 ><?php _e('Add line', 'wc-invoice-payment'); ?></button>
             </div>
         </div>
+        <div style="width: 100%;"></div>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php _e('Footer notes', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <div class="input-row-wrap">
+                    <label><?php _e('Details in HTML', 'wc-invoice-payment'); ?></label>
+                    <textarea
+                        name="lkn-wc-invoice-payment-footer-notes"
+                        id="lkn-wc-invoice-payment-footer-notes"
+                        class="regular-text"
+                    ></textarea>
+                </div>
+            </div>
+        </div>
     </form>
 </div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        wp.editor.initialize('lkn-wc-invoice-payment-footer-notes', {
+            tinymce: {
+                toolbar1: 'bold italic underline',
+                style_formats: [{
+                    title: 'Underline',
+                    inline: 'u'
+                }]
+            },
+            quicktags: true
+        })
+
+        const btnSubmit = document.getElementById('submit')
+        const footerNotesTextarea = document.getElementById('lkn-wc-invoice-payment-footer-notes')
+
+        btnSubmit.addEventListener('click', () => {
+            footerNotesTextarea.innerHTML = wp.editor.getContent('lkn-wc-invoice-payment-footer-notes')
+        })
+    })
+</script>
 <?php
     }
 
@@ -771,6 +1059,17 @@ final class Wc_Payment_Invoice_Admin {
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
+                $extraData = sanitize_text_field($_POST['lkn_wcip_extra_data']);
+                $footerNotes = wp_kses(
+                    $_POST['lkn-wc-invoice-payment-footer-notes'],
+                    array(
+                        'b' => array(),
+                        'i' => array(),
+                        'em' => array(),
+                        'strong' => array(),
+                        'p' => array()
+                    )
+                );
 
                 $order = wc_create_order(
                     array(
@@ -780,6 +1079,11 @@ final class Wc_Payment_Invoice_Admin {
                         'total' => $totalAmount,
                     )
                 );
+                $order->update_meta_data('wcip_extra_data', $extraData);
+                $order->update_meta_data('wcip_footer_notes', $footerNotes);
+
+                $pdfTemplateId = sanitize_text_field($_POST['lkn_wcip_select_invoice_template']);
+                $order->update_meta_data('wcip_select_invoice_template_id', $pdfTemplateId);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); ++$i) {
@@ -897,6 +1201,23 @@ final class Wc_Payment_Invoice_Admin {
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
+                $pdfTemplateId = sanitize_text_field($_POST['lkn_wcip_select_invoice_template']);
+                $extraData = wp_kses($_POST['lkn_wcip_extra_data'], array('br' => array()));
+                $footerNotes = wp_kses(
+                    $_POST['lkn-wc-invoice-payment-footer-notes'],
+                    array(
+                        'b' => array(),
+                        'i' => array(),
+                        'em' => array(),
+                        'strong' => array(),
+                        'p' => array(),
+                        'br' => array()
+                    )
+                );
+
+                $order->update_meta_data('wcip_extra_data', $extraData);
+                $order->update_meta_data('wcip_footer_notes', $footerNotes);
+                $order->update_meta_data('wcip_select_invoice_template_id', $pdfTemplateId);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); ++$i) {
