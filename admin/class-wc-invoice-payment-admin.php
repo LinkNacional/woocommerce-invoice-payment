@@ -188,12 +188,15 @@ final class Wc_Payment_Invoice_Admin {
 
         if ( ! empty($_POST)) {
             $global_pdf_template = sanitize_text_field($_POST['lkn_wcip_payment_global_template']);
+            $template_logo_url = sanitize_text_field($_POST['lkn_wcip_template_logo_url']);
 
             update_option('lkn_wcip_global_pdf_template_id', $global_pdf_template);
+            update_option('lkn_wcip_template_logo_url', $template_logo_url);
         }
 
         $templates_list = $this->handler_invoice_templates->get_templates_list();
         $global_template = get_option('lkn_wcip_global_pdf_template_id', 'linknacional');
+        $template_logo_url = get_option('lkn_wcip_template_logo_url');
 
         $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
             $template_id = $template['id'];
@@ -219,14 +222,13 @@ final class Wc_Payment_Invoice_Admin {
         <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
         <div class="wcip-invoice-data">
             <h2 class="title">
-                <?php _e('PDF template settings', 'wc-invoice-payment'); ?>
+                <?php _e('Invoice settings', 'wc-invoice-payment'); ?>
             </h2>
             <div class="invoice-row-wrap">
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_payment_global_template">
-                            <?php _e('PDF Template', 'wc-invoice-payment'); ?>
-                            (<?php _e('Hover to preview', 'wc-invoice-payment'); ?>)
+                            <?php _e('Default PDF template for invoices', 'wc-invoice-payment'); ?>
                         </label>
                         <select
                             name="lkn_wcip_payment_global_template"
@@ -238,6 +240,19 @@ final class Wc_Payment_Invoice_Admin {
                     </div>
                     <div class="input-row-wrap">
                         <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
+                    </div>
+
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_payment_global_template">
+                            <?php _e('Logo URL', 'wc-invoice-payment'); ?>
+                        </label>
+                        <input
+                            name="lkn_wcip_template_logo_url"
+                            id="lkn_wcip_template_logo_url"
+                            class="regular-text"
+                            type="url"
+                            value="<?php echo $template_logo_url; ?>"
+                        >
                     </div>
                 </div>
             </div>
@@ -394,8 +409,7 @@ final class Wc_Payment_Invoice_Admin {
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_select_invoice_template">
-                            <?php _e('PDF Template', 'wc-invoice-payment'); ?>
-                            (<?php _e('Hover to preview', 'wc-invoice-payment'); ?>)
+                            <?php _e('Invoice PDF template', 'wc-invoice-payment'); ?>
                         </label>
                         <select
                             name="lkn_wcip_select_invoice_template"
@@ -404,7 +418,7 @@ final class Wc_Payment_Invoice_Admin {
                             value="<?php echo $invoice_template; ?>"
                             required
                         >
-                            <option value="global">Global</option>
+                            <option value="global"><?php _e('Default template', 'wc-invoice-payment'); ?></option>
                             <?php echo $html_templates_list; ?>
                         </select>
                     </div>
@@ -482,7 +496,7 @@ final class Wc_Payment_Invoice_Admin {
                             class="lkn_wcip_generate_pdf_btn"
                             href="#"
                             data-invoice-id="<?php echo $invoiceId; ?>"
-                        ><?php _e('Generate PDF', 'wc-invoice-payment'); ?></a>
+                        ><?php _e('Download invoice', 'wc-invoice-payment'); ?></a>
                     </div>
                 </div>
                 <?php
@@ -827,8 +841,7 @@ final class Wc_Payment_Invoice_Admin {
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_select_invoice_template">
-                            <?php _e('PDF Template', 'wc-invoice-payment'); ?>
-                            (<?php _e('Hover to preview', 'wc-invoice-payment'); ?>)
+                            <?php _e('Invoice PDF template', 'wc-invoice-payment'); ?>
                         </label>
                         <select
                             name="lkn_wcip_select_invoice_template"
@@ -836,7 +849,7 @@ final class Wc_Payment_Invoice_Admin {
                             class="regular-text"
                             required
                         >
-                            <option value="global">Global</option>
+                            <option value="global"><?php _e('Default template', 'wc-invoice-payment'); ?></option>
                             <?php echo $html_templates_list; ?>
                         </select>
                     </div>

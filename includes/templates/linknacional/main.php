@@ -43,7 +43,8 @@ $wcip_footer_notes = $order->get_meta('wcip_footer_notes');
 $styles = file_get_contents(__DIR__ . '/styles.css');
 
 // Load logo as base 64.
-$logo_path = WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/templates/linknacional/logo.jpg';
+$logo_url_setting = get_option('lkn_wcip_template_logo_url');
+$logo_path = empty($logo_url_setting) ? 'https://dummyimage.com/180x180/000/fff' : $logo_url_setting;
 $type = pathinfo($logo_path, PATHINFO_EXTENSION);
 $data = file_get_contents($logo_path);
 $logo_base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
@@ -162,6 +163,12 @@ ob_start();
 
     <footer id="main-footer">
         <?php echo $wcip_footer_notes; ?>
+
+        <div style="text-align: center; width: 100%; opacity: 0.2; font-size: 0.8em; margin-top: 12px;">
+            <a href="https://www.linknacional.com.br/wordpress/woocommerce/faturas/" style="text-decoration: none;">
+                <?php _e('Invoice By Link Nacional', 'wc-invoice-payment'); ?>
+            </a>
+        </div>
     </footer>
 </body>
 

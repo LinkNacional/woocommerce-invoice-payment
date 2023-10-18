@@ -160,6 +160,12 @@ ob_start();
         <h1><?php esc_html_e('Payment details', 'wc-invoice-payment'); ?>
         </h1>
         <?php echo $wcip_footer_notes; ?>
+
+        <div style="text-align: center; width: 100%; opacity: 0.2; font-size: 0.8em; margin-top: 12px;">
+            <a href="https://www.linknacional.com.br/wordpress/woocommerce/faturas/" style="text-decoration: none;">
+                <?php _e('Invoice By Link Nacional', 'wc-invoice-payment'); ?>
+            </a>
+        </div>
     </footer>
 </body>
 

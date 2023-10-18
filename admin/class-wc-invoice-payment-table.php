@@ -1487,7 +1487,7 @@ class Lkn_Wcip_List_Table {
         $action = [];
         $action['edit'] = '<a href="' . $editUrl . '">' . __('Edit') . '</a>';
         $action['payment'] = '<a href="' . $paymentUrl . '" target="_blank">' . __('Payment link', 'wc-invoice-payment') . '</a>';
-        $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$invoiceId' href='#'>" . __('Generate PDF', 'wc-invoice-payment') . '</a>';
+        $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$invoiceId' href='#'>" . __('Download invoice', 'wc-invoice-payment') . '</a>';
 
         return $this->row_actions($action);
     }

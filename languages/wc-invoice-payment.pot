@@ -104,7 +104,7 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-msgid "Generate PDF"
+msgid "Download invoice"
 msgstr ""
 
 msgid "Unable to generate the PDF. Please, contact support."
@@ -113,17 +113,26 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-msgid "PDF Template (Hover to preview)"
+msgid "Default PDF template for invoices"
 msgstr ""
 
-msgid ""
+msgid "Invoice PDF template"
 msgstr ""
 
-msgid ""
+msgid "Extra data"
 msgstr ""
 
-msgid ""
+msgid "Footer notes"
 msgstr ""
 
-msgid ""
+msgid "Details in HTML"
+msgstr ""
+
+msgid "Default template"
+msgstr ""
+
+msgid "Logo URL"
+msgstr ""
+
+msgid "Invoice By Link Nacional"
 msgstr ""
