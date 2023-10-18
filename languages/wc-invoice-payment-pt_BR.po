@@ -88,3 +88,51 @@ msgstr "Link de pagamento"
 
 msgid "Due date"
 msgstr "Data de vencimento"
+
+msgid "Payment details"
+msgstr "Detalhes do pagamento"
+
+msgid "Payment method"
+msgstr "Método de pagamento"
+
+msgid "Description"
+msgstr "Descrição"
+
+msgid "Bill To"
+msgstr "Destinatário"
+
+msgid "Date"
+msgstr "Data"
+
+msgid "Download invoice"
+msgstr "Baixar fatura"
+
+msgid "Unable to generate the PDF. Please, contact support."
+msgstr "Não foi possível gerar o PDF. Por favor, entre em contato com o suporte."
+
+msgid "Settings"
+msgstr "Configurações"
+
+msgid "Default PDF template for invoices"
+msgstr "Template PDF padrão para faturas"
+
+msgid "Invoice PDF template"
+msgstr "Template do PDF da fatura"
+
+msgid "Extra data"
+msgstr "Dados extra"
+
+msgid "Footer notes"
+msgstr "Notas do rodapé"
+
+msgid "Details in HTML"
+msgstr "Detalhes em HTML"
+
+msgid "Default template"
+msgstr "Template padrão"
+
+msgid "Logo URL"
+msgstr "URL da logo"
+
+msgid "Invoice By Link Nacional"
+msgstr "Fatura por Link Nacional"

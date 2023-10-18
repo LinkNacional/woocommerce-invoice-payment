@@ -78,3 +78,92 @@ function lkn_wcip_delete_invoice () {
     window.location.href += '&lkn_wcip_delete=true'
   }
 }
+
+function lkn_wcip_generate_invoice_pdf (invoiceId) {
+  fetch(`/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
+    }
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error()
+      }
+
+      return res.blob()
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(new Blob([blob]))
+      const link = document.createElement('a')
+
+      link.href = url
+      link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf')
+      document.body.appendChild(link)
+
+      link.click()
+
+      link.parentNode.removeChild(link)
+    })
+    .catch(error => {
+      window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
+      console.error(error)
+    })
+}
+
+/**
+   *
+   * @param {HTMLSelectElement} selectTpl
+   * @param {HTMLImageElement} imgPreview
+   */
+function handlePreviewPdfTemplate (selectTpl, imgPreview) {
+  const optionSelectedTemplate = selectTpl.options[selectTpl.selectedIndex]
+  imgPreview.src = optionSelectedTemplate.dataset.previewUrl
+
+  selectTpl.addEventListener('change', event => {
+    const optionSelectedTemplate = selectTpl.options[selectTpl.selectedIndex]
+
+    if (!optionSelectedTemplate.dataset.previewUrl) {
+      imgPreview.style.display = 'none'
+
+      return
+    }
+
+    imgPreview.src = optionSelectedTemplate.dataset.previewUrl
+  })
+
+  selectTpl.addEventListener('mouseover', event => {
+    const optionSelectedTemplate = selectTpl.options[selectTpl.selectedIndex]
+
+    if (!optionSelectedTemplate.dataset.previewUrl) {
+      return
+    }
+
+    imgPreview.style.display = 'flex'
+  })
+
+  selectTpl.parentElement.parentElement.addEventListener('mouseleave', event => {
+    imgPreview.style.display = 'none'
+  })
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btnGenerateInvoicePdf = document.querySelectorAll('.lkn_wcip_generate_pdf_btn') ?? []
+
+  btnGenerateInvoicePdf.forEach(btn => {
+    btn.addEventListener('click', () => lkn_wcip_generate_invoice_pdf(btn.dataset.invoiceId))
+  })
+
+  const selectGlobalTemplate = document.getElementById('lkn_wcip_payment_global_template')
+
+  if (selectGlobalTemplate) {
+    handlePreviewPdfTemplate(selectGlobalTemplate, document.getElementById('lkn-wcip-preview-img'))
+  }
+
+  const selectInvoiceTemplate = document.getElementById('lkn_wcip_select_invoice_template')
+
+  if (selectInvoiceTemplate) {
+    handlePreviewPdfTemplate(selectInvoiceTemplate, document.getElementById('lkn-wcip-preview-img'))
+  }
+})
