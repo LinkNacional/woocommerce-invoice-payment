@@ -107,3 +107,15 @@ msgstr "Data"
 
 msgid "Generate PDF"
 msgstr "Gerar PDF"
+
+msgid "Unable to generate the PDF. Please, contact support."
+msgstr "Não foi possível gerar o PDF. Por favor, entre em contato com o suporte."
+
+msgid "Settings"
+msgstr "Configurações"
+
+msgid "PDF Template"
+msgstr "Modelo de PDF"
+
+msgid "Hover to preview"
+msgstr "Passe o mouse para pré-visualizar"

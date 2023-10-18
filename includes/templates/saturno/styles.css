@@ -23,6 +23,7 @@ header {
 	width: 100%;
 	position: relative;
 	margin-bottom: 64px;
+	line-height: 21px;
 }
 
 header img {

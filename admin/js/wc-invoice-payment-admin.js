@@ -87,7 +87,13 @@ function lkn_wcip_generate_invoice_pdf (invoiceId) {
       'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
     }
   })
-    .then(response => response.blob())
+    .then(res => {
+      if (!res.ok) {
+        throw new Error()
+      }
+
+      return res.blob()
+    })
     .then(blob => {
       const url = window.URL.createObjectURL(new Blob([blob]))
       const link = document.createElement('a')
@@ -101,8 +107,45 @@ function lkn_wcip_generate_invoice_pdf (invoiceId) {
       link.parentNode.removeChild(link)
     })
     .catch(error => {
-      console.error('Error:', error)
+      window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
+      console.error(error)
     })
+}
+
+/**
+   *
+   * @param {HTMLSelectElement} selectTpl
+   * @param {HTMLImageElement} imgPreview
+   */
+function handlePreviewPdfTemplate (selectTpl, imgPreview) {
+  const optionSelectedTemplate = selectTpl.options[selectTpl.selectedIndex]
+  imgPreview.src = optionSelectedTemplate.dataset.previewUrl
+
+  selectTpl.addEventListener('change', event => {
+    const optionSelectedTemplate = selectTpl.options[selectTpl.selectedIndex]
+
+    if (!optionSelectedTemplate.dataset.previewUrl) {
+      imgPreview.style.display = 'none'
+
+      return
+    }
+
+    imgPreview.src = optionSelectedTemplate.dataset.previewUrl
+  })
+
+  selectTpl.addEventListener('mouseover', event => {
+    const optionSelectedTemplate = selectTpl.options[selectTpl.selectedIndex]
+
+    if (!optionSelectedTemplate.dataset.previewUrl) {
+      return
+    }
+
+    imgPreview.style.display = 'flex'
+  })
+
+  selectTpl.parentElement.parentElement.addEventListener('mouseleave', event => {
+    imgPreview.style.display = 'none'
+  })
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -111,4 +154,16 @@ document.addEventListener('DOMContentLoaded', () => {
   btnGenerateInvoicePdf.forEach(btn => {
     btn.addEventListener('click', () => lkn_wcip_generate_invoice_pdf(btn.dataset.invoiceId))
   })
+
+  const selectGlobalTemplate = document.getElementById('lkn_wcip_payment_global_template')
+
+  if (selectGlobalTemplate) {
+    handlePreviewPdfTemplate(selectGlobalTemplate, document.getElementById('lkn-wcip-preview-img'))
+  }
+
+  const selectInvoiceTemplate = document.getElementById('lkn_wcip_select_invoice_template')
+
+  if (selectInvoiceTemplate) {
+    handlePreviewPdfTemplate(selectInvoiceTemplate, document.getElementById('lkn-wcip-preview-img'))
+  }
 })

@@ -37,6 +37,7 @@ if ( ! defined('WPINC')) {
 define('WC_PAYMENT_INVOICE_VERSION', '1.1.4');
 define('WC_PAYMENT_INVOICE_TRANSLATION_PATH', plugin_dir_path(__FILE__) . 'languages/');
 define('WC_PAYMENT_INVOICE_ROOT_DIR', plugin_dir_path(__FILE__));
+define('WC_PAYMENT_INVOICE_ROOT_URL', plugin_dir_url(__FILE__));
 
 /**
  * The code that runs during plugin activation.

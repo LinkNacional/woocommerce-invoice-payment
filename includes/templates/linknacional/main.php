@@ -1,5 +1,7 @@
 <?php
 
+/**  @var WC_Order $order */
+/**  @var int $invoice_id */
 require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/libs/phpqrcode.php';
 
 function to_wc_monetary_format(float $amount): string {
@@ -10,8 +12,6 @@ function to_wc_monetary_format(float $amount): string {
         wc_get_price_thousand_separator()
     );
 }
-
-$order = wc_get_order($invoice_id);
 
 $order_currency = $order->get_currency();
 $order_total = $order->get_total();
@@ -86,7 +86,21 @@ ob_start();
                         height="160"
                     >
                 </td>
-                <td id="invoice-details-column">
+            </tr>
+        </table>
+    </header>
+
+    <table id="invoice-details-table">
+        <tr>
+            <td>
+                <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?></h1>
+            </td>
+        </tr>
+        <tr>
+            <td id="bill-to-container">
+                <div><?php echo nl2br($wcip_extra_data); ?></div>
+            </td>
+            <td id="invoice-details-column">
                     <table>
                         <tr>
                             <td>
@@ -106,16 +120,8 @@ ob_start();
                         </tr>
                     </table>
                 </td>
-            </tr>
-        </table>
-    </header>
-
-    <section id="bill-to-container">
-        <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?>
-        </h1>
-
-        <div><?php echo nl2br($wcip_extra_data); ?></div>
-    </section>
+        </tr>
+    </table>
 
     <section id="order-items-table-container">
         <table id="order-items-table">

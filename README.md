@@ -39,3 +39,5 @@ You have created your first invoice with the Invoice Payment for WooCommerce plu
 HTML to PDF lib: https://github.com/dompdf/dompdf
 
 Setup a WYSIWYG editor in a textarea: https://codex.wordpress.org/Javascript_Reference/wp.editor
+
+QR Code lib: https://phpqrcode.sourceforge.net/#home

@@ -106,3 +106,24 @@ msgstr ""
 
 msgid "Generate PDF"
 msgstr ""
+
+msgid "Unable to generate the PDF. Please, contact support."
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "PDF Template (Hover to preview)"
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""

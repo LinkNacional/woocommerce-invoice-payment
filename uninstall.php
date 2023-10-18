@@ -29,3 +29,4 @@ if ( ! defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 delete_option('lkn_wcip_invoices');
+delete_option('lkn_wcip_global_pdf_template_id');

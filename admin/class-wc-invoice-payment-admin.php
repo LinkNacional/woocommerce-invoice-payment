@@ -35,6 +35,12 @@ final class Wc_Payment_Invoice_Admin {
     private $version;
 
     /**
+     * @since 1.2.0
+     * @var Wc_Payment_Invoice_Pdf_Templates
+     */
+    private $handler_invoice_templates;
+
+    /**
      * Initialize the class and set its properties.
      *
      * @since    1.0.0
@@ -48,6 +54,8 @@ final class Wc_Payment_Invoice_Admin {
 
         add_action('admin_menu', array($this, 'add_setting_session'));
         add_action('admin_menu', array($this, 'add_new_invoice_submenu_section'));
+
+        $this->handler_invoice_templates = new Wc_Payment_Invoice_Pdf_Templates($this->plugin_name, $this->version);
     }
 
     /**
@@ -129,6 +137,7 @@ final class Wc_Payment_Invoice_Admin {
 
         if (
             strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_new-invoice' === $hook
+            || strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_settings' === $hook
             || 'toplevel_page_wc-invoice-payment' === $hook
             || 'admin_page_edit-invoice' === $hook
         ) {
@@ -177,11 +186,24 @@ final class Wc_Payment_Invoice_Admin {
             return;
         }
 
-        $paths = glob(WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/templates/*/*.webp');
+        if ( ! empty($_POST)) {
+            $global_pdf_template = sanitize_text_field($_POST['lkn_wcip_payment_global_template']);
 
-        $paths = array_map(function (string $path): string {
-            return str_replace(WC_PAYMENT_INVOICE_ROOT_DIR, WC_PAYMENT_INVOICE_ROOT_URL, $path);
-        }, $paths);
+            update_option('lkn_wcip_global_pdf_template_id', $global_pdf_template);
+        }
+
+        $templates_list = $this->handler_invoice_templates->get_templates_list();
+        $global_template = get_option('lkn_wcip_global_pdf_template_id', 'linknacional');
+
+        $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
+            $template_id = $template['id'];
+            $friendly_template_name = $template['friendly_name'];
+            $preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+
+            $selected = $global_template === $template_id ? 'selected' : '';
+
+            return "<option $selected data-preview-url='$preview_url' value='$template_id'>$friendly_template_name</option>";
+        }, $templates_list));
 
         wp_create_nonce('wp_rest');
         ?>
@@ -202,18 +224,25 @@ final class Wc_Payment_Invoice_Admin {
             <div class="invoice-row-wrap">
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
-                        <label
-                            for="lkn_wcip_payment_status_input"><?php _e('Template', 'wc-invoice-payment'); ?></label>
+                        <label for="lkn_wcip_payment_global_template">
+                            <?php _e('PDF Template', 'wc-invoice-payment'); ?>
+                            (<?php _e('Hover to preview', 'wc-invoice-payment'); ?>)
+                        </label>
                         <select
-                            name="lkn_wcip_payment_status"
-                            id="lkn_wcip_payment_status_input"
+                            name="lkn_wcip_payment_global_template"
+                            id="lkn_wcip_payment_global_template"
                             class="regular-text"
                         >
-                            <option data-preview-url="">Template com logo</option>
-                            <option data-preview-url="">Template sem logo</option>
+                            <?php echo $html_templates_list; ?>
                         </select>
                     </div>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
+                    </div>
                 </div>
+            </div>
+            <div class="action-btn">
+                <?php submit_button(__('Save')); ?>
             </div>
         </div>
     </form>
@@ -258,6 +287,20 @@ final class Wc_Payment_Invoice_Admin {
         $checkoutUrl = $order->get_checkout_payment_url();
         $orderStatus = $order->get_status();
 
+        $invoice_template = $order->get_meta('wcip_select_invoice_template_id') ?? get_option('lkn_wcip_global_pdf_template_id', 'global');
+
+        $templates_list = $this->handler_invoice_templates->get_templates_list();
+
+        $html_templates_list = implode(array_map(function ($template) use ($invoice_template): string {
+            $template_id = $template['id'];
+            $friendly_template_name = $template['friendly_name'];
+            $preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+
+            $selected = $invoice_template === $template_id ? 'selected' : '';
+
+            return "<option $selected data-preview-url='$preview_url' value='$template_id'>$friendly_template_name</option>";
+        }, $templates_list));
+
         $currencies = get_woocommerce_currencies();
 
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
@@ -280,7 +323,11 @@ final class Wc_Payment_Invoice_Admin {
         method="post"
         class="wcip-form-wrap"
     >
-        <input id="wcip_rest_nonce" type="hidden" value="<?php echo wp_create_nonce('wp_rest'); ?>">
+        <input
+            id="wcip_rest_nonce"
+            type="hidden"
+            value="<?php echo wp_create_nonce('wp_rest'); ?>"
+        >
         <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
         <div class="wcip-invoice-data">
             <!-- Invoice details -->
@@ -344,6 +391,25 @@ final class Wc_Payment_Invoice_Admin {
                                     }
                                 } ?>
                         </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_select_invoice_template">
+                            <?php _e('PDF Template', 'wc-invoice-payment'); ?>
+                            (<?php _e('Hover to preview', 'wc-invoice-payment'); ?>)
+                        </label>
+                        <select
+                            name="lkn_wcip_select_invoice_template"
+                            id="lkn_wcip_select_invoice_template"
+                            class="regular-text"
+                            value="<?php echo $invoice_template; ?>"
+                            required
+                        >
+                            <option value="global">Global</option>
+                            <?php echo $html_templates_list; ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
                     </div>
                 </div>
                 <div class="invoice-column-wrap">
@@ -599,7 +665,11 @@ final class Wc_Payment_Invoice_Admin {
     id="invoices-filter"
     method="POST"
 >
-    <input id="wcip_rest_nonce" type="hidden" value="<?php echo wp_create_nonce('wp_rest'); ?>">
+    <input
+        id="wcip_rest_nonce"
+        type="hidden"
+        value="<?php echo wp_create_nonce('wp_rest'); ?>"
+    >
 
     <div class="wrap">
         <h1><?php esc_html_e(get_admin_page_title()); ?></h1>
@@ -658,6 +728,16 @@ final class Wc_Payment_Invoice_Admin {
 
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
         $enabled_gateways = array();
+
+        $templates_list = $this->handler_invoice_templates->get_templates_list();
+
+        $html_templates_list = implode(array_map(function ($template): string {
+            $template_id = $template['id'];
+            $friendly_template_name = $template['friendly_name'];
+            $preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+
+            return "<option data-preview-url='$preview_url' value='$template_id'>$friendly_template_name</option>";
+        }, $templates_list));
 
         // Get all WooCommerce enabled gateways
         if ($gateways) {
@@ -744,6 +824,24 @@ final class Wc_Payment_Invoice_Admin {
                                     }
                                 } ?>
                         </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_select_invoice_template">
+                            <?php _e('PDF Template', 'wc-invoice-payment'); ?>
+                            (<?php _e('Hover to preview', 'wc-invoice-payment'); ?>)
+                        </label>
+                        <select
+                            name="lkn_wcip_select_invoice_template"
+                            id="lkn_wcip_select_invoice_template"
+                            class="regular-text"
+                            required
+                        >
+                            <option value="global">Global</option>
+                            <?php echo $html_templates_list; ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
                     </div>
                 </div>
                 <div class="invoice-column-wrap">
@@ -876,7 +974,6 @@ final class Wc_Payment_Invoice_Admin {
                         name="lkn-wc-invoice-payment-footer-notes"
                         id="lkn-wc-invoice-payment-footer-notes"
                         class="regular-text"
-                        required
                     ></textarea>
                 </div>
             </div>
@@ -969,9 +1066,11 @@ final class Wc_Payment_Invoice_Admin {
                         'total' => $totalAmount,
                     )
                 );
-
                 $order->update_meta_data('wcip_extra_data', $extraData);
                 $order->update_meta_data('wcip_footer_notes', $footerNotes);
+
+                $pdfTemplateId = sanitize_text_field($_POST['lkn_wcip_select_invoice_template']);
+                $order->update_meta_data('wcip_select_invoice_template_id', $pdfTemplateId);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); ++$i) {
@@ -1089,6 +1188,7 @@ final class Wc_Payment_Invoice_Admin {
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
+                $pdfTemplateId = sanitize_text_field($_POST['lkn_wcip_select_invoice_template']);
                 $extraData = wp_kses($_POST['lkn_wcip_extra_data'], array('br' => array()));
                 $footerNotes = wp_kses(
                     $_POST['lkn-wc-invoice-payment-footer-notes'],
@@ -1104,6 +1204,7 @@ final class Wc_Payment_Invoice_Admin {
 
                 $order->update_meta_data('wcip_extra_data', $extraData);
                 $order->update_meta_data('wcip_footer_notes', $footerNotes);
+                $order->update_meta_data('wcip_select_invoice_template_id', $pdfTemplateId);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); ++$i) {

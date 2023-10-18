@@ -4,7 +4,7 @@ use Dompdf\Dompdf;
 
 /**
  * @see       https://www.linknacional.com/
- * @since      1.6.0
+ * @since      1.2.0
  */
 final class Wc_Payment_Invoice_Loader_Rest {
     public function register_routes(): void {
@@ -27,7 +27,21 @@ final class Wc_Payment_Invoice_Loader_Rest {
         $invoice_id = $request->get_param( 'invoice_id' );
 
         $getHtml = function () use ($invoice_id) {
-            return require_once __DIR__ . '/templates/saturno/main.php';
+            $order = wc_get_order($invoice_id);
+
+            $invoice_pdf_template_id = $order->get_meta('wcip_select_invoice_template_id');
+
+            if (empty($invoice_pdf_template_id) || 'global' === $invoice_pdf_template_id) {
+                $invoice_pdf_template_id = get_option('lkn_wcip_global_pdf_template_id', 'linknacional');
+            }
+
+            $template_file_path = __DIR__ . "/templates/$invoice_pdf_template_id/main.php";
+
+            if ( ! file_exists($template_file_path)) {
+                return require_once __DIR__ . "/templates/linknacional/main.php";
+            }
+
+            return require_once $template_file_path;
         };
         // Prints the HTML
         // header('Content-Type: text/html');
