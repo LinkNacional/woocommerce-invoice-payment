@@ -1,6 +1,6 @@
 .vscode/settings.json
 .devcontainer/devcontainer.json
-vendor
+/vendor
 .phan/stubs
 node_modules
 includes/phpqrcode/cache/*/
