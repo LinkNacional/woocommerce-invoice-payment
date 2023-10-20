@@ -3,8 +3,8 @@ Contributors: linknacional
 Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce, invoice, payment
 Requires at least: 5.7
-Tested up to: 6.1
-Stable tag: 1.2.0
+Tested up to: 6.3
+Stable tag: 1.2.1
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -63,6 +63,9 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 3. See all generated invoices and their status.
 
 == Changelog ==
+
+= 1.2.1 =
+* Adjust to get logo with curl, adjust to work in directory installed wordpress.
 
 = 1.2.0 =
 * Add PDF generation for invoices
