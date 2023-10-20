@@ -1,3 +1,6 @@
+### 1.2.1 - 20/10/23
+- Adjust to get logo with curl, adjust to work in directory installed wordpress.
+
 ### 1.2.0 - 18/10/23
 - Add PDF generation for invoices
 
