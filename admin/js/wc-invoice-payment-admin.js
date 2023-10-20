@@ -79,8 +79,15 @@ function lkn_wcip_delete_invoice () {
   }
 }
 
+function lkn_get_wp_base_url () {
+  const href = window.location.href
+  const index = href.indexOf('/wp-admin')
+  const homeUrl = href.substring(0, index)
+  return homeUrl
+}
+
 function lkn_wcip_generate_invoice_pdf (invoiceId) {
-  fetch(`/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
+  fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
     method: 'GET',
     headers: {
       'content-type': 'application/json',

@@ -24,10 +24,6 @@ header {
 	position: relative;
 }
 
-header img {
-	border-radius: 50%;
-}
-
 #bill-to-container {
 	margin: 50px 0px;
 }
