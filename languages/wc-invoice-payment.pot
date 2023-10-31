@@ -136,3 +136,6 @@ msgstr ""
 
 msgid "Invoice By Link Nacional"
 msgstr ""
+
+msgid "Invoice settings"
+msgstr ""
