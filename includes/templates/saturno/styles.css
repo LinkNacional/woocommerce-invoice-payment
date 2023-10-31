@@ -59,6 +59,11 @@ header table {
 	font-size: 0.7em;
 	max-width: 400px;
 	margin: 0 auto 0;
+	color: blue;
+}
+
+#extra-data-container {
+	margin-top: 12px;
 }
 
 #order-items-table {

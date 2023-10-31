@@ -18,6 +18,8 @@ $order_total = $order->get_total();
 $invoice_number = $order->get_order_number();
 $invoice_created_at = $invoice_date = $order->get_date_created()->format('d/m/y');
 $invoice_payment_method = wc_get_payment_gateway_by_order($order)->title;
+$invoice_client_name = "{$order->get_billing_first_name()} {$order->get_billing_last_name()}";
+$invoice_client_email = $order->get_billing_email();
 
 $items = $order->get_items();
 $invoice_payment_link = $order->get_checkout_payment_url();
@@ -82,8 +84,9 @@ ob_start();
             <tr>
                 <td style="width: 50%;">
                     <section id="bill-to-container">
-                        <div><?php echo nl2br($wcip_extra_data); ?>
-                        </div>
+                        <div><?php echo $invoice_client_name; ?></div>
+                        <div><?php echo $invoice_client_email; ?></div>
+                        <div id="extra-data-container"><?php echo nl2br($wcip_extra_data); ?></div>
                     </section>
                 </td>
                 <td id="invoice-details-column">
@@ -162,7 +165,7 @@ ob_start();
         <?php echo $wcip_footer_notes; ?>
 
         <div style="text-align: center; width: 100%; opacity: 0.2; font-size: 0.8em; margin-top: 12px;">
-            <a href="https://www.linknacional.com.br/wordpress/woocommerce/faturas/" style="text-decoration: none;">
+            <a href="https://www.linknacional.com.br/pagamento-internacional/" style="text-decoration: none;">
                 <?php _e('Invoice By Link Nacional', 'wc-invoice-payment'); ?>
             </a>
         </div>

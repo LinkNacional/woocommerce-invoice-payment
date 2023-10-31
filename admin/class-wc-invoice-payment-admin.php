@@ -647,7 +647,8 @@ final class Wc_Payment_Invoice_Admin {
     document.addEventListener('DOMContentLoaded', () => {
         wp.editor.initialize('lkn-wc-invoice-payment-footer-notes', {
             tinymce: {
-                toolbar1: 'bold italic underline',
+                toolbar1: 'bold italic underline forecolor backcolor',
+                content_style: "body { font-family: Arial, sans-serif; }",
                 style_formats: [{
                     title: 'Underline',
                     inline: 'u'
@@ -997,7 +998,8 @@ final class Wc_Payment_Invoice_Admin {
     document.addEventListener('DOMContentLoaded', () => {
         wp.editor.initialize('lkn-wc-invoice-payment-footer-notes', {
             tinymce: {
-                toolbar1: 'bold italic underline',
+                toolbar1: 'bold italic underline forecolor backcolor',
+                content_style: "body { font-family: Arial, sans-serif; }",
                 style_formats: [{
                     title: 'Underline',
                     inline: 'u'
@@ -1060,16 +1062,7 @@ final class Wc_Payment_Invoice_Admin {
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
                 $extraData = sanitize_text_field($_POST['lkn_wcip_extra_data']);
-                $footerNotes = wp_kses(
-                    $_POST['lkn-wc-invoice-payment-footer-notes'],
-                    array(
-                        'b' => array(),
-                        'i' => array(),
-                        'em' => array(),
-                        'strong' => array(),
-                        'p' => array()
-                    )
-                );
+                $footerNotes = wp_kses_post($_POST['lkn-wc-invoice-payment-footer-notes']);
 
                 $order = wc_create_order(
                     array(
@@ -1203,17 +1196,7 @@ final class Wc_Payment_Invoice_Admin {
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
                 $pdfTemplateId = sanitize_text_field($_POST['lkn_wcip_select_invoice_template']);
                 $extraData = wp_kses($_POST['lkn_wcip_extra_data'], array('br' => array()));
-                $footerNotes = wp_kses(
-                    $_POST['lkn-wc-invoice-payment-footer-notes'],
-                    array(
-                        'b' => array(),
-                        'i' => array(),
-                        'em' => array(),
-                        'strong' => array(),
-                        'p' => array(),
-                        'br' => array()
-                    )
-                );
+                $footerNotes = wp_kses_post($_POST['lkn-wc-invoice-payment-footer-notes']);
 
                 $order->update_meta_data('wcip_extra_data', $extraData);
                 $order->update_meta_data('wcip_footer_notes', $footerNotes);

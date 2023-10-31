@@ -32,6 +32,10 @@ header table {
 	width: 100%;
 }
 
+#extra-data-container {
+	margin-top: 12px;
+}
+
 #invoice-details-table {
 	width: 100%;
 	margin: 40px 0px;
@@ -63,26 +67,25 @@ header table {
 
 #qr-code-container {
 	width: 100%;
-	text-align: center;
 	margin: 32px 0px;
 	/* height: 500px; */
 }
 
-#qr-code-container figcaption {
-	font-size: 0.7em;
-	max-width: 400px;
-	margin: 0 auto 0;
-	color: blue;
+#logo-td-container {
+	text-align: right;
 }
 
-#extra-data-container {
-	margin-top: 12px;
+#qr-code-container figcaption {
+	font-size: 0.7em;
+	color: blue;
+	max-width: 500px;
 }
 
 #order-items-table {
 	width: 100%;
-	border: 1px solid rgba(0, 0, 0, .12);
+	border: 1px solid rgba(0, 0, 0, .6);
 	font-size: 0.95em;
+	border-collapse: collapse;
 }
 
 #order-items-table thead th:first-child {
@@ -91,17 +94,18 @@ header table {
 
 #order-items-table th {
 	padding: 16px;
-	border-bottom: 1px solid rgba(0, 0, 0, .12);
+	border-bottom: 1px solid rgba(0, 0, 0, .6);
 }
 
 #order-items-table th {
 	text-align: left;
-	/* border-bottom: 1px solid rgba(0, 0, 0, .12); */
+	border-right: 1px solid rgba(0, 0, 0, .6);
 }
 
 #order-items-table tbody td {
 	padding: 8px 16px;
-	border-bottom: 1px solid rgba(0, 0, 0, .12);
+	border-right: 1px solid rgba(0, 0, 0, .6);
+	border-bottom: 1px solid rgba(0, 0, 0, .6);
 }
 
 #order-items-table tfoot th:first-child {
