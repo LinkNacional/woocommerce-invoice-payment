@@ -139,3 +139,6 @@ msgstr ""
 
 msgid "Invoice settings"
 msgstr ""
+
+msgid "Default footer"
+msgstr ""

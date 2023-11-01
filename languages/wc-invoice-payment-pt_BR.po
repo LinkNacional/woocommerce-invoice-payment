@@ -139,3 +139,6 @@ msgstr "Fatura por Link Nacional"
 
 msgid "Invoice settings"
 msgstr "Configurações de fatura"
+
+msgid "Default footer"
+msgstr "Rodapé padrão"

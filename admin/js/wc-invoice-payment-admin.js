@@ -174,3 +174,25 @@ document.addEventListener('DOMContentLoaded', () => {
     handlePreviewPdfTemplate(selectInvoiceTemplate, document.getElementById('lkn-wcip-preview-img'))
   }
 })
+
+function startTinyMce (elementId, btnSubmitId) {
+  wp.editor.initialize(elementId, {
+    tinymce: {
+      toolbar1: 'bold italic underline forecolor backcolor',
+      content_style: 'body { font-family: Arial, sans-serif; }',
+      style_formats: [{
+        title: 'Underline',
+        inline: 'u'
+      }]
+    },
+    quicktags: true,
+    innerHeight
+  })
+
+  const btnSubmit = document.getElementById(btnSubmitId)
+  const footerNotesTextarea = document.getElementById(elementId)
+
+  btnSubmit.addEventListener('click', () => {
+    footerNotesTextarea.innerHTML = wp.editor.getContent(elementId)
+  })
+}
