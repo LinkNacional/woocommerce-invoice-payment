@@ -1,3 +1,10 @@
+### 1.3.0 - 01/11/23
+- Add default footer setting
+- Add text_before_payment_link setting
+- Add setting for sender details
+- Adjust existing templates to handle the new settings
+- Add new template
+
 ### 1.2.1 - 20/10/23
 - Adjust to get logo with curl, adjust to work in directory installed wordpress.
 
