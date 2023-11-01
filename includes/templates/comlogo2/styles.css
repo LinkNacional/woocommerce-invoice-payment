@@ -42,12 +42,16 @@ header table {
 	line-height: 21px;
 }
 
+#invoice-details-table tbody tr:first-child td {
+	padding-bottom: 12px;
+}
+
 #invoice-details-table td {
 	width: 50%;
 }
 
 #invoice-details-column {
-	vertical-align: top;
+	vertical-align: bottom;
 	text-transform: uppercase;
 	font-size: 0.9em;
 	width: 100%;

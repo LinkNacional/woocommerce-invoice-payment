@@ -95,6 +95,10 @@ ob_start();
     <header>
         <table>
             <tr>
+                <td id="invoice-details-column">
+                    <p><strong><?php esc_html_e('Invoice', 'wc-invoice-payment'); ?></strong> <?php echo "#$invoice_number"; ?></p>
+                    <p><strong><?php esc_html_e('Date', 'wc-invoice-payment'); ?></strong> <?php echo $invoice_created_at; ?></p>
+                </td>
                 <td id="logo-td-container">
                     <img
                         src="<?php echo $logo_base64; ?>"
@@ -108,6 +112,11 @@ ob_start();
     <table id="invoice-details-table">
         <tr>
             <td>
+                <hr>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?></h1>
             </td>
         </tr>
@@ -117,26 +126,6 @@ ob_start();
                 <div><?php echo $invoice_client_email; ?></div>
                 <div id="extra-data-container"><?php echo nl2br($wcip_extra_data); ?></div>
             </td>
-            <td id="invoice-details-column">
-                    <table>
-                        <tr>
-                            <td>
-                                <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
-                            </td>
-                            <td>
-                                <?php echo "#$invoice_number"; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <?php esc_html_e('Date', 'wc-invoice-payment'); ?>
-                            </td>
-                            <td>
-                                <?php echo $invoice_created_at; ?>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
         </tr>
     </table>
 
