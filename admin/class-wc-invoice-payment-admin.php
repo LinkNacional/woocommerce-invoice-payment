@@ -193,11 +193,13 @@ final class Wc_Payment_Invoice_Admin {
             $template_logo_url = sanitize_text_field($_POST['lkn_wcip_template_logo_url']);
             $default_footer = wp_kses_post($_POST['lkn_wcip_default_footer']);
             $sender_details = wp_kses_post($_POST['lkn_wcip_sender_details']);
+            $text_before_payment_link = wp_kses_post($_POST['lkn_wcip_text_before_payment_link']);
 
             update_option('lkn_wcip_global_pdf_template_id', $global_pdf_template);
             update_option('lkn_wcip_template_logo_url', $template_logo_url);
             update_option('lkn_wcip_default_footer', $default_footer);
             update_option('lkn_wcip_sender_details', $sender_details);
+            update_option('lkn_wcip_text_before_payment_link', $text_before_payment_link);
         }
 
         $templates_list = $this->handler_invoice_templates->get_templates_list();
@@ -205,6 +207,7 @@ final class Wc_Payment_Invoice_Admin {
         $template_logo_url = get_option('lkn_wcip_template_logo_url');
         $default_footer = get_option('lkn_wcip_default_footer');
         $sender_details = get_option('lkn_wcip_sender_details');
+        $text_before_payment_link = get_option('lkn_wcip_text_before_payment_link');
 
         $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
             $template_id = $template['id'];
@@ -282,6 +285,16 @@ final class Wc_Payment_Invoice_Admin {
                             id="lkn_wcip_sender_details"
                         ><?php echo $sender_details; ?></textarea>
                     </div>
+
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_text_before_payment_link">
+                            <?php _e('Text before payment link', 'wc-invoice-payment'); ?>
+                        </label>
+                        <textarea
+                            name="lkn_wcip_text_before_payment_link"
+                            id="lkn_wcip_text_before_payment_link"
+                        ><?php echo $text_before_payment_link; ?></textarea>
+                    </div>
                 </div>
             </div>
             <div class="action-btn">
@@ -294,6 +307,7 @@ final class Wc_Payment_Invoice_Admin {
     document.addEventListener('DOMContentLoaded', () => {
         startTinyMce('lkn_wcip_default_footer', 'submit')
         startTinyMce('lkn_wcip_sender_details', 'submit')
+        startTinyMce('lkn_wcip_text_before_payment_link', 'submit')
     })
 </script>
 <?php

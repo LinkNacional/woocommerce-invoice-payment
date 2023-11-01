@@ -161,14 +161,15 @@ ob_start();
 
     <section id="qr-code-container">
         <figure>
+            <figcaption>
+                <?php echo get_option('lkn_wcip_text_before_payment_link'); ?>
+                <span id="payment-link-container"><?php echo $invoice_payment_link; ?></span>
+            </figcaption>
             <img
                 src="data:image/png;base64, <?php echo $payment_link_qr_code; ?>"
-                width="180"
-                height="180"
+                width="140"
+                height="140"
             >
-            <figcaption>
-                <?php echo $invoice_payment_link; ?>
-            </figcaption>
         </figure>
     </section>
 

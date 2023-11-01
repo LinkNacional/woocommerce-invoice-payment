@@ -30,8 +30,13 @@ header img {
 	border-radius: 50%;
 }
 
-#bill-to-container {
-	/* margin: 50px 0px; */
+#sender-details-table {
+	width: 100%;
+	margin: 12px 0px;
+}
+
+#sender-details-table td:first-child {
+	padding-bottom: 4px;
 }
 
 header table {
@@ -59,7 +64,16 @@ header table {
 	font-size: 0.7em;
 	max-width: 400px;
 	margin: 0 auto 0;
+}
+
+#qr-code-container figcaption {
+	font-size: 0.7em;
+}
+
+#payment-link-container {
 	color: blue;
+	margin-top: 12px;
+	display: block;
 }
 
 #extra-data-container {

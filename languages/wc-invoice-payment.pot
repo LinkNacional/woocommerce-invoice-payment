@@ -145,3 +145,6 @@ msgstr ""
 
 msgid "Sender details"
 msgstr ""
+
+msgid "Text before payment link"
+msgstr ""

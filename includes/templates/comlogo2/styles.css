@@ -85,8 +85,14 @@ header table {
 
 #qr-code-container figcaption {
 	font-size: 0.7em;
-	color: blue;
 	max-width: 500px;
+	margin-bottom: 21px;
+}
+
+#payment-link-container {
+	color: blue;
+	margin-top: 12px;
+	display: block;
 }
 
 #order-items-table {

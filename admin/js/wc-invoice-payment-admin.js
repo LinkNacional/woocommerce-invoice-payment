@@ -175,6 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 })
 
+/**
+ * TinyMCE toolbar options doc: https://www.tiny.cloud/docs/advanced/available-toolbar-buttons/
+ */
 function startTinyMce (elementId, btnSubmitId) {
   wp.editor.initialize(elementId, {
     tinymce: {

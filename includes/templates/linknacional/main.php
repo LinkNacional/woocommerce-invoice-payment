@@ -105,6 +105,19 @@ ob_start();
         </table>
     </header>
 
+    <table id="sender-details-table">
+        <tr>
+            <td>
+                <p><?php echo get_option('lkn_wcip_sender_details'); ?></p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <hr>
+            </td>
+        </tr>
+    </table>
+
     <table id="invoice-details-table">
         <tr>
             <td>
@@ -118,25 +131,25 @@ ob_start();
                 <div id="extra-data-container"><?php echo nl2br($wcip_extra_data); ?></div>
             </td>
             <td id="invoice-details-column">
-                    <table>
-                        <tr>
-                            <td>
-                                <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
-                            </td>
-                            <td>
-                                <?php echo "#$invoice_number"; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <?php esc_html_e('Date', 'wc-invoice-payment'); ?>
-                            </td>
-                            <td>
-                                <?php echo $invoice_created_at; ?>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
+                <table>
+                    <tr>
+                        <td>
+                            <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
+                        </td>
+                        <td>
+                            <?php echo "#$invoice_number"; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <?php esc_html_e('Date', 'wc-invoice-payment'); ?>
+                        </td>
+                        <td>
+                            <?php echo $invoice_created_at; ?>
+                        </td>
+                    </tr>
+                </table>
+            </td>
         </tr>
     </table>
 
@@ -167,14 +180,15 @@ ob_start();
 
     <section id="qr-code-container">
         <figure>
+            <figcaption>
+                <?php echo get_option('lkn_wcip_text_before_payment_link'); ?>
+                <span id="payment-link-container"><?php echo $invoice_payment_link; ?></span>
+            </figcaption>
             <img
                 src="data:image/png;base64, <?php echo $payment_link_qr_code; ?>"
                 width="180"
                 height="180"
             >
-            <figcaption>
-                <?php echo $invoice_payment_link; ?>
-            </figcaption>
         </figure>
     </section>
 

@@ -73,6 +73,19 @@ ob_start();
 </head>
 
 <body>
+    <table id="sender-details-table">
+        <tr>
+            <td>
+                <p><?php echo get_option('lkn_wcip_sender_details'); ?></p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <hr>
+            </td>
+        </tr>
+    </table>
+
     <header>
         <table>
             <tr>
@@ -154,7 +167,9 @@ ob_start();
                 width="230"
                 height="230"
             >
-            <figcaption><?php echo $invoice_payment_link; ?>
+            <figcaption>
+                <?php echo get_option('lkn_wcip_text_before_payment_link'); ?>
+                <span id="payment-link-container"><?php echo $invoice_payment_link; ?></span>
             </figcaption>
         </figure>
     </section>

@@ -145,3 +145,6 @@ msgstr "Rodapé padrão"
 
 msgid "Sender details"
 msgstr "Dados do remetente"
+
+msgid "Text before payment link"
+msgstr "Texto antes do link de pagamento"
