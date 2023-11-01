@@ -142,3 +142,6 @@ msgstr "Configurações de fatura"
 
 msgid "Default footer"
 msgstr "Rodapé padrão"
+
+msgid "Sender details"
+msgstr "Dados do remetente"

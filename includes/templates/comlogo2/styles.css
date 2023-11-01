@@ -42,8 +42,12 @@ header table {
 	line-height: 21px;
 }
 
-#invoice-details-table tbody tr:first-child td {
-	padding-bottom: 12px;
+#invoice-details-table tbody tr:first-child td p {
+	font-weight: bold;
+}
+
+#invoice-details-table tbody tr:nth-child(2) td {
+	padding: 12px 0px;
 }
 
 #invoice-details-table td {

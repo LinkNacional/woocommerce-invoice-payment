@@ -112,6 +112,11 @@ ob_start();
     <table id="invoice-details-table">
         <tr>
             <td>
+                <p><?php echo get_option('lkn_wcip_sender_details'); ?></p>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <hr>
             </td>
         </tr>

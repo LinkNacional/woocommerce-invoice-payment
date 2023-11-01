@@ -142,3 +142,6 @@ msgstr ""
 
 msgid "Default footer"
 msgstr ""
+
+msgid "Sender details"
+msgstr ""
