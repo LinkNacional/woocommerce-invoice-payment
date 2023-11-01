@@ -15,7 +15,7 @@
  * Plugin Name:       Invoice Payment for WooCommerce
  * Plugin URI:        https://www.linknacional.com/wordpress/plugins/
  * Description:       Invoice payment generation and management for WooCommerce.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Author:            Link Nacional
  * Author URI:        https://www.linknacional.com/
  * License:           GPL-2.0+

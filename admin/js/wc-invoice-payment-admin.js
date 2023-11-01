@@ -181,15 +181,15 @@ document.addEventListener('DOMContentLoaded', () => {
 function startTinyMce (elementId, btnSubmitId) {
   wp.editor.initialize(elementId, {
     tinymce: {
-      toolbar1: 'bold italic underline forecolor backcolor fontsizeselect',
+      toolbar1: 'bold italic underline forecolor backcolor fontsizeselect link',
       content_style: 'body { font-family: Arial, sans-serif; }',
       style_formats: [{
         title: 'Underline',
         inline: 'u'
-      }]
+      }],
+      height: 150
     },
-    quicktags: true,
-    innerHeight
+    quicktags: false
   })
 
   const btnSubmit = document.getElementById(btnSubmitId)

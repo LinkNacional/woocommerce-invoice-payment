@@ -237,7 +237,7 @@ final class Wc_Payment_Invoice_Admin {
             </h2>
             <div class="invoice-row-wrap">
                 <div class="invoice-column-wrap">
-                    <div class="input-row-wrap">
+                    <div class="input-row-wrap input-row-wrap-global-settings">
                         <label for="lkn_wcip_payment_global_template">
                             <?php _e('Default PDF template for invoices', 'wc-invoice-payment'); ?>
                         </label>
@@ -253,7 +253,7 @@ final class Wc_Payment_Invoice_Admin {
                         <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
                     </div>
 
-                    <div class="input-row-wrap">
+                    <div class="input-row-wrap input-row-wrap-global-settings">
                         <label for="lkn_wcip_payment_global_template">
                             <?php _e('Logo URL', 'wc-invoice-payment'); ?>
                         </label>
@@ -266,7 +266,7 @@ final class Wc_Payment_Invoice_Admin {
                         >
                     </div>
 
-                    <div class="input-row-wrap">
+                    <div class="input-row-wrap input-row-wrap-global-settings">
                         <label for="lkn_wcip_default_footer">
                             <?php _e('Default footer', 'wc-invoice-payment'); ?>
                         </label>
@@ -276,7 +276,7 @@ final class Wc_Payment_Invoice_Admin {
                         ><?php echo $default_footer; ?></textarea>
                     </div>
 
-                    <div class="input-row-wrap">
+                    <div class="input-row-wrap input-row-wrap-global-settings">
                         <label for="lkn_wcip_sender_details">
                             <?php _e('Sender details', 'wc-invoice-payment'); ?>
                         </label>
@@ -286,7 +286,7 @@ final class Wc_Payment_Invoice_Admin {
                         ><?php echo $sender_details; ?></textarea>
                     </div>
 
-                    <div class="input-row-wrap">
+                    <div class="input-row-wrap input-row-wrap-global-settings">
                         <label for="lkn_wcip_text_before_payment_link">
                             <?php _e('Text before payment link', 'wc-invoice-payment'); ?>
                         </label>
