@@ -136,3 +136,15 @@ msgstr "URL da logo"
 
 msgid "Invoice By Link Nacional"
 msgstr "Fatura por Link Nacional"
+
+msgid "Invoice settings"
+msgstr "Configurações de fatura"
+
+msgid "Default footer"
+msgstr "Rodapé padrão"
+
+msgid "Sender details"
+msgstr "Dados do remetente"
+
+msgid "Text before payment link"
+msgstr "Texto antes do link de pagamento"

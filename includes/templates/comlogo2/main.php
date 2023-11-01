@@ -95,6 +95,10 @@ ob_start();
     <header>
         <table>
             <tr>
+                <td id="invoice-details-column">
+                    <p><strong><?php esc_html_e('Invoice', 'wc-invoice-payment'); ?></strong> <?php echo "#$invoice_number"; ?></p>
+                    <p><strong><?php esc_html_e('Date', 'wc-invoice-payment'); ?></strong> <?php echo $invoice_created_at; ?></p>
+                </td>
                 <td id="logo-td-container">
                     <img
                         src="<?php echo $logo_base64; ?>"
@@ -105,7 +109,7 @@ ob_start();
         </table>
     </header>
 
-    <table id="sender-details-table">
+    <table id="invoice-details-table">
         <tr>
             <td>
                 <p><?php echo get_option('lkn_wcip_sender_details'); ?></p>
@@ -116,9 +120,6 @@ ob_start();
                 <hr>
             </td>
         </tr>
-    </table>
-
-    <table id="invoice-details-table">
         <tr>
             <td>
                 <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?></h1>
@@ -129,26 +130,6 @@ ob_start();
                 <div><?php echo $invoice_client_name; ?></div>
                 <div><?php echo $invoice_client_email; ?></div>
                 <div id="extra-data-container"><?php echo nl2br($wcip_extra_data); ?></div>
-            </td>
-            <td id="invoice-details-column">
-                <table>
-                    <tr>
-                        <td>
-                            <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
-                        </td>
-                        <td>
-                            <?php echo "#$invoice_number"; ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <?php esc_html_e('Date', 'wc-invoice-payment'); ?>
-                        </td>
-                        <td>
-                            <?php echo $invoice_created_at; ?>
-                        </td>
-                    </tr>
-                </table>
             </td>
         </tr>
     </table>
@@ -186,8 +167,8 @@ ob_start();
             </figcaption>
             <img
                 src="data:image/png;base64, <?php echo $payment_link_qr_code; ?>"
-                width="180"
-                height="180"
+                width="140"
+                height="140"
             >
         </figure>
     </section>

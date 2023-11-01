@@ -34,7 +34,7 @@ header table {
 
 #invoice-details-table {
 	width: 100%;
-	margin: 40px 0px;
+	margin: 28px 0px;
 	line-height: 21px;
 }
 
@@ -57,21 +57,38 @@ header table {
 	width: 50%;
 }
 
+#sender-details-table {
+	width: 100%;
+	margin: 12px 0px;
+}
+
+#sender-details-table td:first-child {
+	padding-bottom: 4px;
+}
+
 #invoice-details-column tbody td:first-child {
 	font-weight: bold;
 }
 
 #qr-code-container {
-	width: 100%;
+	margin: 0 auto 0;
+	max-width: 400px;
 	text-align: center;
-	margin: 32px 0px;
-	/* height: 500px; */
+	margin-top: 12px;
 }
 
 #qr-code-container figcaption {
 	font-size: 0.7em;
-	max-width: 400px;
-	margin: 0 auto 0;
+}
+
+#payment-link-container {
+	color: blue;
+	margin-top: 12px;
+	display: block;
+}
+
+#extra-data-container {
+	margin-top: 12px;
 }
 
 #order-items-table {

@@ -16,6 +16,14 @@
 	margin: 20px 0px;
 }
 
+.input-row-wrap-global-settings {
+	background-color: #FBFBFB;
+	border: 1px solid #ccc;
+	padding: 25px !important;
+	margin: 10px 0 10px;
+	font-size: 15px;
+}
+
 .invoice-column-wrap {
 	display: flex;
 	flex-direction: column;

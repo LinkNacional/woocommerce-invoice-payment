@@ -136,3 +136,15 @@ msgstr ""
 
 msgid "Invoice By Link Nacional"
 msgstr ""
+
+msgid "Invoice settings"
+msgstr ""
+
+msgid "Default footer"
+msgstr ""
+
+msgid "Sender details"
+msgstr ""
+
+msgid "Text before payment link"
+msgstr ""

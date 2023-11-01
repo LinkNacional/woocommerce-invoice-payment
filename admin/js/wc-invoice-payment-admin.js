@@ -174,3 +174,28 @@ document.addEventListener('DOMContentLoaded', () => {
     handlePreviewPdfTemplate(selectInvoiceTemplate, document.getElementById('lkn-wcip-preview-img'))
   }
 })
+
+/**
+ * TinyMCE toolbar options doc: https://www.tiny.cloud/docs/advanced/available-toolbar-buttons/
+ */
+function startTinyMce (elementId, btnSubmitId) {
+  wp.editor.initialize(elementId, {
+    tinymce: {
+      toolbar1: 'bold italic underline forecolor backcolor fontsizeselect link',
+      content_style: 'body { font-family: Arial, sans-serif; }',
+      style_formats: [{
+        title: 'Underline',
+        inline: 'u'
+      }],
+      height: 150
+    },
+    quicktags: false
+  })
+
+  const btnSubmit = document.getElementById(btnSubmitId)
+  const footerNotesTextarea = document.getElementById(elementId)
+
+  btnSubmit.addEventListener('click', () => {
+    footerNotesTextarea.innerHTML = wp.editor.getContent(elementId)
+  })
+}

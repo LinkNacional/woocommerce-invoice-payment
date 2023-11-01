@@ -18,6 +18,8 @@ $order_total = $order->get_total();
 $invoice_number = $order->get_order_number();
 $invoice_created_at = $invoice_date = $order->get_date_created()->format('d/m/y');
 $invoice_payment_method = wc_get_payment_gateway_by_order($order)->title;
+$invoice_client_name = "{$order->get_billing_first_name()} {$order->get_billing_last_name()}";
+$invoice_client_email = $order->get_billing_email();
 
 $items = $order->get_items();
 $invoice_payment_link = $order->get_checkout_payment_url();
@@ -71,6 +73,19 @@ ob_start();
 </head>
 
 <body>
+    <table id="sender-details-table">
+        <tr>
+            <td>
+                <p><?php echo get_option('lkn_wcip_sender_details'); ?></p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <hr>
+            </td>
+        </tr>
+    </table>
+
     <header>
         <table>
             <tr>
@@ -82,8 +97,9 @@ ob_start();
             <tr>
                 <td style="width: 50%;">
                     <section id="bill-to-container">
-                        <div><?php echo nl2br($wcip_extra_data); ?>
-                        </div>
+                        <div><?php echo $invoice_client_name; ?></div>
+                        <div><?php echo $invoice_client_email; ?></div>
+                        <div id="extra-data-container"><?php echo nl2br($wcip_extra_data); ?></div>
                     </section>
                 </td>
                 <td id="invoice-details-column">
@@ -151,7 +167,9 @@ ob_start();
                 width="230"
                 height="230"
             >
-            <figcaption><?php echo $invoice_payment_link; ?>
+            <figcaption>
+                <?php echo get_option('lkn_wcip_text_before_payment_link'); ?>
+                <span id="payment-link-container"><?php echo $invoice_payment_link; ?></span>
             </figcaption>
         </figure>
     </section>
@@ -162,7 +180,7 @@ ob_start();
         <?php echo $wcip_footer_notes; ?>
 
         <div style="text-align: center; width: 100%; opacity: 0.2; font-size: 0.8em; margin-top: 12px;">
-            <a href="https://www.linknacional.com.br/wordpress/woocommerce/faturas/" style="text-decoration: none;">
+            <a href="https://www.linknacional.com.br/pagamento-internacional/" style="text-decoration: none;">
                 <?php _e('Invoice By Link Nacional', 'wc-invoice-payment'); ?>
             </a>
         </div>
