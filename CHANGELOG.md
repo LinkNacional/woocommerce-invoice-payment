@@ -1,3 +1,6 @@
+### 1.3.1 - 06/11/23
+- Add cache no-store attribute to the PDF generation request
+
 ### 1.3.0 - 01/11/23
 - Add default footer setting
 - Add text_before_payment_link setting
