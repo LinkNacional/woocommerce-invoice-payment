@@ -92,7 +92,8 @@ function lkn_wcip_generate_invoice_pdf (invoiceId) {
     headers: {
       'content-type': 'application/json',
       'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
-    }
+    },
+    cache: 'no-store'
   })
     .then(res => {
       if (!res.ok) {
