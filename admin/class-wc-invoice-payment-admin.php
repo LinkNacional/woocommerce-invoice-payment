@@ -210,9 +210,9 @@ final class Wc_Payment_Invoice_Admin {
         $text_before_payment_link = get_option('lkn_wcip_text_before_payment_link');
 
         $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
-            $template_id = $template['id'];
-            $friendly_template_name = $template['friendly_name'];
-            $preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+            $template_id = esc_attr($template['id']);
+            $friendly_template_name = esc_html($template['friendly_name']);
+            $preview_url = esc_url(WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp");
 
             $selected = $global_template === $template_id ? 'selected' : '';
 
@@ -245,7 +245,7 @@ final class Wc_Payment_Invoice_Admin {
                             name="lkn_wcip_payment_global_template"
                             id="lkn_wcip_payment_global_template"
                             class="regular-text"
-                        >   <!--TODO review echo $html_templates_list-->
+                            >
                             <?php echo $html_templates_list; ?>
                         </select>
                     </div>
@@ -355,9 +355,9 @@ final class Wc_Payment_Invoice_Admin {
         $templates_list = $this->handler_invoice_templates->get_templates_list();
 
         $html_templates_list = implode(array_map(function ($template) use ($invoice_template): string {
-            $template_id = $template['id'];
-            $friendly_template_name = $template['friendly_name'];
-            $preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+            $template_id = esc_attr($template['id']);
+            $friendly_template_name = esc_html($template['friendly_name']);
+            $preview_url = esc_url(WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp");
 
             $selected = $invoice_template === $template_id ? 'selected' : '';
 
@@ -396,7 +396,7 @@ final class Wc_Payment_Invoice_Admin {
             <!-- Invoice details -->
             <h2 class="title">
                 <?php _e('Invoice details', 'wc-invoice-payment'); ?>
-                <?php esc_html_e('#' . $invoiceId); ?>
+                <?php echo esc_html('#' . $invoiceId); ?>
             </h2>
             <div class="invoice-row-wrap">
                 <div class="invoice-column-wrap">
@@ -469,7 +469,7 @@ final class Wc_Payment_Invoice_Admin {
                             <option value="global">
                                 <?php _e('Default template', 'wc-invoice-payment'); ?>
                             </option>
-                            <?php esc_html_e($html_templates_list); ?>
+                            <?php echo $html_templates_list; ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">
@@ -486,7 +486,7 @@ final class Wc_Payment_Invoice_Admin {
                             id="lkn_wcip_name_input"
                             class="regular-text"
                             required
-                            value="<?php esc_html_e($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()); ?>"
+                            value="<?php echo esc_attr($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()); ?>"
                         >
                     </div>
                     <div class="input-row-wrap">
@@ -780,9 +780,9 @@ final class Wc_Payment_Invoice_Admin {
         $templates_list = $this->handler_invoice_templates->get_templates_list();
 
         $html_templates_list = implode(array_map(function ($template): string {
-            $template_id = $template['id'];
-            $friendly_template_name = $template['friendly_name'];
-            $preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+            $template_id = esc_attr($template['id']);
+            $friendly_template_name = esc_html($template['friendly_name']);
+            $preview_url = esc_url(WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp");
 
             return "<option data-preview-url='$preview_url' value='$template_id'>$friendly_template_name</option>";
         }, $templates_list));
@@ -1156,11 +1156,9 @@ final class Wc_Payment_Invoice_Admin {
                     $order->add_order_note(__('Order details manually sent to customer.', 'woocommerce'), false, true);
                 }
                 // Success message
-
                 echo '<div class="lkn_wcip_notice_positive">' . esc_html(__('Invoice successfully saved', 'wc-invoice-payment')) . '</div>';
             } else {
                 // Error messages
-
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
         }
@@ -1275,10 +1273,10 @@ final class Wc_Payment_Invoice_Admin {
                 }
 
                 // Success message
-                esc_html_e('<div class="lkn_wcip_notice_positive">' . __('Invoice successfully saved', 'wc-invoice-payment') . '</div>', 'wc-invoice-payment');
+                echo '<div class="lkn_wcip_notice_positive">' . esc_html(__('Invoice successfully saved', 'wc-invoice-payment')) . '</div>';
             } else {
                 // Error message
-                esc_html_e('<div class="lkn_wcip_notice_negative">' . __('Error on invoice generation', 'wc-invoice-payment') . '</div>', 'wc-invoice-payment');
+                echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
         } elseif ('GET' == $_SERVER['REQUEST_METHOD'] && isset($_GET['lkn_wcip_delete'])) {
             // Validates request for deleting invoice
@@ -1297,8 +1295,7 @@ final class Wc_Payment_Invoice_Admin {
                 wp_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
             } else {
                 // Show error message
-
-                esc_html_e('<div class="lkn_wcip_notice_negative">' . __('Error on invoice deletion', 'wc-invoice-payment') . '</div>', 'wc-invoice-payment');
+                echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
         }
     }

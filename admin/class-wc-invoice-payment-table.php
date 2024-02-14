@@ -1289,7 +1289,7 @@ class Lkn_Wcip_List_Table {
             $this->display_rows();
         } else {
             echo '<tr class="no-items"><td class="colspanchange" colspan="' . $this->get_column_count() . '">';
-            $this->no_items();
+            esc_html_e($this->no_items());
             echo '</td></tr>';
         }
     }
@@ -1352,7 +1352,7 @@ class Lkn_Wcip_List_Table {
                 echo call_user_func(
                     [$this, '_column_' . $column_name],
                     $item,
-                    $classes,
+                    esc_attr($classes),
                     $data,
                     $primary
                 );
@@ -1363,7 +1363,7 @@ class Lkn_Wcip_List_Table {
                 echo '</td>';
             } else {
                 echo "<td $attributes>";
-                echo $this->column_default($item, $column_name);
+                echo esc_html($this->column_default($item, $column_name));
                 echo $this->handle_row_actions($item, $column_name, $primary);
                 echo '</td>';
             }
