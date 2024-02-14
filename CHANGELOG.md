@@ -1,3 +1,6 @@
+### 1.3.2 - 14/02/2024
+- Substitution of echo to esc_html_e or esc_attr_e, adjust to comply with wordpress regulations
+
 ### 1.3.1 - 06/11/23
 - Add cache no-store attribute to the PDF generation request
 
