@@ -64,6 +64,9 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 
 == Changelog ==
 
+= 1.3.2 =
+* Substitution of echo to esc_html_e or esc_attr_e, adjust to comply with wordpress regulations
+
 = 1.3.1 =
 * add cache no-store attribute to the PDF generation request
 
