@@ -1,3 +1,6 @@
+### 1.3.3 - 19/03/2024
+- Substitution of curl to wp_remote_request
+
 ### 1.3.2 - 14/02/2024
 - Substitution of echo to esc_html_e or esc_attr_e, adjust to comply with wordpress regulations
 
