@@ -47,22 +47,18 @@ $styles = file_get_contents(__DIR__ . '/styles.css');
 // Load logo as base 64.
 $logo_url_setting = get_option('lkn_wcip_template_logo_url');
 $logo_path = empty($logo_url_setting) ? 'https://dummyimage.com/180x180/000/fff' : $logo_url_setting;
-$type = pathinfo($logo_path, PATHINFO_EXTENSION);
-
-$ch = curl_init();
-
-curl_setopt_array($ch, array(
-    CURLOPT_URL => $logo_path,
-    CURLOPT_RETURNTRANSFER => 1,
-    CURLOPT_CONNECTTIMEOUT => 5,
-    CURLOPT_TIMEOUT => 10
+$response = wp_remote_get($logo_path, array(
+    'timeout' => 10,
 ));
 
-$data = curl_exec($ch);
-
-curl_close($ch);
-
-$logo_base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+if (is_wp_error($response)) {
+    $error_message = $response->get_error_message();
+} else {
+    $data = wp_remote_retrieve_body($response);
+    $type = wp_remote_retrieve_header($response, 'content-type');
+    
+    $logo_base64 = 'data:' . $type . ';base64,' . base64_encode($data);
+}
 
 // Generates the QR Code as base 64 for the payment link.
 ob_start();
