@@ -78,6 +78,19 @@ function lkn_wcip_delete_invoice () {
     window.location.href += '&lkn_wcip_delete=true'
   }
 }
+//TODO fazer o modal abrir pop-up de cada site para compartilhar o link
+function twitterPopUp()[
+  var url = encodeURIComponent(window.location.href);
+  var text = encodeURIComponent('Confira este produto incrível!');
+  var twitterUrl = 'https://twitter.com/intent/tweet?url=' + url + '&text=' + text;
+  var popupWidth = 600;
+  var popupHeight = 400;
+  var left = (window.innerWidth - popupWidth) / 2;
+  var top = (window.innerHeight - popupHeight) / 2;
+  var popupParams = 'width=' + popupWidth + ',height=' + popupHeight + ',left=' + left + ',top=' + top + ',scrollbars=yes';
+  window.open(twitterUrl, 'twitterWindow', popupParams);
+]
+
 
 function lkn_get_wp_base_url () {
   const href = window.location.href

@@ -562,7 +562,22 @@ final class Wc_Payment_Invoice_Admin {
                 <?php
                 } ?>
             </div>
-            <div class="action-btn">
+            <div id="shareModal"> <?php //TODO fazer o modal abrir pop-up de cada site para compartilhar o link?>
+                <div id="shareModalContent">
+                    <a href="#" id="whatsappShare">WhatsApp</a>
+                    <a href="#" id="facebookShare">Facebook</a>
+                    <a href="#" onclick="twitterPopUp()" id="facebookShare">Twitter</a>
+                    <a href="#" id="emailShare">E-mail</a>
+                </div>
+            </div>
+            <div class="action-btn">                
+                <p class="submit">
+                    <button
+                        type="button"
+                        class="button lkn_swcip_share_btn_form"
+                        onclick="()"
+                    ><?php _e('Share payment link'); ?></button>
+                </p>
                 <p class="submit">
                     <button
                         type="button"
@@ -854,9 +869,9 @@ final class Wc_Payment_Invoice_Admin {
                         >
                             <?php
                             echo '<option value="multiplePayment" selected>Multiple payment</option>';                            
-                            foreach ($enabled_gateways as $key => $gateway) {
-                                echo '<option value="' . esc_attr($gateway->id) . '">' . esc_html($gateway->title) . '</option>';
-                            } ?>
+        foreach ($enabled_gateways as $key => $gateway) {
+            echo '<option value="' . esc_attr($gateway->id) . '">' . esc_html($gateway->title) . '</option>';
+        } ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">
