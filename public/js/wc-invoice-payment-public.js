@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
   if (defaultPaymethod) {
     defaultPaymethod = defaultPaymethod.value
 
+    if(defaultPaymethod == "multiplePayment") return ''
+
     const inputPaymethod = document.getElementById('payment_method_' + defaultPaymethod)
 
     const listPaymethods = document.getElementsByClassName('wc_payment_method')

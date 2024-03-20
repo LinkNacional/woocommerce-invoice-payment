@@ -245,7 +245,7 @@ final class Wc_Payment_Invoice_Admin {
                             name="lkn_wcip_payment_global_template"
                             id="lkn_wcip_payment_global_template"
                             class="regular-text"
-                            >
+                        >
                             <?php echo $html_templates_list; ?>
                         </select>
                     </div>
@@ -428,13 +428,14 @@ final class Wc_Payment_Invoice_Admin {
                             class="regular-text"
                         >
                             <?php
-                            foreach ($enabled_gateways as $key => $gateway) {
-                                if ($order->get_payment_method() === $gateway->id) {
-                                    echo '<option value="' . esc_attr($gateway->id) . '" selected>' . esc_attr($gateway->title) . '</option>';
-                                } else {
-                                    echo '<option value="' . esc_attr($gateway->id) . '">' . esc_attr($gateway->title) . '</option>';
-                                }
-                            } ?>
+                            echo '<option value="multiplePayment" selected>Multiple payment</option>';
+        foreach ($enabled_gateways as $key => $gateway) {
+            if ($order->get_payment_method() === $gateway->id) {
+                echo '<option value="' . esc_attr($gateway->id) . '" selected>' . esc_attr($gateway->title) . '</option>';
+            } else {
+                echo '<option value="' . esc_attr($gateway->id) . '">' . esc_attr($gateway->title) . '</option>';
+            }
+        } ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">
@@ -446,13 +447,13 @@ final class Wc_Payment_Invoice_Admin {
                             class="regular-text"
                         >
                             <?php
-                                foreach ($currencies as $code => $currency) {
-                                    if ($order->get_currency() === $code) {
-                                        echo '<option value="' . esc_attr($code) . '" selected>' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
-                                    } else {
-                                        echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
-                                    }
-                                } ?>
+            foreach ($currencies as $code => $currency) {
+                if ($order->get_currency() === $code) {
+                    echo '<option value="' . esc_attr($code) . '" selected>' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                } else {
+                    echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                }
+            } ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">
@@ -852,6 +853,7 @@ final class Wc_Payment_Invoice_Admin {
                             class="regular-text"
                         >
                             <?php
+                            echo '<option value="multiplePayment" selected>Multiple payment</option>';                            
                             foreach ($enabled_gateways as $key => $gateway) {
                                 echo '<option value="' . esc_attr($gateway->id) . '">' . esc_html($gateway->title) . '</option>';
                             } ?>
@@ -866,13 +868,13 @@ final class Wc_Payment_Invoice_Admin {
                             class="regular-text"
                         >
                             <?php
-                                foreach ($currencies as $code => $currency) {
-                                    if ($active_currency === $code) {
-                                        echo '<option value="' . esc_attr($code) . '" selected>' . esc_html($currency . ' - ' . $code) . '</option>';
-                                    } else {
-                                        echo '<option value="' . esc_attr($code) . '">' . esc_html($currency . ' - ' . $code) . '</option>';
-                                    }
-                                } ?>
+            foreach ($currencies as $code => $currency) {
+                if ($active_currency === $code) {
+                    echo '<option value="' . esc_attr($code) . '" selected>' . esc_html($currency . ' - ' . $code) . '</option>';
+                } else {
+                    echo '<option value="' . esc_attr($code) . '">' . esc_html($currency . ' - ' . $code) . '</option>';
+                }
+            } ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">
