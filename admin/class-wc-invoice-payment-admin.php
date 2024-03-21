@@ -427,15 +427,15 @@ final class Wc_Payment_Invoice_Admin {
                             id="lkn_wcip_default_payment_method_input"
                             class="regular-text"
                         >
+                            <option value="multiplePayment" selected><?php _e('Multiple payment option', 'wc-invoice-payment'); ?></option>
                             <?php
-                            echo '<option value="multiplePayment" selected>Multiple payment</option>';
-        foreach ($enabled_gateways as $key => $gateway) {
-            if ($order->get_payment_method() === $gateway->id) {
-                echo '<option value="' . esc_attr($gateway->id) . '" selected>' . esc_attr($gateway->title) . '</option>';
-            } else {
-                echo '<option value="' . esc_attr($gateway->id) . '">' . esc_attr($gateway->title) . '</option>';
-            }
-        } ?>
+                            foreach ($enabled_gateways as $key => $gateway) {
+                                if ($order->get_payment_method() === $gateway->id) {
+                                    echo '<option value="' . esc_attr($gateway->id) . '" selected>' . esc_attr($gateway->title) . '</option>';
+                                } else {
+                                    echo '<option value="' . esc_attr($gateway->id) . '">' . esc_attr($gateway->title) . '</option>';
+                                }
+                            } ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">
@@ -562,12 +562,39 @@ final class Wc_Payment_Invoice_Admin {
                 <?php
                 } ?>
             </div>
-            <div id="shareModal"> <?php //TODO fazer o modal abrir pop-up de cada site para compartilhar o link?>
-                <div id="shareModalContent">
-                    <a href="#" id="whatsappShare">WhatsApp</a>
-                    <a href="#" id="facebookShare">Facebook</a>
-                    <a href="#" onclick="twitterPopUp()" id="facebookShare">Twitter</a>
-                    <a href="#" id="emailShare">E-mail</a>
+            <div id="lkn-wcip-share-modal" style="display: none;">
+                <div id="lkn-wcip-share-modal-content">
+                    <h3 id="lkn-wcip-share-title"><?php _e('Share with', 'wc-invoice-payment'); ?></h3>
+                    <div id="lkn-wcip-share-buttons">
+                        <a 
+                            href="#" id="lkn-wcip-whatsapp-share" 
+                            class="lkn-wcip-share-icon dashicons dashicons-whatsapp"
+                            onclick="openPopup('whatsapp', '<?php echo esc_url($checkoutUrl); ?>')"
+                        ></a>
+                        <a 
+                            href="#" 
+                            id="lkn-wcip-facebook-share" 
+                            class="lkn-wcip-share-icon dashicons dashicons-facebook"
+                            onclick="openPopup('facebook', '<?php echo esc_url($checkoutUrl); ?>')"
+                        ></a>
+                        <a 
+                            href="#" id="lkn-wcip-twitter-share" 
+                            class="lkn-wcip-share-icon dashicons dashicons-twitter"
+                            onclick="openPopup('twitter', '<?php echo esc_url($checkoutUrl); ?>')"
+                        ></a>
+                        <a 
+                            href="mailto:?subject=Link de fatura&body=<?php echo esc_url($checkoutUrl); ?>"
+                            id="lkn-wcip-email-share" 
+                            class="lkn-wcip-share-icon dashicons dashicons-email-alt"
+                            target="_blank">
+                        </a>
+                    </div>
+                    <h3 id="lkn-wcip-share-title"><?php _e('Or copy link', 'wc-invoice-payment'); ?></h3>
+                    <div id="lkn-wcip-copy-link-div">
+                        <input id="lkn-wcip-copy-input" type="text" value="<?php echo esc_url($checkoutUrl); ?>" readonly>
+                        <span onclick="copyLink()" class="lkn-wcip-copy-button"><span class="dashicons dashicons-clipboard"></span>
+                    </div>
+                    <a href="#" id="lkn-wcip-close-modal-btn" onclick="displayModal()">&times;</a>
                 </div>
             </div>
             <div class="action-btn">                
@@ -575,8 +602,8 @@ final class Wc_Payment_Invoice_Admin {
                     <button
                         type="button"
                         class="button lkn_swcip_share_btn_form"
-                        onclick="()"
-                    ><?php _e('Share payment link'); ?></button>
+                        onclick="displayModal()"
+                    ><?php _e('Share payment link', 'wc-invoice-payment'); ?></button>
                 </p>
                 <p class="submit">
                     <button
@@ -867,11 +894,11 @@ final class Wc_Payment_Invoice_Admin {
                             id="lkn_wcip_default_payment_method_input"
                             class="regular-text"
                         >
+                            <option value="multiplePayment" selected><?php _e('Multiple payment option', 'wc-invoice-payment'); ?></option>                         
                             <?php
-                            echo '<option value="multiplePayment" selected>Multiple payment</option>';                            
-        foreach ($enabled_gateways as $key => $gateway) {
-            echo '<option value="' . esc_attr($gateway->id) . '">' . esc_html($gateway->title) . '</option>';
-        } ?>
+                            foreach ($enabled_gateways as $key => $gateway) {
+                                echo '<option value="' . esc_attr($gateway->id) . '">' . esc_html($gateway->title) . '</option>';
+                            } ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">

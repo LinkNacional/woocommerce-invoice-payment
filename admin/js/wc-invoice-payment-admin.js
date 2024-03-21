@@ -78,19 +78,6 @@ function lkn_wcip_delete_invoice () {
     window.location.href += '&lkn_wcip_delete=true'
   }
 }
-//TODO fazer o modal abrir pop-up de cada site para compartilhar o link
-function twitterPopUp()[
-  var url = encodeURIComponent(window.location.href);
-  var text = encodeURIComponent('Confira este produto incrível!');
-  var twitterUrl = 'https://twitter.com/intent/tweet?url=' + url + '&text=' + text;
-  var popupWidth = 600;
-  var popupHeight = 400;
-  var left = (window.innerWidth - popupWidth) / 2;
-  var top = (window.innerHeight - popupHeight) / 2;
-  var popupParams = 'width=' + popupWidth + ',height=' + popupHeight + ',left=' + left + ',top=' + top + ',scrollbars=yes';
-  window.open(twitterUrl, 'twitterWindow', popupParams);
-]
-
 
 function lkn_get_wp_base_url () {
   const href = window.location.href
@@ -212,4 +199,40 @@ function startTinyMce (elementId, btnSubmitId) {
   btnSubmit.addEventListener('click', () => {
     footerNotesTextarea.innerHTML = wp.editor.getContent(elementId)
   })
+}
+
+function displayModal () {
+  const modal = document.querySelector('#lkn-wcip-share-modal')
+  modal.style.display = modal.style.display ? '' : 'none'
+}
+
+function openPopup(platform, invoiceLink) {
+  var url = encodeURIComponent(invoiceLink)
+  var popupUrl = ''
+  var width = 600
+  var height = 400
+  var left = (window.innerWidth - width) / 2
+  var top = (window.innerHeight - height) / 2
+
+  switch (platform) {
+    case 'whatsapp':
+      popupUrl = 'https://wa.me/?text=' + url
+      break
+    case 'facebook':
+      popupUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + url
+      break
+    case 'twitter':
+      popupUrl = 'https://twitter.com/messages/compose?text=' + url
+      break
+  }
+
+  var popupParams = 'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top + ',scrollbars=yes'
+  window.open(popupUrl, platform + 'Window', popupParams)
+}
+
+function copyLink() {
+  var linkInput = document.querySelector('#lkn-wcip-copy-input')
+  linkInput.select()
+  document.execCommand('copy')
+  navigator.clipboard.writeText(linkInput.value)
 }

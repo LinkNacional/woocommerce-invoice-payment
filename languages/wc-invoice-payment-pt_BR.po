@@ -148,3 +148,15 @@ msgstr "Dados do remetente"
 
 msgid "Text before payment link"
 msgstr "Texto antes do link de pagamento"
+
+msgid "Multiple payment option"
+msgstr "Opção de pagamento múltiplo"
+
+msgid "Share payment link"
+msgstr "Compartilhar link de pagamento"
+
+msgid "Share with"
+msgstr "Compartilhe com"
+
+msgid "Or copy link"
+msgstr "Ou copie o link"
