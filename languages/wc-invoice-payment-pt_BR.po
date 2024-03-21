@@ -160,3 +160,6 @@ msgstr "Compartilhe com"
 
 msgid "Or copy link"
 msgstr "Ou copie o link"
+
+msgid "Start date"
+msgstr "Data de começo"

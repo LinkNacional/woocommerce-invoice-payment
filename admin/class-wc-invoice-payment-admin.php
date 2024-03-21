@@ -7,6 +7,8 @@
  * @since      1.0.0
  */
 
+use Give\Framework\FieldsAPI\Date;
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -570,13 +572,7 @@ final class Wc_Payment_Invoice_Admin {
                             href="#" id="lkn-wcip-whatsapp-share" 
                             class="lkn-wcip-share-icon dashicons dashicons-whatsapp"
                             onclick="openPopup('whatsapp', '<?php echo esc_url($checkoutUrl); ?>')"
-                        ></a>
-                        <a 
-                            href="#" 
-                            id="lkn-wcip-facebook-share" 
-                            class="lkn-wcip-share-icon dashicons dashicons-facebook"
-                            onclick="openPopup('facebook', '<?php echo esc_url($checkoutUrl); ?>')"
-                        ></a>
+                        ></a>                        
                         <a 
                             href="#" id="lkn-wcip-twitter-share" 
                             class="lkn-wcip-share-icon dashicons dashicons-twitter"
@@ -1125,6 +1121,7 @@ final class Wc_Payment_Invoice_Admin {
                 $lastname = substr(strstr($name, ' '), 1);
                 $email = sanitize_email($_POST['lkn_wcip_email']);
                 $expDate = sanitize_text_field($_POST['lkn_wcip_exp_date']);
+                $iniDate = new DateTime();
                 $extraData = sanitize_text_field($_POST['lkn_wcip_extra_data']);
                 $footerNotes = wp_kses_post($_POST['lkn-wc-invoice-payment-footer-notes']);
 
@@ -1163,6 +1160,7 @@ final class Wc_Payment_Invoice_Admin {
                 $order->set_payment_method($paymentMethod);
                 $order->set_currency($currency);
                 $order->add_meta_data('lkn_exp_date', $expDate);
+                $order->add_meta_data('lkn_ini_date', $iniDate->format('Y-m-d'));
 
                 $order->calculate_totals();
                 $order->save();

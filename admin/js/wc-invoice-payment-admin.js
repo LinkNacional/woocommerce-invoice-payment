@@ -218,9 +218,6 @@ function openPopup(platform, invoiceLink) {
     case 'whatsapp':
       popupUrl = 'https://wa.me/?text=' + url
       break
-    case 'facebook':
-      popupUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + url
-      break
     case 'twitter':
       popupUrl = 'https://twitter.com/messages/compose?text=' + url
       break

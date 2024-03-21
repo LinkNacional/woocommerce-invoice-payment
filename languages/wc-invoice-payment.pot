@@ -160,3 +160,6 @@ msgstr ""
 
 msgid "Or copy link"
 msgstr ""
+
+msgid "Start date"
+msgstr ""
