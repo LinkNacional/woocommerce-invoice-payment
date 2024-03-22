@@ -163,6 +163,7 @@ final class Wc_Payment_Invoice {
         require_once plugin_dir_path(__DIR__) . 'public/class-wc-invoice-payment-public.php';
 
         require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-rest.php';
+        require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-subscription.php';
         require_once plugin_dir_path(__DIR__) . 'admin/class-wc-invoice-payment-pdf-templates.php';
 
         require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/libs/dompdf/autoload.inc.php';
@@ -198,8 +199,15 @@ final class Wc_Payment_Invoice {
 
         $api_handler = new Wc_Payment_Invoice_Loader_Rest();
         $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
-    }
+        $subscriptionClass = new Wc_Payment_Invoice_Loader_Subscription();
+        $this->loader->add_action( 'product_type_options', $subscriptionClass, 'addCheckbox' );
+        $this->loader->add_filter( 'woocommerce_product_data_tabs', $subscriptionClass, 'addTab' );
+        $this->loader->add_action( 'woocommerce_checkout_order_processed',$subscriptionClass, 'meu_processo_de_validacao');
+        $this->loader->add_action( 'woocommerce_product_data_panels', $subscriptionClass, 'addTextFieldToSubscriptionTab');
+        $this->loader->add_action( 'woocommerce_process_product_meta', $subscriptionClass, 'save_subscription_fields' );
 
+    }
+    
     /**
      * Register all of the hooks related to the public-facing functionality
      * of the plugin.

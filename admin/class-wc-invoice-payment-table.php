@@ -1514,6 +1514,10 @@ class Lkn_Wcip_List_Table {
                 $invoice = wc_get_order($invoiceId);
                 $dueDate = $invoice->get_meta('lkn_exp_date');
                 $dueDate = empty($dueDate) ? '-' : date($dateFormat, strtotime($dueDate));
+                $iniDate = $invoice->get_meta('lkn_ini_date');
+                $iniDate = empty($iniDate) ? '-' : date($dateFormat, strtotime($iniDate));
+
+                echo "<script>console.log(".json_encode($iniDate).")</script>";
 
                 $data_array[] = [
                     'lkn_wcip_id' => $invoiceId,
@@ -1521,6 +1525,7 @@ class Lkn_Wcip_List_Table {
                     'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
                     'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
                     'lkn_wcip_exp_date' => $dueDate,
+                    'lkn_wcip_ini_date' => $iniDate,
                 ];
             }
         } ?></section><?php
@@ -1550,6 +1555,7 @@ class Lkn_Wcip_List_Table {
             'lkn_wcip_client'			=> __('Name', 'wc-invoice-payment'),
             'lkn_wcip_status'	=> __('Payment status', 'wc-invoice-payment'),
             'lkn_wcip_total_price'		=> __('Total', 'wc-invoice-payment'),
+            'lkn_wcip_ini_date' => __('Start date', 'wc-invoice-payment'),
             'lkn_wcip_exp_date' => __('Due date', 'wc-invoice-payment'),
         ];
 
@@ -1568,6 +1574,7 @@ class Lkn_Wcip_List_Table {
             case 'lkn_wcip_status':
             case 'lkn_wcip_total_price':
             case 'lkn_wcip_exp_date':
+            case 'lkn_wcip_ini_date':
                 return $item[$column_name];
             default:
                 return 'no list found';
@@ -1617,6 +1624,7 @@ class Lkn_Wcip_List_Table {
             $invoices = array_diff($invoices, $invoicesDelete);
 
             for ($c = 0; $c < count($invoicesDelete); $c++) {
+            
                 $order = wc_get_order($invoicesDelete[$c]);
                 $order->delete();
             }

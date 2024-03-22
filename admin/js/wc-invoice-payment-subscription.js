@@ -1,0 +1,1 @@
+document.querySelector("subscriptionTab_options.subscriptionTab_tab").style.display = "none"

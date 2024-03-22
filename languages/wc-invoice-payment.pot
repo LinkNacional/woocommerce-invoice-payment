@@ -163,3 +163,9 @@ msgstr ""
 
 msgid "Start date"
 msgstr ""
+
+msgid "Subscription"
+msgstr ""
+
+msgid "This is a subscription product."
+msgstr ""

@@ -163,3 +163,9 @@ msgstr "Ou copie o link"
 
 msgid "Start date"
 msgstr "Data de começo"
+
+msgid "Subscription"
+msgstr "Assinatura"
+
+msgid "This is a subscription product."
+msgstr "Este é um produto com assinatura"
