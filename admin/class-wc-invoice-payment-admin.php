@@ -1133,6 +1133,7 @@ final class Wc_Payment_Invoice_Admin {
                         'total' => $totalAmount,
                     )
                 );
+                
                 $order->update_meta_data('wcip_extra_data', $extraData);
                 $order->update_meta_data('wcip_footer_notes', $footerNotes);
 
@@ -1163,6 +1164,7 @@ final class Wc_Payment_Invoice_Admin {
                 $order->add_meta_data('lkn_ini_date', $iniDate->format('Y-m-d'));
 
                 $order->calculate_totals();
+
                 $order->save();
 
                 $orderId = $order->get_id();

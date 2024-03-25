@@ -1517,8 +1517,6 @@ class Lkn_Wcip_List_Table {
                 $iniDate = $invoice->get_meta('lkn_ini_date');
                 $iniDate = empty($iniDate) ? '-' : date($dateFormat, strtotime($iniDate));
 
-                echo "<script>console.log(".json_encode($iniDate).")</script>";
-
                 $data_array[] = [
                     'lkn_wcip_id' => $invoiceId,
                     'lkn_wcip_client' => $invoice->get_billing_first_name(),

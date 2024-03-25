@@ -199,13 +199,14 @@ final class Wc_Payment_Invoice {
 
         $api_handler = new Wc_Payment_Invoice_Loader_Rest();
         $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
-        $subscriptionClass = new Wc_Payment_Invoice_Loader_Subscription();
-        $this->loader->add_action( 'product_type_options', $subscriptionClass, 'addCheckbox' );
-        $this->loader->add_filter( 'woocommerce_product_data_tabs', $subscriptionClass, 'addTab' );
-        $this->loader->add_action( 'woocommerce_checkout_order_processed',$subscriptionClass, 'meu_processo_de_validacao');
-        $this->loader->add_action( 'woocommerce_product_data_panels', $subscriptionClass, 'addTextFieldToSubscriptionTab');
-        $this->loader->add_action( 'woocommerce_process_product_meta', $subscriptionClass, 'save_subscription_fields' );
+        $subscription_class = new Wc_Payment_Invoice_Subscription();
+        $this->loader->add_action( 'product_type_options', $subscription_class, 'add_checkbox' );
+        $this->loader->add_filter( 'woocommerce_product_data_tabs', $subscription_class, 'add_tab' );
+        $this->loader->add_action( 'woocommerce_checkout_order_processed',$subscription_class, 'validate_product');
+        $this->loader->add_action( 'woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
+        $this->loader->add_action( 'woocommerce_process_product_meta', $subscription_class, 'save_subscription_fields' );
 
+        $this->loader->add_action( 'generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1 );
     }
     
     /**
