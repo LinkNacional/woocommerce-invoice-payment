@@ -22,15 +22,17 @@ class Wc_Payment_Invoice_Subscription{
 			'class'    => array(),
 			'priority' => 90,
 		);		
-        return apply_filters( 'subscriptionTab', $tabs ); //TODO Remover teste
+        return apply_filters( 'subscriptionTab', $tabs ); 
 	}
     
-    //TODO Terminar logica de exibição dos campos na criação de fatura com WP Cron
-    //TODO Alterar traduções 
     public function add_text_field_to_subscription_tab() {
         global $post;
         $subscription_number = get_post_meta( $post->ID, 'lkn_wcip_subscription_interval_number', true );
         $subscription_interval = get_post_meta( $post->ID, 'lkn_wcip_subscription_interval_type', true );
+        if(!$subscription_number && !$subscription_interval){
+            $subscription_number = 1;
+            $subscription_interval = 'month';
+        }
         ?>
         <div id="lkn-wcip-subscription-data" class="panel woocommerce_options_panel">
             <p class="form-field">
@@ -80,29 +82,41 @@ class Wc_Payment_Invoice_Subscription{
     function validate_product( $order_id ) {
         $order = wc_get_order( $order_id );
         $items = $order->get_items();
-    
+
         foreach ( $items as $item ) {
             $product_id = $item->get_product_id();
             $is_subscription_enabled = get_post_meta( $product_id, '_lkn-wcip-subscription-product', true );
-    
+            $iniDate = new DateTime();
+            $iniDateFormatted = $iniDate->format('Y-m-d');;
+            $subscription_interval_number = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_number', true );
+            $subscription_interval_type = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_type', true );
+
+            $result = $this->calculate_next_due_date( $subscription_interval_number, $subscription_interval_type );
+            $next_due_date = $result['next_due_date'];
+            //seta data para ver quanto tempo foi removido para ser adicionado depois
+
+            
+            $order->add_meta_data('lkn_time_removed', $result['time_removed']);
+            $order->add_meta_data('lkn_is_subscription', false);
+            $order->add_meta_data('lkn_ini_date', date("Y-m-d", strtotime($iniDateFormatted)));
+            $order->add_meta_data('lkn_exp_date', date("Y-m-d", strtotime($iniDateFormatted))); //TODO criar logica para somar a data de expiração com o $result['time_removed']
             if ( $is_subscription_enabled === 'on' ) {
-                $subscription_interval_number = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_number', true );
-                $subscription_interval_type = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_type', true );
-    
-                $result = $this->calculate_next_due_date( $subscription_interval_number, $subscription_interval_type );
-                $next_due_date = $result['next_due_date'];
-                $order->add_meta_data('lkn_time_removed', $result['time_removed']);
-                $order->add_meta_data('lkn_is_subscription', true);
-                $order->save();
+                $order->update_meta_data('lkn_is_subscription', true);
                 $this->schedule_next_invoice_generation( $order_id, $next_due_date );
             }
+            $order->save();
+
+            // Adicionar a nova ordem à lista de faturas
+            $invoice_list = get_option( 'lkn_wcip_invoices', array() );
+            $invoice_list[] = $order->get_id();
+            update_option( 'lkn_wcip_invoices', $invoice_list );
         }
     }
     
     function calculate_next_due_date( $interval_number, $interval_type ) {
         $current_time = current_time( 'timestamp' );
     
-        switch ( $interval_type ) {
+        switch ( $interval_type ) {//TODO Criar comentario para melhor entendimento
             case 'day':
                 $next_due_date = strtotime( "+{$interval_number} day", $current_time );
                 if ($interval_number > 7) {
@@ -188,7 +202,7 @@ class Wc_Payment_Invoice_Subscription{
         $new_order->set_payment_method($payment_method);
         $new_order->add_meta_data('lkn_ini_date', $iniDateFormatted);
         $new_order->add_meta_data('lkn_exp_date', $expDateFormatted);
-        $new_order->add_meta_data('lkn_is_subscription', $is_subscription);;
+        $new_order->add_meta_data('lkn_is_subscription', false);
 
         if ( ! $new_order ) {
             return;
