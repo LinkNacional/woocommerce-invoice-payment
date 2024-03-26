@@ -22,7 +22,7 @@ class Wc_Payment_Invoice_Subscription{
 			'class'    => array(),
 			'priority' => 90,
 		);		
-        return apply_filters( 'testee5', $tabs ); //TODO Remover teste
+        return apply_filters( 'subscriptionTab', $tabs ); //TODO Remover teste
 	}
     
     //TODO Terminar logica de exibição dos campos na criação de fatura com WP Cron
@@ -31,37 +31,33 @@ class Wc_Payment_Invoice_Subscription{
         global $post;
         $subscription_number = get_post_meta( $post->ID, 'lkn_wcip_subscription_interval_number', true );
         $subscription_interval = get_post_meta( $post->ID, 'lkn_wcip_subscription_interval_type', true );
-        echo <<<HTML
-            <div id="lkn-wcip-subscription-data" class="panel woocommerce_options_panel">
-                <p class="form-field">
-                    <label for="lkn_wcip_subscription_interval_number">Subscriptions Per Interval</label>
-                    <input type="number" class="short wc_input_number" min="1" name="lkn_wcip_subscription_interval_number" id="lkn_wcip_subscription_interval_number" value="{$subscription_number}">
-                    <select id="lkn_wcip_subscription_interval_type" name="lkn_wcip_subscription_interval_type" class="lkn_wcip_subscription_interval_type">
-        HTML;
-                        echo '<option value="day"';
-                        echo ($subscription_interval == 'day') ? ' selected="selected"' : '';
-                        echo '>Days</option>';
-                        
-                        echo '<option value="week"';
-                        echo ($subscription_interval == 'week') ? ' selected="selected"' : '';
-                        echo '>Weeks</option>';
-                        
-                        echo '<option value="month"';
-                        echo ($subscription_interval == 'month') ? ' selected="selected"' : '';
-                        echo '>Months</option>';
-                        
-                        echo '<option value="year"';
-                        echo ($subscription_interval == 'year') ? ' selected="selected"' : '';
-                        echo '>Years</option>';
-        echo <<<HTML
-                    </select>
-                </p>
-            </div>
-            
-
-        HTML;
-        wp_enqueue_script( 'custom-admin-js', plugin_dir_url(__FILE__) . '../admin/js/wc-invoice-payment-subscription.js', array( 'jquery' ), '', true );
+        ?>
+        <div id="lkn-wcip-subscription-data" class="panel woocommerce_options_panel">
+            <p class="form-field">
+                <label for="lkn_wcip_subscription_interval_number"><?php _e('Subscription Interval', 'wc-invoice-payment'); ?></label>
+                <input type="number" class="short wc_input_number" min="1" name="lkn_wcip_subscription_interval_number" id="lkn_wcip_subscription_interval_number" value="<?php echo $subscription_number; ?>">
+                <select id="lkn_wcip_subscription_interval_type" name="lkn_wcip_subscription_interval_type" class="lkn_wcip_subscription_interval_type">
+                    <?php
+                    $options = array(
+                        'day' => __('Days', 'wc-invoice-payment'),
+                        'week' => __('Weeks', 'wc-invoice-payment'),
+                        'month' => __('Months', 'wc-invoice-payment'),
+                        'year' => __('Years', 'wc-invoice-payment')
+                    );
+    
+                    foreach ($options as $key => $label) {
+                        echo '<option value="' . esc_attr($key) . '"';
+                        echo ($subscription_interval == $key) ? ' selected="selected"' : '';
+                        echo '>' . esc_html($label) . '</option>';
+                    }
+                    ?>
+                </select>
+            </p>
+        </div>
+        <?php
+        wp_enqueue_script('custom-admin-js', plugin_dir_url(__FILE__) . '../admin/js/wc-invoice-payment-subscription.js', array('jquery'), '', true);
     }
+    
 
     public function save_subscription_fields( $post_id ) {
         if ( isset( $_POST['lkn_wcip_subscription_interval_number'] ) ) {
@@ -93,8 +89,10 @@ class Wc_Payment_Invoice_Subscription{
                 $subscription_interval_number = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_number', true );
                 $subscription_interval_type = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_type', true );
     
-                $next_due_date = $this->calculate_next_due_date( $subscription_interval_number, $subscription_interval_type );
-    
+                $result = $this->calculate_next_due_date( $subscription_interval_number, $subscription_interval_type );
+                $next_due_date = $result['next_due_date'];
+                $order->add_meta_data('lkn_time_removed', $result['time_removed']);
+                $order->save();
                 $this->schedule_next_invoice_generation( $order_id, $next_due_date );
             }
         }
@@ -106,58 +104,57 @@ class Wc_Payment_Invoice_Subscription{
         switch ( $interval_type ) {
             case 'day':
                 $next_due_date = strtotime( "+{$interval_number} day", $current_time );
-                // Se a fatura for maior que uma semana, diminua uma semana da data de vencimento
                 if ($interval_number > 7) {
                     $next_due_date = strtotime( "-1 week", $next_due_date );
-                }
-                // Se for uma semana ou menos, diminua alguns dias
-                elseif ($interval_number <= 7 && $interval_number > 1) {
+                    $time_removed = '1 week';
+                } elseif ($interval_number <= 7 && $interval_number > 1) {
                     $next_due_date = strtotime( "-3 days", $next_due_date );
-                }
-                // Se for apenas um dia, diminua algumas horas
-                elseif ($interval_number == 1) {
+                    $time_removed = '3 days';
+                } elseif ($interval_number == 1) {
                     $next_due_date = strtotime( "-6 hours", $next_due_date );
+                    $time_removed = '6 hours';
                 }
                 break;
             case 'week':
                 $next_due_date = strtotime( "+{$interval_number} week", $current_time );
-                // Se a fatura for maior que uma semana, diminua uma semana da data de vencimento
                 if ($interval_number > 1) {
                     $next_due_date = strtotime( "-1 week", $next_due_date );
-                }
-                // Se for apenas uma semana, diminua alguns dias
-                else {
+                    $time_removed = '1 week';
+                } else {
                     $next_due_date = strtotime( "-3 days", $next_due_date );
+                    $time_removed = '3 days';
                 }
                 break;
             case 'month':
                 $next_due_date = strtotime( "+{$interval_number} month", $current_time );
-                // Se a fatura for maior que um mês, diminua algumas semanas
                 if ($interval_number > 1) {
                     $next_due_date = strtotime( "-2 weeks", $next_due_date );
-                }
-                // Se for apenas um mês, diminua alguns dias
-                else {
+                    $time_removed = '2 weeks';
+                } else {
                     $next_due_date = strtotime( "-3 days", $next_due_date );
+                    $time_removed = '3 days';
                 }
                 break;
             case 'year':
                 $next_due_date = strtotime( "+{$interval_number} year", $current_time );
-                // Se a fatura for maior que um ano, diminua alguns meses
                 if ($interval_number > 1) {
                     $next_due_date = strtotime( "-3 months", $next_due_date );
-                }
-                // Se for apenas um ano, diminua algumas semanas
-                else {
+                    $time_removed = '3 months';
+                } else {
                     $next_due_date = strtotime( "-2 weeks", $next_due_date );
+                    $time_removed = '2 weeks';
                 }
                 break;
             default:
                 $next_due_date = 0;
+                $next_due_date = '';
                 break;
         }
     
-        return $next_due_date;
+        return array(
+            'next_due_date' => $next_due_date,
+            'time_removed'  => $time_removed
+        );
     }
     
     
@@ -167,30 +164,36 @@ class Wc_Payment_Invoice_Subscription{
     
     function create_next_invoice( $order_id ) {
         $order = wc_get_order( $order_id );
-
+        
         $customer_id = $order->get_customer_id();
         $billing_email = $order->get_billing_email();
         $billing_first_name = $order->get_billing_first_name();
         $billing_last_name = $order->get_billing_last_name();
         $payment_method = $order->get_payment_method();
-        $currency = $order->get_currency();
-        $exp_date = $order->get_meta('lkn_exp_date');
+        $time_removed = $order->get_meta('lkn_time_removed');
+        $iniDate = new DateTime();
+        $iniDateFormatted = $iniDate->format('Y-m-d');
+        $iniDate->modify("+" . $time_removed);
+        $expDateFormatted = date('Y-m-d', $iniDate->getTimestamp());
 
         $new_order = wc_create_order( array(
             'status' => 'wc-pending',
             'customer_id' => $customer_id,
-            'currency' => $currency,
         ) );
         $new_order->set_billing_first_name($billing_first_name);
         $new_order->set_billing_last_name($billing_last_name);
         $new_order->set_billing_email($billing_email);
         $new_order->set_payment_method($payment_method);
+        $new_order->add_meta_data('lkn_ini_date', $iniDateFormatted);
+        $new_order->add_meta_data('lkn_exp_date', $expDateFormatted);
+
+        add_option("lkn_ini_dateTeste".$order_id, $iniDateFormatted);
+        add_option("lkn_exp_dateTeste".$order_id, $expDateFormatted);
+        add_option("time_removedTeste".$order_id, $time_removed);
+
         if ( ! $new_order ) {
             return;
         }
-        add_option("dataExpirada", json_encode($exp_date));
-        // Definir a data de vencimento da nova ordem com base na data de vencimento da ordem original
-        $new_order->update_meta_data( 'lkn_exp_date', $exp_date );
 
         // Calcular e definir o total da nova ordem com base nos itens da ordem original
         $total_amount = 0;

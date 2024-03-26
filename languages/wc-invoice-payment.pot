@@ -169,3 +169,18 @@ msgstr ""
 
 msgid "This is a subscription product."
 msgstr ""
+
+msgid "Subscription Interval"
+msgstr ""
+
+msgid "Days"
+msgstr ""
+
+msgid "Weeks"
+msgstr ""
+
+msgid "Months"
+msgstr ""
+
+msgid "Years"
+msgstr ""
