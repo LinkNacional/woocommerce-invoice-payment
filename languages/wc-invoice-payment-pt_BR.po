@@ -184,3 +184,9 @@ msgstr "Meses"
 
 msgid "Years"
 msgstr "Anos"
+
+msgid "Subscriptions"
+msgstr "Assinaturas"
+
+msgid "List Subscriptions"
+msgstr "Listar assinaturas"

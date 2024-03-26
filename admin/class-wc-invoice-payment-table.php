@@ -1410,7 +1410,7 @@ class Lkn_Wcip_List_Table {
      *
      * @return void
      */
-    public function prepare_items() {
+    public function prepare_items($showSubscriptions = false) {
         $order_by = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
         $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
         $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
@@ -1436,7 +1436,7 @@ class Lkn_Wcip_List_Table {
         $total_items = count($invoiceList);
 
         // only ncessary because we have sample data
-        $found_data = $this->lkn_wcip_list_table_data($order_by, $order, $search_term, $invoiceList);
+        $found_data = $this->lkn_wcip_list_table_data($order_by, $order, $search_term, $invoiceList, $showSubscriptions);
         $this->items = array_slice($found_data, (($current_page-1)*$per_page), $per_page);
 
         $this->set_pagination_args([
@@ -1502,7 +1502,7 @@ class Lkn_Wcip_List_Table {
      *
      * @return array
      */
-    public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '', $invoiceList) {
+    public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '', $invoiceList, $showSubscriptions) {
         ?><section style="margin: 30px 0 0 0; ">
 			<?php
         $data_array = [];
@@ -1511,20 +1511,22 @@ class Lkn_Wcip_List_Table {
             $dateFormat = get_option('date_format');
 
             foreach ($invoiceList as $invoiceId) {
+                
                 $invoice = wc_get_order($invoiceId);
-                $dueDate = $invoice->get_meta('lkn_exp_date');
-                $dueDate = empty($dueDate) ? '-' : date($dateFormat, strtotime($dueDate));
-                $iniDate = $invoice->get_meta('lkn_ini_date');
-                $iniDate = empty($iniDate) ? '-' : date($dateFormat, strtotime($iniDate));
-
-                $data_array[] = [
-                    'lkn_wcip_id' => $invoiceId,
-                    'lkn_wcip_client' => $invoice->get_billing_first_name(),
-                    'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
-                    'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
-                    'lkn_wcip_exp_date' => $dueDate,
-                    'lkn_wcip_ini_date' => $iniDate,
-                ];
+                if($showSubscriptions == $invoice->get_meta('lkn_is_subscription')){
+                    $dueDate = $invoice->get_meta('lkn_exp_date');
+                    $dueDate = empty($dueDate) ? '-' : date($dateFormat, strtotime($dueDate));
+                    $iniDate = $invoice->get_meta('lkn_ini_date');
+                    $iniDate = empty($iniDate) ? '-' : date($dateFormat, strtotime($iniDate));
+                    $data_array[] = [
+                        'lkn_wcip_id' => $invoiceId,
+                        'lkn_wcip_client' => $invoice->get_billing_first_name(),
+                        'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
+                        'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
+                        'lkn_wcip_exp_date' => $dueDate,
+                        'lkn_wcip_ini_date' => $iniDate,
+                    ];
+                }
             }
         } ?></section><?php
         usort($data_array, [$this, 'usort_reorder']);

@@ -184,3 +184,9 @@ msgstr ""
 
 msgid "Years"
 msgstr ""
+
+msgid "Subscriptions"
+msgstr ""
+
+msgid "List Subscriptions"
+msgstr ""

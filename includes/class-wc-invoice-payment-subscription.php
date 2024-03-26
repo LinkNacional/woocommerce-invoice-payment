@@ -92,6 +92,7 @@ class Wc_Payment_Invoice_Subscription{
                 $result = $this->calculate_next_due_date( $subscription_interval_number, $subscription_interval_type );
                 $next_due_date = $result['next_due_date'];
                 $order->add_meta_data('lkn_time_removed', $result['time_removed']);
+                $order->add_meta_data('lkn_is_subscription', true);
                 $order->save();
                 $this->schedule_next_invoice_generation( $order_id, $next_due_date );
             }
@@ -171,6 +172,7 @@ class Wc_Payment_Invoice_Subscription{
         $billing_last_name = $order->get_billing_last_name();
         $payment_method = $order->get_payment_method();
         $time_removed = $order->get_meta('lkn_time_removed');
+        $is_subscription = $order->get_meta('lkn_is_subscription');
         $iniDate = new DateTime();
         $iniDateFormatted = $iniDate->format('Y-m-d');
         $iniDate->modify("+" . $time_removed);
@@ -186,10 +188,7 @@ class Wc_Payment_Invoice_Subscription{
         $new_order->set_payment_method($payment_method);
         $new_order->add_meta_data('lkn_ini_date', $iniDateFormatted);
         $new_order->add_meta_data('lkn_exp_date', $expDateFormatted);
-
-        add_option("lkn_ini_dateTeste".$order_id, $iniDateFormatted);
-        add_option("lkn_exp_dateTeste".$order_id, $expDateFormatted);
-        add_option("time_removedTeste".$order_id, $time_removed);
+        $new_order->add_meta_data('lkn_is_subscription', $is_subscription);;
 
         if ( ! $new_order ) {
             return;
