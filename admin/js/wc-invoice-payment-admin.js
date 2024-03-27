@@ -245,5 +245,7 @@ function cancelSubscription() {
   jQuery.post(ajaxurl, data, function(response) {
       // Exibir mensagem de confirmação ou realizar outras ações após a remoção do evento
       alert(response);
+      window.location.reload();
   });
+
 } 

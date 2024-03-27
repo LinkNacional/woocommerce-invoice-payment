@@ -753,10 +753,36 @@ final class Wc_Payment_Invoice_Admin {
         <?php
     }
 
+    function is_invoice_id_scheduled($invoice_id) {
+        // Recupere todos os eventos agendados do WP Cron
+        $scheduled_events = _get_cron_array();
+    
+        // Itere sobre todos os eventos agendados
+        foreach ($scheduled_events as $timestamp => $cron_events) {
+            foreach ($cron_events as $hook => $events) {
+                foreach ($events as $event) {
+                    // Verifique se o evento está associado ao seu gancho (hook)
+                    if ($hook === 'generate_invoice_event') {
+                        // Verifique se os argumentos do evento contêm o invoiceId
+                        $event_args = $event['args'];
+                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                            // O invoiceId está agendado, então retorne verdadeiro
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        // Se chegou até aqui, o invoiceId não está agendado
+        return false;
+    }
+    
+
      /**
      * Render html page for subscription edit.
      */
     public function render_edit_subscription_page(): void {
+
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
@@ -974,25 +1000,23 @@ final class Wc_Payment_Invoice_Admin {
                                 >
                             </div>
                             <div class="input-row-wrap">
-                                <a
-                                    class="lkn_wcip_cancel_subscription_btn"
-                                    href="#"
-                                    onclick="cancelSubscription()"
-                                    data-invoice-id="<?php esc_attr_e($invoiceId); ?>"
-                                ><?php _e('Cancel subscription', 'wc-invoice-payment'); ?></a>
+                                <?php
+                                     // Verifique se o invoiceId está agendado
+
+                                    if ($this->is_invoice_id_scheduled($invoiceId)) {
+                                        // O invoiceId está agendado, exiba o link para cancelar a assinatura
+                                        ?>
+                                        <a class="lkn_wcip_cancel_subscription_btn"
+                                        href="#"
+                                        onclick="cancelSubscription()"
+                                        data-invoice-id="<?php esc_attr_e($invoiceId); ?>">
+                                            <?php _e('Cancel subscription', 'wc-invoice-payment'); ?>
+                                        </a>
+                                        <?php
+                                    }
+                                ?>
                             </div>
                         </div>
-                        <?php
-                        if ('pending' === $orderStatus) {
-                            ?>
-                        <div class="input-row-wrap">
-                            <a
-                                href="<?php echo esc_url($checkoutUrl); ?>"
-                                target="_blank"
-                            ><?php _e('Invoice payment link', 'wc-invoice-payment'); ?></a>
-                        </div>
-                        <?php
-                        } ?>
                     </div>
                     <div id="lkn-wcip-share-modal" style="display: none;">
                         <div id="lkn-wcip-share-modal-content">
@@ -1023,14 +1047,7 @@ final class Wc_Payment_Invoice_Admin {
                             <a href="#" id="lkn-wcip-close-modal-btn" onclick="displayModal()">&times;</a>
                         </div>
                     </div>
-                    <div class="action-btn">                
-                        <p class="submit">
-                            <button
-                                type="button"
-                                class="button lkn_swcip_share_btn_form"
-                                onclick="displayModal()"
-                            ><?php _e('Share payment link', 'wc-invoice-payment'); ?></button>
-                        </p>
+                    <div class="action-btn">   
                         <p class="submit">
                             <button
                                 type="button"
@@ -1558,6 +1575,7 @@ final class Wc_Payment_Invoice_Admin {
      * Handles submission from add invoice form.
      */
     public function add_invoice_form_submit_handle(): void {
+        //TODO criar checkbox e input para criar assinatura por fora do checkout do woocommerce
         if ('POST' == $_SERVER['REQUEST_METHOD']) {
             if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_add_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();

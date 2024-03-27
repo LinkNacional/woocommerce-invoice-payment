@@ -13,7 +13,7 @@ class Wc_Payment_Invoice_Subscription{
     
         $scheduled_events = _get_cron_array();
 
-        // Itere sobre todos os eventos agendados
+        // verifica todos os eventos agendados
         foreach ($scheduled_events as $timestamp => $cron_events) {
             foreach ($cron_events as $hook => $events) {
                 foreach ($events as $event) {
@@ -33,7 +33,6 @@ class Wc_Payment_Invoice_Subscription{
         // Enviar uma resposta de confirmação de volta para o JavaScript
         echo 'O evento do WP Cron foi removido com sucesso para a fatura com ID ' . $invoice_id;
     
-        // É importante finalizar o script após enviar a resposta
         wp_die();
     }
 
@@ -169,7 +168,8 @@ class Wc_Payment_Invoice_Subscription{
                 //seta data para ver quanto tempo foi removido para ser adicionado depois            
                 $order->add_meta_data('lkn_time_removed', $result['time_removed']);            
                 $order->add_meta_data('lkn_ini_date', date("Y-m-d", strtotime($iniDateFormatted)));
-                $order->add_meta_data('lkn_exp_date', date("Y-m-d", strtotime($iniDateFormatted))); //TODO criar logica para somar a data de expiração com o $result['time_removed']
+                $order->add_meta_data('lkn_exp_date', date("Y-m-d", strtotime($iniDateFormatted))); 
+                //TODO criar meta_data para armazenar o preço do produto para resolver bug do preço nas faturas da assinatura
                 
                 //Caso seja assinatura gera evento do WP cron
                 if ( $is_subscription_enabled === 'on' ) {
