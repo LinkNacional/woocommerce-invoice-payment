@@ -190,3 +190,12 @@ msgstr ""
 
 msgid "List Subscriptions"
 msgstr ""
+
+msgid "Activate invoices"
+msgstr ""
+
+msgid "Create an invoice whenever a product is purchased"
+msgstr ""
+
+msgid "Create invoices for products"
+msgstr ""

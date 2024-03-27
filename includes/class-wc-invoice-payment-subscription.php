@@ -2,20 +2,52 @@
 
 class Wc_Payment_Invoice_Subscription{
 
+
+    // Adiciona o campo checkbox nas configurações gerais do WooCommerce
+    function custom_wc_general_settings_checkbox($settings) {
+        // Encontra a posição do botão de envio (submit)
+        $submit_position = count($settings) - 9;
+    
+        // Adiciona o novo campo antes do botão de envio
+        array_splice($settings, $submit_position, 0, array(
+            array(
+                'title'    => __('Activate invoices', 'woocommerce'),
+                'type'     => 'checkbox',
+                'id'       => 'active_product_invoices',
+                'desc_tip' => __('Create an invoice whenever a product is purchased.', 'woocommerce'),
+                'default'  => 'no',
+                'desc'     => __('Create invoices for products', 'woocommerce'),
+            )
+        ));
+    
+        return $settings;
+    }
+    
+    // Salva o valor do campo checkbox
+    function save_custom_wc_general_settings_checkbox() {
+        woocommerce_update_options(
+            array(
+                'active_product_invoices' => isset($_POST['active_product_invoices']) ? 'yes' : 'no', 
+            )
+        );
+    }
+
     public function add_checkbox( $products_type ) {
         global $post;
-        $subscription_interval = get_post_meta( $post->ID, '_lkn-wcip-subscription-product', true );
+        //Criando uma nova checkbox no formulário de criação de produtos
+        $subscription_product = get_post_meta( $post->ID, '_lkn-wcip-subscription-product', true );
         $products_type['subscriptionCheckbox'] = array(
             'id'            => '_lkn-wcip-subscription-product',
 			'wrapper_class' => 'show_if_simple',
 			'label'         => __( 'Subscription', 'wc-invoice-payment' ),
 			'description'   => __( 'This is a subscription product.', 'wc-invoice-payment' ),
-			'default'       => $subscription_interval ? 'yes' : 'no',
+			'default'       => $subscription_product ? 'yes' : 'no',
 		);
 		return $products_type;
 	}
 
     public function add_tab( $tabs ) {
+        //Criando uma nova guia no formulário de criação de produtos
 		$tabs['subscriptionTab'] = array(
 			'label'    => __( 'Subscription', 'wc-invoice-payment' ),
 			'target'   => 'lkn-wcip-subscription-data',
@@ -29,6 +61,7 @@ class Wc_Payment_Invoice_Subscription{
         global $post;
         $subscription_number = get_post_meta( $post->ID, 'lkn_wcip_subscription_interval_number', true );
         $subscription_interval = get_post_meta( $post->ID, 'lkn_wcip_subscription_interval_type', true );
+        //Caso nenhum exista o padrão será 1 mês
         if(!$subscription_number && !$subscription_interval){
             $subscription_number = 1;
             $subscription_interval = 'month';
@@ -62,6 +95,7 @@ class Wc_Payment_Invoice_Subscription{
     
 
     public function save_subscription_fields( $post_id ) {
+        //Salva todos os campos criados na meta do post
         if ( isset( $_POST['lkn_wcip_subscription_interval_number'] ) ) {
             $subscription_number = sanitize_text_field( $_POST['lkn_wcip_subscription_interval_number'] );
             update_post_meta( $post_id, 'lkn_wcip_subscription_interval_number', $subscription_number );
@@ -80,47 +114,51 @@ class Wc_Payment_Invoice_Subscription{
         }
     }
     function validate_product( $order_id ) {
-        $order = wc_get_order( $order_id );
-        $items = $order->get_items();
+        if(get_option("active_product_invoices") == "yes"){
 
-        foreach ( $items as $item ) {
-            $product_id = $item->get_product_id();
-            $is_subscription_enabled = get_post_meta( $product_id, '_lkn-wcip-subscription-product', true );
-            $iniDate = new DateTime();
-            $iniDateFormatted = $iniDate->format('Y-m-d');;
-            $subscription_interval_number = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_number', true );
-            $subscription_interval_type = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_type', true );
+            $order = wc_get_order( $order_id );
+            $items = $order->get_items();
 
-            $result = $this->calculate_next_due_date( $subscription_interval_number, $subscription_interval_type );
-            $next_due_date = $result['next_due_date'];
-            //seta data para ver quanto tempo foi removido para ser adicionado depois
+            foreach ( $items as $item ) {
+                $product_id = $item->get_product_id();
+                $is_subscription_enabled = get_post_meta( $product_id, '_lkn-wcip-subscription-product', true );
+                $iniDate = new DateTime();
+                $iniDateFormatted = $iniDate->format('Y-m-d');;
+                $subscription_interval_number = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_number', true );
+                $subscription_interval_type = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_type', true );
 
-            
-            $order->add_meta_data('lkn_time_removed', $result['time_removed']);
-            $order->add_meta_data('lkn_is_subscription', false);
-            $order->add_meta_data('lkn_ini_date', date("Y-m-d", strtotime($iniDateFormatted)));
-            $order->add_meta_data('lkn_exp_date', date("Y-m-d", strtotime($iniDateFormatted))); //TODO criar logica para somar a data de expiração com o $result['time_removed']
-            if ( $is_subscription_enabled === 'on' ) {
-                $order->update_meta_data('lkn_is_subscription', true);
-                $this->schedule_next_invoice_generation( $order_id, $next_due_date );
+                $result = $this->calculate_next_due_date( $subscription_interval_number, $subscription_interval_type );
+                $next_due_date = $result['next_due_date'];
+
+                //seta data para ver quanto tempo foi removido para ser adicionado depois            
+                $order->add_meta_data('lkn_time_removed', $result['time_removed']);            
+                $order->add_meta_data('lkn_ini_date', date("Y-m-d", strtotime($iniDateFormatted)));
+                $order->add_meta_data('lkn_exp_date', date("Y-m-d", strtotime($iniDateFormatted))); //TODO criar logica para somar a data de expiração com o $result['time_removed']
+                
+                //Caso seja assinatura gera evento do WP cron
+                if ( $is_subscription_enabled === 'on' ) {
+                    $order->add_meta_data('lkn_is_subscription', true);
+                    $this->schedule_next_invoice_generation( $order_id, $next_due_date );
+                }
+                $order->save();
+
+                // Adicionar a nova ordem à lista de faturas
+                $invoice_list = get_option( 'lkn_wcip_invoices', array() );
+                $invoice_list[] = $order->get_id();
+                update_option( 'lkn_wcip_invoices', $invoice_list );
             }
-            $order->save();
-
-            // Adicionar a nova ordem à lista de faturas
-            $invoice_list = get_option( 'lkn_wcip_invoices', array() );
-            $invoice_list[] = $order->get_id();
-            update_option( 'lkn_wcip_invoices', $invoice_list );
         }
     }
     
     function calculate_next_due_date( $interval_number, $interval_type ) {
         $current_time = current_time( 'timestamp' );
-    
-        switch ( $interval_type ) {//TODO Criar comentario para melhor entendimento
+        //Pega a quantidade de tempo de intervalo da cobrança e diminui horas, dias, semanas e meses de acordo com o que foi escolhido        
+        switch ( $interval_type ) {
             case 'day':
                 $next_due_date = strtotime( "+{$interval_number} day", $current_time );
                 if ($interval_number > 7) {
                     $next_due_date = strtotime( "-1 week", $next_due_date );
+                    //A variavel $time_removed salva o valor reduzido para ser somado mais tarde e gerar a fatura
                     $time_removed = '1 week';
                 } elseif ($interval_number <= 7 && $interval_number > 1) {
                     $next_due_date = strtotime( "-3 days", $next_due_date );
@@ -189,6 +227,7 @@ class Wc_Payment_Invoice_Subscription{
         $is_subscription = $order->get_meta('lkn_is_subscription');
         $iniDate = new DateTime();
         $iniDateFormatted = $iniDate->format('Y-m-d');
+        //Soma o tempo removido anteriormente para colocar na data de vencimento
         $iniDate->modify("+" . $time_removed);
         $expDateFormatted = date('Y-m-d', $iniDate->getTimestamp());
 
@@ -213,8 +252,13 @@ class Wc_Payment_Invoice_Subscription{
         foreach ( $order->get_items() as $item ) {
             $total_amount += $item->get_total();
             $new_order->add_product( $item->get_product(), $item->get_quantity() );
+            add_option("ItemShowTestee021", json_encode($item->get_total()));
+            add_option("ItemShowTestee022", json_encode($item->get_quantity()));
+            add_option("ItemShowTestee023", json_encode($item->get_product()));
+            add_option("ItemShowTestee024", json_encode($item->get_product_id()));
         }
         $new_order->set_total( $total_amount );
+        add_option("ItemShowTestee025", json_encode($new_order->get_total()));
 
         // Calcular totais e salvar a nova ordem
         $new_order->calculate_totals();
@@ -226,7 +270,7 @@ class Wc_Payment_Invoice_Subscription{
         update_option( 'lkn_wcip_invoices', $invoice_list );
 
         // Agendar evento cron para a nova ordem, se necessário
-        if ( ! empty( $exp_date ) ) {
+        /* if ( ! empty( $exp_date ) ) {
             $today_time = time();
             $exp_date_time = strtotime( $exp_date );
             $next_verification = 0;
@@ -238,7 +282,7 @@ class Wc_Payment_Invoice_Subscription{
             }
 
             wp_schedule_event( time() + $next_verification, 'daily', 'lkn_wcip_cron_hook', array( $new_order->get_id() ) );
-        }
+        } */
 
         // Enviar e-mail de notificação ao cliente, se necessário
         if ( isset( $_POST['lkn_wcip_form_actions'] ) && sanitize_text_field( $_POST['lkn_wcip_form_actions'] ) === 'send_email' ) {

@@ -190,3 +190,12 @@ msgstr "Assinaturas"
 
 msgid "List Subscriptions"
 msgstr "Listar assinaturas"
+
+msgid "Activate invoices"
+msgstr "Ativar faturas"
+
+msgid "Create an invoice whenever a product is purchased"
+msgstr "Criar uma fatura sempre que um produto for comprado"
+
+msgid "Create invoices for products"
+msgstr "Criar faturas para produtos"

@@ -1482,6 +1482,7 @@ class Lkn_Wcip_List_Table {
         $order = wc_get_order($invoiceId);
 
         $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $invoiceId);
+        
         $paymentUrl = $order->get_checkout_payment_url();
 
         $action = [];
@@ -1513,6 +1514,7 @@ class Lkn_Wcip_List_Table {
             foreach ($invoiceList as $invoiceId) {
                 
                 $invoice = wc_get_order($invoiceId);
+                //Verifica se a opção desejada é igual ao valor que define se é uma assinatura
                 if($showSubscriptions == $invoice->get_meta('lkn_is_subscription')){
                     $dueDate = $invoice->get_meta('lkn_exp_date');
                     $dueDate = empty($dueDate) ? '-' : date($dateFormat, strtotime($dueDate));
