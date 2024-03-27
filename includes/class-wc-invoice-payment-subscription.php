@@ -2,11 +2,46 @@
 
 class Wc_Payment_Invoice_Subscription{
 
+    function cancel_subscription_callback() {
+        // Verificar se o usuário tem permissão para fazer isso (opcional)
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Você não tem permissão para acessar esta página.'));
+        }
+    
+        // Obter o ID da fatura do pedido
+        $invoice_id = $_POST['invoice_id'];
+    
+        $scheduled_events = _get_cron_array();
+
+        // Itere sobre todos os eventos agendados
+        foreach ($scheduled_events as $timestamp => $cron_events) {
+            foreach ($cron_events as $hook => $events) {
+                foreach ($events as $event) {
+                    // Verifique se o evento está associado ao seu gancho (hook)
+                    if ($hook === 'generate_invoice_event') {
+                        // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                        $event_args = $event['args'];
+                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                            // Remova o evento do WP Cron
+                            wp_unschedule_event($timestamp, $hook, $event_args);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Enviar uma resposta de confirmação de volta para o JavaScript
+        echo 'O evento do WP Cron foi removido com sucesso para a fatura com ID ' . $invoice_id;
+    
+        // É importante finalizar o script após enviar a resposta
+        wp_die();
+    }
+
 
     // Adiciona o campo checkbox nas configurações gerais do WooCommerce
     function custom_wc_general_settings_checkbox($settings) {
         // Encontra a posição do botão de envio (submit)
-        $submit_position = count($settings) - 9;
+        $submit_position = count($settings) - 1;
     
         // Adiciona o novo campo antes do botão de envio
         array_splice($settings, $submit_position, 0, array(
@@ -113,6 +148,7 @@ class Wc_Payment_Invoice_Subscription{
             update_post_meta( $post_id, '_lkn-wcip-subscription-product', '' );
         }
     }
+
     function validate_product( $order_id ) {
         if(get_option("active_product_invoices") == "yes"){
 
@@ -252,13 +288,8 @@ class Wc_Payment_Invoice_Subscription{
         foreach ( $order->get_items() as $item ) {
             $total_amount += $item->get_total();
             $new_order->add_product( $item->get_product(), $item->get_quantity() );
-            add_option("ItemShowTestee021", json_encode($item->get_total()));
-            add_option("ItemShowTestee022", json_encode($item->get_quantity()));
-            add_option("ItemShowTestee023", json_encode($item->get_product()));
-            add_option("ItemShowTestee024", json_encode($item->get_product_id()));
         }
         $new_order->set_total( $total_amount );
-        add_option("ItemShowTestee025", json_encode($new_order->get_total()));
 
         // Calcular totais e salvar a nova ordem
         $new_order->calculate_totals();
@@ -269,31 +300,6 @@ class Wc_Payment_Invoice_Subscription{
         $invoice_list[] = $new_order->get_id();
         update_option( 'lkn_wcip_invoices', $invoice_list );
 
-        // Agendar evento cron para a nova ordem, se necessário
-        /* if ( ! empty( $exp_date ) ) {
-            $today_time = time();
-            $exp_date_time = strtotime( $exp_date );
-            $next_verification = 0;
-
-            if ( $today_time > $exp_date_time ) {
-                $next_verification = $today_time - $exp_date_time;
-            } else {
-                $next_verification = $exp_date_time - $today_time;
-            }
-
-            wp_schedule_event( time() + $next_verification, 'daily', 'lkn_wcip_cron_hook', array( $new_order->get_id() ) );
-        } */
-
-        // Enviar e-mail de notificação ao cliente, se necessário
-        if ( isset( $_POST['lkn_wcip_form_actions'] ) && sanitize_text_field( $_POST['lkn_wcip_form_actions'] ) === 'send_email' ) {
-            WC()->mailer()->customer_invoice( $new_order );
-
-            // Adicionar nota de ordem
-            $new_order->add_order_note( __( 'Order details manually sent to customer.', 'woocommerce' ), false, true );
-        }
-
-        // Exibir mensagem de sucesso
-        echo '<div class="lkn_wcip_notice_positive">' . esc_html( __( 'Invoice successfully created', 'wc-invoice-payment' ) ) . '</div>';
     }
     
 }

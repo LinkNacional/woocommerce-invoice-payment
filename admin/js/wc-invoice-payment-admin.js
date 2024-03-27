@@ -233,3 +233,17 @@ function copyLink() {
   document.execCommand('copy')
   navigator.clipboard.writeText(linkInput.value)
 }
+
+function cancelSubscription() {
+  var invoiceId = document.querySelector('.lkn_wcip_cancel_subscription_btn').getAttribute('data-invoice-id');
+  var data = {
+      'action': 'cancel_subscription',
+      'invoice_id': invoiceId
+  };
+
+  // Fazer a solicitação AJAX
+  jQuery.post(ajaxurl, data, function(response) {
+      // Exibir mensagem de confirmação ou realizar outras ações após a remoção do evento
+      alert(response);
+  });
+} 

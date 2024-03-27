@@ -1482,7 +1482,9 @@ class Lkn_Wcip_List_Table {
         $order = wc_get_order($invoiceId);
 
         $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $invoiceId);
-        
+        if($order->get_meta('lkn_is_subscription')){
+            $editUrl = home_url('wp-admin/admin.php?page=edit-subscription&invoice=' . $invoiceId);
+        }
         $paymentUrl = $order->get_checkout_payment_url();
 
         $action = [];

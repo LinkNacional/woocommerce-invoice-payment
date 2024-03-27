@@ -199,3 +199,9 @@ msgstr "Criar uma fatura sempre que um produto for comprado"
 
 msgid "Create invoices for products"
 msgstr "Criar faturas para produtos"
+
+msgid "Edit subscription"
+msgstr "Editar assinatura"
+
+msgid "Cancel subscription"
+msgstr "Cancelar assinatura"
