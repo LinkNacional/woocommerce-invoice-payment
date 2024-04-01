@@ -306,7 +306,7 @@ class Lkn_Wcip_List_Table {
      * @since 3.1.0
      */
     public function no_items() {
-        _e('No items found.');
+        esc_attr_e('No items found.');
     }
 
     /**
@@ -425,9 +425,9 @@ class Lkn_Wcip_List_Table {
             return;
         }
 
-        echo '<label for="bulk-action-selector-' . esc_attr($which) . '" class="screen-reader-text">' . __('Select bulk action') . '</label>';
+        echo '<label for="bulk-action-selector-' . esc_attr($which) . '" class="screen-reader-text">' . esc_attr(__('Select bulk action')) . '</label>';
         echo '<select name="action' . esc_attr($two) . '" id="bulk-action-selector-' . esc_attr($which) . "\">\n";
-        echo '<option value="-1">' . __('Bulk actions') . "</option>\n";
+        echo '<option value="-1">' . esc_attr(__('Bulk actions')) . "</option>\n";
 
         foreach ($this->_actions as $key => $value) {
             if (is_array($value)) {
@@ -522,7 +522,7 @@ class Lkn_Wcip_List_Table {
      *
      * @param string $post_type The post type.
      */
-    protected function months_dropdown($post_type) {
+    protected function months_dropdown($post_type) { //TODO testar funcionamento
         global $wpdb, $wp_locale;
 
         /**
@@ -586,11 +586,11 @@ class Lkn_Wcip_List_Table {
         if (!$month_count || (1 == $month_count && 0 == $months[0]->month)) {
             return;
         }
-
+        
         $m = isset($_GET['m']) ? (int) sanitize_text_field($_GET['m']) : 0; ?>
-		<label for="filter-by-date" class="screen-reader-text"><?php echo get_post_type_object($post_type)->labels->filter_by_date; ?></label>
+		<label for="filter-by-date" class="screen-reader-text"><?php echo esc_html_e(($post_type)->labels->filter_by_date); ?></label>
 		<select name="m" id="filter-by-date">
-			<option<?php selected($m, 0); ?> value="0"><?php _e('All dates'); ?></option>
+			<option<?php selected($m, 0); ?> value="0"><?php esc_html_e('All dates'); ?></option>
 		<?php
         foreach ($months as $arc_row) {
             if (0 == $arc_row->year) {
@@ -605,7 +605,11 @@ class Lkn_Wcip_List_Table {
                 selected($m, $year . $month, false),
                 esc_attr($arc_row->year . $month),
                 /* translators: 1: Month name, 2: 4-digit year. */
-                sprintf(__('%1$s %2$d'), $wp_locale->get_month($month), $year)
+                sprintf(
+                    '%1$s %2$d',
+                    esc_html($wp_locale->get_month($month)),
+                    esc_html($year)
+                )
             );
         } ?>
 		</select>
@@ -634,10 +638,12 @@ class Lkn_Wcip_List_Table {
             }
 
             printf(
-                "<a href='%s' class='%s' id='view-switch-$mode'$aria_current><span class='screen-reader-text'>%s</span></a>\n",
+                "<a href='%s' class='%s' id='view-switch-%s'%s><span class='screen-reader-text'>%s</span></a>\n",
                 esc_url(remove_query_arg('attachment-filter', add_query_arg('mode', $mode))),
                 esc_attr(implode(' ', $classes)),
-                $title
+                esc_attr($mode), 
+                esc_attr($aria_current),
+                esc_html($title) 
             );
         } ?>
 		</div>
@@ -680,14 +686,14 @@ class Lkn_Wcip_List_Table {
             // No comments at all.
             printf(
                 '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">%s</span>',
-                __('No comments')
+                esc_html__('No comments')
             );
         } elseif ($approved_comments && 'trash' === get_post_status($post_id)) {
             // Don't link the comment bubble for a trashed post.
             printf(
                 '<span class="post-com-count post-com-count-approved"><span class="comment-count-approved" aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></span>',
-                $approved_comments_number,
-                $pending_comments ? $approved_phrase : $approved_only_phrase
+                esc_html($approved_comments_number),
+                $pending_comments ? esc_html($approved_phrase) : esc_html($approved_only_phrase)
             );
         } elseif ($approved_comments) {
             // Link the comment bubble to approved comments.
@@ -702,15 +708,15 @@ class Lkn_Wcip_List_Table {
                         admin_url('edit-comments.php')
                     )
                 ),
-                $approved_comments_number,
-                $pending_comments ? $approved_phrase : $approved_only_phrase
+                esc_html($approved_comments_number),
+                $pending_comments ? esc_html($approved_phrase) : esc_html($approved_only_phrase)
             );
         } else {
             // Don't link the comment bubble when there are no approved comments.
             printf(
                 '<span class="post-com-count post-com-count-no-comments"><span class="comment-count comment-count-no-comments" aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></span>',
-                $approved_comments_number,
-                $pending_comments ? __('No approved comments') : __('No comments')
+                esc_html($approved_comments_number),
+                $pending_comments ? esc_html__('No approved comments') : esc_html__('No comments')
             );
         }
 
@@ -726,14 +732,14 @@ class Lkn_Wcip_List_Table {
                         admin_url('edit-comments.php')
                     )
                 ),
-                $pending_comments_number,
-                $pending_phrase
+                esc_html($pending_comments_number),
+                esc_html($pending_phrase)
             );
         } else {
             printf(
                 '<span class="post-com-count post-com-count-pending post-com-count-no-pending"><span class="comment-count comment-count-no-pending" aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></span>',
-                $pending_comments_number,
-                $approved_comments ? __('No pending comments') : __('No comments')
+                esc_html($pending_comments_number),
+                $approved_comments ? esc_html__('No pending comments') : esc_html__('No comments')
             );
         }
     }
@@ -927,7 +933,7 @@ class Lkn_Wcip_List_Table {
         }
         $this->_pagination = "<div class='tablenav-pages{$page_class}'>$output</div>";
 
-        echo $this->_pagination;
+        echo wp_kses_post($this->_pagination);
     }
 
     /**
@@ -1201,29 +1207,29 @@ class Lkn_Wcip_List_Table {
         $this->display_tablenav('top');
 
         $this->screen->render_screen_reader_content('heading_list'); ?>
-<table class="wp-list-table <?php esc_attr_e(implode(' ', $this->get_table_classes())); ?>">
-	<thead>
-	<tr>
-		<?php $this->print_column_headers(); ?>
-	</tr>
-	</thead>
+        <table class="wp-list-table <?php echo esc_attr(implode(' ', $this->get_table_classes())); ?>">
+            <thead>
+            <tr>
+                <?php $this->print_column_headers(); ?>
+            </tr>
+            </thead>
 
-	<tbody id="the-list"
-		<?php
-        if ($singular) {
-            echo " data-wp-lists='list:" . esc_attr($singular) . "'";
-        } ?>
-		>
-		<?php $this->display_rows_or_placeholder(); ?>
-	</tbody>
+            <tbody id="the-list"
+                <?php
+                if ($singular) {
+                    echo " data-wp-lists='list:" . esc_attr($singular) . "'";
+                } ?>
+                >
+                <?php $this->display_rows_or_placeholder(); ?>
+            </tbody>
 
-	<tfoot>
-	<tr>
-		<?php $this->print_column_headers(false); ?>
-	</tr>
-	</tfoot>
+            <tfoot>
+            <tr>
+                <?php $this->print_column_headers(false); ?>
+            </tr>
+            </tfoot>
 
-</table>
+        </table>
 		<?php
         $this->display_tablenav('bottom');
     }
@@ -1289,7 +1295,7 @@ class Lkn_Wcip_List_Table {
             $this->display_rows();
         } else {
             echo '<tr class="no-items"><td class="colspanchange" colspan="' . $this->get_column_count() . '">';
-            esc_html_e($this->no_items());
+            echo esc_html($this->no_items());
             echo '</td></tr>';
         }
     }
@@ -1529,9 +1535,9 @@ class Lkn_Wcip_List_Table {
                 //Verifica se a opção desejada é igual ao valor que define se é uma assinatura
                 if($showSubscriptions == $invoice->get_meta('lkn_is_subscription')){
                     $dueDate = $invoice->get_meta('lkn_exp_date');
-                    $dueDate = empty($dueDate) ? '-' : date($dateFormat, strtotime($dueDate));
+                    $dueDate = empty($dueDate) ? '-' : gmdate($dateFormat, strtotime($dueDate));
                     $iniDate = $invoice->get_meta('lkn_ini_date');
-                    $iniDate = empty($iniDate) ? '-' : date($dateFormat, strtotime($iniDate));
+                    $iniDate = empty($iniDate) ? '-' : gmdate($dateFormat, strtotime($iniDate));
                     $data_array[] = [
                         'lkn_wcip_id' => $invoiceId,
                         'lkn_wcip_client' => $invoice->get_billing_first_name(),

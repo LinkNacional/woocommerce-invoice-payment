@@ -233,14 +233,17 @@
         //----------------------------------------------------------------------
         public static function log($outfile, $err)
         {
-            if (QR_LOG_DIR !== false) {
-                if ($err != '') {
-                    if ($outfile !== false) {
-                        file_put_contents(QR_LOG_DIR.basename($outfile).'-errors.txt', date('Y-m-d H:i:s').': '.$err, FILE_APPEND);
-                    } else {
-                        file_put_contents(QR_LOG_DIR.'errors.txt', date('Y-m-d H:i:s').': '.$err, FILE_APPEND);
-                    }
-                }    
+
+            WP_Filesystem();
+
+            global $wp_filesystem;
+            if (!$wp_filesystem) {
+                return array(); 
+            }
+            if (QR_LOG_DIR !== false && $err !== '') {
+                $log_file_path = QR_LOG_DIR . ($outfile !== false ? basename($outfile) . '-errors.txt' : 'errors.txt');
+                $log_content = gmdate('Y-m-d H:i:s') . ': ' . $err . "\n";
+                $wp_filesystem->put_contents($log_file_path, $log_content, FILE_APPEND);
             }
         }
         
@@ -873,11 +876,17 @@
                 $fileName = QR_CACHE_DIR.'frame_'.$version.'.dat';
                 
                 if (QR_CACHEABLE) {
+                    WP_Filesystem();    
+                    global $wp_filesystem;
+                    if (!$wp_filesystem) {
+                        return array(); 
+                    }
                     if (file_exists($fileName)) {
-                        self::$frames[$version] = self::unserial(file_get_contents($fileName));
+                        self::$frames[$version] = self::unserial($wp_filesystem->get_contents($fileName));
                     } else {
+
                         self::$frames[$version] = self::createFrame($version);
-                        file_put_contents($fileName, self::serial(self::$frames[$version]));
+                        $wp_filesystem->put_contents($fileName, self::serial(self::$frames[$version]));
                     }
                 } else {
                     self::$frames[$version] = self::createFrame($version);
@@ -2617,14 +2626,20 @@
             
             $fileName = QR_CACHE_DIR.'mask_'.$maskNo.DIRECTORY_SEPARATOR.'mask_'.$width.'_'.$maskNo.'.dat';
 
+                    
             if (QR_CACHEABLE) {
+                WP_Filesystem();
+                global $wp_filesystem;
+                if (!$wp_filesystem) {
+                    return array(); 
+                }
                 if (file_exists($fileName)) {
-                    $bitMask = self::unserial(file_get_contents($fileName));
+                    $bitMask = self::unserial($wp_filesystem->get_contents($fileName));
                 } else {
                     $bitMask = $this->generateMaskNo($maskNo, $width, $s, $d);
                     if (!file_exists(QR_CACHE_DIR.'mask_'.$maskNo))
-                        mkdir(QR_CACHE_DIR.'mask_'.$maskNo);
-                    file_put_contents($fileName, self::serial($bitMask));
+                    $wp_filesystem->mkdir(QR_CACHE_DIR.'mask_'.$maskNo);
+                    $wp_filesystem->put_contents($fileName, self::serial($bitMask));
                 }
             } else {
                 $bitMask = $this->generateMaskNo($maskNo, $width, $s, $d);
@@ -2766,7 +2781,7 @@
             
                 $howManuOut = 8-(QR_FIND_FROM_RANDOM % 9);
                 for ($i = 0; $i <  $howManuOut; $i++) {
-                    $remPos = rand (0, count($checked_masks)-1);
+                    $remPos = wp_rand(0, count($checked_masks)-1);
                     unset($checked_masks[$remPos]);
                     $checked_masks = array_values($checked_masks);
                 }
@@ -3278,7 +3293,12 @@
             QRtools::markTime('after_encode');
             
             if ($outfile!== false) {
-                file_put_contents($outfile, join("\n", QRtools::binarize($code->data)));
+                WP_Filesystem();
+                global $wp_filesystem;
+                if (!$wp_filesystem) {
+                    return array(); 
+                }
+                $wp_filesystem->put_contents($outfile, join("\n", QRtools::binarize($code->data)));
             } else {
                 return QRtools::binarize($code->data);
             }

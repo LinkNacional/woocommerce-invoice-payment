@@ -42,7 +42,7 @@ $wcip_extra_data = $order->get_meta('wcip_extra_data');
 $wcip_footer_notes = $order->get_meta('wcip_footer_notes');
 
 // Load CSS styles.
-$styles = file_get_contents(__DIR__ . '/styles.css');
+$styles = file_get_contents(__DIR__ . '/styles.css'); //TODO Criar um endpoint para conseguir usar css
 
 // Load logo as base 64.
 $logo_url_setting = get_option('lkn_wcip_template_logo_url');

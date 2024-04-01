@@ -13,7 +13,7 @@ class Wc_Payment_Invoice_Endpoint {
     public function createInvoice($request) {
         $parameters = $request->get_params();
         
-        return new WP_REST_Response(json_encode($parameters), 200);
+        return new WP_REST_Response(wp_json_encode($parameters), 200);
     }
     
 

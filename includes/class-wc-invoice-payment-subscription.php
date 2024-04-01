@@ -172,8 +172,8 @@ class Wc_Payment_Invoice_Subscription{
 
                 //seta data para ver quanto tempo foi removido para ser adicionado depois            
                 $order->add_meta_data('lkn_time_removed', $result['time_removed']);            
-                $order->add_meta_data('lkn_ini_date', date("Y-m-d", strtotime($iniDateFormatted)));
-                $order->add_meta_data('lkn_exp_date', date("Y-m-d", strtotime($iniDateFormatted))); 
+                $order->add_meta_data('lkn_ini_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
+                $order->add_meta_data('lkn_exp_date', gmdate("Y-m-d", strtotime($iniDateFormatted))); 
                 
                 //Caso seja assinatura gera evento do WP cron
                 if ( $is_subscription_enabled == 'on') {
@@ -271,7 +271,7 @@ class Wc_Payment_Invoice_Subscription{
         $iniDateFormatted = $iniDate->format('Y-m-d');
         //Soma o tempo removido anteriormente para colocar na data de vencimento
         $iniDate->modify("+" . $time_removed);
-        $expDateFormatted = date('Y-m-d', $iniDate->getTimestamp());
+        $expDateFormatted = gmdate('Y-m-d', $iniDate->getTimestamp());
 
         $new_order = wc_create_order( array(
             'status' => 'wc-pending',
