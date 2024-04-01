@@ -1477,20 +1477,30 @@ class Lkn_Wcip_List_Table {
         if ($primary !== $column_name) {
             return '';
         }
-        $invoiceId = $item['lkn_wcip_id'];
+        $orderId = $item['lkn_wcip_id'];
 
-        $order = wc_get_order($invoiceId);
-
-        $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $invoiceId);
-        if($order->get_meta('lkn_is_subscription')){
-            $editUrl = home_url('wp-admin/admin.php?page=edit-subscription&invoice=' . $invoiceId);
-        }
+        $order = wc_get_order($orderId);
+        
+        // Pega o id da fatura atual
+        $invoiceId = $order->get_meta('lkn_invoice_id');
+        $invoice = wc_get_order($invoiceId);
+        
+        $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $orderId);
         $paymentUrl = $order->get_checkout_payment_url();
 
+        if($order->get_meta('lkn_is_subscription')){
+            $editUrl = home_url('wp-admin/admin.php?page=edit-subscription&invoice=' . $orderId);
+            //Evita erros caso a primeira fatura ainda não foi gerada
+            if($invoice){
+                $paymentUrl = $invoice->get_checkout_payment_url();
+                $orderId = $invoiceId;
+            }
+        }
+        
         $action = [];
         $action['edit'] = '<a href="' . $editUrl . '">' . __('Edit') . '</a>';
         $action['payment'] = '<a href="' . $paymentUrl . '" target="_blank">' . __('Payment link', 'wc-invoice-payment') . '</a>';
-        $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$invoiceId' href='#'>" . __('Download invoice', 'wc-invoice-payment') . '</a>';
+        $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$orderId' href='#'>" . __('Download invoice', 'wc-invoice-payment') . '</a>';
 
         return $this->row_actions($action);
     }

@@ -75,6 +75,7 @@ function lkn_wcip_filter_amount_input (val, row) {
  */
 function lkn_wcip_delete_invoice () {
   if (confirm(__('Are you sure you want to delete the invoice?', 'wc-invoice-payment')) === true) {
+    lkn_wcip_cancel_subscription(true)
     window.location.href += '&lkn_wcip_delete=true'
   }
 }
@@ -201,18 +202,18 @@ function startTinyMce (elementId, btnSubmitId) {
   })
 }
 
-function displayModal () {
+function lkn_wcip_display_modal () {
   const modal = document.querySelector('#lkn-wcip-share-modal')
   modal.style.display = modal.style.display ? '' : 'none'
 }
 
-function openPopup(platform, invoiceLink) {
-  var url = encodeURIComponent(invoiceLink)
-  var popupUrl = ''
-  var width = 600
-  var height = 400
-  var left = (window.innerWidth - width) / 2
-  var top = (window.innerHeight - height) / 2
+function lkn_wcip_open_popup (platform, invoiceLink) {
+  const url = encodeURIComponent(invoiceLink)
+  let popupUrl = ''
+  const width = 600
+  const height = 400
+  const left = (window.innerWidth - width) / 2
+  const top = (window.innerHeight - height) / 2
 
   switch (platform) {
     case 'whatsapp':
@@ -223,29 +224,49 @@ function openPopup(platform, invoiceLink) {
       break
   }
 
-  var popupParams = 'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top + ',scrollbars=yes'
+  const popupParams = 'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top + ',scrollbars=yes'
   window.open(popupUrl, platform + 'Window', popupParams)
 }
 
-function copyLink() {
-  var linkInput = document.querySelector('#lkn-wcip-copy-input')
+function lkn_wcip_copy_link () {
+  const linkInput = document.querySelector('#lkn-wcip-copy-input')
   linkInput.select()
   document.execCommand('copy')
   navigator.clipboard.writeText(linkInput.value)
 }
 
-function cancelSubscription() {
-  var invoiceId = document.querySelector('.lkn_wcip_cancel_subscription_btn').getAttribute('data-invoice-id');
-  var data = {
-      'action': 'cancel_subscription',
-      'invoice_id': invoiceId
-  };
+function lkn_wcip_cancel_subscription (deleteSubscription = false) {
+  const invoiceId = document.querySelector('.lkn_wcip_cancel_subscription_btn')?.getAttribute('data-invoice-id')
+  const data = {
+    action: 'cancel_subscription',
+    invoice_id: invoiceId
+  }
 
-  // Fazer a solicitação AJAX
-  jQuery.post(ajaxurl, data, function(response) {
-      // Exibir mensagem de confirmação ou realizar outras ações após a remoção do evento
-      alert(response);
-      window.location.reload();
+  if (deleteSubscription) {
+    if(invoiceId){
+      jQuery.post(ajaxurl, data, function (response) {
+
+      })
+    }
+  // TODO verificar como é feita a tradução neste caso
+  } else if (confirm(__('Are you sure you want to cancel the invoice?'))) {
+    jQuery.post(ajaxurl, data, function (response) {
+      window.location.reload()
+    })
+  }
+}
+
+//Função para adicionar e remover display none dos campos dependendo se a fatura é uma assinatura
+function lkn_wcip_display_subscription_inputs(){
+  const checkbox = document.querySelector('#lkn_wcip_subscription_product');
+  const intervalElement = document.querySelector('#lkn_wcip_subscription_interval');
+  intervalElement.style.display = 'none';
+
+  checkbox.addEventListener('change', function() {
+      if (checkbox.checked) {
+          intervalElement.style.display = '';
+      } else {
+          intervalElement.style.display = 'none';
+      }
   });
-
-} 
+}

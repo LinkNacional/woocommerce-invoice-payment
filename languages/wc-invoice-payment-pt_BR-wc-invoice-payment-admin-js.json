@@ -15,6 +15,9 @@
          ],
          "Are you sure you want to delete the invoice?": [
             "Tem certeza que deseja deletar a fatura?"
+         ],
+         "Are you sure you want to cancel the invoice?": [ 
+            "Tem certeza que deseja cancelar a fatura?"
          ]
       }
    }

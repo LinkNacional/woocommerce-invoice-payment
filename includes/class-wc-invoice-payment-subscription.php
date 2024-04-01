@@ -30,9 +30,6 @@ class Wc_Payment_Invoice_Subscription{
             }
         }
         
-        // Enviar uma resposta de confirmação de volta para o JavaScript
-        echo 'O evento do WP Cron foi removido com sucesso para a fatura com ID ' . $invoice_id;
-    
         wp_die();
     }
 
@@ -157,10 +154,18 @@ class Wc_Payment_Invoice_Subscription{
             foreach ( $items as $item ) {
                 $product_id = $item->get_product_id();
                 $is_subscription_enabled = get_post_meta( $product_id, '_lkn-wcip-subscription-product', true );
+                $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
                 $iniDate = new DateTime();
                 $iniDateFormatted = $iniDate->format('Y-m-d');;
                 $subscription_interval_number = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_number', true );
                 $subscription_interval_type = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_type', true );
+                
+                //Se for uma assinatura adicionada manualmente será preciso pegar os valores de outra forma
+                if($is_subscription_manual){
+                    $is_subscription_enabled = $order->get_meta('lkn_is_subscription');
+                    $subscription_interval_number = $order->get_meta('lkn_wcip_subscription_interval_number');
+                    $subscription_interval_type = $order->get_meta('lkn_wcip_subscription_interval_type');
+                };
 
                 $result = $this->calculate_next_due_date( $subscription_interval_number, $subscription_interval_type );
                 $next_due_date = $result['next_due_date'];
@@ -169,19 +174,21 @@ class Wc_Payment_Invoice_Subscription{
                 $order->add_meta_data('lkn_time_removed', $result['time_removed']);            
                 $order->add_meta_data('lkn_ini_date', date("Y-m-d", strtotime($iniDateFormatted)));
                 $order->add_meta_data('lkn_exp_date', date("Y-m-d", strtotime($iniDateFormatted))); 
-                //TODO criar meta_data para armazenar o preço do produto para resolver bug do preço nas faturas da assinatura
                 
                 //Caso seja assinatura gera evento do WP cron
-                if ( $is_subscription_enabled === 'on' ) {
+                if ( $is_subscription_enabled == 'on') {
                     $order->add_meta_data('lkn_is_subscription', true);
                     $this->schedule_next_invoice_generation( $order_id, $next_due_date );
                 }
                 $order->save();
 
-                // Adicionar a nova ordem à lista de faturas
-                $invoice_list = get_option( 'lkn_wcip_invoices', array() );
-                $invoice_list[] = $order->get_id();
-                update_option( 'lkn_wcip_invoices', $invoice_list );
+                //Caso não seja uma assinatura manual é preciso atualizar a lista
+                if(!$is_subscription_manual){
+                    // Adicionar a nova ordem à lista de faturas
+                    $invoice_list = get_option( 'lkn_wcip_invoices', array() );
+                    $invoice_list[] = $order->get_id();
+                    update_option( 'lkn_wcip_invoices', $invoice_list );
+                }
             }
         }
     }
@@ -260,7 +267,6 @@ class Wc_Payment_Invoice_Subscription{
         $billing_last_name = $order->get_billing_last_name();
         $payment_method = $order->get_payment_method();
         $time_removed = $order->get_meta('lkn_time_removed');
-        $is_subscription = $order->get_meta('lkn_is_subscription');
         $iniDate = new DateTime();
         $iniDateFormatted = $iniDate->format('Y-m-d');
         //Soma o tempo removido anteriormente para colocar na data de vencimento
@@ -278,6 +284,7 @@ class Wc_Payment_Invoice_Subscription{
         $new_order->add_meta_data('lkn_ini_date', $iniDateFormatted);
         $new_order->add_meta_data('lkn_exp_date', $expDateFormatted);
         $new_order->add_meta_data('lkn_is_subscription', false);
+        $new_order_id = $new_order->get_id();
 
         if ( ! $new_order ) {
             return;
@@ -287,12 +294,23 @@ class Wc_Payment_Invoice_Subscription{
         $total_amount = 0;
         foreach ( $order->get_items() as $item ) {
             $total_amount += $item->get_total();
-            $new_order->add_product( $item->get_product(), $item->get_quantity() );
+
+            $item_data = array(
+                'name'          => $item->get_name(),
+                'quantity'      => 1,
+                'total'    => $item->get_total(), 
+            );
+            $new_order->add_product( wc_get_product( 'custom' ), 1, $item_data );        
         }
+        
+
         $new_order->set_total( $total_amount );
 
-        // Calcular totais e salvar a nova ordem
-        $new_order->calculate_totals();
+        //Atualiza data de expiração e id da assinatura para nova data de expiração da fatura gerada 
+        $order->update_meta_data('lkn_exp_date', $expDateFormatted);
+        $order->update_meta_data('lkn_invoice_id', $new_order_id);
+        $order->save();
+
         $new_order->save();
 
         // Adicionar a nova ordem à lista de faturas
