@@ -253,7 +253,7 @@
             $width = count($frame);
             for($y=0;$y<$width;$y++) {
                 for($x=0;$x<$width;$x++) {
-                    echo ord($frame[$y][$x]).',';
+                    echo esc_attr(ord($frame[$y][$x]).',');
                 }
             }
         }
@@ -285,7 +285,7 @@
 
             foreach($GLOBALS['qr_time_bench'] as $markerId=>$thisTime) {
                 if ($p > 0) {
-                    echo '<tr><th style="text-align:right">till '.$markerId.': </th><td>'.number_format($thisTime-$lastTime, 6).'s</td></tr>';
+                    echo '<tr><th style="text-align:right">till '.esc_attr($markerId).': </th><td>'.number_format($thisTime-$lastTime, 6).'s</td></tr>';
                 } else {
                     $startTime = $thisTime;
                 }
@@ -815,7 +815,7 @@
                 </style>
                 <?php
                     echo '<pre><tt><br/ ><br/ ><br/ >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-                    echo join("<br/ >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $frame);
+                    echo esc_html(join("<br/ >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $frame));
                     echo '</tt></pre><br/ ><br/ ><br/ ><br/ ><br/ ><br/ >';
             
             } else {
@@ -847,7 +847,7 @@
                 </style>
                 <?php
                 echo "<pre><tt>";
-                echo join("<br/ >", $frame);
+                echo esc_html(join("<br/ >", $frame));
                 echo "</tt></pre>";
             
             }
@@ -1066,7 +1066,7 @@
             }
         
             if(!QRinput::check($mode, $size, $setData)) {
-                throw new Exception('Error m:'.$mode.',s:'.$size.',d:'.join(',',$setData));
+                throw new Exception('Error m:'.esc_attr($mode).',s:'.esc_attr($size).',d:'.join(',',esc_attr($setData)));
                 return null;
             }
             

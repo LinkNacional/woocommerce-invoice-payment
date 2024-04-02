@@ -41,9 +41,6 @@ HTML;
 $wcip_extra_data = $order->get_meta('wcip_extra_data');
 $wcip_footer_notes = $order->get_meta('wcip_footer_notes');
 
-// Load CSS styles.
-$styles = file_get_contents(__DIR__ . '/styles.css');
-
 // Load logo as base 64.
 $logo_url_setting = get_option('lkn_wcip_template_logo_url');
 $logo_path = empty($logo_url_setting) ? 'https://dummyimage.com/180x180/000/fff' : $logo_url_setting;
@@ -76,14 +73,14 @@ ob_start();
 <html lang="pt-BR">
 
 <head>
-    <title><?php echo $document_title; ?></title>
+    <title><?php echo esc_attr($document_title); ?></title>
     <meta charset="utf-8" />
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1, user-scalable=1"
     />
     <style>
-        <?php echo $styles; ?>
+        <?php include __DIR__ . '/styles.css'; ?>
     </style>
 </head>
 
@@ -93,7 +90,7 @@ ob_start();
             <tr>
                 <td id="logo-td-container">
                     <img
-                        src="<?php echo $logo_base64; ?>"
+                        src="<?php echo esc_attr($logo_base64); ?>"
                         width="160"
                     >
                 </td>
@@ -104,7 +101,7 @@ ob_start();
     <table id="sender-details-table">
         <tr>
             <td>
-                <p><?php echo get_option('lkn_wcip_sender_details'); ?></p>
+                <p><?php echo esc_attr(get_option('lkn_wcip_sender_details')); ?></p>
             </td>
         </tr>
         <tr>
@@ -122,9 +119,9 @@ ob_start();
         </tr>
         <tr>
             <td id="bill-to-container">
-                <div><?php echo $invoice_client_name; ?></div>
-                <div><?php echo $invoice_client_email; ?></div>
-                <div id="extra-data-container"><?php echo nl2br($wcip_extra_data); ?></div>
+                <div><?php echo esc_attr($invoice_client_name); ?></div>
+                <div><?php echo esc_attr($invoice_client_email); ?></div>
+                <div id="extra-data-container"><?php echo esc_attr(nl2br($wcip_extra_data)); ?></div>
             </td>
             <td id="invoice-details-column">
                 <table>
@@ -133,7 +130,7 @@ ob_start();
                             <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
                         </td>
                         <td>
-                            <?php echo "#$invoice_number"; ?>
+                            <?php echo esc_attr("#$invoice_number"); ?>
                         </td>
                     </tr>
                     <tr>
@@ -141,7 +138,7 @@ ob_start();
                             <?php esc_html_e('Date', 'wc-invoice-payment'); ?>
                         </td>
                         <td>
-                            <?php echo $invoice_created_at; ?>
+                            <?php echo esc_attr($invoice_created_at); ?>
                         </td>
                     </tr>
                 </table>
@@ -161,13 +158,13 @@ ob_start();
             </thead>
 
             <tbody>
-                <?php echo $invoice_items_html; ?>
+                <?php echo wp_kses_post($invoice_items_html); ?>
             </tbody>
 
             <tfoot>
                 <tr>
                     <th><?php esc_html_e('Total', 'wc-invoice-payment'); ?></th>
-                    <td><?php echo "$order_currency " . to_wc_monetary_format($order_total); ?>
+                    <td><?php echo esc_attr("$order_currency " . to_wc_monetary_format($order_total)); ?>
                     </td>
                 </tr>
             </tfoot>
@@ -177,11 +174,11 @@ ob_start();
     <section id="qr-code-container">
         <figure>
             <figcaption>
-                <?php echo get_option('lkn_wcip_text_before_payment_link'); ?>
-                <span id="payment-link-container"><?php echo $invoice_payment_link; ?></span>
+                <?php echo esc_attr(get_option('lkn_wcip_text_before_payment_link')); ?>
+                <span id="payment-link-container"><?php echo esc_attr($invoice_payment_link); ?></span>
             </figcaption>
             <img
-                src="data:image/png;base64, <?php echo $payment_link_qr_code; ?>"
+                src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>"
                 width="180"
                 height="180"
             >
@@ -189,11 +186,11 @@ ob_start();
     </section>
 
     <footer id="main-footer">
-        <?php echo $wcip_footer_notes; ?>
+        <?php echo wp_kses_post($wcip_footer_notes); ?>
 
         <div style="text-align: center; width: 100%; opacity: 0.2; font-size: 0.8em; margin-top: 12px;">
             <a href="https://www.linknacional.com.br/pagamento-internacional/" style="text-decoration: none;">
-                <?php _e('Invoice By Link Nacional', 'wc-invoice-payment'); ?>
+                <?php esc_html_e('Invoice By Link Nacional', 'wc-invoice-payment'); ?>
             </a>
         </div>
     </footer>

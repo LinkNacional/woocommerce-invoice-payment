@@ -62,7 +62,14 @@ final class Wc_Payment_Invoice_Public {
         <input id="lkn_wcip_default_paymethod" type="hidden" value="{$defaultPaymethod}">
         <input id="lkn_wcip_due_date" type="hidden" value="{$dueDate}">
 HTML;
-        echo $html;
+        
+        echo wp_kses($html, array(
+            'input' => array(
+                'id' => true,
+                'type' => true,
+                'value' => true,
+            ),
+        ));
     }
 
     /**

@@ -3,15 +3,10 @@
 class Wc_Payment_Invoice_Subscription{
 
     function cancel_subscription_callback() {
-        // Verificar se o usuário tem permissão para fazer isso (opcional)
-        if (!current_user_can('manage_options')) {
-            wp_die(__('Você não tem permissão para acessar esta página.'));
-        }
-    
+        
         // Obter o ID da fatura do pedido
         $invoice_id = $_POST['invoice_id'];
-    
-        $scheduled_events = _get_cron_array();
+        $scheduled_events = _get_cron_array(); //TODO Validar nonce para remover warning
 
         // verifica todos os eventos agendados
         foreach ($scheduled_events as $timestamp => $cron_events) {
@@ -100,8 +95,8 @@ class Wc_Payment_Invoice_Subscription{
         ?>
         <div id="lkn-wcip-subscription-data" class="panel woocommerce_options_panel">
             <p class="form-field">
-                <label for="lkn_wcip_subscription_interval_number"><?php _e('Subscription Interval', 'wc-invoice-payment'); ?></label>
-                <input type="number" class="short wc_input_number" min="1" name="lkn_wcip_subscription_interval_number" id="lkn_wcip_subscription_interval_number" value="<?php echo $subscription_number; ?>">
+                <label for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Subscription Interval', 'wc-invoice-payment'); ?></label>
+                <input type="number" class="short wc_input_number" min="1" name="lkn_wcip_subscription_interval_number" id="lkn_wcip_subscription_interval_number" value="<?php echo esc_attr($subscription_number); ?>">
                 <select id="lkn_wcip_subscription_interval_type" name="lkn_wcip_subscription_interval_type" class="lkn_wcip_subscription_interval_type">
                     <?php
                     $options = array(
@@ -121,7 +116,7 @@ class Wc_Payment_Invoice_Subscription{
             </p>
         </div>
         <?php
-        wp_enqueue_script('custom-admin-js', plugin_dir_url(__FILE__) . '../admin/js/wc-invoice-payment-subscription.js', array('jquery'), '', true);
+        wp_enqueue_script('custom-admin-js', plugin_dir_url(__FILE__) . '../admin/js/wc-invoice-payment-subscription.js', array('jquery'), '1.3.3', true);
     }
     
 

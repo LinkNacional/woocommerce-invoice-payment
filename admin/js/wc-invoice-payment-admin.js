@@ -248,7 +248,6 @@ function lkn_wcip_cancel_subscription (deleteSubscription = false) {
 
       })
     }
-  // TODO verificar como é feita a tradução neste caso
   } else if (confirm(__('Are you sure you want to cancel the invoice?'))) {
     jQuery.post(ajaxurl, data, function (response) {
       window.location.reload()

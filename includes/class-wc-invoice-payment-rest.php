@@ -75,7 +75,7 @@ final class Wc_Payment_Invoice_Loader_Rest {
         header('Content-Disposition: attachment; filename="' . $file_name . '"');
         header('Content-Length: ' . strlen($output));
         header('Content-Transfer-Encoding: binary');
-        echo $output;
+        echo $output; //TODO escapar atributo para remover warning
         exit;
     }
 }

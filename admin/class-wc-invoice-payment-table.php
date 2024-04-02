@@ -317,7 +317,7 @@ class Lkn_Wcip_List_Table {
      * @param string $text     The 'submit' button label.
      * @param string $input_id ID attribute value for the search input field.
      */
-    public function search_box($text, $input_id) {
+    public function search_box($text, $input_id) { //TODO verificar se a função está sendo executada
         if (empty($_REQUEST['s']) && !$this->has_items()) {
             return;
         }
@@ -336,11 +336,11 @@ class Lkn_Wcip_List_Table {
         if (!empty($_REQUEST['detached'])) {
             echo '<input type="hidden" name="detached" value="' . esc_attr($_REQUEST['detached']) . '" />';
         } ?>
-<p class="search-box">
-	<label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_html($text); ?>:</label>
-	<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s" value="<?php _admin_search_query(); ?>" />
-		<?php submit_button(esc_html($text), '', '', false, ['id' => 'search-submit']); ?>
-</p>
+        <p class="search-box">
+            <label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_html($text); ?>:</label>
+            <input type="search" id="<?php echo esc_attr($input_id); ?>" name="s" value="<?php _admin_search_query(); ?>" />
+                <?php submit_button(esc_html($text), '', '', false, ['id' => 'search-submit']); ?>
+        </p>
 		<?php
     }
 
@@ -424,7 +424,8 @@ class Lkn_Wcip_List_Table {
         if (empty($this->_actions)) {
             return;
         }
-
+        $nonceAction = wp_create_nonce( 'nonce_action' );
+        echo '<input type="hidden" name="nonce_action_field" value="' . esc_attr( $nonceAction ) . '" />';
         echo '<label for="bulk-action-selector-' . esc_attr($which) . '" class="screen-reader-text">' . esc_attr(__('Select bulk action')) . '</label>';
         echo '<select name="action' . esc_attr($two) . '" id="bulk-action-selector-' . esc_attr($which) . "\">\n";
         echo '<option value="-1">' . esc_attr(__('Bulk actions')) . "</option>\n";
@@ -460,6 +461,9 @@ class Lkn_Wcip_List_Table {
      * @return string|false The action name. False if no action was selected.
      */
     public function current_action() {
+        if(!wp_verify_nonce( $_POST['nonce_action_field'], 'nonce_action' )){
+            return'';
+        }
         if (isset($_REQUEST['filter_action']) && !empty($_REQUEST['filter_action'])) {
             return false;
         }
@@ -522,7 +526,7 @@ class Lkn_Wcip_List_Table {
      *
      * @param string $post_type The post type.
      */
-    protected function months_dropdown($post_type) { //TODO testar funcionamento
+    protected function months_dropdown($post_type) { 
         global $wpdb, $wp_locale;
 
         /**
@@ -586,9 +590,9 @@ class Lkn_Wcip_List_Table {
         if (!$month_count || (1 == $month_count && 0 == $months[0]->month)) {
             return;
         }
-        
+        $filter_by_date_label = esc_html($post_type->labels->filter_by_date);
         $m = isset($_GET['m']) ? (int) sanitize_text_field($_GET['m']) : 0; ?>
-		<label for="filter-by-date" class="screen-reader-text"><?php echo esc_html_e(($post_type)->labels->filter_by_date); ?></label>
+		<label for="filter-by-date" class="screen-reader-text"><?php echo esc_html($filter_by_date_label); ?></label>
 		<select name="m" id="filter-by-date">
 			<option<?php selected($m, 0); ?> value="0"><?php esc_html_e('All dates'); ?></option>
 		<?php
@@ -660,7 +664,6 @@ class Lkn_Wcip_List_Table {
      */
     protected function comments_bubble($post_id, $pending_comments) {
         $approved_comments = get_comments_number();
-
         $approved_comments_number = number_format_i18n($approved_comments);
         $pending_comments_number  = number_format_i18n($pending_comments);
 
@@ -1192,7 +1195,7 @@ class Lkn_Wcip_List_Table {
             }
 
             // All attributes are previously escaped
-            echo "<$tag $scope $id $class>$column_display_name</$tag>";
+            echo ("<$tag $scope $id $class>$column_display_name</$tag>");
         }
     }
 
@@ -1294,7 +1297,7 @@ class Lkn_Wcip_List_Table {
         if ($this->has_items()) {
             $this->display_rows();
         } else {
-            echo '<tr class="no-items"><td class="colspanchange" colspan="' . $this->get_column_count() . '">';
+            echo '<tr class="no-items"><td class="colspanchange" colspan="' . esc_html($this->get_column_count()) . '">';
             echo esc_html($this->no_items());
             echo '</td></tr>';
         }
@@ -1349,28 +1352,34 @@ class Lkn_Wcip_List_Table {
             $data = 'data-colname="' . esc_attr(wp_strip_all_tags($column_display_name)) . '"';
 
             $attributes = "class='$classes' $data";
-
             if ('cb' === $column_name) {
                 echo '<th scope="row" class="check-column">';
-                echo $this->column_cb($item);
+                echo wp_kses($this->column_cb($item), array(
+                    'input' => array(
+                        'type' => true,
+                        'name' => true,
+                        'class' => true,
+                        'value' => true,
+                    ),
+                ));
                 echo '</th>';
-            } elseif (method_exists($this, '_column_' . $column_name)) {
-                echo call_user_func(
+            } elseif ((method_exists($this, '_column_' . $column_name))) {
+                echo esc_html(call_user_func(
                     [$this, '_column_' . $column_name],
                     $item,
                     esc_attr($classes),
                     $data,
-                    $primary
+                    $primary)
                 );
             } elseif (method_exists($this, 'column_' . $column_name)) {
-                echo "<td $attributes>";
-                echo call_user_func([$this, 'column_' . $column_name], $item);
-                echo $this->handle_row_actions($item, $column_name, $primary);
+                echo "<td ".esc_attr($attributes).">";
+                echo esc_attr(call_user_func([$this, 'column_' . $column_name], $item));
+                echo wp_kses_post($this->handle_row_actions($item, $column_name, $primary));
                 echo '</td>';
-            } else {
-                echo "<td $attributes>";
+            } else {            
+                echo "<td ".esc_attr($attributes).">";
                 echo esc_html($this->column_default($item, $column_name));
-                echo $this->handle_row_actions($item, $column_name, $primary);
+                echo wp_kses_post($this->handle_row_actions($item, $column_name, $primary));
                 echo '</td>';
             }
         }
