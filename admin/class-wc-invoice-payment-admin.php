@@ -198,7 +198,7 @@ final class Wc_Payment_Invoice_Admin {
     }
 
     public function render_settings_page(): void {
-        if ( ! current_user_can('manage_woocommerce')) {
+        if ( ! current_user_can('manage_woocommerce') && wp_verify_nonce($_POST['lkn_wcip_settings_nonce'])) {
             return;
         }
 
@@ -286,6 +286,12 @@ final class Wc_Payment_Invoice_Admin {
                                     type="url"
                                     value="<?php echo esc_attr($template_logo_url); ?>"
                                 >
+                                <input
+                                    name="lkn_wcip_settings_nonce"
+                                    id="lkn_wcip_settings_nonce"
+                                    type="hidden"
+                                    value="<?php echo esc_attr(wp_create_nonce('settings_nonce'))?>"
+                                >
                             </div>
 
                             <div class="input-row-wrap input-row-wrap-global-settings">
@@ -345,7 +351,9 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
-
+        if ( ! empty($_POST) && !wp_verify_nonce($_POST['wcip_rest_nonce'], 'wp_rest')){
+            return;
+        }
         wp_enqueue_editor();
         wp_create_nonce('wp_rest');
 
@@ -409,6 +417,7 @@ final class Wc_Payment_Invoice_Admin {
                 class="wcip-form-wrap"
             >
                 <input
+                    name="wcip_rest_nonce"
                     id="wcip_rest_nonce"
                     type="hidden"
                     value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
@@ -795,11 +804,13 @@ final class Wc_Payment_Invoice_Admin {
      * Render html page for subscription edit.
      */
     public function render_edit_subscription_page(): void {
-
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
-
+        if ( ! empty($_POST) && !wp_verify_nonce($_POST['wcip_rest_nonce'], 'wp_rest')){
+            return;
+        }
+        
         wp_enqueue_editor();
         wp_create_nonce('wp_rest');
 
@@ -1193,6 +1204,7 @@ final class Wc_Payment_Invoice_Admin {
      * Render html page for invoice listing.
      */
     public function render_invoice_list_page(): void {
+        $validate_nonce = wp_create_nonce('validate_nonce');
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
@@ -1212,7 +1224,7 @@ final class Wc_Payment_Invoice_Admin {
                     <div>
                         <?php
                             $object = new Lkn_Wcip_List_Table();
-                            $object->prepare_items();
+                            $object->prepare_items($validate_nonce);
                             $object->display(); 
                         ?>
                     </div>
@@ -1225,6 +1237,7 @@ final class Wc_Payment_Invoice_Admin {
      * Render html page for subscription listing.
      */
     public function render_subscription_list_page(): void {
+        $validate_nonce = wp_create_nonce('validate_nonce');
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
@@ -1244,7 +1257,7 @@ final class Wc_Payment_Invoice_Admin {
                     <div>
                         <?php
                             $object = new Lkn_Wcip_List_Table();
-                            $object->prepare_items(true);
+                            $object->prepare_items($validate_nonce, true);
                             $object->display(); 
                         ?>
                     </div>
@@ -1618,7 +1631,7 @@ final class Wc_Payment_Invoice_Admin {
      */
     public function add_invoice_form_submit_handle(): void {
         if ('POST' == $_SERVER['REQUEST_METHOD']) {
-            if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_add_invoice')) {
+            if (wp_verify_nonce($_POST['nonce'], 'lkn_wcip_add_invoice') && $_POST['nonce'] ) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
@@ -1769,7 +1782,7 @@ final class Wc_Payment_Invoice_Admin {
         // Validates request method
         if ('POST' == $_SERVER['REQUEST_METHOD']) {
             // Validates WP nonce
-            if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_edit_invoice')) {
+            if (wp_verify_nonce($_POST['nonce'], 'lkn_wcip_edit_invoice') && $_POST['nonce']) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
@@ -1905,7 +1918,7 @@ final class Wc_Payment_Invoice_Admin {
         // Validates request method
         if ('POST' == $_SERVER['REQUEST_METHOD']) {
             // Validates WP nonce
-            if ($_POST['nonce'] && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_edit_invoice')) {
+            if (wp_verify_nonce($_POST['nonce'], 'lkn_wcip_edit_invoice') && $_POST['nonce']) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 

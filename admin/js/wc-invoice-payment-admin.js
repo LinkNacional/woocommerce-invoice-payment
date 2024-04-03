@@ -87,38 +87,60 @@ function lkn_get_wp_base_url () {
   return homeUrl
 }
 
-function lkn_wcip_generate_invoice_pdf (invoiceId) {
-  fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
-    method: 'GET',
-    headers: {
-      'content-type': 'application/json',
-      'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
-    },
-    cache: 'no-store'
-  })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error()
-      }
-
-      return res.blob()
+function lkn_wcip_generate_invoice_pdf(invoiceId) {
+    fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
+        method: 'GET',
+        headers: {
+            'content-type': 'application/json',
+            'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
+        },
+        cache: 'no-store'
     })
-    .then(blob => {
-      const url = window.URL.createObjectURL(new Blob([blob]))
-      const link = document.createElement('a')
+        .then(res => {
+            if (!res.ok) {
+                throw new Error()
+            }
 
-      link.href = url
-      link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf')
-      document.body.appendChild(link)
+            return res.text(); // Alterado para res.text() para obter a resposta como texto
+        })
+        .then(data => {
+            const blob = base64toBlob(data); // Função para converter base64 em Blob
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
 
-      link.click()
+            link.href = url;
+            link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf');
+            document.body.appendChild(link);
 
-      link.parentNode.removeChild(link)
-    })
-    .catch(error => {
-      window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
-      console.error(error)
-    })
+            link.click();
+
+            link.parentNode.removeChild(link);
+        })
+        .catch(error => {
+            window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
+            console.error(error)
+        });
+}
+
+function base64toBlob(base64Data) {
+    const contentType = 'application/pdf';
+    const sliceSize = 512;
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+    }
+
+    return new Blob(byteArrays, { type: contentType });
 }
 
 /**
@@ -237,11 +259,12 @@ function lkn_wcip_copy_link () {
 
 function lkn_wcip_cancel_subscription (deleteSubscription = false) {
   const invoiceId = document.querySelector('.lkn_wcip_cancel_subscription_btn')?.getAttribute('data-invoice-id')
+  const wcipRestNonce = document.querySelector('#wcip_rest_nonce')?.value
   const data = {
     action: 'cancel_subscription',
-    invoice_id: invoiceId
+    invoice_id: invoiceId,
+    wcip_rest_nonce: wcipRestNonce
   }
-
   if (deleteSubscription) {
     if(invoiceId){
       jQuery.post(ajaxurl, data, function (response) {

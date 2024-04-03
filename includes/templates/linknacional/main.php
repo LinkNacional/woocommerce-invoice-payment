@@ -101,7 +101,7 @@ ob_start();
     <table id="sender-details-table">
         <tr>
             <td>
-                <p><?php echo esc_attr(get_option('lkn_wcip_sender_details')); ?></p>
+                <p><?php echo wp_kses_post(get_option('lkn_wcip_sender_details')); ?></p>
             </td>
         </tr>
         <tr>
@@ -174,7 +174,7 @@ ob_start();
     <section id="qr-code-container">
         <figure>
             <figcaption>
-                <?php echo esc_attr(get_option('lkn_wcip_text_before_payment_link')); ?>
+                <?php echo wp_kses_post(get_option('lkn_wcip_text_before_payment_link')); ?>
                 <span id="payment-link-container"><?php echo esc_attr($invoice_payment_link); ?></span>
             </figcaption>
             <img

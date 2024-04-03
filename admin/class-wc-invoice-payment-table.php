@@ -52,6 +52,14 @@ class Lkn_Wcip_List_Table {
     private $_pagination;
 
     /**
+     * Nonce validate.
+     *
+     * @since 3.1.0
+     * @var string
+     */
+    private $_nonce;
+
+    /**
      * The view switcher modes.
      *
      * @since 4.1.0
@@ -318,7 +326,7 @@ class Lkn_Wcip_List_Table {
      * @param string $input_id ID attribute value for the search input field.
      */
     public function search_box($text, $input_id) { //TODO verificar se a função está sendo executada
-        if (empty($_REQUEST['s']) && !$this->has_items()) {
+        if (empty($_REQUEST['s']) && !$this->has_items() && !wp_verify_nonce($this->_nonce, 'validate_nonce')) {
             return;
         }
 
@@ -461,10 +469,13 @@ class Lkn_Wcip_List_Table {
      * @return string|false The action name. False if no action was selected.
      */
     public function current_action() {
-        if(!wp_verify_nonce( $_POST['nonce_action_field'], 'nonce_action' )){
-            return'';
-        }
-        if (isset($_REQUEST['filter_action']) && !empty($_REQUEST['filter_action'])) {
+        if (
+            isset($_REQUEST['filter_action']) && 
+            !empty($_REQUEST['filter_action']) && 
+            !wp_verify_nonce($this->_nonce, 'validate_nonce')
+            ) 
+
+            {
             return false;
         }
 
@@ -526,7 +537,7 @@ class Lkn_Wcip_List_Table {
      *
      * @param string $post_type The post type.
      */
-    protected function months_dropdown($post_type) { 
+    protected function months_dropdown($post_type) {  //TODO verificar se a função está sendo executada
         global $wpdb, $wp_locale;
 
         /**
@@ -537,7 +548,7 @@ class Lkn_Wcip_List_Table {
          * @param bool   $disable   Whether to disable the drop-down. Default false.
          * @param string $post_type The post type.
          */
-        if (apply_filters('disable_months_dropdown', false, $post_type)) {
+        if (apply_filters('disable_months_dropdown', false, $post_type) && !wp_verify_nonce($this->_nonce, 'validate_nonce')) {
             return;
         }
 
@@ -561,18 +572,27 @@ class Lkn_Wcip_List_Table {
                 $extra_checks = $wpdb->prepare(' AND post_status = %s', $postStatus);
             }
 
-            $months = $wpdb->get_results(
-                $wpdb->prepare(
-                    "
-				SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
-				FROM $wpdb->posts
-				WHERE post_type = %s
-				$extra_checks
-				ORDER BY post_date DESC
-			",
-                    $post_type
-                )
-            );
+            $cache_key = 'my_custom_query_' . md5( serialize( $post_type ) . serialize( $extra_checks ) );
+            $months = wp_cache_get( $cache_key );
+
+            if ($months === false) {
+                $months = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "
+                        SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
+                        FROM $wpdb->posts
+                        WHERE post_type = %s
+                        %s
+                        ORDER BY post_date DESC
+                        ",
+                        $post_type,
+                        $extra_checks
+                    )
+                );
+
+                // Armazenar os resultados em cache para consultas futuras
+                wp_cache_set( $cache_key, $months );
+            }
         }
 
         /**
@@ -755,6 +775,10 @@ class Lkn_Wcip_List_Table {
      * @return int
      */
     public function get_pagenum() {
+        if(!wp_verify_nonce($this->_nonce, 'validate_nonce')){
+            return;
+        }
+    
         $pagenum = isset($_REQUEST['paged']) ? absint($_REQUEST['paged']) : 0;
 
         if (isset($this->_pagination_args['total_pages']) && $pagenum > $this->_pagination_args['total_pages']) {
@@ -838,8 +862,8 @@ class Lkn_Wcip_List_Table {
         $current              = $this->get_pagenum();
         $removable_query_args = wp_removable_query_args();
 
-        $sanitizedUrl = sanitize_url($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        $current_url = remove_query_arg($removable_query_args, $sanitizedUrl);
+        $sanitizedUrl = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $current_url = sanitize_url($sanitizedUrl);
 
         $page_links = [];
 
@@ -1120,9 +1144,13 @@ class Lkn_Wcip_List_Table {
      */
     public function print_column_headers($with_id = true) {
         list($columns, $hidden, $sortable, $primary) = $this->get_column_info();
+        
+        if(!wp_verify_nonce($this->_nonce, 'validate_nonce')){
+            return;
+        }
 
-        $sanitizedUrl = sanitize_url($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        $current_url = remove_query_arg('paged', $sanitizedUrl);
+        $sanitizedUrl = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $current_url = sanitize_url($sanitizedUrl);
 
         if (isset($_GET['orderby'])) {
             $current_orderby = sanitize_text_field($_GET['orderby']);
@@ -1181,7 +1209,7 @@ class Lkn_Wcip_List_Table {
 
                 $column_display_name = sprintf(
                     '<a href="%s"><span>%s</span><span class="sorting-indicator"></span></a>',
-                    esc_url(add_query_arg(compact('orderby', 'order'), $current_url)),
+                    esc_url(add_query_arg(compact('orderby', 'order'), $current_url)), 
                     esc_attr($column_display_name)
                 );
             }
@@ -1390,8 +1418,12 @@ class Lkn_Wcip_List_Table {
      *
      * @since 3.1.0
      */
-    public function ajax_response() {
-        $this->prepare_items();
+    public function ajax_response() { //TODO verificar se a função está sendo executada
+        $this->prepare_items(wp_create_nonce('validate_nonce'));
+
+        if(!wp_verify_nonce($this->_nonce, 'validate_nonce')){
+            return;
+        }
 
         ob_start();
         if (!empty($_REQUEST['no_placeholder'])) {
@@ -1425,46 +1457,49 @@ class Lkn_Wcip_List_Table {
      *
      * @return void
      */
-    public function prepare_items($showSubscriptions = false) {
-        $order_by = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
-        $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
-        $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
-        $invoiceList = get_option('lkn_wcip_invoices', []);
-
-        // Deletes invoices that have no order.
-        $invoicesWithExistingOrder = array_filter(
-            $invoiceList,
-            function ($invoiceId): bool {
-                $orderExists = wc_get_order($invoiceId) !== false;
-
-                return $orderExists;
+    public function prepare_items($validate_nonce, $showSubscriptions = false) {
+        if(wp_verify_nonce($validate_nonce, 'validate_nonce')){
+            $this->_nonce = $validate_nonce;
+            $order_by = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
+            $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
+            $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
+            $invoiceList = get_option('lkn_wcip_invoices', []);
+    
+            // Deletes invoices that have no order.
+            $invoicesWithExistingOrder = array_filter(
+                $invoiceList,
+                function ($invoiceId): bool {
+                    $orderExists = wc_get_order($invoiceId) !== false;
+    
+                    return $orderExists;
+                }
+            );
+    
+            if (count($invoiceList) !== count($invoicesWithExistingOrder)) {
+                $invoiceList = $invoicesWithExistingOrder;
+                update_option('lkn_wcip_invoices', $invoiceList);
             }
-        );
-
-        if (count($invoiceList) !== count($invoicesWithExistingOrder)) {
-            $invoiceList = $invoicesWithExistingOrder;
-            update_option('lkn_wcip_invoices', $invoiceList);
+    
+            $per_page = 10;
+            $current_page = $this->get_pagenum();
+            $total_items = count($invoiceList);
+    
+            // only ncessary because we have sample data
+            $found_data = $this->lkn_wcip_list_table_data($order_by, $order, $search_term, $invoiceList, $showSubscriptions);
+            $this->items = array_slice($found_data, (($current_page-1)*$per_page), $per_page);
+    
+            $this->set_pagination_args([
+                'total_items' => $total_items,  //WE have to calculate the total number of items
+                'per_page'    => $per_page,     //WE have to determine how many items to show on a page
+            ]);
+    
+            $lkn_wcip_columns = $this->get_columns();
+            $lkn_wcip_hidden = $this->get_hidden_columns();
+            $ldul_sortable = $this->get_sortable_columns();
+    
+            $this->_column_headers = [$lkn_wcip_columns, $lkn_wcip_hidden, $ldul_sortable];
+            $this->proccess_bulk_action();
         }
-
-        $per_page = 10;
-        $current_page = $this->get_pagenum();
-        $total_items = count($invoiceList);
-
-        // only ncessary because we have sample data
-        $found_data = $this->lkn_wcip_list_table_data($order_by, $order, $search_term, $invoiceList, $showSubscriptions);
-        $this->items = array_slice($found_data, (($current_page-1)*$per_page), $per_page);
-
-        $this->set_pagination_args([
-            'total_items' => $total_items,  //WE have to calculate the total number of items
-            'per_page'    => $per_page,     //WE have to determine how many items to show on a page
-        ]);
-
-        $lkn_wcip_columns = $this->get_columns();
-        $lkn_wcip_hidden = $this->get_hidden_columns();
-        $ldul_sortable = $this->get_sortable_columns();
-
-        $this->_column_headers = [$lkn_wcip_columns, $lkn_wcip_hidden, $ldul_sortable];
-        $this->proccess_bulk_action();
     }
 
     /**
@@ -1553,7 +1588,7 @@ class Lkn_Wcip_List_Table {
                         'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
                         'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
                         'lkn_wcip_exp_date' => $dueDate,
-                        'lkn_wcip_ini_date' => $iniDate,
+                        'lkn_wcip_ini_date' => $iniDate
                     ];
                 }
             }
@@ -1630,14 +1665,16 @@ class Lkn_Wcip_List_Table {
      * @return int $result
      */
     public function usort_reorder($a, $b) {
-        // If no sort, default to title
-        $orderby = (!empty($_GET['orderby'])) ? sanitize_text_field($_GET['orderby']) : 'lkn_wcip_id';
-        // If no order, default to desc
-        $order = (!empty($_GET['order'])) ? sanitize_text_field($_GET['order']) : 'desc';
-        // Determine sort order
-        $result = strcmp($a[$orderby], $b[$orderby]);
-        // Send final sort direction to usort
-        return ($order === 'asc') ? $result : -$result;
+        if(wp_verify_nonce($this->_nonce, 'validate_nonce')){
+            // If no sort, default to title
+            $orderby = (!empty($_GET['orderby'])) ? sanitize_text_field($_GET['orderby']) : 'lkn_wcip_id';
+            // If no order, default to desc
+            $order = (!empty($_GET['order'])) ? sanitize_text_field($_GET['order']) : 'desc';
+            // Determine sort order
+            $result = strcmp($a[$orderby], $b[$orderby]);
+            // Send final sort direction to usort
+            return ($order === 'asc') ? $result : -$result;
+        }
     }
 
     /**
@@ -1646,7 +1683,7 @@ class Lkn_Wcip_List_Table {
      * @return void
      */
     public function proccess_bulk_action() {
-        if ('delete' === $this->current_action()) {
+        if ('delete' === $this->current_action() && wp_verify_nonce( $_POST['nonce_action_field'], 'nonce_action' )) {
             $invoicesDelete = $_POST['invoices'];
             $invoices = get_option('lkn_wcip_invoices');
 

@@ -3,29 +3,30 @@
 class Wc_Payment_Invoice_Subscription{
 
     function cancel_subscription_callback() {
-        
-        // Obter o ID da fatura do pedido
-        $invoice_id = $_POST['invoice_id'];
-        $scheduled_events = _get_cron_array(); //TODO Validar nonce para remover warning
 
-        // verifica todos os eventos agendados
-        foreach ($scheduled_events as $timestamp => $cron_events) {
-            foreach ($cron_events as $hook => $events) {
-                foreach ($events as $event) {
-                    // Verifique se o evento está associado ao seu gancho (hook)
-                    if ($hook === 'generate_invoice_event') {
-                        // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
-                        $event_args = $event['args'];
-                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
-                            // Remova o evento do WP Cron
-                            wp_unschedule_event($timestamp, $hook, $event_args);
+        if(wp_verify_nonce( $_POST['wcip_rest_nonce'], 'wp_rest' )){
+
+            // Obter o ID da fatura do pedido
+            $invoice_id = $_POST['invoice_id'];
+            $scheduled_events = _get_cron_array();
+            // verifica todos os eventos agendados
+            foreach ($scheduled_events as $timestamp => $cron_events) {
+                foreach ($cron_events as $hook => $events) {
+                    foreach ($events as $event) {
+                        // Verifique se o evento está associado ao seu gancho (hook)
+                        if ($hook === 'generate_invoice_event') {
+                            // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                            $event_args = $event['args'];
+                            if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                                // Remova o evento do WP Cron
+                                wp_unschedule_event($timestamp, $hook, $event_args);
+                            }
                         }
                     }
                 }
-            }
-        }
-        
-        wp_die();
+            }            
+            wp_die();
+        }        
     }
 
 
@@ -51,11 +52,13 @@ class Wc_Payment_Invoice_Subscription{
     
     // Salva o valor do campo checkbox
     function save_custom_wc_general_settings_checkbox() {
-        woocommerce_update_options(
-            array(
-                'active_product_invoices' => isset($_POST['active_product_invoices']) ? 'yes' : 'no', 
-            )
-        );
+        if(wp_verify_nonce($_POST['_wpnonce'])){            
+            woocommerce_update_options(
+                array(
+                    'active_product_invoices' => isset($_POST['active_product_invoices']) ? 'yes' : 'no', 
+                )
+            );
+        }
     }
 
     public function add_checkbox( $products_type ) {
@@ -97,6 +100,7 @@ class Wc_Payment_Invoice_Subscription{
             <p class="form-field">
                 <label for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Subscription Interval', 'wc-invoice-payment'); ?></label>
                 <input type="number" class="short wc_input_number" min="1" name="lkn_wcip_subscription_interval_number" id="lkn_wcip_subscription_interval_number" value="<?php echo esc_attr($subscription_number); ?>">
+                <input type="hidden" name="lkn_wcip_subscription_nonce" id="lkn_wcip_subscription_nonce" value="<?php echo esc_attr(wp_create_nonce('subscription_nonce')); ?>">
                 <select id="lkn_wcip_subscription_interval_type" name="lkn_wcip_subscription_interval_type" class="lkn_wcip_subscription_interval_type">
                     <?php
                     $options = array(
@@ -122,21 +126,24 @@ class Wc_Payment_Invoice_Subscription{
 
     public function save_subscription_fields( $post_id ) {
         //Salva todos os campos criados na meta do post
-        if ( isset( $_POST['lkn_wcip_subscription_interval_number'] ) ) {
-            $subscription_number = sanitize_text_field( $_POST['lkn_wcip_subscription_interval_number'] );
-            update_post_meta( $post_id, 'lkn_wcip_subscription_interval_number', $subscription_number );
-        }
     
-        if ( isset( $_POST['lkn_wcip_subscription_interval_type'] ) ) {
-            $subscription_interval = sanitize_text_field( $_POST['lkn_wcip_subscription_interval_type'] );
-            update_post_meta( $post_id, 'lkn_wcip_subscription_interval_type', $subscription_interval );
-        }
-
-        if ( isset( $_POST['_lkn-wcip-subscription-product'] ) ) {
-            $subscription_checkbox = sanitize_text_field( $_POST['_lkn-wcip-subscription-product'] );
-            update_post_meta( $post_id, '_lkn-wcip-subscription-product', $subscription_checkbox );
-        }else{
-            update_post_meta( $post_id, '_lkn-wcip-subscription-product', '' );
+        if(wp_verify_nonce($_POST['lkn_wcip_subscription_nonce'], 'subscription_nonce')){
+            if ( isset( $_POST['lkn_wcip_subscription_interval_number'] ) ) {
+                $subscription_number = sanitize_text_field( $_POST['lkn_wcip_subscription_interval_number'] );
+                update_post_meta( $post_id, 'lkn_wcip_subscription_interval_number', $subscription_number );
+            }
+        
+            if ( isset( $_POST['lkn_wcip_subscription_interval_type'] ) ) {
+                $subscription_interval = sanitize_text_field( $_POST['lkn_wcip_subscription_interval_type'] );
+                update_post_meta( $post_id, 'lkn_wcip_subscription_interval_type', $subscription_interval );
+            }
+    
+            if ( isset( $_POST['_lkn-wcip-subscription-product'] ) ) {
+                $subscription_checkbox = sanitize_text_field( $_POST['_lkn-wcip-subscription-product'] );
+                update_post_meta( $post_id, '_lkn-wcip-subscription-product', $subscription_checkbox );
+            }else{
+                update_post_meta( $post_id, '_lkn-wcip-subscription-product', '' );
+            }
         }
     }
 
