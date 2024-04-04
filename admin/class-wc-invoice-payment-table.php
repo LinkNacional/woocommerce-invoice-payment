@@ -317,40 +317,6 @@ class Lkn_Wcip_List_Table {
         esc_attr_e('No items found.');
     }
 
-    /**
-     * Displays the search box.
-     *
-     * @since 3.1.0
-     *
-     * @param string $text     The 'submit' button label.
-     * @param string $input_id ID attribute value for the search input field.
-     */
-    public function search_box($text, $input_id) { //TODO verificar se a função está sendo executada
-        if (empty($_REQUEST['s']) && !$this->has_items() && !wp_verify_nonce($this->_nonce, 'validate_nonce')) {
-            return;
-        }
-
-        $input_id = $input_id . '-search-input';
-
-        if (!empty($_REQUEST['orderby'])) {
-            echo '<input type="hidden" name="orderby" value="' . esc_attr($_REQUEST['orderby']) . '" />';
-        }
-        if (!empty($_REQUEST['order'])) {
-            echo '<input type="hidden" name="order" value="' . esc_attr($_REQUEST['order']) . '" />';
-        }
-        if (!empty($_REQUEST['post_mime_type'])) {
-            echo '<input type="hidden" name="post_mime_type" value="' . esc_attr($_REQUEST['post_mime_type']) . '" />';
-        }
-        if (!empty($_REQUEST['detached'])) {
-            echo '<input type="hidden" name="detached" value="' . esc_attr($_REQUEST['detached']) . '" />';
-        } ?>
-        <p class="search-box">
-            <label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_html($text); ?>:</label>
-            <input type="search" id="<?php echo esc_attr($input_id); ?>" name="s" value="<?php _admin_search_query(); ?>" />
-                <?php submit_button(esc_html($text), '', '', false, ['id' => 'search-submit']); ?>
-        </p>
-		<?php
-    }
 
     /**
      * Gets the list of views available on this table.
@@ -525,119 +491,6 @@ class Lkn_Wcip_List_Table {
         $out .= '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __('Show more details') . '</span></button>';
 
         return $out;
-    }
-
-    /**
-     * Displays a dropdown for filtering items in the list table by month.
-     *
-     * @since 3.1.0
-     *
-     * @global wpdb      $wpdb      WordPress database abstraction object.
-     * @global WP_Locale $wp_locale WordPress date and time locale object.
-     *
-     * @param string $post_type The post type.
-     */
-    protected function months_dropdown($post_type) {  //TODO verificar se a função está sendo executada
-        global $wpdb, $wp_locale;
-
-        /**
-         * Filters whether to remove the 'Months' drop-down from the post list table.
-         *
-         * @since 4.2.0
-         *
-         * @param bool   $disable   Whether to disable the drop-down. Default false.
-         * @param string $post_type The post type.
-         */
-        if (apply_filters('disable_months_dropdown', false, $post_type) && !wp_verify_nonce($this->_nonce, 'validate_nonce')) {
-            return;
-        }
-
-        /**
-         * Filters to short-circuit performing the months dropdown query.
-         *
-         * @since 5.7.0
-         *
-         * @param object[]|false $months   'Months' drop-down results. Default false.
-         * @param string         $post_type The post type.
-         */
-        $months = apply_filters('pre_months_dropdown_query', false, $post_type);
-
-        if (!is_array($months)) {
-            $extra_checks = "AND post_status != 'auto-draft'";
-            $postStatus = sanitize_text_field($_GET['post_status']);
-
-            if (!isset($_GET['post_status']) || 'trash' !== $postStatus) {
-                $extra_checks .= " AND post_status != 'trash'";
-            } elseif (isset($_GET['post_status'])) {
-                $extra_checks = $wpdb->prepare(' AND post_status = %s', $postStatus);
-            }
-
-            $cache_key = 'my_custom_query_' . md5( serialize( $post_type ) . serialize( $extra_checks ) );
-            $months = wp_cache_get( $cache_key );
-
-            if ($months === false) {
-                $months = $wpdb->get_results(
-                    $wpdb->prepare(
-                        "
-                        SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
-                        FROM $wpdb->posts
-                        WHERE post_type = %s
-                        %s
-                        ORDER BY post_date DESC
-                        ",
-                        $post_type,
-                        $extra_checks
-                    )
-                );
-
-                // Armazenar os resultados em cache para consultas futuras
-                wp_cache_set( $cache_key, $months );
-            }
-        }
-
-        /**
-         * Filters the 'Months' drop-down results.
-         *
-         * @since 3.7.0
-         *
-         * @param object[] $months    Array of the months drop-down query results.
-         * @param string   $post_type The post type.
-         */
-        $months = apply_filters('months_dropdown_results', $months, $post_type);
-
-        $month_count = count($months);
-
-        if (!$month_count || (1 == $month_count && 0 == $months[0]->month)) {
-            return;
-        }
-        $filter_by_date_label = esc_html($post_type->labels->filter_by_date);
-        $m = isset($_GET['m']) ? (int) sanitize_text_field($_GET['m']) : 0; ?>
-		<label for="filter-by-date" class="screen-reader-text"><?php echo esc_html($filter_by_date_label); ?></label>
-		<select name="m" id="filter-by-date">
-			<option<?php selected($m, 0); ?> value="0"><?php esc_html_e('All dates'); ?></option>
-		<?php
-        foreach ($months as $arc_row) {
-            if (0 == $arc_row->year) {
-                continue;
-            }
-
-            $month = zeroise($arc_row->month, 2);
-            $year  = $arc_row->year;
-
-            printf(
-                "<option %s value='%s'>%s</option>\n",
-                selected($m, $year . $month, false),
-                esc_attr($arc_row->year . $month),
-                /* translators: 1: Month name, 2: 4-digit year. */
-                sprintf(
-                    '%1$s %2$d',
-                    esc_html($wp_locale->get_month($month)),
-                    esc_html($year)
-                )
-            );
-        } ?>
-		</select>
-		<?php
     }
 
     /**
@@ -1450,7 +1303,7 @@ class Lkn_Wcip_List_Table {
      *
      * @since 3.1.0
      */
-    public function ajax_response() { //TODO verificar se a função está sendo executada
+    public function ajax_response() {
         $this->prepare_items(wp_create_nonce('validate_nonce'));
 
         if(!wp_verify_nonce($this->_nonce, 'validate_nonce')){
