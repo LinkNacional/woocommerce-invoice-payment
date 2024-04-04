@@ -1578,6 +1578,26 @@ class Lkn_Wcip_List_Table {
             
                 $order = wc_get_order($invoicesDelete[$c]);
                 $order->delete();
+
+                // Excluindo evento cron
+                $invoice_id = $invoicesDelete[$c];
+                $scheduled_events = _get_cron_array();
+                // verifica todos os eventos agendados
+                foreach ($scheduled_events as $timestamp => $cron_events) {
+                    foreach ($cron_events as $hook => $events) {
+                        foreach ($events as $event) {
+                            // Verifique se o evento está associado ao seu gancho (hook)
+                            if ($hook === 'generate_invoice_event') {
+                                // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                                $event_args = $event['args'];
+                                if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                                    // Remova o evento do WP Cron
+                                    wp_unschedule_event($timestamp, $hook, $event_args);
+                                }
+                            }
+                        }
+                    }
+                }  
             }
             update_option('lkn_wcip_invoices', $invoices);
 

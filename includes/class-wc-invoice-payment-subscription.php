@@ -175,7 +175,10 @@ class Wc_Payment_Invoice_Subscription{
                 //seta data para ver quanto tempo foi removido para ser adicionado depois            
                 $order->add_meta_data('lkn_time_removed', $result['time_removed']);            
                 $order->add_meta_data('lkn_ini_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
-                $order->add_meta_data('lkn_exp_date', gmdate("Y-m-d", strtotime($iniDateFormatted))); 
+                if(!$order->get_meta('lkn_exp_date')){
+                    $order->add_meta_data('lkn_exp_date', gmdate("Y-m-d", strtotime($iniDateFormatted))); 
+                }
+
                 
                 //Caso seja assinatura gera evento do WP cron
                 if ( $is_subscription_enabled == 'on') {
