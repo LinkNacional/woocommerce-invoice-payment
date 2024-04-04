@@ -1209,7 +1209,7 @@ class Lkn_Wcip_List_Table {
 
                 $column_display_name = sprintf(
                     '<a href="%s"><span>%s</span><span class="sorting-indicator"></span></a>',
-                    esc_url(add_query_arg(compact('orderby', 'order'), $current_url)), 
+                    esc_url(add_query_arg(compact('orderby', 'order'), $current_url)),
                     esc_attr($column_display_name)
                 );
             }
@@ -1223,7 +1223,39 @@ class Lkn_Wcip_List_Table {
             }
 
             // All attributes are previously escaped
-            echo ("<$tag $scope $id $class>$column_display_name</$tag>");
+            // Removendo warning do checker
+            $allowed_html = array(
+                'thead' => array(),
+                'tr' => array(),
+                'td' => array(
+                    'id' => true,
+                    'class' => true
+                ),
+                'th' => array(
+                    'scope' => true,
+                    'id' => true,
+                    'class' => true
+                ),
+                'label' => array(
+                    'for' => true,
+                    'class' => true
+                ),
+                'input' => array(
+                    'id' => true,
+                    'type' => true
+                ),
+                'a' => array(
+                    'href' => true
+                ),
+                'span' => array(
+                    'class' => true
+                ),
+                'div' => array(
+                    'class' => true
+                )
+            );
+            echo (wp_kses("<$tag $scope $id $class>$column_display_name</$tag>", $allowed_html));
+            
         }
     }
 

@@ -162,7 +162,7 @@ msgid "Or copy link"
 msgstr "Ou copie o link"
 
 msgid "Start date"
-msgstr "Data de começo"
+msgstr "Data de criação"
 
 msgid "Subscription"
 msgstr "Assinatura"
