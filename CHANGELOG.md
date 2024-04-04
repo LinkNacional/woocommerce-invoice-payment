@@ -1,5 +1,8 @@
-### 1.3.3 - 19/03/2024
-- Substitution of curl to wp_remote_request
+### 1.4.0 - 04/04/2024
+- Adjust escape variables and request methods to enhance security;
+- Add modal for sharing invoice link;
+- Add products with recurring subscriptions;
+- Add multiple payment methods option.
 
 ### 1.3.2 - 14/02/2024
 - Substitution of echo to esc_html_e or esc_attr_e, adjust to comply with wordpress regulations

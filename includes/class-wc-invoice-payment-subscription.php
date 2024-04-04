@@ -120,7 +120,7 @@ class Wc_Payment_Invoice_Subscription{
             </p>
         </div>
         <?php
-        wp_enqueue_script('custom-admin-js', plugin_dir_url(__FILE__) . '../admin/js/wc-invoice-payment-subscription.js', array('jquery'), '1.3.3', true);
+        wp_enqueue_script('custom-admin-js', plugin_dir_url(__FILE__) . '../admin/js/wc-invoice-payment-subscription.js', array('jquery'), '1.4.0', true);
     }
     
 
