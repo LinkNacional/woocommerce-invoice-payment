@@ -1569,7 +1569,7 @@ class Lkn_Wcip_List_Table {
      */
     public function proccess_bulk_action() {
         if ('delete' === $this->current_action() && wp_verify_nonce( $_POST['nonce_action_field'], 'nonce_action' )) {
-            $invoicesDelete = $_POST['invoices'];
+            $invoicesDelete = array_map( 'sanitize_text_field', $_POST['invoices'] );
             $invoices = get_option('lkn_wcip_invoices');
 
             $invoices = array_diff($invoices, $invoicesDelete);

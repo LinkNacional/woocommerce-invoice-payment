@@ -7,7 +7,7 @@ class Wc_Payment_Invoice_Subscription{
         if(wp_verify_nonce( $_POST['wcip_rest_nonce'], 'wp_rest' )){
 
             // Obter o ID da fatura do pedido
-            $invoice_id = $_POST['invoice_id'];
+            $invoice_id = sanitize_text_field($_POST['invoice_id']);
             $scheduled_events = _get_cron_array();
             // verifica todos os eventos agendados
             foreach ($scheduled_events as $timestamp => $cron_events) {
