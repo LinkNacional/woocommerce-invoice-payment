@@ -185,7 +185,6 @@ final class Wc_Payment_Invoice_Admin {
             1
         );
 
-
         add_submenu_page(
             'wc-invoice-payment',
             __('Settings', 'wc-invoice-payment'),
@@ -237,108 +236,108 @@ final class Wc_Payment_Invoice_Admin {
 
         wp_create_nonce('wp_rest');
         ?>
-        <div class="wrap">
-            <h1><?php esc_attr_e('Settings', 'wc-invoice-payment'); ?>
-            </h1>
-            <?php settings_errors(); ?>
-            <form
-                action="<?php menu_page_url('settings'); ?>"
-                method="post"
-                class="wcip-form-wrap"
-            >
-                <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
-                <div class="wcip-invoice-data">
-                    <h2 class="title">
-                        <?php esc_attr_e('Invoice settings', 'wc-invoice-payment'); ?>
-                    </h2>
-                    <div class="invoice-row-wrap">
-                        <div class="invoice-column-wrap">
-                            <div class="input-row-wrap input-row-wrap-global-settings">
-                                <label for="lkn_wcip_payment_global_template">
-                                    <?php esc_attr_e('Default PDF template for invoices', 'wc-invoice-payment'); ?>
-                                </label>
-                                <select
-                                    name="lkn_wcip_payment_global_template"
-                                    id="lkn_wcip_payment_global_template"
-                                    class="regular-text"
-                                >
-                                    <?php echo wp_kses($html_templates_list, array(
-                                        'option' => array(
-                                            'data-preview-url' => true,
-                                            'value' => true,
-                                            'selected' => true,
-                                        ),
-                                    )); ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
-                            </div>
-
-                            <div class="input-row-wrap input-row-wrap-global-settings">
-                                <label for="lkn_wcip_payment_global_template">
-                                    <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); ?>
-                                </label>
-                                <input
-                                    name="lkn_wcip_template_logo_url"
-                                    id="lkn_wcip_template_logo_url"
-                                    class="regular-text"
-                                    type="url"
-                                    value="<?php echo esc_attr($template_logo_url); ?>"
-                                >
-                                <input
-                                    name="lkn_wcip_settings_nonce"
-                                    id="lkn_wcip_settings_nonce"
-                                    type="hidden"
-                                    value="<?php echo esc_attr(wp_create_nonce('settings_nonce'))?>"
-                                >
-                            </div>
-
-                            <div class="input-row-wrap input-row-wrap-global-settings">
-                                <label for="lkn_wcip_default_footer">
-                                    <?php esc_attr_e('Default footer', 'wc-invoice-payment'); ?>
-                                </label>
-                                <textarea
-                                    name="lkn_wcip_default_footer"
-                                    id="lkn_wcip_default_footer"
-                                ><?php echo esc_html($default_footer); ?></textarea>
-                            </div>
-
-                            <div class="input-row-wrap input-row-wrap-global-settings">
-                                <label for="lkn_wcip_sender_details">
-                                    <?php esc_attr_e('Sender details', 'wc-invoice-payment'); ?>
-                                </label>
-                                <textarea
-                                    name="lkn_wcip_sender_details"
-                                    id="lkn_wcip_sender_details"
-                                ><?php echo esc_html($sender_details); ?></textarea>
-                            </div>
-
-                            <div class="input-row-wrap input-row-wrap-global-settings">
-                                <label for="lkn_wcip_text_before_payment_link">
-                                    <?php esc_attr_e('Text before payment link', 'wc-invoice-payment'); ?>
-                                </label>
-                                <textarea
-                                    name="lkn_wcip_text_before_payment_link"
-                                    id="lkn_wcip_text_before_payment_link"
-                                ><?php echo esc_html($text_before_payment_link); ?></textarea>
-                            </div>
-                        </div>
+<div class="wrap">
+    <h1><?php esc_attr_e('Settings', 'wc-invoice-payment'); ?>
+    </h1>
+    <?php settings_errors(); ?>
+    <form
+        action="<?php menu_page_url('settings'); ?>"
+        method="post"
+        class="wcip-form-wrap"
+    >
+        <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php esc_attr_e('Invoice settings', 'wc-invoice-payment'); ?>
+            </h2>
+            <div class="invoice-row-wrap">
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap input-row-wrap-global-settings">
+                        <label for="lkn_wcip_payment_global_template">
+                            <?php esc_attr_e('Default PDF template for invoices', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select
+                            name="lkn_wcip_payment_global_template"
+                            id="lkn_wcip_payment_global_template"
+                            class="regular-text"
+                        >
+                            <?php echo wp_kses($html_templates_list, array(
+                                'option' => array(
+                                    'data-preview-url' => true,
+                                    'value' => true,
+                                    'selected' => true,
+                                ),
+                            )); ?>
+                        </select>
                     </div>
-                    <div class="action-btn">
-                        <?php submit_button(__('Save')); ?>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
+                    </div>
+
+                    <div class="input-row-wrap input-row-wrap-global-settings">
+                        <label for="lkn_wcip_payment_global_template">
+                            <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); ?>
+                        </label>
+                        <input
+                            name="lkn_wcip_template_logo_url"
+                            id="lkn_wcip_template_logo_url"
+                            class="regular-text"
+                            type="url"
+                            value="<?php echo esc_attr($template_logo_url); ?>"
+                        >
+                        <input
+                            name="lkn_wcip_settings_nonce"
+                            id="lkn_wcip_settings_nonce"
+                            type="hidden"
+                            value="<?php echo esc_attr(wp_create_nonce('settings_nonce'))?>"
+                        >
+                    </div>
+
+                    <div class="input-row-wrap input-row-wrap-global-settings">
+                        <label for="lkn_wcip_default_footer">
+                            <?php esc_attr_e('Default footer', 'wc-invoice-payment'); ?>
+                        </label>
+                        <textarea
+                            name="lkn_wcip_default_footer"
+                            id="lkn_wcip_default_footer"
+                        ><?php echo esc_html($default_footer); ?></textarea>
+                    </div>
+
+                    <div class="input-row-wrap input-row-wrap-global-settings">
+                        <label for="lkn_wcip_sender_details">
+                            <?php esc_attr_e('Sender details', 'wc-invoice-payment'); ?>
+                        </label>
+                        <textarea
+                            name="lkn_wcip_sender_details"
+                            id="lkn_wcip_sender_details"
+                        ><?php echo esc_html($sender_details); ?></textarea>
+                    </div>
+
+                    <div class="input-row-wrap input-row-wrap-global-settings">
+                        <label for="lkn_wcip_text_before_payment_link">
+                            <?php esc_attr_e('Text before payment link', 'wc-invoice-payment'); ?>
+                        </label>
+                        <textarea
+                            name="lkn_wcip_text_before_payment_link"
+                            id="lkn_wcip_text_before_payment_link"
+                        ><?php echo esc_html($text_before_payment_link); ?></textarea>
                     </div>
                 </div>
-            </form>
+            </div>
+            <div class="action-btn">
+                <?php submit_button(__('Save')); ?>
+            </div>
         </div>
-        <script type="text/javascript">
-            document.addEventListener('DOMContentLoaded', () => {
-                startTinyMce('lkn_wcip_default_footer', 'submit')
-                startTinyMce('lkn_wcip_sender_details', 'submit')
-                startTinyMce('lkn_wcip_text_before_payment_link', 'submit')
-            })
-        </script>
-        <?php
+    </form>
+</div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        startTinyMce('lkn_wcip_default_footer', 'submit')
+        startTinyMce('lkn_wcip_sender_details', 'submit')
+        startTinyMce('lkn_wcip_text_before_payment_link', 'submit')
+    })
+</script>
+<?php
     }
 
     public function settings_page_form_submit_handle(): void {
@@ -351,7 +350,7 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
-        if ( ! empty($_POST) && !wp_verify_nonce($_POST['wcip_rest_nonce'], 'wp_rest')){
+        if ( ! empty($_POST) && ! wp_verify_nonce($_POST['wcip_rest_nonce'], 'wp_rest')) {
             return;
         }
         wp_enqueue_editor();
@@ -396,51 +395,51 @@ final class Wc_Payment_Invoice_Admin {
 
         $currencies = get_woocommerce_currencies();
 
-        $gateways = WC()->payment_gateways->get_available_payment_gateways();
+        $gateways = WC()->payment_gateways->payment_gateways();
         $enabled_gateways = array();
 
         // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
-                if ('yes' == $gateway->enabled) {
+                if ( 'yes' == $gateway->enabled ) {
                     $enabled_gateways[] = $gateway;
                 }
             }
         } ?>
-        <div class="wrap">
-            <h1><?php esc_attr_e('Edit invoice', 'wc-invoice-payment'); ?>
-            </h1>
-            <?php settings_errors(); ?>
-            <form
-                action="<?php menu_page_url('edit-invoice&invoice=' . $invoiceId); ?>"
-                method="post"
-                class="wcip-form-wrap"
-            >
-                <input
-                    name="wcip_rest_nonce"
-                    id="wcip_rest_nonce"
-                    type="hidden"
-                    value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
-                >
-                <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
-                <div class="wcip-invoice-data">
-                    <!-- Invoice details -->
-                    <h2 class="title">
-                        <?php esc_attr_e('Invoice details', 'wc-invoice-payment'); ?>
-                        <?php echo esc_html('#' . $invoiceId); ?>
-                    </h2>
-                    <div class="invoice-row-wrap">
-                        <div class="invoice-column-wrap">
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_payment_status_input"><?php esc_attr_e('Status', 'wc-invoice-payment'); ?></label>
-                                <select
-                                    name="lkn_wcip_payment_status"
-                                    id="lkn_wcip_payment_status_input"
-                                    class="regular-text"
-                                    value="<?php echo esc_html('wc-' . $order->get_status()); ?>"
-                                >
-                                    <?php
+<div class="wrap">
+    <h1><?php esc_attr_e('Edit invoice', 'wc-invoice-payment'); ?>
+    </h1>
+    <?php settings_errors(); ?>
+    <form
+        action="<?php menu_page_url('edit-invoice&invoice=' . $invoiceId); ?>"
+        method="post"
+        class="wcip-form-wrap"
+    >
+        <input
+            name="wcip_rest_nonce"
+            id="wcip_rest_nonce"
+            type="hidden"
+            value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
+        >
+        <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
+        <div class="wcip-invoice-data">
+            <!-- Invoice details -->
+            <h2 class="title">
+                <?php esc_attr_e('Invoice details', 'wc-invoice-payment'); ?>
+                <?php echo esc_html('#' . $invoiceId); ?>
+            </h2>
+            <div class="invoice-row-wrap">
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_payment_status_input"><?php esc_attr_e('Status', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_payment_status"
+                            id="lkn_wcip_payment_status_input"
+                            class="regular-text"
+                            value="<?php echo esc_html('wc-' . $order->get_status()); ?>"
+                        >
+                            <?php
                                         for ($i = 0; $i < count($statusWc); ++$i) {
                                             if (explode('-', $statusWc[$i]['status'])[1] === $orderStatus) {
                                                 echo '<option value="' . esc_attr($statusWc[$i]['status']) . '" selected>' . esc_attr($statusWc[$i]['label']) . '</option>';
@@ -448,18 +447,22 @@ final class Wc_Payment_Invoice_Admin {
                                                 echo '<option value="' . esc_attr($statusWc[$i]['status']) . '">' . esc_attr($statusWc[$i]['label']) . '</option>';
                                             }
                                         } ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
-                                <select
-                                    name="lkn_wcip_default_payment_method"
-                                    id="lkn_wcip_default_payment_method_input"
-                                    class="regular-text"
-                                >
-                                    <option value="multiplePayment" selected><?php esc_attr_e('Multiple payment option', 'wc-invoice-payment'); ?></option>
-                                    <?php
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_default_payment_method"
+                            id="lkn_wcip_default_payment_method_input"
+                            class="regular-text"
+                        >
+                            <option
+                                value="multiplePayment"
+                                selected
+                            ><?php esc_attr_e('Multiple payment option', 'wc-invoice-payment'); ?>
+                            </option>
+                            <?php
                                     foreach ($enabled_gateways as $key => $gateway) {
                                         if ($order->get_payment_method() === $gateway->id) {
                                             echo '<option value="' . esc_attr($gateway->id) . '" selected>' . esc_attr($gateway->title) . '</option>';
@@ -467,315 +470,337 @@ final class Wc_Payment_Invoice_Admin {
                                             echo '<option value="' . esc_attr($gateway->id) . '">' . esc_attr($gateway->title) . '</option>';
                                         }
                                     } ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
-                                <select
-                                    name="lkn_wcip_currency"
-                                    id="lkn_wcip_currency_input"
-                                    class="regular-text"
-                                >
-                                    <?php
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_currency"
+                            id="lkn_wcip_currency_input"
+                            class="regular-text"
+                        >
+                            <?php
                                     foreach ($currencies as $code => $currency) {
                                         if ($order->get_currency() === $code) {
                                             echo '<option value="' . esc_attr($code) . '" selected>' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
                                         } else {
                                             echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
-                                        }   
+                                        }
                                     } ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <label for="lkn_wcip_select_invoice_template">
-                                    <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>
-                                </label>
-                                <select
-                                    name="lkn_wcip_select_invoice_template"
-                                    id="lkn_wcip_select_invoice_template"
-                                    class="regular-text"
-                                    value="<?php echo esc_attr($invoice_template); ?>"
-                                    required
-                                >
-                                    <option value="global">
-                                        <?php esc_attr_e('Default template', 'wc-invoice-payment'); ?>
-                                    </option>
-                                    <?php echo wp_kses($html_templates_list, array(
-                                        'option' => array(
-                                            'data-preview-url' => true,
-                                            'value' => true,
-                                            'selected' => true,
-                                        ),
-                                    )); ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
-                            </div>
-                        </div>
-                        <div class="invoice-column-wrap">
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_name"
-                                    type="text"
-                                    id="lkn_wcip_name_input"
-                                    class="regular-text"
-                                    required
-                                    value="<?php echo esc_attr($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()); ?>"
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_email"
-                                    type="email"
-                                    id="lkn_wcip_email_input"
-                                    class="regular-text"
-                                    required
-                                    value="<?php echo esc_html($order->get_billing_email()); ?>"
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_extra_data"><?php esc_attr_e('Extra data', 'wc-invoice-payment'); ?></label>
-                                <textarea
-                                    name="lkn_wcip_extra_data"
-                                    id="lkn_wcip_extra_data"
-                                    class="regular-text"
-                                ><?php echo esc_html($order->get_meta('wcip_extra_data')); ?></textarea>
-                            </div>
-                        </div>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_select_invoice_template">
+                            <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select
+                            name="lkn_wcip_select_invoice_template"
+                            id="lkn_wcip_select_invoice_template"
+                            class="regular-text"
+                            value="<?php echo esc_attr($invoice_template); ?>"
+                            required
+                        >
+                            <option value="global">
+                                <?php esc_attr_e('Default template', 'wc-invoice-payment'); ?>
+                            </option>
+                            <?php echo wp_kses($html_templates_list, array(
+                                'option' => array(
+                                    'data-preview-url' => true,
+                                    'value' => true,
+                                    'selected' => true,
+                                ),
+                            )); ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
                     </div>
                 </div>
-                <!-- Form actions -->
-                <div class="wcip-invoice-data wcip-postbox">
-                    <span
-                        class="text-bold"><?php esc_attr_e('Invoice actions', 'wc-invoice-payment'); ?></span>
-                    <hr>
-                    <div class="wcip-row">
-                        <div class="input-row-wrap">
-                            <select name="lkn_wcip_form_actions">
-                                <option
-                                    value="no_action"
-                                    selected
-                                ><?php esc_attr_e('Select an action...', 'wc-invoice-payment'); ?>
-                                </option>
-                                <option value="send_email">
-                                    <?php esc_attr_e('Send invoice to customer', 'wc-invoice-payment'); ?>
-                                </option>
-                            </select>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_exp_date_input"><?php esc_attr_e('Due date', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    id="lkn_wcip_exp_date_input"
-                                    type="date"
-                                    name="lkn_wcip_exp_date"
-                                    value="<?php echo esc_attr($order->get_meta('lkn_exp_date')); ?>"
-                                    min="<?php echo esc_attr(gmdate('Y-m-d')); ?>"
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <a
-                                    class="lkn_wcip_generate_pdf_btn"
-                                    href="#"
-                                    data-invoice-id="<?php echo esc_attr($invoiceId); ?>"
-                                ><?php esc_attr_e('Download invoice', 'wc-invoice-payment'); ?></a>
-                            </div>
-                        </div>
-                        <?php
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_name"
+                            type="text"
+                            id="lkn_wcip_name_input"
+                            class="regular-text"
+                            required
+                            value="<?php echo esc_attr($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()); ?>"
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_email"
+                            type="email"
+                            id="lkn_wcip_email_input"
+                            class="regular-text"
+                            required
+                            value="<?php echo esc_html($order->get_billing_email()); ?>"
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_extra_data"><?php esc_attr_e('Extra data', 'wc-invoice-payment'); ?></label>
+                        <textarea
+                            name="lkn_wcip_extra_data"
+                            id="lkn_wcip_extra_data"
+                            class="regular-text"
+                        ><?php echo esc_html($order->get_meta('wcip_extra_data')); ?></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Form actions -->
+        <div class="wcip-invoice-data wcip-postbox">
+            <span
+                class="text-bold"><?php esc_attr_e('Invoice actions', 'wc-invoice-payment'); ?></span>
+            <hr>
+            <div class="wcip-row">
+                <div class="input-row-wrap">
+                    <select name="lkn_wcip_form_actions">
+                        <option
+                            value="no_action"
+                            selected
+                        ><?php esc_attr_e('Select an action...', 'wc-invoice-payment'); ?>
+                        </option>
+                        <option value="send_email">
+                            <?php esc_attr_e('Send invoice to customer', 'wc-invoice-payment'); ?>
+                        </option>
+                    </select>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_exp_date_input"><?php esc_attr_e('Due date', 'wc-invoice-payment'); ?></label>
+                        <input
+                            id="lkn_wcip_exp_date_input"
+                            type="date"
+                            name="lkn_wcip_exp_date"
+                            value="<?php echo esc_attr($order->get_meta('lkn_exp_date')); ?>"
+                            min="<?php echo esc_attr(gmdate('Y-m-d')); ?>"
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <a
+                            class="lkn_wcip_generate_pdf_btn"
+                            href="#"
+                            data-invoice-id="<?php echo esc_attr($invoiceId); ?>"
+                        ><?php esc_attr_e('Download invoice', 'wc-invoice-payment'); ?></a>
+                    </div>
+                </div>
+                <?php
                         if ('pending' === $orderStatus) {
                             ?>
-                        <div class="input-row-wrap">
-                            <a
-                                href="<?php echo esc_url($checkoutUrl); ?>"
-                                target="_blank"
-                            ><?php esc_attr_e('Invoice payment link', 'wc-invoice-payment'); ?></a>
-                        </div>
-                        <?php
-                        } ?>
-                    </div>
-                    <div id="lkn-wcip-share-modal" style="display: none;">
-                        <div id="lkn-wcip-share-modal-content">
-                            <h3 id="lkn-wcip-share-title"><?php esc_attr_e('Share with', 'wc-invoice-payment'); ?></h3>
-                            <div id="lkn-wcip-share-buttons">
-                                <a 
-                                    href="#" id="lkn-wcip-whatsapp-share" 
-                                    class="lkn-wcip-share-icon dashicons dashicons-whatsapp"
-                                    onclick="lkn_wcip_open_popup('whatsapp', '<?php echo esc_url($checkoutUrl); ?>')"
-                                ></a>                        
-                                <a 
-                                    href="#" id="lkn-wcip-twitter-share" 
-                                    class="lkn-wcip-share-icon dashicons dashicons-twitter"
-                                    onclick="lkn_wcip_open_popup('twitter', '<?php echo esc_url($checkoutUrl); ?>')"
-                                ></a>
-                                <a 
-                                    href="mailto:?subject=Link de fatura&body=<?php echo esc_url($checkoutUrl); ?>"
-                                    id="lkn-wcip-email-share" 
-                                    class="lkn-wcip-share-icon dashicons dashicons-email-alt"
-                                    target="_blank">
-                                </a>
-                            </div>
-                            <h3 id="lkn-wcip-share-title"><?php esc_attr_e('Or copy link', 'wc-invoice-payment'); ?></h3>
-                            <div id="lkn-wcip-copy-link-div">
-                                <input id="lkn-wcip-copy-input" type="text" value="<?php echo esc_url($checkoutUrl); ?>" readonly>
-                                <span onclick="lkn_wcip_copy_link()" class="lkn-wcip-copy-button"><span class="dashicons dashicons-clipboard"></span>
-                            </div>
-                            <a href="#" id="lkn-wcip-close-modal-btn" onclick="lkn_wcip_display_modal()">&times;</a>
-                        </div>
-                    </div>
-                    <div class="action-btn">                
-                        <p class="submit">
-                            <button
-                                type="button"
-                                class="button lkn_swcip_share_btn_form"
-                                onclick="lkn_wcip_display_modal()"
-                            ><?php esc_attr_e('Share payment link', 'wc-invoice-payment'); ?></button>
-                        </p>
-                        <p class="submit">
-                            <button
-                                type="button"
-                                class="button lkn_wcip_delete_btn_form"
-                                onclick="lkn_wcip_delete_invoice()"
-                            ><?php esc_attr_e('Delete'); ?></button>
-                        </p>
-                        <?php submit_button(__('Update')); ?>
-                    </div>
+                <div class="input-row-wrap">
+                    <a
+                        href="<?php echo esc_url($checkoutUrl); ?>"
+                        target="_blank"
+                    ><?php esc_attr_e('Invoice payment link', 'wc-invoice-payment'); ?></a>
                 </div>
-                <!-- Invoice charges -->
-                <div class="wcip-invoice-data">
-                    <h2 class="title">
-                        <?php esc_attr_e('Price', 'wc-invoice-payment'); ?>
-                    </h2>
-                    <div
-                        id="wcip-invoice-price-row"
-                        class="invoice-column-wrap"
-                    >
-                        <?php
+                <?php
+                        } ?>
+            </div>
+            <div
+                id="lkn-wcip-share-modal"
+                style="display: none;"
+            >
+                <div id="lkn-wcip-share-modal-content">
+                    <h3 id="lkn-wcip-share-title">
+                        <?php esc_attr_e('Share with', 'wc-invoice-payment'); ?>
+                    </h3>
+                    <div id="lkn-wcip-share-buttons">
+                        <a
+                            href="#"
+                            id="lkn-wcip-whatsapp-share"
+                            class="lkn-wcip-share-icon dashicons dashicons-whatsapp"
+                            onclick="lkn_wcip_open_popup('whatsapp', '<?php echo esc_url($checkoutUrl); ?>')"
+                        ></a>
+                        <a
+                            href="#"
+                            id="lkn-wcip-twitter-share"
+                            class="lkn-wcip-share-icon dashicons dashicons-twitter"
+                            onclick="lkn_wcip_open_popup('twitter', '<?php echo esc_url($checkoutUrl); ?>')"
+                        ></a>
+                        <a
+                            href="mailto:?subject=Link de fatura&body=<?php echo esc_url($checkoutUrl); ?>"
+                            id="lkn-wcip-email-share"
+                            class="lkn-wcip-share-icon dashicons dashicons-email-alt"
+                            target="_blank"
+                        >
+                        </a>
+                    </div>
+                    <h3 id="lkn-wcip-share-title">
+                        <?php esc_attr_e('Or copy link', 'wc-invoice-payment'); ?>
+                    </h3>
+                    <div id="lkn-wcip-copy-link-div">
+                        <input
+                            id="lkn-wcip-copy-input"
+                            type="text"
+                            value="<?php echo esc_url($checkoutUrl); ?>"
+                            readonly
+                        >
+                        <span
+                            onclick="lkn_wcip_copy_link()"
+                            class="lkn-wcip-copy-button"
+                        ><span class="dashicons dashicons-clipboard"></span>
+                    </div>
+                    <a
+                        href="#"
+                        id="lkn-wcip-close-modal-btn"
+                        onclick="lkn_wcip_display_modal()"
+                    >&times;</a>
+                </div>
+            </div>
+            <div class="action-btn">
+                <p class="submit">
+                    <button
+                        type="button"
+                        class="button lkn_swcip_share_btn_form"
+                        onclick="lkn_wcip_display_modal()"
+                    ><?php esc_attr_e('Share payment link', 'wc-invoice-payment'); ?></button>
+                </p>
+                <p class="submit">
+                    <button
+                        type="button"
+                        class="button lkn_wcip_delete_btn_form"
+                        onclick="lkn_wcip_delete_invoice()"
+                    ><?php esc_attr_e('Delete'); ?></button>
+                </p>
+                <?php submit_button(__('Update')); ?>
+            </div>
+        </div>
+        <!-- Invoice charges -->
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php esc_attr_e('Price', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <?php
                         foreach ($items as $item_id => $item) {
                             ?>
-                        <div
-                            class="price-row-wrap price-row-<?php echo esc_attr($c); ?>">
-                            <?php
+                <div
+                    class="price-row-wrap price-row-<?php echo esc_attr($c); ?>">
+                    <?php
                                 if ('pending' === $orderStatus) {
                                     ?>
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
-                                    type="text"
-                                    id="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
-                                    class="regular-text"
-                                    required
-                                    value="<?php echo esc_attr($item->get_name()); ?>"
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                    type="tel"
-                                    id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                    class="regular-text lkn_wcip_amount_input"
-                                    oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
-                                    required
-                                    value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>"
-                                >
-                            </div>
-                            <?php
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
+                            type="text"
+                            id="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
+                            class="regular-text"
+                            required
+                            value="<?php echo esc_attr($item->get_name()); ?>"
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
+                            type="tel"
+                            id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
+                            class="regular-text lkn_wcip_amount_input"
+                            oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                            required
+                            value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>"
+                        >
+                    </div>
+                    <?php
                                 } else {
                                     ?>
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
-                                    type="text"
-                                    id="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
-                                    class="regular-text"
-                                    required
-                                    readonly
-                                    value="<?php echo esc_attr($item->get_name()); ?>"
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                    type="tel"
-                                    id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                    class="regular-text lkn_wcip_amount_input"
-                                    oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
-                                    required
-                                    readonly
-                                    value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>"
-                                >
-                            </div>
-                            <?php
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
+                            type="text"
+                            id="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
+                            class="regular-text"
+                            required
+                            readonly
+                            value="<?php echo esc_attr($item->get_name()); ?>"
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
+                            type="tel"
+                            id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
+                            class="regular-text lkn_wcip_amount_input"
+                            oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                            required
+                            readonly
+                            value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>"
+                        >
+                    </div>
+                    <?php
                                 }
 
                             if ('pending' === $orderStatus) {
                                 ?>
-                            <div class="input-row-wrap">
-                                <button
-                                    type="button"
-                                    class="btn btn-delete"
-                                    onclick="lkn_wcip_remove_amount_row(<?php echo esc_attr($c); ?>)"
-                                ><span class="dashicons dashicons-trash"></span></button>
-                            </div>
-                            <?php
-                            } ?>
-                        </div>
-                        <?php
-                        ++$c;
-                        } ?>
-                    </div>
-                    <hr>
-                    <?php
-                    if ('pending' === $orderStatus) {
-                        ?>
-                    <div class="invoice-row-wrap">
+                    <div class="input-row-wrap">
                         <button
                             type="button"
-                            class="btn btn-add-line"
-                            onclick="lkn_wcip_add_amount_row()"
-                        ><?php esc_attr_e('Add line', 'wc-invoice-payment'); ?></button>
+                            class="btn btn-delete"
+                            onclick="lkn_wcip_remove_amount_row(<?php echo esc_attr($c); ?>)"
+                        ><span class="dashicons dashicons-trash"></span></button>
                     </div>
                     <?php
+                            } ?>
+                </div>
+                <?php
+                        ++$c;
+                        } ?>
+            </div>
+            <hr>
+            <?php
+                    if ('pending' === $orderStatus) {
+                        ?>
+            <div class="invoice-row-wrap">
+                <button
+                    type="button"
+                    class="btn btn-add-line"
+                    onclick="lkn_wcip_add_amount_row()"
+                ><?php esc_attr_e('Add line', 'wc-invoice-payment'); ?></button>
+            </div>
+            <?php
                     } ?>
-                </div>
-                <div style="width: 100%;"></div>
-                <div class="wcip-invoice-data">
-                    <h2 class="title">
-                        <?php esc_attr_e('Footer notes', 'wc-invoice-payment'); ?>
-                    </h2>
-                    <div
-                        id="wcip-invoice-price-row"
-                        class="invoice-column-wrap"
-                    >
-                        <div class="input-row-wrap">
-                            <label><?php esc_attr_e('Details in HTML', 'wc-invoice-payment'); ?></label>
-                            <textarea
-                                name="lkn-wc-invoice-payment-footer-notes"
-                                id="lkn-wc-invoice-payment-footer-notes"
-                            ><?php echo esc_html($order->get_meta('wcip_footer_notes')); ?></textarea>
-                        </div>
-                    </div>
-                </div>
-            </form>
         </div>
-        <script type="text/javascript">
-            document.addEventListener('DOMContentLoaded', () => {
-                startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit')
-            })
-        </script>
-        <?php
+        <div style="width: 100%;"></div>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php esc_attr_e('Footer notes', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <div class="input-row-wrap">
+                    <label><?php esc_attr_e('Details in HTML', 'wc-invoice-payment'); ?></label>
+                    <textarea
+                        name="lkn-wc-invoice-payment-footer-notes"
+                        id="lkn-wc-invoice-payment-footer-notes"
+                    ><?php echo esc_html($order->get_meta('wcip_footer_notes')); ?></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit')
+    })
+</script>
+<?php
     }
 
-    function is_invoice_id_scheduled($invoice_id) {
+    public function is_invoice_id_scheduled($invoice_id) {
         // Recupere todos os eventos agendados do WP Cron
         $scheduled_events = _get_cron_array();
     
@@ -784,10 +809,10 @@ final class Wc_Payment_Invoice_Admin {
             foreach ($cron_events as $hook => $events) {
                 foreach ($events as $event) {
                     // Verifique se o evento está associado ao seu gancho (hook)
-                    if ($hook === 'generate_invoice_event') {
+                    if ('generate_invoice_event' === $hook) {
                         // Verifique se os argumentos do evento contêm o invoiceId
                         $event_args = $event['args'];
-                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                        if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
                             // O invoiceId está agendado, então retorne verdadeiro
                             return true;
                         }
@@ -797,17 +822,16 @@ final class Wc_Payment_Invoice_Admin {
         }
         // Se chegou até aqui, o invoiceId não está agendado
         return false;
-    }
-    
+    }    
 
-     /**
+    /**
      * Render html page for subscription edit.
      */
     public function render_edit_subscription_page(): void {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
-        if ( ! empty($_POST) && !wp_verify_nonce($_POST['wcip_rest_nonce'], 'wp_rest')){
+        if ( ! empty($_POST) && ! wp_verify_nonce($_POST['wcip_rest_nonce'], 'wp_rest')) {
             return;
         }
         
@@ -855,51 +879,51 @@ final class Wc_Payment_Invoice_Admin {
 
         $currencies = get_woocommerce_currencies();
 
-        $gateways = WC()->payment_gateways->get_available_payment_gateways();
+        $gateways = WC()->payment_gateways->payment_gateways();
         $enabled_gateways = array();
 
         // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
-                if ('yes' == $gateway->enabled) {
+                if ( 'yes' == $gateway->enabled ) {
                     $enabled_gateways[] = $gateway;
                 }
             }
         } ?>
-        <div class="wrap">
-            <h1><?php esc_attr_e('Edit invoice', 'wc-invoice-payment'); ?>
-            </h1>
-            <?php settings_errors(); ?>
-            <form
-                action="<?php menu_page_url('edit-invoice&invoice=' . $invoiceId); ?>"
-                method="post"
-                class="wcip-form-wrap"
-            >
-                <input
-                    id="wcip_rest_nonce"
-                    name="wcip_rest_nonce"
-                    type="hidden"
-                    value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
-                >
-                <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
-                <div class="wcip-invoice-data">
-                    <!-- Invoice details -->
-                    <h2 class="title">
-                        <?php esc_attr_e('Invoice details', 'wc-invoice-payment'); ?>
-                        <?php echo esc_html('#' . $invoiceId); ?>
-                    </h2>
-                    <div class="invoice-row-wrap">
-                        <div class="invoice-column-wrap">
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_payment_status_input"><?php esc_attr_e('Status', 'wc-invoice-payment'); ?></label>
-                                <select
-                                    name="lkn_wcip_payment_status"
-                                    id="lkn_wcip_payment_status_input"
-                                    class="regular-text"
-                                    value="<?php echo esc_html('wc-' . $order->get_status()); ?>"
-                                >
-                                    <?php
+<div class="wrap">
+    <h1><?php esc_attr_e('Edit invoice', 'wc-invoice-payment'); ?>
+    </h1>
+    <?php settings_errors(); ?>
+    <form
+        action="<?php menu_page_url('edit-invoice&invoice=' . $invoiceId); ?>"
+        method="post"
+        class="wcip-form-wrap"
+    >
+        <input
+            id="wcip_rest_nonce"
+            name="wcip_rest_nonce"
+            type="hidden"
+            value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
+        >
+        <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
+        <div class="wcip-invoice-data">
+            <!-- Invoice details -->
+            <h2 class="title">
+                <?php esc_attr_e('Invoice details', 'wc-invoice-payment'); ?>
+                <?php echo esc_html('#' . $invoiceId); ?>
+            </h2>
+            <div class="invoice-row-wrap">
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_payment_status_input"><?php esc_attr_e('Status', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_payment_status"
+                            id="lkn_wcip_payment_status_input"
+                            class="regular-text"
+                            value="<?php echo esc_html('wc-' . $order->get_status()); ?>"
+                        >
+                            <?php
                                         for ($i = 0; $i < count($statusWc); ++$i) {
                                             if (explode('-', $statusWc[$i]['status'])[1] === $orderStatus) {
                                                 echo '<option value="' . esc_attr($statusWc[$i]['status']) . '" selected>' . esc_attr($statusWc[$i]['label']) . '</option>';
@@ -907,18 +931,22 @@ final class Wc_Payment_Invoice_Admin {
                                                 echo '<option value="' . esc_attr($statusWc[$i]['status']) . '">' . esc_attr($statusWc[$i]['label']) . '</option>';
                                             }
                                         } ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
-                                <select
-                                    name="lkn_wcip_default_payment_method"
-                                    id="lkn_wcip_default_payment_method_input"
-                                    class="regular-text"
-                                >
-                                    <option value="multiplePayment" selected><?php esc_attr_e('Multiple payment option', 'wc-invoice-payment'); ?></option>
-                                    <?php
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_default_payment_method"
+                            id="lkn_wcip_default_payment_method_input"
+                            class="regular-text"
+                        >
+                            <option
+                                value="multiplePayment"
+                                selected
+                            ><?php esc_attr_e('Multiple payment option', 'wc-invoice-payment'); ?>
+                            </option>
+                            <?php
                                     foreach ($enabled_gateways as $key => $gateway) {
                                         if ($order->get_payment_method() === $gateway->id) {
                                             echo '<option value="' . esc_attr($gateway->id) . '" selected>' . esc_attr($gateway->title) . '</option>';
@@ -926,278 +954,288 @@ final class Wc_Payment_Invoice_Admin {
                                             echo '<option value="' . esc_attr($gateway->id) . '">' . esc_attr($gateway->title) . '</option>';
                                         }
                                     } ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
-                                <select
-                                    name="lkn_wcip_currency"
-                                    id="lkn_wcip_currency_input"
-                                    class="regular-text"
-                                >
-                                    <?php
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_currency"
+                            id="lkn_wcip_currency_input"
+                            class="regular-text"
+                        >
+                            <?php
                                     foreach ($currencies as $code => $currency) {
                                         if ($order->get_currency() === $code) {
                                             echo '<option value="' . esc_attr($code) . '" selected>' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
                                         } else {
                                             echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
-                                        }   
+                                        }
                                     } ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <label for="lkn_wcip_select_invoice_template">
-                                    <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>
-                                </label>
-                                <select
-                                    name="lkn_wcip_select_invoice_template"
-                                    id="lkn_wcip_select_invoice_template"
-                                    class="regular-text"
-                                    value="<?php echo esc_attr($invoice_template); ?>"
-                                    required
-                                >
-                                    <option value="global">
-                                        <?php esc_attr_e('Default template', 'wc-invoice-payment'); ?>
-                                    </option>
-                                    <?php echo wp_kses($html_templates_list, array(
-                                        'option' => array(
-                                            'data-preview-url' => true,
-                                            'value' => true,
-                                            'selected' => true,
-                                        ),
-                                    )); ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
-                            </div>
-                        </div>
-                        <div class="invoice-column-wrap">
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_name"
-                                    type="text"
-                                    id="lkn_wcip_name_input"
-                                    class="regular-text"
-                                    required
-                                    value="<?php echo esc_attr($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()); ?>"
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_email"
-                                    type="email"
-                                    id="lkn_wcip_email_input"
-                                    class="regular-text"
-                                    required
-                                    value="<?php echo esc_html($order->get_billing_email()); ?>"
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_extra_data"><?php esc_attr_e('Extra data', 'wc-invoice-payment'); ?></label>
-                                <textarea
-                                    name="lkn_wcip_extra_data"
-                                    id="lkn_wcip_extra_data"
-                                    class="regular-text"
-                                ><?php echo esc_html($order->get_meta('wcip_extra_data')); ?></textarea>
-                            </div>
-                        </div>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_select_invoice_template">
+                            <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select
+                            name="lkn_wcip_select_invoice_template"
+                            id="lkn_wcip_select_invoice_template"
+                            class="regular-text"
+                            value="<?php echo esc_attr($invoice_template); ?>"
+                            required
+                        >
+                            <option value="global">
+                                <?php esc_attr_e('Default template', 'wc-invoice-payment'); ?>
+                            </option>
+                            <?php echo wp_kses($html_templates_list, array(
+                                'option' => array(
+                                    'data-preview-url' => true,
+                                    'value' => true,
+                                    'selected' => true,
+                                ),
+                            )); ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
                     </div>
                 </div>
-                <!-- Form actions -->
-                <div class="wcip-invoice-data wcip-postbox">
-                    <span
-                        class="text-bold"><?php esc_attr_e('Invoice actions', 'wc-invoice-payment'); ?></span>
-                    <hr>
-                    <div class="wcip-row">
-                        <div class="input-row-wrap">
-                           
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_exp_date_input"><?php esc_attr_e('Due date', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    id="lkn_wcip_exp_date_input"
-                                    type="date"
-                                    name="lkn_wcip_exp_date"
-                                    value="<?php echo esc_attr($order->get_meta('lkn_exp_date')); ?>"
-                                    min="<?php echo esc_attr(gmdate('Y-m-d')); ?>"
-                                    readonly
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <?php
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_name"
+                            type="text"
+                            id="lkn_wcip_name_input"
+                            class="regular-text"
+                            required
+                            value="<?php echo esc_attr($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()); ?>"
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_email"
+                            type="email"
+                            id="lkn_wcip_email_input"
+                            class="regular-text"
+                            required
+                            value="<?php echo esc_html($order->get_billing_email()); ?>"
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_extra_data"><?php esc_attr_e('Extra data', 'wc-invoice-payment'); ?></label>
+                        <textarea
+                            name="lkn_wcip_extra_data"
+                            id="lkn_wcip_extra_data"
+                            class="regular-text"
+                        ><?php echo esc_html($order->get_meta('wcip_extra_data')); ?></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Form actions -->
+        <div class="wcip-invoice-data wcip-postbox">
+            <span
+                class="text-bold"><?php esc_attr_e('Invoice actions', 'wc-invoice-payment'); ?></span>
+            <hr>
+            <div class="wcip-row">
+                <div class="input-row-wrap">
+
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_exp_date_input"><?php esc_attr_e('Due date', 'wc-invoice-payment'); ?></label>
+                        <input
+                            id="lkn_wcip_exp_date_input"
+                            type="date"
+                            name="lkn_wcip_exp_date"
+                            value="<?php echo esc_attr($order->get_meta('lkn_exp_date')); ?>"
+                            min="<?php echo esc_attr(gmdate('Y-m-d')); ?>"
+                            readonly
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <?php
                                      // Verifique se o invoiceId está agendado
 
                                     if ($this->is_invoice_id_scheduled($invoiceId)) {
                                         // O invoiceId está agendado, exiba o link para cancelar a assinatura
                                         ?>
-                                        <a class="lkn_wcip_cancel_subscription_btn"
-                                        href="#"
-                                        onclick="lkn_wcip_cancel_subscription()"
-                                        data-invoice-id="<?php echo esc_attr($invoiceId); ?>">
-                                            <?php esc_attr_e('Cancel subscription', 'wc-invoice-payment'); ?>
-                                        </a>
-                                        <?php
+                        <a
+                            class="lkn_wcip_cancel_subscription_btn"
+                            href="#"
+                            onclick="lkn_wcip_cancel_subscription()"
+                            data-invoice-id="<?php echo esc_attr($invoiceId); ?>"
+                        >
+                            <?php esc_attr_e('Cancel subscription', 'wc-invoice-payment'); ?>
+                        </a>
+                        <?php
                                     }
-                                ?>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="lkn-wcip-share-modal" style="display: none;">
-                        <div id="lkn-wcip-share-modal-content">
-                            <h3 id="lkn-wcip-share-title"><?php esc_attr_e('Share with', 'wc-invoice-payment'); ?></h3>
-                            <div id="lkn-wcip-share-buttons">
-                                <a 
-                                    href="#" id="lkn-wcip-whatsapp-share" 
-                                    class="lkn-wcip-share-icon dashicons dashicons-whatsapp"
-                                    onclick="lkn_wcip_open_popup('whatsapp', '<?php echo esc_url($checkoutUrl); ?>')"
-                                ></a>                        
-                                <a 
-                                    href="#" id="lkn-wcip-twitter-share" 
-                                    class="lkn-wcip-share-icon dashicons dashicons-twitter"
-                                    onclick="lkn_wcip_open_popup('twitter', '<?php echo esc_url($checkoutUrl); ?>')"
-                                ></a>
-                                <a 
-                                    href="mailto:?subject=Link de fatura&body=<?php echo esc_url($checkoutUrl); ?>"
-                                    id="lkn-wcip-email-share" 
-                                    class="lkn-wcip-share-icon dashicons dashicons-email-alt"
-                                    target="_blank">
-                                </a>
-                            </div>                            
-                        </div>
-                    </div>
-                    <div class="action-btn">   
-                        <p class="submit">
-                            <button
-                                type="button"
-                                class="button lkn_wcip_delete_btn_form"
-                                onclick="lkn_wcip_delete_invoice()"
-                            ><?php esc_attr_e('Delete'); ?></button>
-                        </p>
-                        <?php submit_button(__('Update')); ?>
+        ?>
                     </div>
                 </div>
-                <!-- Invoice charges -->
-                <div class="wcip-invoice-data">
-                    <h2 class="title">
-                        <?php esc_attr_e('Price', 'wc-invoice-payment'); ?>
-                    </h2>
-                    <div
-                        id="wcip-invoice-price-row"
-                        class="invoice-column-wrap"
-                    >
-                        <?php
-                        foreach ($items as $item_id => $item) {                            
+            </div>
+            <div
+                id="lkn-wcip-share-modal"
+                style="display: none;"
+            >
+                <div id="lkn-wcip-share-modal-content">
+                    <h3 id="lkn-wcip-share-title">
+                        <?php esc_attr_e('Share with', 'wc-invoice-payment'); ?>
+                    </h3>
+                    <div id="lkn-wcip-share-buttons">
+                        <a
+                            href="#"
+                            id="lkn-wcip-whatsapp-share"
+                            class="lkn-wcip-share-icon dashicons dashicons-whatsapp"
+                            onclick="lkn_wcip_open_popup('whatsapp', '<?php echo esc_url($checkoutUrl); ?>')"
+                        ></a>
+                        <a
+                            href="#"
+                            id="lkn-wcip-twitter-share"
+                            class="lkn-wcip-share-icon dashicons dashicons-twitter"
+                            onclick="lkn_wcip_open_popup('twitter', '<?php echo esc_url($checkoutUrl); ?>')"
+                        ></a>
+                        <a
+                            href="mailto:?subject=Link de fatura&body=<?php echo esc_url($checkoutUrl); ?>"
+                            id="lkn-wcip-email-share"
+                            class="lkn-wcip-share-icon dashicons dashicons-email-alt"
+                            target="_blank"
+                        >
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="action-btn">
+                <p class="submit">
+                    <button
+                        type="button"
+                        class="button lkn_wcip_delete_btn_form"
+                        onclick="lkn_wcip_delete_invoice()"
+                    ><?php esc_attr_e('Delete'); ?></button>
+                </p>
+                <?php submit_button(__('Update')); ?>
+            </div>
+        </div>
+        <!-- Invoice charges -->
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php esc_attr_e('Price', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <?php
+                        foreach ($items as $item_id => $item) {
                             ?>
-                        <div
-                            class="price-row-wrap price-row-<?php echo esc_attr($c); ?>">
-                            <?php
+                <div
+                    class="price-row-wrap price-row-<?php echo esc_attr($c); ?>">
+                    <?php
                                 if ('pending' === $orderStatus) {
                                     ?>
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
-                                    type="text"
-                                    id="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
-                                    class="regular-text"
-                                    required
-                                    value="<?php echo esc_attr($item->get_name()); ?>"
-                                    readonly
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                    type="tel"
-                                    id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                    class="regular-text lkn_wcip_amount_input"
-                                    oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
-                                    required
-                                    value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>"
-                                    readonly
-                                >
-                            </div>
-                            <?php
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
+                            type="text"
+                            id="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
+                            class="regular-text"
+                            required
+                            value="<?php echo esc_attr($item->get_name()); ?>"
+                            readonly
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
+                            type="tel"
+                            id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
+                            class="regular-text lkn_wcip_amount_input"
+                            oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                            required
+                            value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>"
+                            readonly
+                        >
+                    </div>
+                    <?php
                                 } else {
                                     ?>
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
-                                    type="text"
-                                    id="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
-                                    class="regular-text"
-                                    required
-                                    value="<?php echo esc_attr($item->get_name()); ?>"
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                    type="tel"
-                                    id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                    class="regular-text lkn_wcip_amount_input"
-                                    oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
-                                    required
-                                    value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>"
-                                >
-                            </div>
-                            <?php
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
+                            type="text"
+                            id="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
+                            class="regular-text"
+                            required
+                            value="<?php echo esc_attr($item->get_name()); ?>"
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
+                            type="tel"
+                            id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
+                            class="regular-text lkn_wcip_amount_input"
+                            oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                            required
+                            value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>"
+                        >
+                    </div>
+                    <?php
                                 }
 
                             if ('pending' === $orderStatus) {
                                 ?>
-                            <div class="input-row-wrap">
-                                <button
-                                    type="button"
-                                    class="btn btn-delete"
-                                    onclick="lkn_wcip_remove_amount_row(<?php echo esc_attr($c); ?>)"
-                                ><span class="dashicons dashicons-trash"></span></button>
-                            </div>
-                            <?php
+                    <div class="input-row-wrap">
+                        <button
+                            type="button"
+                            class="btn btn-delete"
+                            onclick="lkn_wcip_remove_amount_row(<?php echo esc_attr($c); ?>)"
+                        ><span class="dashicons dashicons-trash"></span></button>
+                    </div>
+                    <?php
                             } ?>
-                        </div>
-                        <?php
+                </div>
+                <?php
                         ++$c;
                         } ?>
-                    </div>
-                    <hr>                    
-                </div>
-                <div style="width: 100%;"></div>
-                <div class="wcip-invoice-data">
-                    <h2 class="title">
-                        <?php esc_attr_e('Footer notes', 'wc-invoice-payment'); ?>
-                    </h2>
-                    <div
-                        id="wcip-invoice-price-row"
-                        class="invoice-column-wrap"
-                    >
-                        <div class="input-row-wrap">
-                            <label><?php esc_attr_e('Details in HTML', 'wc-invoice-payment'); ?></label>
-                            <textarea
-                                name="lkn-wc-invoice-payment-footer-notes"
-                                id="lkn-wc-invoice-payment-footer-notes"
-                            ><?php echo esc_html($order->get_meta('wcip_footer_notes')); ?></textarea>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            </div>
+            <hr>
         </div>
-        <script type="text/javascript">
-            document.addEventListener('DOMContentLoaded', () => {
-                startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit')
-            })
-        </script>
-        <?php
+        <div style="width: 100%;"></div>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php esc_attr_e('Footer notes', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <div class="input-row-wrap">
+                    <label><?php esc_attr_e('Details in HTML', 'wc-invoice-payment'); ?></label>
+                    <textarea
+                        name="lkn-wc-invoice-payment-footer-notes"
+                        id="lkn-wc-invoice-payment-footer-notes"
+                    ><?php echo esc_html($order->get_meta('wcip_footer_notes')); ?></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit')
+    })
+</script>
+<?php
     }
 
     /**
@@ -1209,28 +1247,28 @@ final class Wc_Payment_Invoice_Admin {
             return;
         }
         ?>
-            <form
-                id="invoices-filter"
-                method="POST"
-            >
-                <input
-                    id="wcip_rest_nonce"
-                    type="hidden"
-                    value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
-                >
+<form
+    id="invoices-filter"
+    method="POST"
+>
+    <input
+        id="wcip_rest_nonce"
+        type="hidden"
+        value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
+    >
 
-                <div class="wrap">
-                    <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-                    <div>
-                        <?php
+    <div class="wrap">
+        <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+        <div>
+            <?php
                             $object = new Lkn_Wcip_List_Table();
-                            $object->prepare_items($validate_nonce);
-                            $object->display(); 
-                        ?>
-                    </div>
-                </div>
-            </form>
-        <?php
+        $object->prepare_items($validate_nonce);
+        $object->display(); 
+        ?>
+        </div>
+    </div>
+</form>
+<?php
     }
 
     /**
@@ -1242,28 +1280,28 @@ final class Wc_Payment_Invoice_Admin {
             return;
         }
         ?>
-            <form
-                id="invoices-filter"
-                method="POST"
-            >
-                <input
-                    id="wcip_rest_nonce"
-                    type="hidden"
-                    value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
-                >
+<form
+    id="invoices-filter"
+    method="POST"
+>
+    <input
+        id="wcip_rest_nonce"
+        type="hidden"
+        value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
+    >
 
-                <div class="wrap">
-                    <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-                    <div>
-                        <?php
+    <div class="wrap">
+        <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+        <div>
+            <?php
                             $object = new Lkn_Wcip_List_Table();
-                            $object->prepare_items($validate_nonce, true);
-                            $object->display(); 
-                        ?>
-                    </div>
-                </div>
-            </form>
-        <?php
+        $object->prepare_items($validate_nonce, true);
+        $object->display(); 
+        ?>
+        </div>
+    </div>
+</form>
+<?php
     }
 
     /**
@@ -1294,7 +1332,6 @@ final class Wc_Payment_Invoice_Admin {
 
         add_action('load-' . $editHookname, array($this, 'edit_invoice_form_submit_handle'));
 
-
         $editHookname = add_submenu_page(
             null,
             __('Edit subscription', 'wc-invoice-payment'),
@@ -1306,7 +1343,6 @@ final class Wc_Payment_Invoice_Admin {
         );
 
         add_action('load-' . $editHookname, array($this, 'edit_subscription_form_submit_handle'));
-        
     }
 
     /**
@@ -1322,7 +1358,7 @@ final class Wc_Payment_Invoice_Admin {
         $currencies = get_woocommerce_currencies();
         $active_currency = get_woocommerce_currency();
 
-        $gateways = WC()->payment_gateways->get_available_payment_gateways();
+        $gateways = WC()->payment_gateways->payment_gateways();
         $enabled_gateways = array();
 
         $templates_list = $this->handler_invoice_templates->get_templates_list();
@@ -1340,81 +1376,85 @@ final class Wc_Payment_Invoice_Admin {
         // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
-                if ('yes' == $gateway->enabled) {
+                if ( 'yes' == $gateway->enabled ) {
                     $enabled_gateways[] = $gateway;
                 }
             }
         } ?>
-        <div class="wrap">
-            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-            <?php settings_errors(); ?>
-            <form
-                action="<?php menu_page_url('new-invoice'); ?>"
-                method="post"
-                class="wcip-form-wrap"
-            >
-                <?php wp_nonce_field('lkn_wcip_add_invoice', 'nonce'); ?>
-                <div class="wcip-invoice-data">
-                    <h2 class="title">
-                        <?php esc_attr_e('Invoice details', 'wc-invoice-payment'); ?>
-                    </h2>
-                    <div class="invoice-row-wrap">
-                        <div class="invoice-column-wrap">
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_payment_status_input"><?php esc_attr_e('Status', 'wc-invoice-payment'); ?></label>
-                                <select
-                                    name="lkn_wcip_payment_status"
-                                    id="lkn_wcip_payment_status_input"
-                                    class="regular-text"
-                                >
-                                    <option value="wc-pending">
-                                        <?php echo esc_html(_x('Pending payment', 'Order status', 'woocommerce')); ?>
-                                    </option>
-                                    <option value="wc-processing">
-                                        <?php echo esc_html(_x('Processing', 'Order status', 'woocommerce')); ?>
-                                    </option>
-                                    <option value="wc-on-hold">
-                                        <?php echo esc_html(_x('On hold', 'Order status', 'woocommerce')); ?>
-                                    </option>
-                                    <option value="wc-completed">
-                                        <?php echo esc_html(_x('Completed', 'Order status', 'woocommerce')); ?>
-                                    </option>
-                                    <option value="wc-cancelled">
-                                        <?php echo esc_html(_x('Cancelled', 'Order status', 'woocommerce')); ?>
-                                    </option>
-                                    <option value="wc-refunded">
-                                        <?php echo esc_html(_x('Refunded', 'Order status', 'woocommerce')); ?>
-                                    </option>
-                                    <option value="wc-failed">
-                                        <?php echo esc_html(_x('Failed', 'Order status', 'woocommerce')); ?>
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
-                                <select
-                                    name="lkn_wcip_default_payment_method"
-                                    id="lkn_wcip_default_payment_method_input"
-                                    class="regular-text"
-                                >
-                                    <option value="multiplePayment" selected><?php esc_attr_e('Multiple payment option', 'wc-invoice-payment'); ?></option>                         
-                                    <?php
+<div class="wrap">
+    <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+    <?php settings_errors(); ?>
+    <form
+        action="<?php menu_page_url('new-invoice'); ?>"
+        method="post"
+        class="wcip-form-wrap"
+    >
+        <?php wp_nonce_field('lkn_wcip_add_invoice', 'nonce'); ?>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php esc_attr_e('Invoice details', 'wc-invoice-payment'); ?>
+            </h2>
+            <div class="invoice-row-wrap">
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_payment_status_input"><?php esc_attr_e('Status', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_payment_status"
+                            id="lkn_wcip_payment_status_input"
+                            class="regular-text"
+                        >
+                            <option value="wc-pending">
+                                <?php echo esc_html(_x('Pending payment', 'Order status', 'woocommerce')); ?>
+                            </option>
+                            <option value="wc-processing">
+                                <?php echo esc_html(_x('Processing', 'Order status', 'woocommerce')); ?>
+                            </option>
+                            <option value="wc-on-hold">
+                                <?php echo esc_html(_x('On hold', 'Order status', 'woocommerce')); ?>
+                            </option>
+                            <option value="wc-completed">
+                                <?php echo esc_html(_x('Completed', 'Order status', 'woocommerce')); ?>
+                            </option>
+                            <option value="wc-cancelled">
+                                <?php echo esc_html(_x('Cancelled', 'Order status', 'woocommerce')); ?>
+                            </option>
+                            <option value="wc-refunded">
+                                <?php echo esc_html(_x('Refunded', 'Order status', 'woocommerce')); ?>
+                            </option>
+                            <option value="wc-failed">
+                                <?php echo esc_html(_x('Failed', 'Order status', 'woocommerce')); ?>
+                            </option>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_default_payment_method"
+                            id="lkn_wcip_default_payment_method_input"
+                            class="regular-text"
+                        >
+                            <option
+                                value="multiplePayment"
+                                selected
+                            ><?php esc_attr_e('Multiple payment option', 'wc-invoice-payment'); ?>
+                            </option>
+                            <?php
                                     foreach ($enabled_gateways as $key => $gateway) {
                                         echo '<option value="' . esc_attr($gateway->id) . '">' . esc_html($gateway->title) . '</option>';
                                     } ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
-                                <select
-                                    name="lkn_wcip_currency"
-                                    id="lkn_wcip_currency_input"
-                                    class="regular-text"
-                                >
-                                    <?php
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
+                        <select
+                            name="lkn_wcip_currency"
+                            id="lkn_wcip_currency_input"
+                            class="regular-text"
+                        >
+                            <?php
                                         foreach ($currencies as $code => $currency) {
                                             if ($active_currency === $code) {
                                                 echo '<option value="' . esc_attr($code) . '" selected>' . esc_html($currency . ' - ' . $code) . '</option>';
@@ -1422,208 +1462,222 @@ final class Wc_Payment_Invoice_Admin {
                                                 echo '<option value="' . esc_attr($code) . '">' . esc_html($currency . ' - ' . $code) . '</option>';
                                             }
                                         } ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <label for="lkn_wcip_select_invoice_template">
-                                    <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>
-                                </label>
-                                <select
-                                    name="lkn_wcip_select_invoice_template"
-                                    id="lkn_wcip_select_invoice_template"
-                                    class="regular-text"
-                                    required
-                                >
-                                    <option value="global">
-                                        <?php esc_attr_e('Default template', 'wc-invoice-payment'); ?>
-                                    </option>
-                                    <?php echo wp_kses($html_templates_list, array(
-                                        'option' => array(
-                                            'data-preview-url' => true,
-                                            'value' => true,
-                                            'selected' => true,
-                                        ),
-                                    )); ?>
-                                </select>
-                            </div>
-                            <div class="input-row-wrap">
-                                <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
-                            </div>
-                        </div>
-                        <div class="invoice-column-wrap">
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_name"
-                                    type="text"
-                                    id="lkn_wcip_name_input"
-                                    class="regular-text"
-                                    required
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_email"
-                                    type="email"
-                                    id="lkn_wcip_email_input"
-                                    class="regular-text"
-                                    required
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label
-                                    for="lkn_wcip_extra_data"><?php esc_attr_e('Extra data', 'wc-invoice-payment'); ?></label>
-                                <textarea
-                                    name="lkn_wcip_extra_data"
-                                    id="lkn_wcip_extra_data"
-                                    class="regular-text"
-                                ></textarea>
-                            </div>
-                        </div>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_select_invoice_template">
+                            <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select
+                            name="lkn_wcip_select_invoice_template"
+                            id="lkn_wcip_select_invoice_template"
+                            class="regular-text"
+                            required
+                        >
+                            <option value="global">
+                                <?php esc_attr_e('Default template', 'wc-invoice-payment'); ?>
+                            </option>
+                            <?php echo wp_kses($html_templates_list, array(
+                                'option' => array(
+                                    'data-preview-url' => true,
+                                    'value' => true,
+                                    'selected' => true,
+                                ),
+                            )); ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
+                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
                     </div>
                 </div>
-                <div class="wcip-invoice-data wcip-postbox">
-                    <span
-                        class="text-bold"><?php esc_attr_e('Invoice actions', 'wc-invoice-payment'); ?></span>
-                    <hr>
-                    <div class="wcip-row">
-                        <div class="input-row-wrap">
-                            <select name="lkn_wcip_form_actions">
-                                <option
-                                    value="no_action"
-                                    selected
-                                ><?php esc_attr_e('Select an action...', 'wc-invoice-payment'); ?>
-                                </option>
-                                <option value="send_email">
-                                    <?php esc_attr_e('Send invoice to customer', 'wc-invoice-payment'); ?>
-                                </option>
-                            </select>
-                        </div>
-                        <div class="input-row-wrap">
-                            <label
-                                for="lkn_wcip_exp_date_input"><?php esc_attr_e('Due date', 'wc-invoice-payment'); ?></label>
-                            <input
-                                id="lkn_wcip_exp_date_input"
-                                type="date"
-                                name="lkn_wcip_exp_date"
-                                min="<?php echo esc_attr(gmdate('Y-m-d')); ?>"
-                            >
-                        </div>                        
-                        <div class="input-row-wrap">
-                            <label for="lkn_wcip_subscription_product">
-                                Assinatura:
-                                <input 
-                                    type="checkbox" 
-                                    name="lkn_wcip_subscription_product" 
-                                    id="lkn_wcip_subscription_product" 
-                                >
-                            </label>
-                        </div>
-                        <div class="input-row-wrap" id="lkn_wcip_subscription_interval">
-                            <label for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Subscription Interval', 'wc-invoice-payment'); ?></label>                            
-                            <div class="lkn_wcip_subscription_interval_div">
-                                <input 
-                                    type="number" 
-                                    min="1" name="lkn_wcip_subscription_interval_number" 
-                                    id="lkn_wcip_subscription_interval_number" 
-                                    value="1"
-                                >
-                                <select
-                                    name="lkn_wcip_subscription_interval_type">
-                                    <option value="day"><?php esc_attr_e('Days', 'wc-invoice-payment'); ?></option>
-                                    <option value="week"><?php esc_attr_e('Weeks', 'wc-invoice-payment'); ?></option>
-                                    <option value="month" selected><?php esc_attr_e('Months', 'wc-invoice-payment'); ?></option>
-                                    <option value="year"><?php esc_attr_e('Years', 'wc-invoice-payment'); ?></option>                
-                                </select>
-                            </div>
-                        </div>
+                <div class="invoice-column-wrap">
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_name"
+                            type="text"
+                            id="lkn_wcip_name_input"
+                            class="regular-text"
+                            required
+                        >
                     </div>
-                    <script>
-                        //Valida se a checkbox de assinatura está ativada para mostrar campos
-                        lkn_wcip_display_subscription_inputs()
-                    </script>
-                    <div class="action-btn">
-                        <?php submit_button(__('Save')); ?>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_email"
+                            type="email"
+                            id="lkn_wcip_email_input"
+                            class="regular-text"
+                            required
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label
+                            for="lkn_wcip_extra_data"><?php esc_attr_e('Extra data', 'wc-invoice-payment'); ?></label>
+                        <textarea
+                            name="lkn_wcip_extra_data"
+                            id="lkn_wcip_extra_data"
+                            class="regular-text"
+                        ></textarea>
                     </div>
                 </div>
-                <div class="wcip-invoice-data">
-                    <h2 class="title">
-                        <?php esc_attr_e('Price', 'wc-invoice-payment'); ?>
-                    </h2>
-                    <div
-                        id="wcip-invoice-price-row"
-                        class="invoice-column-wrap"
+            </div>
+        </div>
+        <div class="wcip-invoice-data wcip-postbox">
+            <span
+                class="text-bold"><?php esc_attr_e('Invoice actions', 'wc-invoice-payment'); ?></span>
+            <hr>
+            <div class="wcip-row">
+                <div class="input-row-wrap">
+                    <select name="lkn_wcip_form_actions">
+                        <option
+                            value="no_action"
+                            selected
+                        ><?php esc_attr_e('Select an action...', 'wc-invoice-payment'); ?>
+                        </option>
+                        <option value="send_email">
+                            <?php esc_attr_e('Send invoice to customer', 'wc-invoice-payment'); ?>
+                        </option>
+                    </select>
+                </div>
+                <div class="input-row-wrap">
+                    <label
+                        for="lkn_wcip_exp_date_input"><?php esc_attr_e('Due date', 'wc-invoice-payment'); ?></label>
+                    <input
+                        id="lkn_wcip_exp_date_input"
+                        type="date"
+                        name="lkn_wcip_exp_date"
+                        min="<?php echo esc_attr(gmdate('Y-m-d')); ?>"
                     >
-                        <div class="price-row-wrap price-row-0">
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
-                                <input
-                                name="lkn_wcip_name_invoice_0"
-                                type="text"
-                                id="lkn_wcip_name_invoice_0"
-                                class="regular-text"
-                                required
-                            >
-                            </div>
-                            <div class="input-row-wrap">
-                                <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
-                                <input
-                                    name="lkn_wcip_amount_invoice_0"
-                                    type="tel"
-                                    id="lkn_wcip_amount_invoice_0"
-                                    class="regular-text lkn_wcip_amount_input"
-                                    oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
-                                    required
-                                >
-                            </div>
-                            <div class="input-row-wrap">
-                                <button
-                                    type="button"
-                                    class="btn btn-delete"
-                                    onclick="lkn_wcip_remove_amount_row(0)"
-                                ><span class="dashicons dashicons-trash"></span></button>
-                            </div>
-                        </div>
+                </div>
+                <div class="input-row-wrap">
+                    <label for="lkn_wcip_subscription_product">
+                        Assinatura:
+                        <input
+                            type="checkbox"
+                            name="lkn_wcip_subscription_product"
+                            id="lkn_wcip_subscription_product"
+                        >
+                    </label>
+                </div>
+                <div
+                    class="input-row-wrap"
+                    id="lkn_wcip_subscription_interval"
+                >
+                    <label
+                        for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Subscription Interval', 'wc-invoice-payment'); ?></label>
+                    <div class="lkn_wcip_subscription_interval_div">
+                        <input
+                            type="number"
+                            min="1"
+                            name="lkn_wcip_subscription_interval_number"
+                            id="lkn_wcip_subscription_interval_number"
+                            value="1"
+                        >
+                        <select name="lkn_wcip_subscription_interval_type">
+                            <option value="day">
+                                <?php esc_attr_e('Days', 'wc-invoice-payment'); ?>
+                            </option>
+                            <option value="week">
+                                <?php esc_attr_e('Weeks', 'wc-invoice-payment'); ?>
+                            </option>
+                            <option
+                                value="month"
+                                selected
+                            ><?php esc_attr_e('Months', 'wc-invoice-payment'); ?>
+                            </option>
+                            <option value="year">
+                                <?php esc_attr_e('Years', 'wc-invoice-payment'); ?>
+                            </option>
+                        </select>
                     </div>
-                    <hr>
-                    <div class="invoice-row-wrap">
+                </div>
+            </div>
+            <script>
+                //Valida se a checkbox de assinatura está ativada para mostrar campos
+                lkn_wcip_display_subscription_inputs()
+            </script>
+            <div class="action-btn">
+                <?php submit_button(__('Save')); ?>
+            </div>
+        </div>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php esc_attr_e('Price', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <div class="price-row-wrap price-row-0">
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_name_invoice_0"
+                            type="text"
+                            id="lkn_wcip_name_invoice_0"
+                            class="regular-text"
+                            required
+                        >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_amount_invoice_0"
+                            type="tel"
+                            id="lkn_wcip_amount_invoice_0"
+                            class="regular-text lkn_wcip_amount_input"
+                            oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                            required
+                        >
+                    </div>
+                    <div class="input-row-wrap">
                         <button
                             type="button"
-                            class="btn btn-add-line"
-                            onclick="lkn_wcip_add_amount_row()"
-                        ><?php esc_attr_e('Add line', 'wc-invoice-payment'); ?></button>
+                            class="btn btn-delete"
+                            onclick="lkn_wcip_remove_amount_row(0)"
+                        ><span class="dashicons dashicons-trash"></span></button>
                     </div>
                 </div>
-                <div style="width: 100%;"></div>
-                <div class="wcip-invoice-data">
-                    <h2 class="title">
-                        <?php esc_attr_e('Footer notes', 'wc-invoice-payment'); ?>
-                    </h2>
-                    <div
-                        id="wcip-invoice-price-row"
-                        class="invoice-column-wrap"
-                    >
-                        <div class="input-row-wrap">
-                            <label><?php esc_attr_e('Details in HTML', 'wc-invoice-payment'); ?></label>
-                            <textarea
-                                name="lkn-wc-invoice-payment-footer-notes"
-                                id="lkn-wc-invoice-payment-footer-notes"
-                                class="regular-text"
-                            ><?php echo esc_html($default_footer); ?></textarea>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            </div>
+            <hr>
+            <div class="invoice-row-wrap">
+                <button
+                    type="button"
+                    class="btn btn-add-line"
+                    onclick="lkn_wcip_add_amount_row()"
+                ><?php esc_attr_e('Add line', 'wc-invoice-payment'); ?></button>
+            </div>
         </div>
-        <script type="text/javascript">
-            document.addEventListener('DOMContentLoaded', () => {
-                startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit')
-            })
-        </script>
-        <?php
+        <div style="width: 100%;"></div>
+        <div class="wcip-invoice-data">
+            <h2 class="title">
+                <?php esc_attr_e('Footer notes', 'wc-invoice-payment'); ?>
+            </h2>
+            <div
+                id="wcip-invoice-price-row"
+                class="invoice-column-wrap"
+            >
+                <div class="input-row-wrap">
+                    <label><?php esc_attr_e('Details in HTML', 'wc-invoice-payment'); ?></label>
+                    <textarea
+                        name="lkn-wc-invoice-payment-footer-notes"
+                        id="lkn-wc-invoice-payment-footer-notes"
+                        class="regular-text"
+                    ><?php echo esc_html($default_footer); ?></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit')
+    })
+</script>
+<?php
     }
 
     /**
@@ -1681,8 +1735,8 @@ final class Wc_Payment_Invoice_Admin {
                         'customer_id' => 0,
                         'customer_note' => '',
                         'total' => $totalAmount,
-                        )
-                    );
+                    )
+                );
 
                 $order->update_meta_data('wcip_extra_data', $extraData);
                 $order->update_meta_data('wcip_footer_notes', $footerNotes);
@@ -1717,7 +1771,7 @@ final class Wc_Payment_Invoice_Admin {
                 $order->calculate_totals();
 
                 //Seta valores para serem usados na criação do evento cron
-                if(isset($_POST['lkn_wcip_subscription_product'])){
+                if (isset($_POST['lkn_wcip_subscription_product'])) {
                     $isSubscription = sanitize_text_field($_POST['lkn_wcip_subscription_product']);
                     $order->add_meta_data('lkn_is_subscription', $isSubscription );
                     $order->add_meta_data('lkn_wcip_subscription_interval_number', $intarvalNumber );
@@ -1730,7 +1784,7 @@ final class Wc_Payment_Invoice_Admin {
                 $orderId = $order->get_id();
                 
                 //Chama a função que configura o evento cron
-                if($isSubscription){
+                if ($isSubscription) {
                     $subscription_class = new Wc_Payment_Invoice_Subscription();
                     $subscription_class->validate_product($orderId);
                 }
@@ -1767,7 +1821,6 @@ final class Wc_Payment_Invoice_Admin {
                 }
                 // Success message
                 echo '<div class="lkn_wcip_notice_positive">' . esc_html(__('Invoice successfully saved', 'wc-invoice-payment')) . '</div>';
-                
             } else {
                 // Error messages
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
