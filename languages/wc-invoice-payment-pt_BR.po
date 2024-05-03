@@ -148,3 +148,60 @@ msgstr "Dados do remetente"
 
 msgid "Text before payment link"
 msgstr "Texto antes do link de pagamento"
+
+msgid "Multiple payment option"
+msgstr "Opção de pagamento múltiplo"
+
+msgid "Share payment link"
+msgstr "Compartilhar link de pagamento"
+
+msgid "Share with"
+msgstr "Compartilhe com"
+
+msgid "Or copy link"
+msgstr "Ou copie o link"
+
+msgid "Start date"
+msgstr "Data de criação"
+
+msgid "Subscription"
+msgstr "Assinatura"
+
+msgid "This is a subscription product."
+msgstr "Este é um produto com assinatura"
+
+msgid "Subscription Interval"
+msgstr "Intervalo da assinatura"
+
+msgid "Days"
+msgstr "Dias"
+
+msgid "Weeks"
+msgstr "Semanas"
+
+msgid "Months"
+msgstr "Meses"
+
+msgid "Years"
+msgstr "Anos"
+
+msgid "Subscriptions"
+msgstr "Assinaturas"
+
+msgid "List Subscriptions"
+msgstr "Listar assinaturas"
+
+msgid "Activate invoices"
+msgstr "Ativar faturas"
+
+msgid "Create an invoice whenever a product is purchased"
+msgstr "Criar uma fatura sempre que um produto for comprado"
+
+msgid "Create invoices for products"
+msgstr "Criar faturas para produtos"
+
+msgid "Edit subscription"
+msgstr "Editar assinatura"
+
+msgid "Cancel subscription"
+msgstr "Cancelar assinatura"

@@ -148,3 +148,60 @@ msgstr ""
 
 msgid "Text before payment link"
 msgstr ""
+
+msgid "Multiple payment option"
+msgstr ""
+
+msgid "Share payment link"
+msgstr ""
+
+msgid "Share with"
+msgstr ""
+
+msgid "Or copy link"
+msgstr ""
+
+msgid "Start date"
+msgstr ""
+
+msgid "Subscription"
+msgstr ""
+
+msgid "This is a subscription product."
+msgstr ""
+
+msgid "Subscription Interval"
+msgstr ""
+
+msgid "Days"
+msgstr ""
+
+msgid "Weeks"
+msgstr ""
+
+msgid "Months"
+msgstr ""
+
+msgid "Years"
+msgstr ""
+
+msgid "Subscriptions"
+msgstr ""
+
+msgid "List Subscriptions"
+msgstr ""
+
+msgid "Activate invoices"
+msgstr ""
+
+msgid "Create an invoice whenever a product is purchased"
+msgstr ""
+
+msgid "Create invoices for products"
+msgstr ""
+
+msgid "Edit subscription"
+msgstr ""
+
+msgid "Cancel subscription"
+msgstr ""

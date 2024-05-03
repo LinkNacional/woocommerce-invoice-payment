@@ -75,7 +75,8 @@ final class Wc_Payment_Invoice_Loader_Rest {
         header('Content-Disposition: attachment; filename="' . $file_name . '"');
         header('Content-Length: ' . strlen($output));
         header('Content-Transfer-Encoding: binary');
-        echo $output;
+        $base64_output = base64_encode($output);
+        echo esc_html($base64_output); 
         exit;
     }
 }

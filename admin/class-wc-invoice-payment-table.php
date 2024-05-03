@@ -52,6 +52,14 @@ class Lkn_Wcip_List_Table {
     private $_pagination;
 
     /**
+     * Nonce validate.
+     *
+     * @since 3.1.0
+     * @var string
+     */
+    private $_nonce;
+
+    /**
      * The view switcher modes.
      *
      * @since 4.1.0
@@ -306,43 +314,9 @@ class Lkn_Wcip_List_Table {
      * @since 3.1.0
      */
     public function no_items() {
-        _e('No items found.');
+        esc_attr_e('No items found.');
     }
 
-    /**
-     * Displays the search box.
-     *
-     * @since 3.1.0
-     *
-     * @param string $text     The 'submit' button label.
-     * @param string $input_id ID attribute value for the search input field.
-     */
-    public function search_box($text, $input_id) {
-        if (empty($_REQUEST['s']) && !$this->has_items()) {
-            return;
-        }
-
-        $input_id = $input_id . '-search-input';
-
-        if (!empty($_REQUEST['orderby'])) {
-            echo '<input type="hidden" name="orderby" value="' . esc_attr($_REQUEST['orderby']) . '" />';
-        }
-        if (!empty($_REQUEST['order'])) {
-            echo '<input type="hidden" name="order" value="' . esc_attr($_REQUEST['order']) . '" />';
-        }
-        if (!empty($_REQUEST['post_mime_type'])) {
-            echo '<input type="hidden" name="post_mime_type" value="' . esc_attr($_REQUEST['post_mime_type']) . '" />';
-        }
-        if (!empty($_REQUEST['detached'])) {
-            echo '<input type="hidden" name="detached" value="' . esc_attr($_REQUEST['detached']) . '" />';
-        } ?>
-<p class="search-box">
-	<label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_html($text); ?>:</label>
-	<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s" value="<?php _admin_search_query(); ?>" />
-		<?php submit_button(esc_html($text), '', '', false, ['id' => 'search-submit']); ?>
-</p>
-		<?php
-    }
 
     /**
      * Gets the list of views available on this table.
@@ -424,10 +398,11 @@ class Lkn_Wcip_List_Table {
         if (empty($this->_actions)) {
             return;
         }
-
-        echo '<label for="bulk-action-selector-' . esc_attr($which) . '" class="screen-reader-text">' . __('Select bulk action') . '</label>';
+        $nonceAction = wp_create_nonce( 'nonce_action' );
+        echo '<input type="hidden" name="nonce_action_field" value="' . esc_attr( $nonceAction ) . '" />';
+        echo '<label for="bulk-action-selector-' . esc_attr($which) . '" class="screen-reader-text">' . esc_attr(__('Select bulk action')) . '</label>';
         echo '<select name="action' . esc_attr($two) . '" id="bulk-action-selector-' . esc_attr($which) . "\">\n";
-        echo '<option value="-1">' . __('Bulk actions') . "</option>\n";
+        echo '<option value="-1">' . esc_attr(__('Bulk actions')) . "</option>\n";
 
         foreach ($this->_actions as $key => $value) {
             if (is_array($value)) {
@@ -460,7 +435,13 @@ class Lkn_Wcip_List_Table {
      * @return string|false The action name. False if no action was selected.
      */
     public function current_action() {
-        if (isset($_REQUEST['filter_action']) && !empty($_REQUEST['filter_action'])) {
+        if (
+            isset($_REQUEST['filter_action']) && 
+            !empty($_REQUEST['filter_action']) && 
+            !wp_verify_nonce($this->_nonce, 'validate_nonce')
+            ) 
+
+            {
             return false;
         }
 
@@ -513,106 +494,6 @@ class Lkn_Wcip_List_Table {
     }
 
     /**
-     * Displays a dropdown for filtering items in the list table by month.
-     *
-     * @since 3.1.0
-     *
-     * @global wpdb      $wpdb      WordPress database abstraction object.
-     * @global WP_Locale $wp_locale WordPress date and time locale object.
-     *
-     * @param string $post_type The post type.
-     */
-    protected function months_dropdown($post_type) {
-        global $wpdb, $wp_locale;
-
-        /**
-         * Filters whether to remove the 'Months' drop-down from the post list table.
-         *
-         * @since 4.2.0
-         *
-         * @param bool   $disable   Whether to disable the drop-down. Default false.
-         * @param string $post_type The post type.
-         */
-        if (apply_filters('disable_months_dropdown', false, $post_type)) {
-            return;
-        }
-
-        /**
-         * Filters to short-circuit performing the months dropdown query.
-         *
-         * @since 5.7.0
-         *
-         * @param object[]|false $months   'Months' drop-down results. Default false.
-         * @param string         $post_type The post type.
-         */
-        $months = apply_filters('pre_months_dropdown_query', false, $post_type);
-
-        if (!is_array($months)) {
-            $extra_checks = "AND post_status != 'auto-draft'";
-            $postStatus = sanitize_text_field($_GET['post_status']);
-
-            if (!isset($_GET['post_status']) || 'trash' !== $postStatus) {
-                $extra_checks .= " AND post_status != 'trash'";
-            } elseif (isset($_GET['post_status'])) {
-                $extra_checks = $wpdb->prepare(' AND post_status = %s', $postStatus);
-            }
-
-            $months = $wpdb->get_results(
-                $wpdb->prepare(
-                    "
-				SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
-				FROM $wpdb->posts
-				WHERE post_type = %s
-				$extra_checks
-				ORDER BY post_date DESC
-			",
-                    $post_type
-                )
-            );
-        }
-
-        /**
-         * Filters the 'Months' drop-down results.
-         *
-         * @since 3.7.0
-         *
-         * @param object[] $months    Array of the months drop-down query results.
-         * @param string   $post_type The post type.
-         */
-        $months = apply_filters('months_dropdown_results', $months, $post_type);
-
-        $month_count = count($months);
-
-        if (!$month_count || (1 == $month_count && 0 == $months[0]->month)) {
-            return;
-        }
-
-        $m = isset($_GET['m']) ? (int) sanitize_text_field($_GET['m']) : 0; ?>
-		<label for="filter-by-date" class="screen-reader-text"><?php echo get_post_type_object($post_type)->labels->filter_by_date; ?></label>
-		<select name="m" id="filter-by-date">
-			<option<?php selected($m, 0); ?> value="0"><?php _e('All dates'); ?></option>
-		<?php
-        foreach ($months as $arc_row) {
-            if (0 == $arc_row->year) {
-                continue;
-            }
-
-            $month = zeroise($arc_row->month, 2);
-            $year  = $arc_row->year;
-
-            printf(
-                "<option %s value='%s'>%s</option>\n",
-                selected($m, $year . $month, false),
-                esc_attr($arc_row->year . $month),
-                /* translators: 1: Month name, 2: 4-digit year. */
-                sprintf(__('%1$s %2$d'), $wp_locale->get_month($month), $year)
-            );
-        } ?>
-		</select>
-		<?php
-    }
-
-    /**
      * Displays a view switcher.
      *
      * @since 3.1.0
@@ -634,10 +515,12 @@ class Lkn_Wcip_List_Table {
             }
 
             printf(
-                "<a href='%s' class='%s' id='view-switch-$mode'$aria_current><span class='screen-reader-text'>%s</span></a>\n",
+                "<a href='%s' class='%s' id='view-switch-%s'%s><span class='screen-reader-text'>%s</span></a>\n",
                 esc_url(remove_query_arg('attachment-filter', add_query_arg('mode', $mode))),
                 esc_attr(implode(' ', $classes)),
-                $title
+                esc_attr($mode), 
+                esc_attr($aria_current),
+                esc_html($title) 
             );
         } ?>
 		</div>
@@ -654,7 +537,6 @@ class Lkn_Wcip_List_Table {
      */
     protected function comments_bubble($post_id, $pending_comments) {
         $approved_comments = get_comments_number();
-
         $approved_comments_number = number_format_i18n($approved_comments);
         $pending_comments_number  = number_format_i18n($pending_comments);
 
@@ -680,14 +562,14 @@ class Lkn_Wcip_List_Table {
             // No comments at all.
             printf(
                 '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">%s</span>',
-                __('No comments')
+                esc_html__('No comments')
             );
         } elseif ($approved_comments && 'trash' === get_post_status($post_id)) {
             // Don't link the comment bubble for a trashed post.
             printf(
                 '<span class="post-com-count post-com-count-approved"><span class="comment-count-approved" aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></span>',
-                $approved_comments_number,
-                $pending_comments ? $approved_phrase : $approved_only_phrase
+                esc_html($approved_comments_number),
+                $pending_comments ? esc_html($approved_phrase) : esc_html($approved_only_phrase)
             );
         } elseif ($approved_comments) {
             // Link the comment bubble to approved comments.
@@ -702,15 +584,15 @@ class Lkn_Wcip_List_Table {
                         admin_url('edit-comments.php')
                     )
                 ),
-                $approved_comments_number,
-                $pending_comments ? $approved_phrase : $approved_only_phrase
+                esc_html($approved_comments_number),
+                $pending_comments ? esc_html($approved_phrase) : esc_html($approved_only_phrase)
             );
         } else {
             // Don't link the comment bubble when there are no approved comments.
             printf(
                 '<span class="post-com-count post-com-count-no-comments"><span class="comment-count comment-count-no-comments" aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></span>',
-                $approved_comments_number,
-                $pending_comments ? __('No approved comments') : __('No comments')
+                esc_html($approved_comments_number),
+                $pending_comments ? esc_html__('No approved comments') : esc_html__('No comments')
             );
         }
 
@@ -726,14 +608,14 @@ class Lkn_Wcip_List_Table {
                         admin_url('edit-comments.php')
                     )
                 ),
-                $pending_comments_number,
-                $pending_phrase
+                esc_html($pending_comments_number),
+                esc_html($pending_phrase)
             );
         } else {
             printf(
                 '<span class="post-com-count post-com-count-pending post-com-count-no-pending"><span class="comment-count comment-count-no-pending" aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></span>',
-                $pending_comments_number,
-                $approved_comments ? __('No pending comments') : __('No comments')
+                esc_html($pending_comments_number),
+                $approved_comments ? esc_html__('No pending comments') : esc_html__('No comments')
             );
         }
     }
@@ -746,6 +628,10 @@ class Lkn_Wcip_List_Table {
      * @return int
      */
     public function get_pagenum() {
+        if(!wp_verify_nonce($this->_nonce, 'validate_nonce')){
+            return;
+        }
+    
         $pagenum = isset($_REQUEST['paged']) ? absint($_REQUEST['paged']) : 0;
 
         if (isset($this->_pagination_args['total_pages']) && $pagenum > $this->_pagination_args['total_pages']) {
@@ -829,8 +715,8 @@ class Lkn_Wcip_List_Table {
         $current              = $this->get_pagenum();
         $removable_query_args = wp_removable_query_args();
 
-        $sanitizedUrl = sanitize_url($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        $current_url = remove_query_arg($removable_query_args, $sanitizedUrl);
+        $sanitizedUrl = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $current_url = sanitize_url($sanitizedUrl);
 
         $page_links = [];
 
@@ -927,7 +813,7 @@ class Lkn_Wcip_List_Table {
         }
         $this->_pagination = "<div class='tablenav-pages{$page_class}'>$output</div>";
 
-        echo $this->_pagination;
+        echo wp_kses_post($this->_pagination);
     }
 
     /**
@@ -1111,9 +997,13 @@ class Lkn_Wcip_List_Table {
      */
     public function print_column_headers($with_id = true) {
         list($columns, $hidden, $sortable, $primary) = $this->get_column_info();
+        
+        if(!wp_verify_nonce($this->_nonce, 'validate_nonce')){
+            return;
+        }
 
-        $sanitizedUrl = sanitize_url($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        $current_url = remove_query_arg('paged', $sanitizedUrl);
+        $sanitizedUrl = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $current_url = sanitize_url($sanitizedUrl);
 
         if (isset($_GET['orderby'])) {
             $current_orderby = sanitize_text_field($_GET['orderby']);
@@ -1186,7 +1076,39 @@ class Lkn_Wcip_List_Table {
             }
 
             // All attributes are previously escaped
-            echo "<$tag $scope $id $class>$column_display_name</$tag>";
+            // Removendo warning do checker
+            $allowed_html = array(
+                'thead' => array(),
+                'tr' => array(),
+                'td' => array(
+                    'id' => true,
+                    'class' => true
+                ),
+                'th' => array(
+                    'scope' => true,
+                    'id' => true,
+                    'class' => true
+                ),
+                'label' => array(
+                    'for' => true,
+                    'class' => true
+                ),
+                'input' => array(
+                    'id' => true,
+                    'type' => true
+                ),
+                'a' => array(
+                    'href' => true
+                ),
+                'span' => array(
+                    'class' => true
+                ),
+                'div' => array(
+                    'class' => true
+                )
+            );
+            echo (wp_kses("<$tag $scope $id $class>$column_display_name</$tag>", $allowed_html));
+            
         }
     }
 
@@ -1201,29 +1123,29 @@ class Lkn_Wcip_List_Table {
         $this->display_tablenav('top');
 
         $this->screen->render_screen_reader_content('heading_list'); ?>
-<table class="wp-list-table <?php esc_attr_e(implode(' ', $this->get_table_classes())); ?>">
-	<thead>
-	<tr>
-		<?php $this->print_column_headers(); ?>
-	</tr>
-	</thead>
+        <table class="wp-list-table <?php echo esc_attr(implode(' ', $this->get_table_classes())); ?>">
+            <thead>
+            <tr>
+                <?php $this->print_column_headers(); ?>
+            </tr>
+            </thead>
 
-	<tbody id="the-list"
-		<?php
-        if ($singular) {
-            echo " data-wp-lists='list:" . esc_attr($singular) . "'";
-        } ?>
-		>
-		<?php $this->display_rows_or_placeholder(); ?>
-	</tbody>
+            <tbody id="the-list"
+                <?php
+                if ($singular) {
+                    echo " data-wp-lists='list:" . esc_attr($singular) . "'";
+                } ?>
+                >
+                <?php $this->display_rows_or_placeholder(); ?>
+            </tbody>
 
-	<tfoot>
-	<tr>
-		<?php $this->print_column_headers(false); ?>
-	</tr>
-	</tfoot>
+            <tfoot>
+            <tr>
+                <?php $this->print_column_headers(false); ?>
+            </tr>
+            </tfoot>
 
-</table>
+        </table>
 		<?php
         $this->display_tablenav('bottom');
     }
@@ -1288,8 +1210,8 @@ class Lkn_Wcip_List_Table {
         if ($this->has_items()) {
             $this->display_rows();
         } else {
-            echo '<tr class="no-items"><td class="colspanchange" colspan="' . $this->get_column_count() . '">';
-            esc_html_e($this->no_items());
+            echo '<tr class="no-items"><td class="colspanchange" colspan="' . esc_html($this->get_column_count()) . '">';
+            echo esc_html($this->no_items());
             echo '</td></tr>';
         }
     }
@@ -1343,28 +1265,34 @@ class Lkn_Wcip_List_Table {
             $data = 'data-colname="' . esc_attr(wp_strip_all_tags($column_display_name)) . '"';
 
             $attributes = "class='$classes' $data";
-
             if ('cb' === $column_name) {
                 echo '<th scope="row" class="check-column">';
-                echo $this->column_cb($item);
+                echo wp_kses($this->column_cb($item), array(
+                    'input' => array(
+                        'type' => true,
+                        'name' => true,
+                        'class' => true,
+                        'value' => true,
+                    ),
+                ));
                 echo '</th>';
-            } elseif (method_exists($this, '_column_' . $column_name)) {
-                echo call_user_func(
+            } elseif ((method_exists($this, '_column_' . $column_name))) {
+                echo esc_html(call_user_func(
                     [$this, '_column_' . $column_name],
                     $item,
                     esc_attr($classes),
                     $data,
-                    $primary
+                    $primary)
                 );
             } elseif (method_exists($this, 'column_' . $column_name)) {
-                echo "<td $attributes>";
-                echo call_user_func([$this, 'column_' . $column_name], $item);
-                echo $this->handle_row_actions($item, $column_name, $primary);
+                echo "<td ".esc_attr($attributes).">";
+                echo esc_attr(call_user_func([$this, 'column_' . $column_name], $item));
+                echo wp_kses_post($this->handle_row_actions($item, $column_name, $primary));
                 echo '</td>';
-            } else {
-                echo "<td $attributes>";
+            } else {            
+                echo "<td ".esc_attr($attributes).">";
                 echo esc_html($this->column_default($item, $column_name));
-                echo $this->handle_row_actions($item, $column_name, $primary);
+                echo wp_kses_post($this->handle_row_actions($item, $column_name, $primary));
                 echo '</td>';
             }
         }
@@ -1376,7 +1304,11 @@ class Lkn_Wcip_List_Table {
      * @since 3.1.0
      */
     public function ajax_response() {
-        $this->prepare_items();
+        $this->prepare_items(wp_create_nonce('validate_nonce'));
+
+        if(!wp_verify_nonce($this->_nonce, 'validate_nonce')){
+            return;
+        }
 
         ob_start();
         if (!empty($_REQUEST['no_placeholder'])) {
@@ -1410,46 +1342,49 @@ class Lkn_Wcip_List_Table {
      *
      * @return void
      */
-    public function prepare_items() {
-        $order_by = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
-        $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
-        $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
-        $invoiceList = get_option('lkn_wcip_invoices', []);
-
-        // Deletes invoices that have no order.
-        $invoicesWithExistingOrder = array_filter(
-            $invoiceList,
-            function ($invoiceId): bool {
-                $orderExists = wc_get_order($invoiceId) !== false;
-
-                return $orderExists;
+    public function prepare_items($validate_nonce, $showSubscriptions = false) {
+        if(wp_verify_nonce($validate_nonce, 'validate_nonce')){
+            $this->_nonce = $validate_nonce;
+            $order_by = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
+            $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
+            $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
+            $invoiceList = get_option('lkn_wcip_invoices', []);
+    
+            // Deletes invoices that have no order.
+            $invoicesWithExistingOrder = array_filter(
+                $invoiceList,
+                function ($invoiceId): bool {
+                    $orderExists = wc_get_order($invoiceId) !== false;
+    
+                    return $orderExists;
+                }
+            );
+    
+            if (count($invoiceList) !== count($invoicesWithExistingOrder)) {
+                $invoiceList = $invoicesWithExistingOrder;
+                update_option('lkn_wcip_invoices', $invoiceList);
             }
-        );
-
-        if (count($invoiceList) !== count($invoicesWithExistingOrder)) {
-            $invoiceList = $invoicesWithExistingOrder;
-            update_option('lkn_wcip_invoices', $invoiceList);
+    
+            $per_page = 10;
+            $current_page = $this->get_pagenum();
+            $total_items = count($invoiceList);
+    
+            // only ncessary because we have sample data
+            $found_data = $this->lkn_wcip_list_table_data($order_by, $order, $search_term, $invoiceList, $showSubscriptions);
+            $this->items = array_slice($found_data, (($current_page-1)*$per_page), $per_page);
+    
+            $this->set_pagination_args([
+                'total_items' => $total_items,  //WE have to calculate the total number of items
+                'per_page'    => $per_page,     //WE have to determine how many items to show on a page
+            ]);
+    
+            $lkn_wcip_columns = $this->get_columns();
+            $lkn_wcip_hidden = $this->get_hidden_columns();
+            $ldul_sortable = $this->get_sortable_columns();
+    
+            $this->_column_headers = [$lkn_wcip_columns, $lkn_wcip_hidden, $ldul_sortable];
+            $this->proccess_bulk_action();
         }
-
-        $per_page = 10;
-        $current_page = $this->get_pagenum();
-        $total_items = count($invoiceList);
-
-        // only ncessary because we have sample data
-        $found_data = $this->lkn_wcip_list_table_data($order_by, $order, $search_term, $invoiceList);
-        $this->items = array_slice($found_data, (($current_page-1)*$per_page), $per_page);
-
-        $this->set_pagination_args([
-            'total_items' => $total_items,  //WE have to calculate the total number of items
-            'per_page'    => $per_page,     //WE have to determine how many items to show on a page
-        ]);
-
-        $lkn_wcip_columns = $this->get_columns();
-        $lkn_wcip_hidden = $this->get_hidden_columns();
-        $ldul_sortable = $this->get_sortable_columns();
-
-        $this->_column_headers = [$lkn_wcip_columns, $lkn_wcip_hidden, $ldul_sortable];
-        $this->proccess_bulk_action();
     }
 
     /**
@@ -1477,17 +1412,30 @@ class Lkn_Wcip_List_Table {
         if ($primary !== $column_name) {
             return '';
         }
-        $invoiceId = $item['lkn_wcip_id'];
+        $orderId = $item['lkn_wcip_id'];
 
-        $order = wc_get_order($invoiceId);
-
-        $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $invoiceId);
+        $order = wc_get_order($orderId);
+        
+        // Pega o id da fatura atual
+        $invoiceId = $order->get_meta('lkn_invoice_id');
+        $invoice = wc_get_order($invoiceId);
+        
+        $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $orderId);
         $paymentUrl = $order->get_checkout_payment_url();
 
+        if($order->get_meta('lkn_is_subscription')){
+            $editUrl = home_url('wp-admin/admin.php?page=edit-subscription&invoice=' . $orderId);
+            //Evita erros caso a primeira fatura ainda não foi gerada
+            if($invoice){
+                $paymentUrl = $invoice->get_checkout_payment_url();
+                $orderId = $invoiceId;
+            }
+        }
+        
         $action = [];
         $action['edit'] = '<a href="' . $editUrl . '">' . __('Edit') . '</a>';
         $action['payment'] = '<a href="' . $paymentUrl . '" target="_blank">' . __('Payment link', 'wc-invoice-payment') . '</a>';
-        $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$invoiceId' href='#'>" . __('Download invoice', 'wc-invoice-payment') . '</a>';
+        $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$orderId' href='#'>" . __('Download invoice', 'wc-invoice-payment') . '</a>';
 
         return $this->row_actions($action);
     }
@@ -1502,7 +1450,7 @@ class Lkn_Wcip_List_Table {
      *
      * @return array
      */
-    public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '', $invoiceList) {
+    public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '', $invoiceList, $showSubscriptions) {
         ?><section style="margin: 30px 0 0 0; ">
 			<?php
         $data_array = [];
@@ -1511,17 +1459,23 @@ class Lkn_Wcip_List_Table {
             $dateFormat = get_option('date_format');
 
             foreach ($invoiceList as $invoiceId) {
+                
                 $invoice = wc_get_order($invoiceId);
-                $dueDate = $invoice->get_meta('lkn_exp_date');
-                $dueDate = empty($dueDate) ? '-' : date($dateFormat, strtotime($dueDate));
-
-                $data_array[] = [
-                    'lkn_wcip_id' => $invoiceId,
-                    'lkn_wcip_client' => $invoice->get_billing_first_name(),
-                    'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
-                    'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
-                    'lkn_wcip_exp_date' => $dueDate,
-                ];
+                //Verifica se a opção desejada é igual ao valor que define se é uma assinatura
+                if($showSubscriptions == $invoice->get_meta('lkn_is_subscription')){
+                    $dueDate = $invoice->get_meta('lkn_exp_date');
+                    $dueDate = empty($dueDate) ? '-' : gmdate($dateFormat, strtotime($dueDate));
+                    $iniDate = $invoice->get_meta('lkn_ini_date');
+                    $iniDate = empty($iniDate) ? '-' : gmdate($dateFormat, strtotime($iniDate));
+                    $data_array[] = [
+                        'lkn_wcip_id' => $invoiceId,
+                        'lkn_wcip_client' => $invoice->get_billing_first_name(),
+                        'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
+                        'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
+                        'lkn_wcip_exp_date' => $dueDate,
+                        'lkn_wcip_ini_date' => $iniDate
+                    ];
+                }
             }
         } ?></section><?php
         usort($data_array, [$this, 'usort_reorder']);
@@ -1550,6 +1504,7 @@ class Lkn_Wcip_List_Table {
             'lkn_wcip_client'			=> __('Name', 'wc-invoice-payment'),
             'lkn_wcip_status'	=> __('Payment status', 'wc-invoice-payment'),
             'lkn_wcip_total_price'		=> __('Total', 'wc-invoice-payment'),
+            'lkn_wcip_ini_date' => __('Start date', 'wc-invoice-payment'),
             'lkn_wcip_exp_date' => __('Due date', 'wc-invoice-payment'),
         ];
 
@@ -1568,6 +1523,7 @@ class Lkn_Wcip_List_Table {
             case 'lkn_wcip_status':
             case 'lkn_wcip_total_price':
             case 'lkn_wcip_exp_date':
+            case 'lkn_wcip_ini_date':
                 return $item[$column_name];
             default:
                 return 'no list found';
@@ -1594,14 +1550,16 @@ class Lkn_Wcip_List_Table {
      * @return int $result
      */
     public function usort_reorder($a, $b) {
-        // If no sort, default to title
-        $orderby = (!empty($_GET['orderby'])) ? sanitize_text_field($_GET['orderby']) : 'lkn_wcip_id';
-        // If no order, default to desc
-        $order = (!empty($_GET['order'])) ? sanitize_text_field($_GET['order']) : 'desc';
-        // Determine sort order
-        $result = strcmp($a[$orderby], $b[$orderby]);
-        // Send final sort direction to usort
-        return ($order === 'asc') ? $result : -$result;
+        if(wp_verify_nonce($this->_nonce, 'validate_nonce')){
+            // If no sort, default to title
+            $orderby = (!empty($_GET['orderby'])) ? sanitize_text_field($_GET['orderby']) : 'lkn_wcip_id';
+            // If no order, default to desc
+            $order = (!empty($_GET['order'])) ? sanitize_text_field($_GET['order']) : 'desc';
+            // Determine sort order
+            $result = strcmp($a[$orderby], $b[$orderby]);
+            // Send final sort direction to usort
+            return ($order === 'asc') ? $result : -$result;
+        }
     }
 
     /**
@@ -1610,15 +1568,36 @@ class Lkn_Wcip_List_Table {
      * @return void
      */
     public function proccess_bulk_action() {
-        if ('delete' === $this->current_action()) {
-            $invoicesDelete = $_POST['invoices'];
+        if ('delete' === $this->current_action() && wp_verify_nonce( $_POST['nonce_action_field'], 'nonce_action' )) {
+            $invoicesDelete = array_map( 'sanitize_text_field', $_POST['invoices'] );
             $invoices = get_option('lkn_wcip_invoices');
 
             $invoices = array_diff($invoices, $invoicesDelete);
 
             for ($c = 0; $c < count($invoicesDelete); $c++) {
+            
                 $order = wc_get_order($invoicesDelete[$c]);
                 $order->delete();
+
+                // Excluindo evento cron
+                $invoice_id = $invoicesDelete[$c];
+                $scheduled_events = _get_cron_array();
+                // verifica todos os eventos agendados
+                foreach ($scheduled_events as $timestamp => $cron_events) {
+                    foreach ($cron_events as $hook => $events) {
+                        foreach ($events as $event) {
+                            // Verifique se o evento está associado ao seu gancho (hook)
+                            if ($hook === 'generate_invoice_event') {
+                                // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                                $event_args = $event['args'];
+                                if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                                    // Remova o evento do WP Cron
+                                    wp_unschedule_event($timestamp, $hook, $event_args);
+                                }
+                            }
+                        }
+                    }
+                }  
             }
             update_option('lkn_wcip_invoices', $invoices);
 

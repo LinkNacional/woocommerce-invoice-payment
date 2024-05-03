@@ -22,20 +22,28 @@ Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, pleas
 
 The Invoice Payment for WooCommerce plugin is now live and working.
 
-## User instructions
+## Usage
 
-1) Search the WordPress sidebar for 'Invoice Payment for WooCommerce';
+### Product Settings
 
-2) In the plugin options look for 'Add invoice';
+1) Within the product editing or creating page, enable the subscription option to configure recurring invoices.
+2) Specify the frequency of invoice generation according to your preferences.
 
-3) Fill in the customer data, currency, payment method and add the charges;
+### Invoices Settings
 
-4) If you want to send the invoice to the customer's email, select the 'Send invoice to customer' option in the invoice actions;
+1) In the WordPress sidebar, find and click on "Invoices".
+2) Configure default settings such as PDF template, logo URL, footer, sender details, and text preceding the payment link.
+3) To manually add an invoice, visit the "Add Invoice" page, where both standard and recurring invoices can be created.
 
-5) Click save;
+### Manual Invoice Creation
 
-You have created your first invoice with the Invoice Payment for WooCommerce plugin.
+1) Visit the "Add Invoice" page to manually create invoices.
+2) Choose between standard or recurring invoices, input necessary details, and save.
 
+### Subscription and Invoice Lists
+
+1) To list subscriptions click on "Subscriptions" in the WordPress sidebar.
+2) To list invoices click on "Invoices" in the WordPress sidebar.
 
 ## Development notes
 
