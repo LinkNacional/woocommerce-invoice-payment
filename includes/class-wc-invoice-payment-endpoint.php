@@ -2,7 +2,7 @@
 use WP_Error;
 use WP_REST_Response;
 
-class Wc_Payment_Invoice_Endpoint {
+final class Wc_Payment_Invoice_Endpoint {
     public function createInvoiceEndpoint(): void {
         register_rest_route('invoice_payments', '/create_invoice', array(
             'methods' => 'POST',
@@ -15,6 +15,5 @@ class Wc_Payment_Invoice_Endpoint {
         
         return new WP_REST_Response(wp_json_encode($parameters), 200);
     }
-    
-
 }
+
