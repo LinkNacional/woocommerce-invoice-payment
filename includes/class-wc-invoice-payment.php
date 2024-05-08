@@ -7,7 +7,7 @@
  * public-facing side of the site and the admin area.
  *
  * @see       https://www.linknacional.com/
- * @since      1.0.0
+ * @since      1.0.1
  */
 
 /**
@@ -19,7 +19,7 @@
  * Also maintains the unique identifier of this plugin as well as the current
  * version of the plugin.
  *
- * @since      1.0.0
+ * @since      1.0.1
  *
  * @author     Link Nacional
  */
@@ -201,8 +201,6 @@ final class Wc_Payment_Invoice
     private function define_admin_hooks(): void
     {
         $plugin_admin = new Wc_Payment_Invoice_Admin($this->get_plugin_name(), $this->get_version());
-        $email_verify = get_option("lkn_wcip_after_save_button_email_check");
-        echo $email_verify;
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
         $this->loader->add_action('lkn_wcip_cron_hook', $plugin_admin, 'check_invoice_exp_date', 10, 1);

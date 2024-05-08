@@ -204,7 +204,7 @@ final class Wc_Payment_Invoice_Admin
 
     public function render_settings_page(): void
     {
-        echo get_option("lkn_wcip_after_save_button_email_check");
+
         if (!current_user_can('manage_woocommerce') && wp_verify_nonce($_POST['lkn_wcip_settings_nonce'])) {
             return;
         }
@@ -1343,7 +1343,6 @@ final class Wc_Payment_Invoice_Admin
                     $productId = wc_get_product($product->get_id());
 
                     $order->add_product($productId);
-
                     // Delete after adding to prevent residue
                     $product->delete(true);
                 }
