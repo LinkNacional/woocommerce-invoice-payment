@@ -205,3 +205,6 @@ msgstr ""
 
 msgid "Cancel subscription"
 msgstr ""
+
+msgid "Enable/Disable email verification."
+msgstr ""
