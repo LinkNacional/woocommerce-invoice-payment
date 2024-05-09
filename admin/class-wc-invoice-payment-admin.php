@@ -310,7 +310,7 @@ final class Wc_Payment_Invoice_Admin
 
                             </div>
                             <div class="input-row-wrap input-row-wrap-global-settings">
-                                <label for="lkn_wcip_after_save_button_email_check"><?php echo esc_attr_e('Habilitar/Desabilitar verificação de e-mail:', "wc-invoice-payment") ?></label>
+                                <label for="lkn_wcip_after_save_button_email_check"><?php echo esc_attr_e('Enable/Disable email verification.', "wc-invoice-payment") ?></label>
                                 <input type="checkbox" name="lkn_wcip_after_save_button_email_check" id="lkn_wcip_after_save_button_email_check" <?php echo esc_attr("on" == $email_verify ? 'checked' : null); ?>>
                             </div>
                         </div>
