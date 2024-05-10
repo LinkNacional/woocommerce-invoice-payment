@@ -1,3 +1,6 @@
+# 1.5.1 - 10/05/2024
+* Fix PDF generation.
+
 # 1.5.0 - 08/05/2024
 * Add the due date to the invoice PDF.
 * Add configuration to enable and disable email verification.
