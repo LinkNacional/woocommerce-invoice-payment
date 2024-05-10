@@ -281,9 +281,13 @@ final class Wc_Payment_Invoice_Admin
 
 
                             <div class="input-row-wrap input-row-wrap-global-settings">
-                                <label for="lkn_wcip_payment_global_template">
+                                <label class="lkn_wcip_payment_global_template_label" for="lkn_wcip_payment_global_template">
                                     <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); ?>
+                                    <div class="lkn_wcip_payment_global_template_label_description">
+                                        <?php esc_attr_e('Only SVG, maximum resolution 800x800', 'wc-invoice-payment'); ?>
+                                    </div>
                                 </label>
+                                
                                 <input name="lkn_wcip_template_logo_url" id="lkn_wcip_template_logo_url" class="regular-text" type="url" value="<?php echo esc_attr($template_logo_url); ?>">
                                 <input name="lkn_wcip_settings_nonce" id="lkn_wcip_settings_nonce" type="hidden" value="<?php echo esc_attr(wp_create_nonce('settings_nonce')) ?>">
                             </div>

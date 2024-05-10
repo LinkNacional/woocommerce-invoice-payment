@@ -55,7 +55,7 @@ if (is_wp_error($response)) {
 } else {
     $data = wp_remote_retrieve_body($response);
     $type = wp_remote_retrieve_header($response, 'content-type');
-
+    
     $logo_base64 = 'data:' . $type . ';base64,' . base64_encode($data);
 }
 
@@ -91,12 +91,13 @@ ob_start();
                 <td id="invoice-details-column">
                     <p><strong><?php esc_html_e('Invoice', 'wc-invoice-payment'); ?></strong> <?php echo esc_attr("#$invoice_number"); ?></p>
                     <p><strong><?php esc_html_e('Date', 'wc-invoice-payment'); ?></strong> <?php echo esc_attr($invoice_created_at); ?></p>
-                    <?php if ($order_data) : ?>
+                    <?php if ($order_data) { ?>
                         <?php $order_date = new DateTime($order_data) ?>
                      
                        <p>
                         <strong> <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?></strong>
                         <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>  
+                    <?php }?>
                 </td>
                 
                 <td id="logo-td-container">
