@@ -65,7 +65,7 @@ if (is_wp_error($response)) {
 ob_start();
 QRcode::png($invoice_payment_link, null, QR_ECLEVEL_L, 10, 2, false, 0xFFFFFF, 0x000000);
 $qrCodeData = ob_get_clean();
-$order_data = $order->get_meta("a") == "1" ? false : $order->get_meta("lkn_exp_date");
+$order_data = $order->get_meta("lkn_exp_date") == "1" ? false : $order->get_meta("lkn_exp_date");
 
 
 $payment_link_qr_code = base64_encode($qrCodeData);

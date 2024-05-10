@@ -1404,7 +1404,6 @@ final class Wc_Payment_Invoice_Admin
                 if (isset($_POST['lkn_wcip_form_actions']) && sanitize_text_field($_POST['lkn_wcip_form_actions']) === 'send_email') {
                     WC()->mailer()->customer_invoice($order);
 
-                    // Note the event.
                     $order->add_order_note(__('Order details manually sent to customer.', 'woocommerce'), false, true);
                 }
                 // Success message
