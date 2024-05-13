@@ -1,3 +1,6 @@
+# 1.5.2 - 13/05/2024
+* Fix submenu Edit Invoice.
+
 # 1.5.1 - 10/05/2024
 * Fix PDF generation.
 

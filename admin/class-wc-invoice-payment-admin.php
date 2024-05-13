@@ -181,6 +181,7 @@ final class Wc_Payment_Invoice_Admin
             1
         );
 
+
         add_submenu_page(
             'wc-invoice-payment',
             __('List Subscriptions', 'wc-invoice-payment'),
@@ -287,7 +288,7 @@ final class Wc_Payment_Invoice_Admin
                                         <?php esc_attr_e('Only SVG, maximum resolution 800x800', 'wc-invoice-payment'); ?>
                                     </div>
                                 </label>
-                                
+
                                 <input name="lkn_wcip_template_logo_url" id="lkn_wcip_template_logo_url" class="regular-text" type="url" value="<?php echo esc_attr($template_logo_url); ?>">
                                 <input name="lkn_wcip_settings_nonce" id="lkn_wcip_settings_nonce" type="hidden" value="<?php echo esc_attr(wp_create_nonce('settings_nonce')) ?>">
                             </div>
@@ -344,6 +345,8 @@ final class Wc_Payment_Invoice_Admin
      */
     public function render_edit_invoice_page(): void
     {
+        wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', array(), $this->version, 'all');
+
         if (!current_user_can('manage_woocommerce')) {
             return;
         }
@@ -1015,16 +1018,18 @@ final class Wc_Payment_Invoice_Admin
         );
 
         add_action('load-' . $hookname, array($this, 'add_invoice_form_submit_handle'));
+        if (isset($_GET["invoice"])) {
+            $editHookname = add_submenu_page(
+                "wc-invoice-payment",
+                __('Edit invoice', 'wc-invoice-payment'),
+                __('Edit invoice', 'wc-invoice-payment'),
+                'manage_woocommerce',
+                'edit-invoice',
+                array($this, 'render_edit_invoice_page'),
+                1
+            );
+        }
 
-        $editHookname = add_submenu_page(
-            null,
-            __('Edit invoice', 'wc-invoice-payment'),
-            __('Edit invoice', 'wc-invoice-payment'),
-            'manage_woocommerce',
-            'edit-invoice',
-            array($this, 'render_edit_invoice_page'),
-            1
-        );
 
         add_action('load-' . $editHookname, array($this, 'edit_invoice_form_submit_handle'));
 
