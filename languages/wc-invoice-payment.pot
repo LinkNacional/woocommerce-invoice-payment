@@ -203,6 +203,12 @@ msgstr ""
 msgid "Edit subscription"
 msgstr ""
 
+msgid "Subscription actions"
+msgstr ""
+
+msgid "Subscription details"
+msgstr ""
+
 msgid "Cancel subscription"
 msgstr ""
 

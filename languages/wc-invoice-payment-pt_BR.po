@@ -203,6 +203,12 @@ msgstr "Criar faturas para produtos"
 msgid "Edit subscription"
 msgstr "Editar assinatura"
 
+msgid "Subscription actions"
+msgstr "Ações da assinatura"
+
+msgid "Subscription details"
+msgstr "Detalhes da assinatura"
+
 msgid "Cancel subscription"
 msgstr "Cancelar assinatura"
 
