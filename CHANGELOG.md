@@ -1,12 +1,8 @@
-# 1.5.2 - 13/05/2024
-* Fix submenu Edit Invoice.
-
-# 1.5.1 - 10/05/2024
-* Fix PDF generation.
-
 # 1.5.0 - 08/05/2024
 * Add the due date to the invoice PDF.
 * Add configuration to enable and disable email verification.
+* Fix PDF generation.
+* Fix submenu Edit Invoice.
 
 # 1.4.0 - 04/04/2024
 * Adjust escape variables and request methods to enhance security;
