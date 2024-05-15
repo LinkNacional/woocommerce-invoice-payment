@@ -6,7 +6,7 @@ const { __, _x, _n, sprintf } = wp.i18n
  *
  * @return void
  */
-function lkn_wcip_add_amount_row () {
+function lkn_wcip_add_amount_row() {
   const priceLines = document.getElementsByClassName('price-row-wrap')
   let lineQtd = priceLines.length
   const rowExists = document.getElementsByClassName('price-row-' + lineQtd)[0]
@@ -25,17 +25,17 @@ function lkn_wcip_add_amount_row () {
   container.appendChild(inputRow)
 
   inputRow.innerHTML =
-        '    <div class="input-row-wrap">' +
-        '        <label>' + __('Name', 'wc-invoice-payment') + '</label>' +
-        '        <input name="lkn_wcip_name_invoice_' + lineQtd + '" type="text" id="lkn_wcip_name_invoice_' + lineQtd + '"  class="regular-text" required>' +
-        '    </div>' +
-        '    <div class="input-row-wrap">' +
-        '        <label>' + __('Amount', 'wc-invoice-payment') + '</label>' +
-        '        <input name="lkn_wcip_amount_invoice_' + lineQtd + '" type="tel" id="lkn_wcip_amount_invoice_' + lineQtd + '" class="regular-text lkn_wcip_amount_input" oninput="lkn_wcip_filter_amount_input(this.value, ' + lineQtd + ')" required>' +
-        '    </div>' +
-        '    <div class="input-row-wrap">' +
-        '        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(' + lineQtd + ')"><span class="dashicons dashicons-trash"></span></button>' +
-        '    </div>'
+    '    <div class="input-row-wrap">' +
+    '        <label>' + __('Name', 'wc-invoice-payment') + '</label>' +
+    '        <input name="lkn_wcip_name_invoice_' + lineQtd + '" type="text" id="lkn_wcip_name_invoice_' + lineQtd + '"  class="regular-text" required>' +
+    '    </div>' +
+    '    <div class="input-row-wrap">' +
+    '        <label>' + __('Amount', 'wc-invoice-payment') + '</label>' +
+    '        <input name="lkn_wcip_amount_invoice_' + lineQtd + '" type="tel" id="lkn_wcip_amount_invoice_' + lineQtd + '" class="regular-text lkn_wcip_amount_input" oninput="lkn_wcip_filter_amount_input(this.value, ' + lineQtd + ')" required>' +
+    '    </div>' +
+    '    <div class="input-row-wrap">' +
+    '        <button type="button" class="btn btn-delete" onclick="lkn_wcip_remove_amount_row(' + lineQtd + ')"><span class="dashicons dashicons-trash"></span></button>' +
+    '    </div>'
 }
 
 /**
@@ -45,7 +45,7 @@ function lkn_wcip_add_amount_row () {
  *
  * @return void
  */
-function lkn_wcip_remove_amount_row (id) {
+function lkn_wcip_remove_amount_row(id) {
   const priceLines = document.getElementsByClassName('price-row-wrap')
   const lineQtd = priceLines.length
   if (lineQtd > 1) {
@@ -62,7 +62,7 @@ function lkn_wcip_remove_amount_row (id) {
  *
  * @return void
  */
-function lkn_wcip_filter_amount_input (val, row) {
+function lkn_wcip_filter_amount_input(val, row) {
   const filteredVal = val.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1')
   const inputAmount = document.getElementById('lkn_wcip_amount_invoice_' + row)
   inputAmount.value = filteredVal
@@ -73,14 +73,14 @@ function lkn_wcip_filter_amount_input (val, row) {
  *
  * @return void
  */
-function lkn_wcip_delete_invoice () {
+function lkn_wcip_delete_invoice() {
   if (confirm(__('Are you sure you want to delete the invoice?', 'wc-invoice-payment')) === true) {
     lkn_wcip_cancel_subscription(true)
     window.location.href += '&lkn_wcip_delete=true'
   }
 }
 
-function lkn_get_wp_base_url () {
+function lkn_get_wp_base_url() {
   const href = window.location.href
   const index = href.indexOf('/wp-admin')
   const homeUrl = href.substring(0, index)
@@ -88,59 +88,59 @@ function lkn_get_wp_base_url () {
 }
 
 function lkn_wcip_generate_invoice_pdf(invoiceId) {
-    fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
-        method: 'GET',
-        headers: {
-            'content-type': 'application/json',
-            'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
-        },
-        cache: 'no-store'
+  fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
+    },
+    cache: 'no-store'
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error()
+      }
+
+      return res.text() // Alterado para res.text() para obter a resposta como texto
     })
-        .then(res => {
-            if (!res.ok) {
-                throw new Error()
-            }
+    .then(data => {
+      const blob = base64toBlob(data) // Função para converter base64 em Blob
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
 
-            return res.text(); // Alterado para res.text() para obter a resposta como texto
-        })
-        .then(data => {
-            const blob = base64toBlob(data); // Função para converter base64 em Blob
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
+      link.href = url
+      link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf')
+      document.body.appendChild(link)
 
-            link.href = url;
-            link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf');
-            document.body.appendChild(link);
+      link.click()
 
-            link.click();
-
-            link.parentNode.removeChild(link);
-        })
-        .catch(error => {
-            window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
-            console.error(error)
-        });
+      link.parentNode.removeChild(link)
+    })
+    .catch(error => {
+      window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
+      console.error(error)
+    })
 }
 
 function base64toBlob(base64Data) {
-    const contentType = 'application/pdf';
-    const sliceSize = 512;
-    const byteCharacters = atob(base64Data);
-    const byteArrays = [];
+  const contentType = 'application/pdf'
+  const sliceSize = 512
+  const byteCharacters = atob(base64Data)
+  const byteArrays = []
 
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        const slice = byteCharacters.slice(offset, offset + sliceSize);
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize)
 
-        const byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-        }
-
-        const byteArray = new Uint8Array(byteNumbers);
-        byteArrays.push(byteArray);
+    const byteNumbers = new Array(slice.length)
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i)
     }
 
-    return new Blob(byteArrays, { type: contentType });
+    const byteArray = new Uint8Array(byteNumbers)
+    byteArrays.push(byteArray)
+  }
+
+  return new Blob(byteArrays, { type: contentType })
 }
 
 /**
@@ -148,7 +148,7 @@ function base64toBlob(base64Data) {
    * @param {HTMLSelectElement} selectTpl
    * @param {HTMLImageElement} imgPreview
    */
-function handlePreviewPdfTemplate (selectTpl, imgPreview) {
+function handlePreviewPdfTemplate(selectTpl, imgPreview) {
   const optionSelectedTemplate = selectTpl.options[selectTpl.selectedIndex]
   imgPreview.src = optionSelectedTemplate.dataset.previewUrl
 
@@ -181,7 +181,6 @@ function handlePreviewPdfTemplate (selectTpl, imgPreview) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const btnGenerateInvoicePdf = document.querySelectorAll('.lkn_wcip_generate_pdf_btn') ?? []
-
   btnGenerateInvoicePdf.forEach(btn => {
     btn.addEventListener('click', () => lkn_wcip_generate_invoice_pdf(btn.dataset.invoiceId))
   })
@@ -202,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * TinyMCE toolbar options doc: https://www.tiny.cloud/docs/advanced/available-toolbar-buttons/
  */
-function startTinyMce (elementId, btnSubmitId) {
+function startTinyMce(elementId, btnSubmitId) {
   wp.editor.initialize(elementId, {
     tinymce: {
       toolbar1: 'bold italic underline forecolor backcolor fontsizeselect link',
@@ -224,12 +223,12 @@ function startTinyMce (elementId, btnSubmitId) {
   })
 }
 
-function lkn_wcip_display_modal () {
+function lkn_wcip_display_modal() {
   const modal = document.querySelector('#lkn-wcip-share-modal')
   modal.style.display = modal.style.display ? '' : 'none'
 }
 
-function lkn_wcip_open_popup (platform, invoiceLink) {
+function lkn_wcip_open_popup(platform, invoiceLink) {
   const url = encodeURIComponent(invoiceLink)
   let popupUrl = ''
   const width = 600
@@ -250,14 +249,14 @@ function lkn_wcip_open_popup (platform, invoiceLink) {
   window.open(popupUrl, platform + 'Window', popupParams)
 }
 
-function lkn_wcip_copy_link () {
+function lkn_wcip_copy_link() {
   const linkInput = document.querySelector('#lkn-wcip-copy-input')
   linkInput.select()
   document.execCommand('copy')
   navigator.clipboard.writeText(linkInput.value)
 }
 
-function lkn_wcip_cancel_subscription (deleteSubscription = false) {
+function lkn_wcip_cancel_subscription(deleteSubscription = false) {
   const invoiceId = document.querySelector('.lkn_wcip_cancel_subscription_btn')?.getAttribute('data-invoice-id')
   const wcipRestNonce = document.querySelector('#wcip_rest_nonce')?.value
   const data = {
@@ -266,7 +265,7 @@ function lkn_wcip_cancel_subscription (deleteSubscription = false) {
     wcip_rest_nonce: wcipRestNonce
   }
   if (deleteSubscription) {
-    if(invoiceId){
+    if (invoiceId) {
       jQuery.post(ajaxurl, data, function (response) {
 
       })
@@ -278,17 +277,17 @@ function lkn_wcip_cancel_subscription (deleteSubscription = false) {
   }
 }
 
-//Função para adicionar e remover display none dos campos dependendo se a fatura é uma assinatura
-function lkn_wcip_display_subscription_inputs(){
-  const checkbox = document.querySelector('#lkn_wcip_subscription_product');
-  const intervalElement = document.querySelector('#lkn_wcip_subscription_interval');
-  intervalElement.style.display = 'none';
+// Função para adicionar e remover display none dos campos dependendo se a fatura é uma assinatura
+function lkn_wcip_display_subscription_inputs() {
+  const checkbox = document.querySelector('#lkn_wcip_subscription_product')
+  const intervalElement = document.querySelector('#lkn_wcip_subscription_interval')
+  intervalElement.style.display = 'none'
 
-  checkbox.addEventListener('change', function() {
-      if (checkbox.checked) {
-          intervalElement.style.display = '';
-      } else {
-          intervalElement.style.display = 'none';
-      }
-  });
+  checkbox.addEventListener('change', function () {
+    if (checkbox.checked) {
+      intervalElement.style.display = ''
+    } else {
+      intervalElement.style.display = 'none'
+    }
+  })
 }

@@ -276,3 +276,12 @@
 .lkn_wcip_subscription_interval_div {
 	display: flex;
 }
+
+.lkn_wcip_payment_global_template_label {
+	display: flex;
+	flex-direction: column;
+}
+
+.lkn_wcip_payment_global_template_label_description {
+	font-size: small;
+}

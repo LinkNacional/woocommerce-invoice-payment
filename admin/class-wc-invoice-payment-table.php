@@ -831,6 +831,7 @@ class Lkn_Wcip_List_Table {
     protected function get_sortable_columns() {
         $sortable_columns = [
             'lkn_wcip_id'  => ['lkn_wcip_id', false],
+            'lkn_wcip_client' => ['lkn_wcip_client', false], 
             'lkn_wcip_status' => ['lkn_wcip_status', false],
             'lkn_wcip_exp_date' => ['lkn_wcip_exp_date', false]
         ];

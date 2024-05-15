@@ -1,10 +1,14 @@
 <?php
 
 /**  @var WC_Order $order */
+
+use Give\Framework\FieldsAPI\Date;
+
 /**  @var int $invoice_id */
 require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/libs/phpqrcode.php';
 
-function to_wc_monetary_format(float $amount): string {
+function to_wc_monetary_format(float $amount): string
+{
     return number_format(
         $amount,
         wc_get_price_decimals(),
@@ -35,7 +39,7 @@ $invoice_items_html = implode(
         <td>{$order_currency} {$item_price}</td>
     </tr>
 HTML;
-    }, $items )
+    }, $items)
 );
 
 $wcip_extra_data = $order->get_meta('wcip_extra_data');
@@ -53,7 +57,7 @@ if (is_wp_error($response)) {
 } else {
     $data = wp_remote_retrieve_body($response);
     $type = wp_remote_retrieve_header($response, 'content-type');
-    
+
     $logo_base64 = 'data:' . $type . ';base64,' . base64_encode($data);
 }
 
@@ -61,6 +65,8 @@ if (is_wp_error($response)) {
 ob_start();
 QRcode::png($invoice_payment_link, null, QR_ECLEVEL_L, 10, 2, false, 0xFFFFFF, 0x000000);
 $qrCodeData = ob_get_clean();
+$order_data = $order->get_meta("lkn_exp_date") == "1" ? false : $order->get_meta("lkn_exp_date");
+
 
 $payment_link_qr_code = base64_encode($qrCodeData);
 
@@ -75,10 +81,7 @@ ob_start();
 <head>
     <title><?php echo esc_attr($document_title); ?></title>
     <meta charset="utf-8" />
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, user-scalable=1"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1" />
     <style>
         <?php include __DIR__ . '/styles.css'; ?>
     </style>
@@ -89,10 +92,7 @@ ob_start();
         <table>
             <tr>
                 <td id="logo-td-container">
-                    <img
-                        src="<?php echo esc_attr($logo_base64); ?>"
-                        width="160"
-                    >
+                    <img src="<?php echo esc_attr($logo_base64); ?>" width="160">
                 </td>
             </tr>
         </table>
@@ -141,6 +141,17 @@ ob_start();
                             <?php echo esc_attr($invoice_created_at); ?>
                         </td>
                     </tr>
+                    <?php if ($order_data) : ?>
+                        <?php $order_date = new DateTime($order_data) ?>
+                        <tr>
+                            <td>
+                                <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?>
+                            </td>
+                            <td>
+                                <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
                 </table>
             </td>
         </tr>
@@ -177,11 +188,7 @@ ob_start();
                 <?php echo wp_kses_post(get_option('lkn_wcip_text_before_payment_link')); ?>
                 <span id="payment-link-container"><?php echo esc_attr($invoice_payment_link); ?></span>
             </figcaption>
-            <img
-                src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>"
-                width="180"
-                height="180"
-            >
+            <img src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>" width="180" height="180">
         </figure>
     </section>
 
