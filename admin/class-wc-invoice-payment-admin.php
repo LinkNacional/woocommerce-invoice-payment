@@ -1581,7 +1581,6 @@ final class Wc_Payment_Invoice_Admin {
                     $order->add_order_note(__('Order details manually sent to customer.', 'woocommerce'), false, true);
                 }
 
-                // FIXME redirecionamento para pagina de assinturas com uma mensagem 
                 if($isSubscription){
                     $message = urlencode(__('Subscription successfully saved', 'wc-invoice-payment'));
 
