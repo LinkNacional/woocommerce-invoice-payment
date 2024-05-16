@@ -110,6 +110,7 @@ final class Wc_Payment_Invoice_Admin {
         if (
             strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_new-invoice' === $hook
             || strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_settings' === $hook
+            || strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_wc-subscription-payment' === $hook
             || 'toplevel_page_wc-invoice-payment' === $hook
             || 'admin_page_edit-invoice' === $hook
             || 'admin_page_edit-subscription' === $hook
@@ -394,6 +395,8 @@ final class Wc_Payment_Invoice_Admin {
         }, $templates_list));
 
         $currencies = get_woocommerce_currencies();
+        $currency_codes = array_keys($currencies);
+        sort($currency_codes);
 
         $gateways = WC()->payment_gateways->payment_gateways();
         $enabled_gateways = array();
@@ -465,11 +468,14 @@ final class Wc_Payment_Invoice_Admin {
 							for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
 						<select name="lkn_wcip_currency" id="lkn_wcip_currency_input" class="regular-text">
 							<?php
-                                        foreach ($currencies as $code => $currency) {
+                                        foreach ($currency_codes as $code) {
+                                            $currency_name = $currencies[$code];
+                                            $selected = ($order->get_currency() === $code) ? 'selected' : ''; // Verifica se a opção deve ser selecionada
+
                                             if ($order->get_currency() === $code) {
-                                                echo '<option value="' . esc_attr($code) . '" selected>' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                                                echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                             } else {
-                                                echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                                                echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                             }
                                         } ?>
 						</select>
@@ -785,6 +791,8 @@ final class Wc_Payment_Invoice_Admin {
         }, $templates_list));
 
         $currencies = get_woocommerce_currencies();
+        $currency_codes = array_keys($currencies);
+        sort($currency_codes);
 
         $gateways = WC()->payment_gateways->payment_gateways();
         $enabled_gateways = array();
@@ -853,11 +861,14 @@ final class Wc_Payment_Invoice_Admin {
 							for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
 						<select name="lkn_wcip_currency" id="lkn_wcip_currency_input" class="regular-text">
 							<?php
-                                    foreach ($currencies as $code => $currency) {
+                                    foreach ($currency_codes as $code) {
+                                        $currency_name = $currencies[$code];
+                                        $selected = ($order->get_currency() === $code) ? 'selected' : ''; // Verifica se a opção deve ser selecionada
+
                                         if ($order->get_currency() === $code) {
-                                            echo '<option value="' . esc_attr($code) . '" selected>' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                                            echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                         } else {
-                                            echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                                            echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                         }
                                     } ?>
 						</select>
@@ -1104,6 +1115,13 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
+        
+        if (isset($_GET['message'])) {
+            // Decodifica a mensagem recebida na URL
+            $decoded_message = urldecode($_GET['message']);
+            
+            echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
+        }
         ?>
 <form id="invoices-filter" method="POST">
 	<input id="wcip_rest_nonce" type="hidden"
@@ -1176,6 +1194,9 @@ final class Wc_Payment_Invoice_Admin {
         wp_enqueue_editor();
 
         $currencies = get_woocommerce_currencies();
+        $currency_codes = array_keys($currencies);
+        sort($currency_codes);
+        
         $active_currency = get_woocommerce_currency();
 
         $gateways = WC()->payment_gateways->payment_gateways();
@@ -1259,11 +1280,12 @@ final class Wc_Payment_Invoice_Admin {
 							for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
 						<select name="lkn_wcip_currency" id="lkn_wcip_currency_input" class="regular-text">
 							<?php
-                                    foreach ($currencies as $code => $currency) {
+                                    foreach ($currency_codes as $code) {
+                                        $currency_name = $currencies[$code];
                                         if ($active_currency === $code) {
-                                            echo '<option value="' . esc_attr($code) . '" selected>' . esc_html($currency . ' - ' . $code) . '</option>';
+                                            echo '<option value="' . esc_attr($code) . '" ' . 'selected' . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                         } else {
-                                            echo '<option value="' . esc_attr($code) . '">' . esc_html($currency . ' - ' . $code) . '</option>';
+                                            echo '<option value="' . esc_attr($code) . '">' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                         }
                                     } ?>
 						</select>
@@ -1558,6 +1580,16 @@ final class Wc_Payment_Invoice_Admin {
 
                     $order->add_order_note(__('Order details manually sent to customer.', 'woocommerce'), false, true);
                 }
+
+                // FIXME redirecionamento para pagina de assinturas com uma mensagem 
+                if($isSubscription){
+                    $message = urlencode(__('Subscription successfully saved', 'wc-invoice-payment'));
+
+                    // Redireciona para a página desejada com o parâmetro 'message'
+                    wp_redirect(admin_url('admin.php?page=wc-subscription-payment&message=' . $message));
+                    exit;
+                }
+
                 // Success message
                 echo '<div class="lkn_wcip_notice_positive">' . esc_html(__('Invoice successfully saved', 'wc-invoice-payment')) . '</div>';
             } else {

@@ -203,6 +203,9 @@ msgstr ""
 msgid "Edit subscription"
 msgstr ""
 
+msgid "Invoice successfully saved"
+msgstr ""
+
 msgid "Subscription actions"
 msgstr ""
 
