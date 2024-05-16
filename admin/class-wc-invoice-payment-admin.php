@@ -346,6 +346,7 @@ final class Wc_Payment_Invoice_Admin {
      */
     public function render_edit_invoice_page(): void {
         wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', array(), $this->version, 'all');
+        wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array(), $this->version, 'all');
 
         if ( ! current_user_can('manage_woocommerce')) {
             return;
@@ -741,6 +742,8 @@ final class Wc_Payment_Invoice_Admin {
      * Render html page for subscription edit.
      */
     public function render_edit_subscription_page(): void {
+        wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array(), $this->version, 'all');
+
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
@@ -1156,17 +1159,17 @@ final class Wc_Payment_Invoice_Admin {
         );
 
         add_action('load-' . $hookname, array($this, 'add_invoice_form_submit_handle'));
-        if (isset($_GET["invoice"])) {
-            $editHookname = add_submenu_page(
-                "wc-invoice-payment",
-                __('Edit invoice', 'wc-invoice-payment'),
-                __('Edit invoice', 'wc-invoice-payment'),
-                'manage_woocommerce',
-                'edit-invoice',
-                array($this, 'render_edit_invoice_page'),
-                1
-            );
-        }
+        
+        
+        $editHookname = add_submenu_page(
+            null,
+            __('Edit invoice', 'wc-invoice-payment'),
+            __('Edit invoice', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'edit-invoice',
+            array($this, 'render_edit_invoice_page'),
+            1
+        );
 
         add_action('load-' . $editHookname, array($this, 'edit_invoice_form_submit_handle'));
 
