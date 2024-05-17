@@ -550,10 +550,12 @@ final class Wc_Payment_Invoice_Admin {
 							value="<?php echo esc_attr($order->get_meta('lkn_exp_date')); ?>"
 							min="<?php echo esc_attr(gmdate('Y-m-d')); ?>">
 					</div>
-					<div class="input-row-wrap">
+					<div class="input-column-wrap">
 						<a class="lkn_wcip_generate_pdf_btn" href="#"
 							data-invoice-id="<?php echo esc_attr($invoiceId); ?>"><?php esc_attr_e('Download invoice', 'wc-invoice-payment'); ?></a>
-					</div>
+                            &nbsp
+                            <span class="dashicons dashicons-image-rotate"></span>
+                    </div>
 				</div>
 				<?php
                         if ('pending' === $orderStatus) {

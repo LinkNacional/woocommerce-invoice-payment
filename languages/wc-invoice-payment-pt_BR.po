@@ -217,3 +217,6 @@ msgstr "Cancelar assinatura"
 
 msgid "Enable/Disable email verification."
 msgstr "Habilitar/Desabilitar verificação de email."
+
+msgid "Your download will begin shortly. Please wait a moment."
+msgstr "O seu download será iniciado em breve. Por favor, aguarde um momento."

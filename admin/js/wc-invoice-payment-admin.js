@@ -88,6 +88,12 @@ function lkn_get_wp_base_url() {
 }
 
 function lkn_wcip_generate_invoice_pdf(invoiceId) {
+  window.alert(__('Your download will begin shortly. Please wait a moment.', 'wc-invoice-payment'))
+
+  const loadingIcon = document.querySelector('.dashicons-image-rotate')
+  if (loadingIcon) {
+    loadingIcon.style.display = 'block'
+  }
   fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
     method: 'GET',
     headers: {
@@ -115,10 +121,17 @@ function lkn_wcip_generate_invoice_pdf(invoiceId) {
       link.click()
 
       link.parentNode.removeChild(link)
+
+      if (loadingIcon) {
+        loadingIcon.style.display = 'none'
+      }
     })
     .catch(error => {
       window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
       console.error(error)
+      if (loadingIcon) {
+        loadingIcon.style.display = 'none'
+      }
     })
 }
 
