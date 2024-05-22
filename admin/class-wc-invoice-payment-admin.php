@@ -210,7 +210,7 @@ final class Wc_Payment_Invoice_Admin {
             $default_footer = wp_kses_post($_POST['lkn_wcip_default_footer']);
             $sender_details = wp_kses_post($_POST['lkn_wcip_sender_details']);
             $text_before_payment_link = wp_kses_post($_POST['lkn_wcip_text_before_payment_link']);
-            $email_verify = isset($_POST["lkn_wcip_after_save_button_email_check"]) ? "on" : false;
+            $email_verify = isset($_POST["lkn_wcip_after_save_button_email_check"]);
 
             update_option('lkn_wcip_global_pdf_template_id', $global_pdf_template);
             update_option('lkn_wcip_template_logo_url', $template_logo_url);
@@ -313,13 +313,15 @@ final class Wc_Payment_Invoice_Admin {
 							id="lkn_wcip_text_before_payment_link"><?php echo esc_html($text_before_payment_link); ?></textarea>
 
 					</div>
-					<div class="input-row-wrap input-row-wrap-global-settings">
-						<label
-							for="lkn_wcip_after_save_button_email_check"><?php echo esc_attr_e('Enable/Disable email verification.', "wc-invoice-payment") ?></label>
-						<input type="checkbox" name="lkn_wcip_after_save_button_email_check"
-							id="lkn_wcip_after_save_button_email_check"
-							<?php echo esc_attr("on" == $email_verify ? 'checked' : null); ?>>
-					</div>
+					<div class="input-column-wrap input-row-wrap-global-settings">
+                        <input type="checkbox" 
+                            name="lkn_wcip_after_save_button_email_check"
+                            id="lkn_wcip_after_save_button_email_check"
+                            <?php if ($email_verify) echo 'checked'; ?>>
+                        <label for="lkn_wcip_after_save_button_email_check">
+                            <?php esc_attr_e('Select the checkbox to enable email verification.', 'wc-invoice-payment'); ?>
+                        </label>
+                    </div>
 				</div>
 			</div>
 			<div class="action-btn">

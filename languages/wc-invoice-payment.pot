@@ -220,3 +220,6 @@ msgstr ""
 
 msgid "Your download will begin shortly. Please wait a moment."
 msgstr ""
+
+msgid "Select the checkbox to enable email verification."
+msgstr ""

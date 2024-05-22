@@ -220,3 +220,6 @@ msgstr "Habilitar/Desabilitar verificação de email."
 
 msgid "Your download will begin shortly. Please wait a moment."
 msgstr "O seu download será iniciado em breve. Por favor, aguarde um momento."
+
+msgid "Select the checkbox to enable email verification."
+msgstr "Marque a caixa de seleção para ativar a verificação de e-mail."

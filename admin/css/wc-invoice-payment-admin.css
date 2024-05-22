@@ -41,7 +41,7 @@
     flex-direction: row;
     padding: 6px 0px;
     flex-wrap: nowrap;
-    align-items: center;
+	align-items: flex-end;
 }
 
 @keyframes spin {
