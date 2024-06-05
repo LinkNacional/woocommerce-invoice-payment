@@ -148,6 +148,9 @@ class Wc_Payment_Invoice_Subscription{
     }
 
     function validate_product( $order_id ) {
+        if(gettype($order_id) == "object"){
+            $order_id = $order_id->id;
+        }
         if(get_option("active_product_invoices") == "yes"){
 
             $order = wc_get_order( $order_id );
