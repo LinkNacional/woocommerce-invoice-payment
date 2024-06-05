@@ -65,6 +65,9 @@ msgstr "Preço"
 msgid "Add invoice"
 msgstr "Adicionar fatura"
 
+msgid "Add subscription"
+msgstr "Adicionar assinatura"
+
 msgid "Payment status"
 msgstr "Status de pagamento"
 

@@ -1452,14 +1452,21 @@ final class Lkn_Wcip_List_Table {
         ?>
 <section style="margin: 20px 0 0 0; ">
     <?php
-    if (!$showSubscriptions) {
-        $editUrl = home_url('wp-admin/admin.php?page=new-invoice');
-        ?>
-        <div>
-            <a href="<?php echo $editUrl; ?>" class="button button-primary"><?php echo __('Add invoice', 'wc-invoice-payment'); ?></a>
-        </div>
-        <?php
-    }
+        if (!$showSubscriptions) {
+            $editUrl = home_url('wp-admin/admin.php?page=new-invoice');
+            ?>
+            <div>
+                <a href="<?php echo $editUrl; ?>" class="button button-primary"><?php echo __('Add invoice', 'wc-invoice-payment'); ?></a>
+            </div>
+            <?php
+        }else{
+            $editUrl = home_url('wp-admin/admin.php?page=new-invoice&invoiceChecked=\"active\"');
+            ?>
+            <div>
+                <a href="<?php echo $editUrl; ?>" class="button button-primary"><?php echo __('Add subscription', 'wc-invoice-payment'); ?></a>
+            </div>
+            <?php
+        }
     ?>
     
 	<?php

@@ -295,6 +295,12 @@ function lkn_wcip_display_subscription_inputs() {
   const checkbox = document.querySelector('#lkn_wcip_subscription_product')
   const intervalElement = document.querySelector('#lkn_wcip_subscription_interval')
   intervalElement.style.display = 'none'
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const invoiceChecked = urlParams.get('invoiceChecked');
+  if (invoiceChecked) {
+    intervalElement.style.display = ''
+  }
 
   checkbox.addEventListener('change', function () {
     if (checkbox.checked) {

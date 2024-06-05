@@ -223,3 +223,6 @@ msgstr ""
 
 msgid "Select the checkbox to enable email verification."
 msgstr ""
+
+msgid "Add subscription"
+msgstr ""

@@ -1197,6 +1197,9 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
+        if (isset($_GET['invoiceChecked'])){
+            $invoiceChecked = 'checked';
+        }
 
         wp_enqueue_editor();
 
@@ -1363,7 +1366,7 @@ final class Wc_Payment_Invoice_Admin {
 				<div class="input-row-wrap">
 					<label for="lkn_wcip_subscription_product">
 						Assinatura:
-						<input type="checkbox" name="lkn_wcip_subscription_product" id="lkn_wcip_subscription_product">
+						<input type="checkbox" name="lkn_wcip_subscription_product" id="lkn_wcip_subscription_product" <?php echo esc_attr($invoiceChecked) ?> >
 					</label>
 				</div>
 				<div class="input-row-wrap" id="lkn_wcip_subscription_interval">
