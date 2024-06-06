@@ -1871,7 +1871,7 @@ final class Wc_Payment_Invoice_Admin {
 
                 update_option('lkn_wcip_invoices', $invoices);
 
-                $scheduled_events = _get_cron_array(); //TODO Apenas deletar o cron lkn_wcip_cron_hook
+                $scheduled_events = _get_cron_array();
                 // verifica todos os eventos agendados
                 foreach ($scheduled_events as $timestamp => $cron_events) {
                     foreach ($cron_events as $hook => $events) {

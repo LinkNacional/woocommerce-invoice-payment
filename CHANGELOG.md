@@ -1,3 +1,14 @@
+# 1.6.0 - 06/06/2024
+* Adicionar Feedback visual ao clicar no botão de baixar faturas; 
+* Adicionar alerta na criação de assinaturas; 
+* Adicionar botão para criar fatura na página de listar faturas;
+* Adicionar botão para criar assinatura na página de listar assinaturas;
+* Corrigir listagem de moedas nas configurações da fatura;
+* Corrigir bug ao clicar na seção de editar faturas; 
+* Corrigir bug no select de templates mostrando a mesma imagem;
+* Corrigir função para adicionar e excluir eventos cron;
+* Corrigir label de habilitar página de login de faturas.
+
 # 1.5.0 - 08/05/2024
 * Adicionar a data de vencimento ao PDF da fatura.
 * Adicionar configuração para habilitar e desabilitar a verificação de e-mail.
