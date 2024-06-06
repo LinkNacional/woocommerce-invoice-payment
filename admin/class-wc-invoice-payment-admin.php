@@ -776,6 +776,7 @@ final class Wc_Payment_Invoice_Admin {
 
         $c = 0;
         $order = wc_get_order($invoiceId);
+        add_option('teste order wc get'. uniqid(), json_encode(get_post_meta( $invoiceId, 'lkn_wcip_subscription_limit'))); //TODO criar forma para conseguir o campo lkn_wcip_subscription_limit diretamente da ordem
 
         $productID = $order->get_meta_data('lkn_product_id');
 
@@ -1363,12 +1364,27 @@ final class Wc_Payment_Invoice_Admin {
 					<input id="lkn_wcip_exp_date_input" type="date" name="lkn_wcip_exp_date"
 						min="<?php echo esc_attr(gmdate('Y-m-d')); ?>">
 				</div>
-				<div class="input-row-wrap">
+				<div class="input-row-wrap" id="twoCheckboxDiv">
 					<label for="lkn_wcip_subscription_product">
 						Assinatura:
 						<input type="checkbox" name="lkn_wcip_subscription_product" id="lkn_wcip_subscription_product" <?php echo esc_attr($invoiceChecked) ?> >
-					</label>
-				</div>
+					</label>					
+                    <?php 
+                        woocommerce_wp_checkbox(
+                            array(
+                                'id' => 'lkn_wcip_subscription_limit_checkbox',
+                                'name' => 'lkn_wcip_subscription_limit_checkbox',
+                                'label' => __('Subscription limit:', 'woocommerce') . ' ',
+                                'value' => 0,
+                                'type' => 'number',
+                                'custom_attributes' => array(
+                                    'min'  => '0',
+                                    'step' => '1.0',
+                                ),
+                            )
+                        );
+                    ?>
+				</div>  
 				<div class="input-row-wrap" id="lkn_wcip_subscription_interval">
 					<label
 						for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Subscription Interval', 'wc-invoice-payment'); ?></label>
@@ -1391,6 +1407,23 @@ final class Wc_Payment_Invoice_Admin {
 						</select>
 					</div>
 				</div>
+                <?php
+                woocommerce_wp_text_input(
+                    array(
+                        'id' => 'lkn_wcip_subscription_limit',
+                        'name' => 'lkn_wcip_subscription_limit',
+                        'label' => __('Subscription limit', 'woocommerce'),
+                        'desc_tip' => 'true',
+                        'description' => __('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'woocommerce'),
+                        'value' => 0,
+                        'type' => 'number',
+                        'custom_attributes' => array(
+                            'min'  => '0',
+                            'step' => '1.0',
+                        ),
+                    )
+                );
+                ?>
 			</div>
 			<script>
 				//Valida se a checkbox de assinatura está ativada para mostrar campos

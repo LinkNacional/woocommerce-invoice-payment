@@ -265,6 +265,13 @@
 	margin: 0px 7px 0px 0px !important;
 }
 
+#twoCheckboxDiv {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 17px;
+}
+
 #lkn-wcip-share-title {
 	text-align: start;
 }

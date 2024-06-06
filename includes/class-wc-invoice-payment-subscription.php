@@ -90,8 +90,10 @@ class Wc_Payment_Invoice_Subscription{
         global $post;
         $subscription_number = get_post_meta( $post->ID, 'lkn_wcip_subscription_interval_number', true );
         $subscription_interval = get_post_meta( $post->ID, 'lkn_wcip_subscription_interval_type', true );
+        $subscription_limit = get_post_meta( $post->ID, 'lkn_wcip_subscription_limit', true );
+        $subscription_limit = empty($subscription_limit) ? 0 : $subscription_limit;
         //Caso nenhum exista o padrão será 1 mês
-        if(!$subscription_number && !$subscription_interval){
+        if(empty($subscription_number) && empty($subscription_interval)){
             $subscription_number = 1;
             $subscription_interval = 'month';
         }
@@ -118,6 +120,24 @@ class Wc_Payment_Invoice_Subscription{
                     ?>
                 </select>
             </p>
+            <?php
+               
+                woocommerce_wp_text_input(
+                    array(
+                        'id' => 'lkn_wcip_subscription_limit',
+                        'name' => 'lkn_wcip_subscription_limit',
+                        'label' => __('Subscription limit', 'woocommerce'),
+                        'desc_tip' => 'true',
+                        'description' => __('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'woocommerce'),
+                        'value' => $subscription_limit,
+                        'type' => 'number',
+                        'custom_attributes' => array(
+                            'min'  => '0',
+                            'step' => '1.0',
+                        ),
+                    )
+                );
+            ?>
         </div>
         <?php
         wp_enqueue_script('custom-admin-js', plugin_dir_url(__FILE__) . '../admin/js/wc-invoice-payment-subscription.js', array('jquery'), '1.4.0', true);
@@ -136,6 +156,11 @@ class Wc_Payment_Invoice_Subscription{
             if ( isset( $_POST['lkn_wcip_subscription_interval_type'] ) ) {
                 $subscription_interval = sanitize_text_field( $_POST['lkn_wcip_subscription_interval_type'] );
                 update_post_meta( $post_id, 'lkn_wcip_subscription_interval_type', $subscription_interval );
+            }
+
+            if ( isset( $_POST['lkn_wcip_subscription_limit'] ) ) {
+                $subscription_limit = sanitize_text_field( $_POST['lkn_wcip_subscription_limit'] );
+                update_post_meta( $post_id, 'lkn_wcip_subscription_limit', $subscription_limit );
             }
     
             if ( isset( $_POST['_lkn-wcip-subscription-product'] ) ) {

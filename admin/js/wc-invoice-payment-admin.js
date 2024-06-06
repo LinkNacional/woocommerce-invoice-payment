@@ -292,21 +292,39 @@ function lkn_wcip_cancel_subscription(deleteSubscription = false) {
 
 // Função para adicionar e remover display none dos campos dependendo se a fatura é uma assinatura
 function lkn_wcip_display_subscription_inputs() {
-  const checkbox = document.querySelector('#lkn_wcip_subscription_product')
-  const intervalElement = document.querySelector('#lkn_wcip_subscription_interval')
-  intervalElement.style.display = 'none'
+  const subscription = document.querySelector('#lkn_wcip_subscription_product')
+  const intervalElementSubscription = document.querySelector('#lkn_wcip_subscription_interval')
+  const subscriptionLimit = document.querySelector('#lkn_wcip_subscription_limit_checkbox')
+  const intervalElementSubscriptionLimit = document.querySelector('.lkn_wcip_subscription_limit_field')
+
+  intervalElementSubscription.style.display = 'none'
+  intervalElementSubscriptionLimit.style.display = 'none'
+
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const invoiceChecked = urlParams.get('invoiceChecked');
   if (invoiceChecked) {
-    intervalElement.style.display = ''
+    intervalElementSubscription.style.display = ''
   }
 
-  checkbox.addEventListener('change', function () {
-    if (checkbox.checked) {
-      intervalElement.style.display = ''
+  subscription.addEventListener('change', function () {
+    if (subscription.checked) {
+      intervalElementSubscription.style.display = ''
     } else {
-      intervalElement.style.display = 'none'
+      intervalElementSubscription.style.display = 'none'
+    }
+  })
+
+  subscriptionLimit.addEventListener('change', function () {
+    if (subscriptionLimit.checked) {
+      intervalElementSubscriptionLimit.style.display = ''
+    } else {
+      intervalElementSubscriptionLimit.style.display = 'none'
     }
   })
 }
+jQuery(document).ready(function ($) {
+  $('.woocommerce-help-tip').on('mouseover', function () {
+    $(this).attr('title', $(this).attr('aria-label'));
+  });
+});
