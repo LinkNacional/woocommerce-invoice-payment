@@ -730,7 +730,7 @@ final class Wc_Payment_Invoice_Admin {
                     if ('generate_invoice_event' === $hook) {
                         // Verifique se os argumentos do evento contêm o invoiceId
                         $event_args = $event['args'];
-                        if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
+                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
                             // O invoiceId está agendado, então retorne verdadeiro
                             return true;
                         }
@@ -945,18 +945,18 @@ final class Wc_Payment_Invoice_Admin {
 					</div>
 					<div class="input-row-wrap">
 						<?php
-                                // Verifique se o invoiceId está agendado
+                            // Verifique se o invoiceId está agendado
 
-                                if ($this->is_invoice_id_scheduled($invoiceId)) {
-                                    // O invoiceId está agendado, exiba o link para cancelar a assinatura
-                                    ?>
-						<a class="lkn_wcip_cancel_subscription_btn" href="#" onclick="lkn_wcip_cancel_subscription()"
-							data-invoice-id="<?php echo esc_attr($invoiceId); ?>">
-							<?php esc_attr_e('Cancel subscription', 'wc-invoice-payment'); ?>
-						</a>
-						<?php
-                                }
-        ?>
+                            if ($this->is_invoice_id_scheduled($invoiceId)) {
+                            // O invoiceId está agendado, exiba o link para cancelar a assinatura
+                        ?>
+                            <a class="lkn_wcip_cancel_subscription_btn" href="#" onclick="lkn_wcip_cancel_subscription()"
+                                data-invoice-id="<?php echo esc_attr($invoiceId); ?>">
+                                <?php esc_attr_e('Cancel subscription', 'wc-invoice-payment'); ?>
+                            </a>
+                        <?php
+                            }
+                        ?>
 					</div>
 				</div>
 			</div>
@@ -1871,8 +1871,25 @@ final class Wc_Payment_Invoice_Admin {
 
                 update_option('lkn_wcip_invoices', $invoices);
 
+                $scheduled_events = _get_cron_array(); //TODO Apenas deletar o cron lkn_wcip_cron_hook
+                // verifica todos os eventos agendados
+                foreach ($scheduled_events as $timestamp => $cron_events) {
+                    foreach ($cron_events as $hook => $events) {
+                        foreach ($events as $event) {
+                            // Verifique se o evento está associado ao seu gancho (hook)
+                            if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
+                                // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                                $event_args = $event['args'];
+                                if (is_array($event_args) && in_array($invoiceDelete[0], $event_args)) {
+                                    // Remova o evento do WP Cron
+                                    wp_unschedule_event($timestamp, $hook, $event_args);
+                                }
+                            }
+                        }
+                    }
+                }
                 // Redirect to invoice list
-                wp_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
+                wp_redirect(home_url('wp-admin/admin.php?page=wc-subscription-payment'));
             } else {
                 // Show error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';

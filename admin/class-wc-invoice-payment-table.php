@@ -1603,10 +1603,10 @@ final class Lkn_Wcip_List_Table {
                     foreach ($cron_events as $hook => $events) {
                         foreach ($events as $event) {
                             // Verifique se o evento está associado ao seu gancho (hook)
-                            if ('generate_invoice_event' === $hook) {
+                            if ('generate_invoice_event' === $hook || 'lkn_wcip_cron_hook' === $hook) {
                                 // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
                                 $event_args = $event['args'];
-                                if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
+                                if (is_array($event_args) && in_array($invoice_id, $event_args)) {
                                     // Remova o evento do WP Cron
                                     wp_unschedule_event($timestamp, $hook, $event_args);
                                 }
