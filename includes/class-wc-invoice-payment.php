@@ -211,6 +211,7 @@ final class Wc_Payment_Invoice
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');
         $this->loader->add_action('woocommerce_checkout_order_processed', $subscription_class, 'validate_product');
+        $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $subscription_class, 'validate_product');
         $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
         $this->loader->add_action('woocommerce_process_product_meta', $subscription_class, 'save_subscription_fields');
         $this->loader->add_action('woocommerce_general_settings', $subscription_class, 'custom_wc_general_settings_checkbox');

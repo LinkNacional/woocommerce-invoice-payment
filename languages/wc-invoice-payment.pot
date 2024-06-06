@@ -203,6 +203,9 @@ msgstr ""
 msgid "Edit subscription"
 msgstr ""
 
+msgid "Invoice successfully saved"
+msgstr ""
+
 msgid "Subscription actions"
 msgstr ""
 
@@ -213,4 +216,13 @@ msgid "Cancel subscription"
 msgstr ""
 
 msgid "Enable/Disable email verification."
+msgstr ""
+
+msgid "Your download will begin shortly. Please wait a moment."
+msgstr ""
+
+msgid "Select the checkbox to enable email verification."
+msgstr ""
+
+msgid "Add subscription"
 msgstr ""

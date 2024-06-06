@@ -65,6 +65,9 @@ msgstr "Preço"
 msgid "Add invoice"
 msgstr "Adicionar fatura"
 
+msgid "Add subscription"
+msgstr "Adicionar assinatura"
+
 msgid "Payment status"
 msgstr "Status de pagamento"
 
@@ -203,6 +206,9 @@ msgstr "Criar faturas para produtos"
 msgid "Edit subscription"
 msgstr "Editar assinatura"
 
+msgid "Subscription successfully saved"
+msgstr "Assinatura salva com sucesso"
+
 msgid "Subscription actions"
 msgstr "Ações da assinatura"
 
@@ -214,3 +220,9 @@ msgstr "Cancelar assinatura"
 
 msgid "Enable/Disable email verification."
 msgstr "Habilitar/Desabilitar verificação de email."
+
+msgid "Your download will begin shortly. Please wait a moment."
+msgstr "O seu download será iniciado em breve. Por favor, aguarde um momento."
+
+msgid "Select the checkbox to enable email verification."
+msgstr "Marque a caixa de seleção para ativar a verificação de e-mail."

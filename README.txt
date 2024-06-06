@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce, invoice, payment
 Requires at least: 5.7
 Tested up to: 6.5
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -88,6 +88,17 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 
 == Changelog ==
 
+= 1.6.0 = *06/06/2024*
+* Add visual feedback when clicking the download invoices button;
+* Add alert on subscription creation;
+* Add button to create invoice on the list invoices page;
+* Add button to create subscription on the list subscriptions page;
+* Fix currency listing in invoice settings;
+* Fix bug when clicking on the edit invoices section;
+* Fix bug in template select showing the same image;
+* Fix function to add and delete cron events;
+* Fix label to enable login page for invoices.
+
 = 1.5.0 = *08/05/2024*
 * Add the due date to the invoice PDF.
 * Add configuration to enable and disable email verification.
@@ -145,6 +156,17 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 * Plugin launch.
 
 == Upgrade Notice ==
+
+= 1.6.0 =
+* Add visual feedback when clicking the download invoices button;
+* Add alert on subscription creation;
+* Add button to create invoice on the list invoices page;
+* Add button to create subscription on the list subscriptions page;
+* Fix currency listing in invoice settings;
+* Fix bug when clicking on the edit invoices section;
+* Fix bug in template select showing the same image;
+* Fix function to add and delete cron events;
+* Fix label to enable login page for invoices.
 
 = 1.0.0 =
 * Plugin launch.

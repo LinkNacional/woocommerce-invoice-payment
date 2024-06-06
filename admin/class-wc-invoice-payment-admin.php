@@ -110,6 +110,7 @@ final class Wc_Payment_Invoice_Admin {
         if (
             strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_new-invoice' === $hook
             || strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_settings' === $hook
+            || strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_wc-subscription-payment' === $hook
             || 'toplevel_page_wc-invoice-payment' === $hook
             || 'admin_page_edit-invoice' === $hook
             || 'admin_page_edit-subscription' === $hook
@@ -209,7 +210,7 @@ final class Wc_Payment_Invoice_Admin {
             $default_footer = wp_kses_post($_POST['lkn_wcip_default_footer']);
             $sender_details = wp_kses_post($_POST['lkn_wcip_sender_details']);
             $text_before_payment_link = wp_kses_post($_POST['lkn_wcip_text_before_payment_link']);
-            $email_verify = isset($_POST["lkn_wcip_after_save_button_email_check"]) ? "on" : false;
+            $email_verify = isset($_POST["lkn_wcip_after_save_button_email_check"]);
 
             update_option('lkn_wcip_global_pdf_template_id', $global_pdf_template);
             update_option('lkn_wcip_template_logo_url', $template_logo_url);
@@ -312,13 +313,15 @@ final class Wc_Payment_Invoice_Admin {
 							id="lkn_wcip_text_before_payment_link"><?php echo esc_html($text_before_payment_link); ?></textarea>
 
 					</div>
-					<div class="input-row-wrap input-row-wrap-global-settings">
-						<label
-							for="lkn_wcip_after_save_button_email_check"><?php echo esc_attr_e('Enable/Disable email verification.', "wc-invoice-payment") ?></label>
-						<input type="checkbox" name="lkn_wcip_after_save_button_email_check"
-							id="lkn_wcip_after_save_button_email_check"
-							<?php echo esc_attr("on" == $email_verify ? 'checked' : null); ?>>
-					</div>
+					<div class="input-column-wrap input-row-wrap-global-settings">
+                        <input type="checkbox" 
+                            name="lkn_wcip_after_save_button_email_check"
+                            id="lkn_wcip_after_save_button_email_check"
+                            <?php if ($email_verify) echo 'checked'; ?>>
+                        <label for="lkn_wcip_after_save_button_email_check">
+                            <?php esc_attr_e('Select the checkbox to enable email verification.', 'wc-invoice-payment'); ?>
+                        </label>
+                    </div>
 				</div>
 			</div>
 			<div class="action-btn">
@@ -345,6 +348,7 @@ final class Wc_Payment_Invoice_Admin {
      */
     public function render_edit_invoice_page(): void {
         wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', array(), $this->version, 'all');
+        wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array(), $this->version, 'all');
 
         if ( ! current_user_can('manage_woocommerce')) {
             return;
@@ -394,6 +398,8 @@ final class Wc_Payment_Invoice_Admin {
         }, $templates_list));
 
         $currencies = get_woocommerce_currencies();
+        $currency_codes = array_keys($currencies);
+        sort($currency_codes);
 
         $gateways = WC()->payment_gateways->payment_gateways();
         $enabled_gateways = array();
@@ -465,11 +471,14 @@ final class Wc_Payment_Invoice_Admin {
 							for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
 						<select name="lkn_wcip_currency" id="lkn_wcip_currency_input" class="regular-text">
 							<?php
-                                        foreach ($currencies as $code => $currency) {
+                                        foreach ($currency_codes as $code) {
+                                            $currency_name = $currencies[$code];
+                                            $selected = ($order->get_currency() === $code) ? 'selected' : ''; // Verifica se a opção deve ser selecionada
+
                                             if ($order->get_currency() === $code) {
-                                                echo '<option value="' . esc_attr($code) . '" selected>' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                                                echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                             } else {
-                                                echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                                                echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                             }
                                         } ?>
 						</select>
@@ -543,10 +552,12 @@ final class Wc_Payment_Invoice_Admin {
 							value="<?php echo esc_attr($order->get_meta('lkn_exp_date')); ?>"
 							min="<?php echo esc_attr(gmdate('Y-m-d')); ?>">
 					</div>
-					<div class="input-row-wrap">
+					<div class="input-column-wrap">
 						<a class="lkn_wcip_generate_pdf_btn" href="#"
 							data-invoice-id="<?php echo esc_attr($invoiceId); ?>"><?php esc_attr_e('Download invoice', 'wc-invoice-payment'); ?></a>
-					</div>
+                            &nbsp
+                            <span class="dashicons dashicons-image-rotate"></span>
+                    </div>
 				</div>
 				<?php
                         if ('pending' === $orderStatus) {
@@ -719,7 +730,7 @@ final class Wc_Payment_Invoice_Admin {
                     if ('generate_invoice_event' === $hook) {
                         // Verifique se os argumentos do evento contêm o invoiceId
                         $event_args = $event['args'];
-                        if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
+                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
                             // O invoiceId está agendado, então retorne verdadeiro
                             return true;
                         }
@@ -735,6 +746,8 @@ final class Wc_Payment_Invoice_Admin {
      * Render html page for subscription edit.
      */
     public function render_edit_subscription_page(): void {
+        wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array(), $this->version, 'all');
+
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
@@ -785,6 +798,8 @@ final class Wc_Payment_Invoice_Admin {
         }, $templates_list));
 
         $currencies = get_woocommerce_currencies();
+        $currency_codes = array_keys($currencies);
+        sort($currency_codes);
 
         $gateways = WC()->payment_gateways->payment_gateways();
         $enabled_gateways = array();
@@ -853,11 +868,14 @@ final class Wc_Payment_Invoice_Admin {
 							for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
 						<select name="lkn_wcip_currency" id="lkn_wcip_currency_input" class="regular-text">
 							<?php
-                                    foreach ($currencies as $code => $currency) {
+                                    foreach ($currency_codes as $code) {
+                                        $currency_name = $currencies[$code];
+                                        $selected = ($order->get_currency() === $code) ? 'selected' : ''; // Verifica se a opção deve ser selecionada
+
                                         if ($order->get_currency() === $code) {
-                                            echo '<option value="' . esc_attr($code) . '" selected>' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                                            echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                         } else {
-                                            echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency) . ' - ' . esc_attr($code) . '</option>';
+                                            echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                         }
                                     } ?>
 						</select>
@@ -927,18 +945,18 @@ final class Wc_Payment_Invoice_Admin {
 					</div>
 					<div class="input-row-wrap">
 						<?php
-                                // Verifique se o invoiceId está agendado
+                            // Verifique se o invoiceId está agendado
 
-                                if ($this->is_invoice_id_scheduled($invoiceId)) {
-                                    // O invoiceId está agendado, exiba o link para cancelar a assinatura
-                                    ?>
-						<a class="lkn_wcip_cancel_subscription_btn" href="#" onclick="lkn_wcip_cancel_subscription()"
-							data-invoice-id="<?php echo esc_attr($invoiceId); ?>">
-							<?php esc_attr_e('Cancel subscription', 'wc-invoice-payment'); ?>
-						</a>
-						<?php
-                                }
-        ?>
+                            if ($this->is_invoice_id_scheduled($invoiceId)) {
+                            // O invoiceId está agendado, exiba o link para cancelar a assinatura
+                        ?>
+                            <a class="lkn_wcip_cancel_subscription_btn" href="#" onclick="lkn_wcip_cancel_subscription()"
+                                data-invoice-id="<?php echo esc_attr($invoiceId); ?>">
+                                <?php esc_attr_e('Cancel subscription', 'wc-invoice-payment'); ?>
+                            </a>
+                        <?php
+                            }
+                        ?>
 					</div>
 				</div>
 			</div>
@@ -1104,6 +1122,13 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
+        
+        if (isset($_GET['message'])) {
+            // Decodifica a mensagem recebida na URL
+            $decoded_message = urldecode($_GET['message']);
+            
+            echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
+        }
         ?>
 <form id="invoices-filter" method="POST">
 	<input id="wcip_rest_nonce" type="hidden"
@@ -1138,17 +1163,17 @@ final class Wc_Payment_Invoice_Admin {
         );
 
         add_action('load-' . $hookname, array($this, 'add_invoice_form_submit_handle'));
-        if (isset($_GET["invoice"])) {
-            $editHookname = add_submenu_page(
-                "wc-invoice-payment",
-                __('Edit invoice', 'wc-invoice-payment'),
-                __('Edit invoice', 'wc-invoice-payment'),
-                'manage_woocommerce',
-                'edit-invoice',
-                array($this, 'render_edit_invoice_page'),
-                1
-            );
-        }
+        
+        
+        $editHookname = add_submenu_page(
+            null,
+            __('Edit invoice', 'wc-invoice-payment'),
+            __('Edit invoice', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'edit-invoice',
+            array($this, 'render_edit_invoice_page'),
+            1
+        );
 
         add_action('load-' . $editHookname, array($this, 'edit_invoice_form_submit_handle'));
 
@@ -1172,10 +1197,16 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
+        if (isset($_GET['invoiceChecked'])){
+            $invoiceChecked = 'checked';
+        }
 
         wp_enqueue_editor();
 
         $currencies = get_woocommerce_currencies();
+        $currency_codes = array_keys($currencies);
+        sort($currency_codes);
+        
         $active_currency = get_woocommerce_currency();
 
         $gateways = WC()->payment_gateways->payment_gateways();
@@ -1259,11 +1290,12 @@ final class Wc_Payment_Invoice_Admin {
 							for="lkn_wcip_currency_input"><?php esc_attr_e('Currency', 'wc-invoice-payment'); ?></label>
 						<select name="lkn_wcip_currency" id="lkn_wcip_currency_input" class="regular-text">
 							<?php
-                                    foreach ($currencies as $code => $currency) {
+                                    foreach ($currency_codes as $code) {
+                                        $currency_name = $currencies[$code];
                                         if ($active_currency === $code) {
-                                            echo '<option value="' . esc_attr($code) . '" selected>' . esc_html($currency . ' - ' . $code) . '</option>';
+                                            echo '<option value="' . esc_attr($code) . '" ' . 'selected' . '>' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                         } else {
-                                            echo '<option value="' . esc_attr($code) . '">' . esc_html($currency . ' - ' . $code) . '</option>';
+                                            echo '<option value="' . esc_attr($code) . '">' . esc_attr($code) . ' - ' . esc_attr($currency_name) . '</option>';
                                         }
                                     } ?>
 						</select>
@@ -1334,7 +1366,7 @@ final class Wc_Payment_Invoice_Admin {
 				<div class="input-row-wrap">
 					<label for="lkn_wcip_subscription_product">
 						Assinatura:
-						<input type="checkbox" name="lkn_wcip_subscription_product" id="lkn_wcip_subscription_product">
+						<input type="checkbox" name="lkn_wcip_subscription_product" id="lkn_wcip_subscription_product" <?php echo esc_attr($invoiceChecked) ?> >
 					</label>
 				</div>
 				<div class="input-row-wrap" id="lkn_wcip_subscription_interval">
@@ -1558,6 +1590,15 @@ final class Wc_Payment_Invoice_Admin {
 
                     $order->add_order_note(__('Order details manually sent to customer.', 'woocommerce'), false, true);
                 }
+
+                if($isSubscription){
+                    $message = urlencode(__('Subscription successfully saved', 'wc-invoice-payment'));
+
+                    // Redireciona para a página desejada com o parâmetro 'message'
+                    wp_redirect(admin_url('admin.php?page=wc-subscription-payment&message=' . $message));
+                    exit;
+                }
+
                 // Success message
                 echo '<div class="lkn_wcip_notice_positive">' . esc_html(__('Invoice successfully saved', 'wc-invoice-payment')) . '</div>';
             } else {
@@ -1830,8 +1871,25 @@ final class Wc_Payment_Invoice_Admin {
 
                 update_option('lkn_wcip_invoices', $invoices);
 
+                $scheduled_events = _get_cron_array();
+                // verifica todos os eventos agendados
+                foreach ($scheduled_events as $timestamp => $cron_events) {
+                    foreach ($cron_events as $hook => $events) {
+                        foreach ($events as $event) {
+                            // Verifique se o evento está associado ao seu gancho (hook)
+                            if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
+                                // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                                $event_args = $event['args'];
+                                if (is_array($event_args) && in_array($invoiceDelete[0], $event_args)) {
+                                    // Remova o evento do WP Cron
+                                    wp_unschedule_event($timestamp, $hook, $event_args);
+                                }
+                            }
+                        }
+                    }
+                }
                 // Redirect to invoice list
-                wp_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
+                wp_redirect(home_url('wp-admin/admin.php?page=wc-subscription-payment'));
             } else {
                 // Show error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
