@@ -74,8 +74,7 @@ final class Wc_Payment_Invoice_Admin {
         $expDate = $order->get_meta('lkn_exp_date') . ' 23:59'; // Needs to set the hour to not cancel invoice in the last day of payment
         $format = 'Y-m-d H:i';
         $expDateObj = DateTime::createFromFormat($format, $expDate);
-
-        if ($todayObj > $expDateObj) {
+        if ($todayObj > $expDateObj && $order->get_status() == 'pending') {
             $order->set_status('wc-cancelled', __('Invoice expired', 'wc-invoice-payment'));
             $order->save();
 
@@ -776,7 +775,6 @@ final class Wc_Payment_Invoice_Admin {
 
         $c = 0;
         $order = wc_get_order($invoiceId);
-        add_option('teste order wc get'. uniqid(), json_encode(get_post_meta( $invoiceId, 'lkn_wcip_subscription_limit'))); //TODO criar forma para conseguir o campo lkn_wcip_subscription_limit diretamente da ordem
 
         $productID = $order->get_meta_data('lkn_product_id');
 
@@ -816,6 +814,7 @@ final class Wc_Payment_Invoice_Admin {
 <div class="wrap">
 	<h1><?php esc_attr_e('Edit subscription', 'wc-invoice-payment'); ?>
 	</h1>
+    <h1><?php echo $order->get_meta('lkn_wcip_subscription_initial_limit')?>/<?php echo $order->get_meta('lkn_wcip_subscription_limit')?></h1>
 	<?php settings_errors(); ?>
 	<form
 		action="<?php menu_page_url('edit-invoice&invoice=' . $invoiceId); ?>"
@@ -1362,7 +1361,7 @@ final class Wc_Payment_Invoice_Admin {
 					<label
 						for="lkn_wcip_exp_date_input"><?php esc_attr_e('Due date', 'wc-invoice-payment'); ?></label>
 					<input id="lkn_wcip_exp_date_input" type="date" name="lkn_wcip_exp_date"
-						min="<?php echo esc_attr(gmdate('Y-m-d')); ?>">
+						min="<?php echo esc_attr(gmdate('Y-m-d')); ?>" required>
 				</div>
 				<div class="input-row-wrap" id="twoCheckboxDiv">
 					<label for="lkn_wcip_subscription_product">
@@ -1525,6 +1524,7 @@ final class Wc_Payment_Invoice_Admin {
                 $isSubscription = sanitize_text_field($_POST['lkn_wcip_subscription_product']);
                 $intarvalNumber = sanitize_text_field($_POST['lkn_wcip_subscription_interval_number']);
                 $intarvalType = sanitize_text_field($_POST['lkn_wcip_subscription_interval_type']);
+                $subscriptionLimit = sanitize_text_field($_POST['lkn_wcip_subscription_limit']);
                 $currency = sanitize_text_field($_POST['lkn_wcip_currency']);
                 $name = sanitize_text_field($_POST['lkn_wcip_name']);
                 $firstName = explode(' ', $name)[0];
@@ -1581,6 +1581,8 @@ final class Wc_Payment_Invoice_Admin {
                     $order->add_meta_data('lkn_is_subscription', $isSubscription);
                     $order->add_meta_data('lkn_wcip_subscription_interval_number', $intarvalNumber);
                     $order->add_meta_data('lkn_wcip_subscription_interval_type', $intarvalType);
+                    $order->add_meta_data('lkn_wcip_subscription_limit', $subscriptionLimit);
+                    $order->add_meta_data('lkn_wcip_subscription_initial_limit', 1);
                     $order->add_meta_data('lkn_wcip_subscription_is_manual', true);
                 }
 

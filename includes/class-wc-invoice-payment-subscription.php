@@ -186,15 +186,17 @@ class Wc_Payment_Invoice_Subscription{
                 $is_subscription_enabled = get_post_meta( $product_id, '_lkn-wcip-subscription-product', true );
                 $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
                 $iniDate = new DateTime();
-                $iniDateFormatted = $iniDate->format('Y-m-d');;
+                $iniDateFormatted = $iniDate->format('Y-m-d');
                 $subscription_interval_number = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_number', true );
                 $subscription_interval_type = get_post_meta( $product_id, 'lkn_wcip_subscription_interval_type', true );
+                $subscriptionLimit = get_post_meta( $product_id, 'lkn_wcip_subscription_limit', true );
                 
                 //Se for uma assinatura adicionada manualmente será preciso pegar os valores de outra forma
                 if($is_subscription_manual){
                     $is_subscription_enabled = $order->get_meta('lkn_is_subscription');
                     $subscription_interval_number = $order->get_meta('lkn_wcip_subscription_interval_number');
                     $subscription_interval_type = $order->get_meta('lkn_wcip_subscription_interval_type');
+                    $subscriptionLimit = $order->get_meta('lkn_wcip_subscription_limit');
                 };
 
                 $result = $this->calculate_next_due_date( $subscription_interval_number, $subscription_interval_type );
@@ -203,17 +205,20 @@ class Wc_Payment_Invoice_Subscription{
                 //seta data para ver quanto tempo foi removido para ser adicionado depois            
                 $order->add_meta_data('lkn_time_removed', $result['time_removed']);            
                 $order->add_meta_data('lkn_ini_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
+                $order->add_meta_data('lkn_wcip_subscription_limit', $subscriptionLimit);
+                $order->add_meta_data('lkn_wcip_subscription_initial_limit', 1);
+
                 if(!$order->get_meta('lkn_exp_date')){
                     $order->add_meta_data('lkn_exp_date', gmdate("Y-m-d", strtotime($iniDateFormatted))); 
                 }
 
-                
                 //Caso seja assinatura gera evento do WP cron
+                $order->save();
                 if ( $is_subscription_enabled == 'on') {
                     $order->add_meta_data('lkn_is_subscription', true);
+                    $order->save();
                     $this->schedule_next_invoice_generation( $order_id, $next_due_date );
                 }
-                $order->save();
 
                 //Caso não seja uma assinatura manual é preciso atualizar a lista
                 if(!$is_subscription_manual){
@@ -288,11 +293,38 @@ class Wc_Payment_Invoice_Subscription{
     
     
     function schedule_next_invoice_generation( $order_id, $due_date ) {
+
         wp_schedule_single_event( $due_date, 'generate_invoice_event', array( $order_id ) );
+        wp_schedule_single_event( $due_date + 86400, 'lkn_wcip_cron_hook', array( $order_id ) );
     }
     
     function create_next_invoice( $order_id ) {
         $order = wc_get_order( $order_id );
+        
+        //Valida se a ordem está no limite de faturas
+        $initialLimit = $order->get_meta('lkn_wcip_subscription_initial_limit');
+        $limit = $order->get_meta('lkn_wcip_subscription_limit');
+        if($initialLimit == $limit){
+            $scheduled_events = _get_cron_array();
+            // verifica todos os eventos agendados
+            foreach ($scheduled_events as $timestamp => $cron_events) {
+                foreach ($cron_events as $hook => $events) {
+                    foreach ($events as $event) {
+                        // Verifique se o evento está associado ao seu gancho (hook)
+                        if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
+                            // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                            $event_args = $event['args'];
+                            if (is_array($event_args) && in_array($order_id, $event_args)) {
+                                // Remova o evento do WP Cron
+                                wp_unschedule_event($timestamp, $hook, $event_args);
+                            }
+                        }
+                    }
+                }
+            }
+            return;
+        }
+        $order->update_meta_data('lkn_wcip_subscription_initial_limit', $initialLimit + 1);
         
         $customer_id = $order->get_customer_id();
         $billing_email = $order->get_billing_email();
