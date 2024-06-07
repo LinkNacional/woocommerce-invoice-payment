@@ -776,6 +776,16 @@ final class Wc_Payment_Invoice_Admin {
         $c = 0;
         $order = wc_get_order($invoiceId);
 
+        $args = array(
+            'meta_key' => 'lkn_subscription_id',
+            'meta_value' => $invoiceId,
+        );
+    
+        $orders = wc_get_orders($args);
+        
+        add_option('orders id teste get orders'. uniqid(), json_encode($orders));
+        
+
         $productID = $order->get_meta_data('lkn_product_id');
 
         $items = $order->get_items();
@@ -814,7 +824,6 @@ final class Wc_Payment_Invoice_Admin {
 <div class="wrap">
 	<h1><?php esc_attr_e('Edit subscription', 'wc-invoice-payment'); ?>
 	</h1>
-    <h1><?php echo $order->get_meta('lkn_wcip_subscription_initial_limit')?>/<?php echo $order->get_meta('lkn_wcip_subscription_limit')?></h1>
 	<?php settings_errors(); ?>
 	<form
 		action="<?php menu_page_url('edit-invoice&invoice=' . $invoiceId); ?>"
@@ -984,6 +993,51 @@ final class Wc_Payment_Invoice_Admin {
 						onclick="lkn_wcip_delete_invoice()"><?php esc_attr_e('Delete'); ?></button>
 				</p>
 				<?php submit_button(__('Update')); ?>
+			</div>
+		</div>
+        <!-- Generated invoices  -->
+		<div class="wcip-invoice-data wcip-postbox" 
+            style="
+                max-width: min-content;
+            ">
+			<span class="text-bold"><?php esc_attr_e('Generated invoices', 'wc-invoice-payment'); ?></span>
+			<span><?php echo $order->get_meta('lkn_wcip_subscription_initial_limit')?>/<?php echo $order->get_meta('lkn_wcip_subscription_limit')?> </span>
+			<hr>
+			<div class="wcip-row">
+				<div class="input-row-wrap"
+                    style="
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    column-gap: 3px;
+                    
+                ">
+                    <p style="
+                            text-align: justify;
+                        ">
+                        <?php
+                            foreach ($orders as $order) {
+                                $orderId = $order->get_id(); //TODO terminar lógica para mostrar IDs das faturas geradas, com links para as faturas geradas
+                            }
+                            
+                            for ($i=0; $i <= count($orders); $i++) { 
+                                if ($i == 0) {
+                                    echo '|';
+                                }
+                                if ($i > 0) {
+                                    echo '|';
+                                }
+                                ?>
+                                123 
+                                <?php
+                                if ($i == 50) {
+                                    echo '|';
+                                }
+                            }                    
+                        ?>
+                    </p>
+				</div>
 			</div>
 		</div>
 		<!-- Invoice charges -->
@@ -1373,7 +1427,7 @@ final class Wc_Payment_Invoice_Admin {
                             array(
                                 'id' => 'lkn_wcip_subscription_limit_checkbox',
                                 'name' => 'lkn_wcip_subscription_limit_checkbox',
-                                'label' => __('Subscription limit:', 'woocommerce') . ' ',
+                                'label' => __('Subscription limit', 'wc-invoice-payment') . ': ',
                                 'value' => 0,
                                 'type' => 'number',
                                 'custom_attributes' => array(
@@ -1411,9 +1465,9 @@ final class Wc_Payment_Invoice_Admin {
                     array(
                         'id' => 'lkn_wcip_subscription_limit',
                         'name' => 'lkn_wcip_subscription_limit',
-                        'label' => __('Subscription limit', 'woocommerce'),
+                        'label' => __('Subscription limit', 'wc-invoice-payment'),
                         'desc_tip' => 'true',
-                        'description' => __('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'woocommerce'),
+                        'description' => __('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'wc-invoice-payment'),
                         'value' => 0,
                         'type' => 'number',
                         'custom_attributes' => array(

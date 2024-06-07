@@ -226,3 +226,12 @@ msgstr "O seu download será iniciado em breve. Por favor, aguarde um momento."
 
 msgid "Select the checkbox to enable email verification."
 msgstr "Marque a caixa de seleção para ativar a verificação de e-mail."
+
+msgid "Subscription limit"
+msgstr "Limite da assinatura"
+
+msgid "Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit."
+msgstr "Defina um limite para a quantidade de faturas que serão geradas para a assinatura, por padrão não há limite."
+
+msgid "Generated invoices"
+msgstr "Faturas geradas"

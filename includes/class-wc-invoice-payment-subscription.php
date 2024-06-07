@@ -126,9 +126,9 @@ class Wc_Payment_Invoice_Subscription{
                     array(
                         'id' => 'lkn_wcip_subscription_limit',
                         'name' => 'lkn_wcip_subscription_limit',
-                        'label' => __('Subscription limit', 'woocommerce'),
+                        'label' => __('Subscription limit', 'wc-invoice-payment'),
                         'desc_tip' => 'true',
-                        'description' => __('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'woocommerce'),
+                        'description' => __('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'wc-invoice-payment'),
                         'value' => $subscription_limit,
                         'type' => 'number',
                         'custom_attributes' => array(
@@ -349,6 +349,8 @@ class Wc_Payment_Invoice_Subscription{
         $new_order->add_meta_data('lkn_ini_date', $iniDateFormatted);
         $new_order->add_meta_data('lkn_exp_date', $expDateFormatted);
         $new_order->add_meta_data('lkn_is_subscription', false);
+        //ID da assinatura que criou essa fatura
+        $new_order->add_meta_data('lkn_subscription_id', $order_id);
         $new_order_id = $new_order->get_id();
 
         if ( ! $new_order ) {

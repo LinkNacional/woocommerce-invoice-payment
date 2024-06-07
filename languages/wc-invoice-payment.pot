@@ -226,3 +226,12 @@ msgstr ""
 
 msgid "Add subscription"
 msgstr ""
+
+msgid "Subscription limit"
+msgstr ""
+
+msgid "Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit."
+msgstr "
+
+msgid "Generated invoices"
+msgstr ""
