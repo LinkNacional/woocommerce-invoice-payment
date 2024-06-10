@@ -1,0 +1,14 @@
+#lknListGeneratedInvoices {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: 3px;
+  text-align: justify;
+  height: 26vh;
+  overflow: auto;
+}
+
+#lknListGeneratedInvoicesPostBox{
+  max-width: min-content;
+  max-height: min-content;
+}

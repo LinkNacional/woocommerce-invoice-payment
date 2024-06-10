@@ -206,7 +206,7 @@ class Wc_Payment_Invoice_Subscription{
                 $order->add_meta_data('lkn_time_removed', $result['time_removed']);            
                 $order->add_meta_data('lkn_ini_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
                 $order->add_meta_data('lkn_wcip_subscription_limit', $subscriptionLimit);
-                $order->add_meta_data('lkn_wcip_subscription_initial_limit', 1);
+                $order->add_meta_data('lkn_wcip_subscription_initial_limit', 0);
 
                 if(!$order->get_meta('lkn_exp_date')){
                     $order->add_meta_data('lkn_exp_date', gmdate("Y-m-d", strtotime($iniDateFormatted))); 
@@ -304,7 +304,7 @@ class Wc_Payment_Invoice_Subscription{
         //Valida se a ordem está no limite de faturas
         $initialLimit = $order->get_meta('lkn_wcip_subscription_initial_limit');
         $limit = $order->get_meta('lkn_wcip_subscription_limit');
-        if($initialLimit == $limit){
+        if($initialLimit == $limit && $limit != 0){
             $scheduled_events = _get_cron_array();
             // verifica todos os eventos agendados
             foreach ($scheduled_events as $timestamp => $cron_events) {
