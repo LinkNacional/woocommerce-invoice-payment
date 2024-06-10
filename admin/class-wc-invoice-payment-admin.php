@@ -784,10 +784,6 @@ final class Wc_Payment_Invoice_Admin {
         );
     
         $orders = wc_get_orders($args);
-        
-        
-
-        $productID = $order->get_meta_data('lkn_product_id');
 
         $items = $order->get_items();
         $checkoutUrl = $order->get_checkout_payment_url();
@@ -809,7 +805,7 @@ final class Wc_Payment_Invoice_Admin {
 
         $currencies = get_woocommerce_currencies();
         $currency_codes = array_keys($currencies);
-        $limit = '/'.$order->get_meta('lkn_wcip_subscription_limit');
+        $limit = '/' . $order->get_meta('lkn_wcip_subscription_limit');
         if($order->get_meta('lkn_wcip_subscription_limit') == 0){
             $limit = '';
         }

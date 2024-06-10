@@ -1483,11 +1483,23 @@ final class Lkn_Wcip_List_Table {
                     $dueDate = empty($dueDate) ? '-' : gmdate($dateFormat, strtotime($dueDate));
                     $iniDate = $invoice->get_meta('lkn_ini_date');
                     $iniDate = empty($iniDate) ? '-' : gmdate($dateFormat, strtotime($iniDate));
+                    
+                    if($invoice->get_meta('lkn_subscription_id') != ""){
+                        $subscription = wc_get_order($invoice->get_meta('lkn_subscription_id'));
+                        $subscriptionInitialLimit = $subscription->get_meta('lkn_wcip_subscription_initial_limit');
+                        $subscriptionLimit = $subscription->get_meta('lkn_wcip_subscription_limit');
+                        $fromSubscription = $subscriptionInitialLimit . '/' . $subscriptionLimit;
+                        if(!$subscriptionLimit){
+                            $fromSubscription = __('Subscription', 'wc-invoice-payment');
+                        }
+                    }
+                                       
                     $data_array[] = array(
                         'lkn_wcip_id' => $invoiceId,
                         'lkn_wcip_client' => $invoice->get_billing_first_name(),
                         'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
                         'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
+                        'lkn_wcip_from_subscription' => $invoice->get_meta('lkn_subscription_id') == "" ? '-' : $fromSubscription,
                         'lkn_wcip_exp_date' => $dueDate,
                         'lkn_wcip_ini_date' => $iniDate
                     );
@@ -1521,9 +1533,16 @@ final class Lkn_Wcip_List_Table {
             'lkn_wcip_client' => __('Name', 'wc-invoice-payment'),
             'lkn_wcip_status' => __('Payment status', 'wc-invoice-payment'),
             'lkn_wcip_total_price' => __('Total', 'wc-invoice-payment'),
+            'lkn_wcip_from_subscription' => __('Subscription', 'wc-invoice-payment'),
             'lkn_wcip_ini_date' => __('Start date', 'wc-invoice-payment'),
             'lkn_wcip_exp_date' => __('Due date', 'wc-invoice-payment'),
         );
+
+        $page = isset($_GET['page']) ? $_GET['page'] : null;
+        
+        if($page == 'wc-subscription-payment'){
+            unset($columns['lkn_wcip_from_subscription']);
+        }
 
         return $columns;
     }
@@ -1539,6 +1558,7 @@ final class Lkn_Wcip_List_Table {
             case 'lkn_wcip_client':
             case 'lkn_wcip_status':
             case 'lkn_wcip_total_price':
+            case 'lkn_wcip_from_subscription':
             case 'lkn_wcip_exp_date':
             case 'lkn_wcip_ini_date':
                 return $item[$column_name];
