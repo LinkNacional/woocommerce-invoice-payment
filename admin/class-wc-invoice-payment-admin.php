@@ -201,6 +201,9 @@ final class Wc_Payment_Invoice_Admin {
             return;
         }
 
+        wp_enqueue_style( 'woocommerce-style', plugins_url() . '/woocommerce/assets/css/woocommerce.css' );
+        wp_enqueue_script( 'woocommerce', plugins_url() . '/woocommerce/assets/js/frontend/woocommerce.js', array( 'jquery' ), '', true );
+
         wp_enqueue_editor();
 
         if ( ! empty($_POST)) {
@@ -238,105 +241,165 @@ final class Wc_Payment_Invoice_Admin {
         }, $templates_list));
 
         wp_create_nonce('wp_rest');
+
+        $current_tab = isset($_GET['settings']) ? $_GET['settings'] : 'Invoices';
+
+        // Função para verificar qual aba está ativa
+        function is_active_tab($tab_name, $current_tab) {
+            return $tab_name === $current_tab ? 'nav-tab-active' : '';
+        }
+
         ?>
-<div class="wrap">
-	<h1><?php esc_attr_e('Settings', 'wc-invoice-payment'); ?>
-	</h1>
-	<?php settings_errors(); ?>
-	<form
-		action="<?php menu_page_url('settings'); ?>"
-		method="post" class="wcip-form-wrap">
-		<?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
-		<div class="wcip-invoice-data">
-			<h2 class="title">
-				<?php esc_attr_e('Invoice settings', 'wc-invoice-payment'); ?>
-			</h2>
-			<div class="invoice-row-wrap">
-				<div class="invoice-column-wrap">
-					<div class="input-row-wrap input-row-wrap-global-settings">
-						<label for="lkn_wcip_payment_global_template">
-							<?php esc_attr_e('Default PDF template for invoices', 'wc-invoice-payment'); ?>
-						</label>
-						<select name="lkn_wcip_payment_global_template" id="lkn_wcip_payment_global_template"
-							class="regular-text">
-							<?php echo wp_kses($html_templates_list, array(
-							    'option' => array(
-							        'data-preview-url' => true,
-							        'value' => true,
-							        'selected' => true,
-							    ),
-							)); ?>
-						</select>
-					</div>
-					<div class="input-row-wrap">
-						<div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
-					</div>
+        <div class="wrap">
+            <h1><?php esc_attr_e('Settings', 'wc-invoice-payment'); ?>
+            </h1>
+            <?php settings_errors(); ?>
+            <nav class="nav-tab-wrapper woo-nav-tab-wrapper">
+                <a href="admin.php?page=settings&settings=Invoices" class="nav-tab <?php echo is_active_tab('Invoices', $current_tab); ?>">
+                    <?php esc_attr_e('Invoices', 'wc-invoice-payment')?>
+                </a>
+                <a href="admin.php?page=settings&settings=Subscriptions" class="nav-tab <?php echo is_active_tab('Subscriptions', $current_tab); ?>">
+                    <?php esc_attr_e('Subscriptions', 'wc-invoice-payment')?>
+                </a>
+            </nav>
+            <form
+                action="<?php menu_page_url('settings'); ?>"
+                method="post" class="wcip-form-wrap">
+                <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
+                <div class="wcip-invoice-data">
+                    <?php 
+                        if ($current_tab == 'Invoices') {
+                    ?>
+                        <div class="invoice_settings">
+                            <h2 class="title">
+                                <?php esc_attr_e('Invoice settings', 'wc-invoice-payment'); ?>
+                            </h2>
+                            <div class="invoice-row-wrap">
+                                <div class="invoice-column-wrap">
+                                    <div class="input-row-wrap input-row-wrap-global-settings">
+                                        <label for="lkn_wcip_payment_global_template">
+                                            <?php esc_attr_e('Default PDF template for invoices', 'wc-invoice-payment'); ?>
+                                        </label>
+                                        <select name="lkn_wcip_payment_global_template" id="lkn_wcip_payment_global_template"
+                                            class="regular-text">
+                                            <?php echo wp_kses($html_templates_list, array(
+                                                'option' => array(
+                                                    'data-preview-url' => true,
+                                                    'value' => true,
+                                                    'selected' => true,
+                                                ),
+                                            )); ?>
+                                        </select>
+                                    </div>
+                                    <div class="input-row-wrap">
+                                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
+                                    </div>
+        
+        
+                                    <div class="input-row-wrap input-row-wrap-global-settings">
+                                        <label class="lkn_wcip_payment_global_template_label" for="lkn_wcip_payment_global_template">
+                                            <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); ?>
+                                            <div class="lkn_wcip_payment_global_template_label_description">
+                                                <?php esc_attr_e('Only SVG, maximum resolution 800x800', 'wc-invoice-payment'); ?>
+                                            </div>
+                                        </label>
+        
+                                        <input name="lkn_wcip_template_logo_url" id="lkn_wcip_template_logo_url" class="regular-text"
+                                            type="url"
+                                            value="<?php echo esc_attr($template_logo_url); ?>">
+                                        <input name="lkn_wcip_settings_nonce" id="lkn_wcip_settings_nonce" type="hidden"
+                                            value="<?php echo esc_attr(wp_create_nonce('settings_nonce')) ?>">
+                                    </div>
+        
+                                    <div class="input-row-wrap input-row-wrap-global-settings">
+                                        <label for="lkn_wcip_default_footer">
+                                            <?php esc_attr_e('Default footer', 'wc-invoice-payment'); ?>
+                                        </label>
+                                        <textarea name="lkn_wcip_default_footer"
+                                            id="lkn_wcip_default_footer"><?php echo esc_html($default_footer); ?></textarea>
+                                    </div>
+        
+                                    <div class="input-row-wrap input-row-wrap-global-settings">
+                                        <label for="lkn_wcip_sender_details">
+                                            <?php esc_attr_e('Sender details', 'wc-invoice-payment'); ?>
+                                        </label>
+                                        <textarea name="lkn_wcip_sender_details"
+                                            id="lkn_wcip_sender_details"><?php echo esc_html($sender_details); ?></textarea>
+                                    </div>
+        
+                                    <div class="input-row-wrap input-row-wrap-global-settings">
+                                        <label for="lkn_wcip_text_before_payment_link">
+                                            <?php esc_attr_e('Text before payment link', 'wc-invoice-payment'); ?>
+                                        </label>
+                                        <textarea name="lkn_wcip_text_before_payment_link"
+                                            id="lkn_wcip_text_before_payment_link"><?php echo esc_html($text_before_payment_link); ?></textarea>
+        
+                                    </div>
+                                    <div class="input-column-wrap input-row-wrap-global-settings">
+                                        <input type="checkbox" 
+                                            name="lkn_wcip_after_save_button_email_check"
+                                            id="lkn_wcip_after_save_button_email_check"
+                                            <?php if ($email_verify) echo 'checked'; ?>>
+                                        <label for="lkn_wcip_after_save_button_email_check">
+                                            <?php esc_attr_e('Select the checkbox to enable email verification.', 'wc-invoice-payment'); ?>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php 
+                        }
+                    ?>
 
 
-					<div class="input-row-wrap input-row-wrap-global-settings">
-						<label class="lkn_wcip_payment_global_template_label" for="lkn_wcip_payment_global_template">
-							<?php esc_attr_e('Logo URL', 'wc-invoice-payment'); ?>
-							<div class="lkn_wcip_payment_global_template_label_description">
-								<?php esc_attr_e('Only SVG, maximum resolution 800x800', 'wc-invoice-payment'); ?>
-							</div>
-						</label>
-
-						<input name="lkn_wcip_template_logo_url" id="lkn_wcip_template_logo_url" class="regular-text"
-							type="url"
-							value="<?php echo esc_attr($template_logo_url); ?>">
-						<input name="lkn_wcip_settings_nonce" id="lkn_wcip_settings_nonce" type="hidden"
-							value="<?php echo esc_attr(wp_create_nonce('settings_nonce')) ?>">
-					</div>
-
-					<div class="input-row-wrap input-row-wrap-global-settings">
-						<label for="lkn_wcip_default_footer">
-							<?php esc_attr_e('Default footer', 'wc-invoice-payment'); ?>
-						</label>
-						<textarea name="lkn_wcip_default_footer"
-							id="lkn_wcip_default_footer"><?php echo esc_html($default_footer); ?></textarea>
-					</div>
-
-					<div class="input-row-wrap input-row-wrap-global-settings">
-						<label for="lkn_wcip_sender_details">
-							<?php esc_attr_e('Sender details', 'wc-invoice-payment'); ?>
-						</label>
-						<textarea name="lkn_wcip_sender_details"
-							id="lkn_wcip_sender_details"><?php echo esc_html($sender_details); ?></textarea>
-					</div>
-
-					<div class="input-row-wrap input-row-wrap-global-settings">
-						<label for="lkn_wcip_text_before_payment_link">
-							<?php esc_attr_e('Text before payment link', 'wc-invoice-payment'); ?>
-						</label>
-						<textarea name="lkn_wcip_text_before_payment_link"
-							id="lkn_wcip_text_before_payment_link"><?php echo esc_html($text_before_payment_link); ?></textarea>
-
-					</div>
-					<div class="input-column-wrap input-row-wrap-global-settings">
-                        <input type="checkbox" 
-                            name="lkn_wcip_after_save_button_email_check"
-                            id="lkn_wcip_after_save_button_email_check"
-                            <?php if ($email_verify) echo 'checked'; ?>>
-                        <label for="lkn_wcip_after_save_button_email_check">
-                            <?php esc_attr_e('Select the checkbox to enable email verification.', 'wc-invoice-payment'); ?>
-                        </label>
+                    <?php 
+                        if ($current_tab == 'Subscriptions') {
+                    ?>
+                        <div class="invoice_settings">
+                            <h2 class="title">
+                                <?php esc_attr_e('Subscription settings', 'wc-invoice-payment'); ?>
+                            </h2>
+                            <div class="input-row-wrap" id="lkn_wcip_subscription_interval">
+                                <label
+                                    for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Subscription Interval', 'wc-invoice-payment'); ?></label>
+                                <div class="lkn_wcip_subscription_interval_div">
+                                    <input type="number" min="1" name="lkn_wcip_subscription_interval_number"
+                                        id="lkn_wcip_subscription_interval_number" value="1">
+                                    <select name="lkn_wcip_subscription_interval_type">
+                                        <option value="day">
+                                            <?php esc_attr_e('Days', 'wc-invoice-payment'); ?>
+                                        </option>
+                                        <option value="week">
+                                            <?php esc_attr_e('Weeks', 'wc-invoice-payment'); ?>
+                                        </option>
+                                        <option value="month" selected>
+                                            <?php esc_attr_e('Months', 'wc-invoice-payment'); ?>
+                                        </option>
+                                        <option value="year">
+                                            <?php esc_attr_e('Years', 'wc-invoice-payment'); ?>
+                                        </option>
+                                    </select>
+                                </div>
+                                <span class="description"></span>
+                            </div>
+                        </div>
+                    <?php 
+                        }
+                    ?>
+                    <div class="action-btn">
+                        <?php submit_button(__('Save')); ?>
                     </div>
-				</div>
-			</div>
-			<div class="action-btn">
-				<?php submit_button(__('Save')); ?>
-			</div>
-		</div>
-	</form>
-</div>
-<script type="text/javascript">
-	document.addEventListener('DOMContentLoaded', () => {
-		startTinyMce('lkn_wcip_default_footer', 'submit')
-		startTinyMce('lkn_wcip_sender_details', 'submit')
-		startTinyMce('lkn_wcip_text_before_payment_link', 'submit')
-	})
-</script>
-<?php
+                </div>
+            </form>
+        </div>
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', () => {
+                startTinyMce('lkn_wcip_default_footer', 'submit')
+                startTinyMce('lkn_wcip_sender_details', 'submit')
+                startTinyMce('lkn_wcip_text_before_payment_link', 'submit')
+            })
+        </script>
+        <?php
     }
 
     public function settings_page_form_submit_handle(): void {
@@ -1006,28 +1069,30 @@ final class Wc_Payment_Invoice_Admin {
                                 <?php
                                     $index = 1;
                                     //Lista as faturas geradas por essa assinatura
-                                    foreach ($orders as $order) {
-                                        ?>
-                                            <p>
-                                        <?php
-                                        if ($i != 0) {
-                                            echo ' | ';
+                                    //for ($teste=0; $teste < 333; $teste++) { //TODO remover
+                                        foreach ($orders as $order) {
+                                            ?>
+                                                <p>
+                                            <?php
+                                            if ($i != 0) {
+                                                echo ' | ';
+                                            }
+                                            ?>
+                                                <a target="_blank">
+                                            <?php
+                                            echo esc_attr($order->get_id());
+                                            ?> 
+                                                </a>
+                                            <?php   
+                                            if ($index == count($orders)) {
+                                                echo ' | ';
+                                            }
+                                            $index++;
+                                            ?>
+                                                </p>
+                                            <?php
                                         }
-                                        ?>
-                                            <a target="_blank">
-                                        <?php
-                                        echo esc_attr($order->get_id());
-                                        ?> 
-                                            </a>
-                                        <?php   
-                                        if ($index == count($orders)) {
-                                            echo ' | ';
-                                        }
-                                        $index++;
-                                        ?>
-                                            </p>
-                                        <?php
-                                    }
+                                    //}
                                 ?>
                         </div>
                     </div>
@@ -1413,7 +1478,7 @@ final class Wc_Payment_Invoice_Admin {
 					<label for="lkn_wcip_subscription_product">
 						Assinatura:
 						<input type="checkbox" name="lkn_wcip_subscription_product" id="lkn_wcip_subscription_product" <?php echo esc_attr($invoiceChecked) ?> >
-					</label>					
+					</label>
                     <?php 
                         woocommerce_wp_checkbox(
                             array(

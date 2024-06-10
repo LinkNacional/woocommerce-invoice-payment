@@ -1486,7 +1486,7 @@ final class Lkn_Wcip_List_Table {
                     
                     if($invoice->get_meta('lkn_subscription_id') != ""){
                         $subscription = wc_get_order($invoice->get_meta('lkn_subscription_id'));
-                        $subscriptionInitialLimit = $subscription->get_meta('lkn_wcip_subscription_initial_limit');
+                        $subscriptionInitialLimit = $invoice->get_meta('lkn_current_limit');
                         $subscriptionLimit = $subscription->get_meta('lkn_wcip_subscription_limit');
                         $fromSubscription = $subscriptionInitialLimit . '/' . $subscriptionLimit;
                         if(!$subscriptionLimit){

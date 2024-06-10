@@ -351,6 +351,7 @@ class Wc_Payment_Invoice_Subscription{
         $new_order->add_meta_data('lkn_is_subscription', false);
         //ID da assinatura que criou essa fatura
         $new_order->add_meta_data('lkn_subscription_id', $order_id);
+        $new_order->add_meta_data('lkn_current_limit', $initialLimit + 1);
         $new_order_id = $new_order->get_id();
 
         if ( ! $new_order ) {

@@ -235,3 +235,6 @@ msgstr "Defina um limite para a quantidade de faturas que serão geradas para a 
 
 msgid "Generated invoices"
 msgstr "Faturas geradas"
+
+msgid "Subscription settings"
+msgstr "Configurações de assinatura"

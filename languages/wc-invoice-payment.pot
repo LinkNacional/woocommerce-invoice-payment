@@ -235,3 +235,6 @@ msgstr "
 
 msgid "Generated invoices"
 msgstr ""
+
+msgid "Subscription settings"
+msgstr ""

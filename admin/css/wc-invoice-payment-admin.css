@@ -38,21 +38,28 @@
 
 .input-column-wrap {
 	display: flex;
-    flex-direction: row;
-    padding: 6px 0px;
-    flex-wrap: nowrap;
+	flex-direction: row;
+	padding: 6px 0px;
+	flex-wrap: nowrap;
 	align-items: flex-end;
 }
 
 @keyframes spin {
-	from { transform: rotate(360deg); }
-	to { transform: rotate(0deg); }
-  }
-  
-  .dashicons-image-rotate {
-	display: none; /* Oculto por padrão */
-	animation: spin 1s linear infinite; /* Aplica a animação de rotação */
-  }
+	from {
+		transform: rotate(360deg);
+	}
+
+	to {
+		transform: rotate(0deg);
+	}
+}
+
+.dashicons-image-rotate {
+	display: none;
+	/* Oculto por padrão */
+	animation: spin 1s linear infinite;
+	/* Aplica a animação de rotação */
+}
 
 .wcip-form-wrap {
 	display: flex;

@@ -294,24 +294,29 @@ function lkn_wcip_cancel_subscription(deleteSubscription = false) {
 function lkn_wcip_display_subscription_inputs() {
   const subscription = document.querySelector('#lkn_wcip_subscription_product')
   const intervalElementSubscription = document.querySelector('#lkn_wcip_subscription_interval')
+  const limitCheckboxElementSubscription = document.querySelector('.form-field.lkn_wcip_subscription_limit_checkbox_field')
   const subscriptionLimit = document.querySelector('#lkn_wcip_subscription_limit_checkbox')
   const intervalElementSubscriptionLimit = document.querySelector('.lkn_wcip_subscription_limit_field')
 
   intervalElementSubscription.style.display = 'none'
   intervalElementSubscriptionLimit.style.display = 'none'
+  limitCheckboxElementSubscription.style.display = 'none'
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const invoiceChecked = urlParams.get('invoiceChecked');
   if (invoiceChecked) {
     intervalElementSubscription.style.display = ''
+    limitCheckboxElementSubscription.style.display = ''
   }
 
   subscription.addEventListener('change', function () {
     if (subscription.checked) {
       intervalElementSubscription.style.display = ''
+      limitCheckboxElementSubscription.style.display = ''
     } else {
       intervalElementSubscription.style.display = 'none'
+      limitCheckboxElementSubscription.style.display = 'none'
     }
   })
 
