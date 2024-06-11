@@ -233,7 +233,32 @@ class Wc_Payment_Invoice_Subscription{
     
     function calculate_next_due_date( $interval_number, $interval_type ) {
         $current_time = current_time( 'timestamp' );
+        $interval_number_option = get_option('lkn_wcip_interval_number');
+        $interval_type_option = get_option('lkn_wcip_interval_type');
         //Pega a quantidade de tempo de intervalo da cobrança e diminui horas, dias, semanas e meses de acordo com o que foi escolhido        
+        if($interval_number_option == 0){ //TODO corrigir evento cron não gerado
+            $return_array = $this->calcule_switch($interval_type, $interval_number, $current_time);
+        }else{
+            $next_due_date = strtotime( "+{$interval_number} $interval_type", $current_time );
+            $next_due_date = strtotime( "-{$interval_number_option} $interval_type_option", $next_due_date );
+            $time_removed = "{$interval_number_option} $interval_type_option";
+            $return_array = array(
+                'next_due_date' => $next_due_date,
+                'time_removed'  => $time_removed
+            );
+            //Caso o valor de antecedencia escolhido pelo usuário seja maior que o valor de recorrencia da fatura, é usado a lógica automatica do sistema
+            if($current_time > $next_due_date){
+                $return_array = $this->calcule_switch($interval_type, $interval_number, $current_time);
+            }
+        }
+
+        return array(
+            'next_due_date' => $return_array['next_due_date'],
+            'time_removed'  => $return_array['time_removed']
+        );
+    }
+    
+    function calcule_switch($interval_type, $interval_number, $current_time){
         switch ( $interval_type ) {
             case 'day':
                 $next_due_date = strtotime( "+{$interval_number} day", $current_time );
@@ -284,7 +309,7 @@ class Wc_Payment_Invoice_Subscription{
                 $next_due_date = '';
                 break;
         }
-    
+
         return array(
             'next_due_date' => $next_due_date,
             'time_removed'  => $time_removed

@@ -238,3 +238,9 @@ msgstr "Faturas geradas"
 
 msgid "Subscription settings"
 msgstr "Configurações de assinatura"
+
+msgid "Set the lead time for invoice generation relative to the due date."
+msgstr "Configure a antecedência para a geração da fatura em relação à data de vencimento."
+
+msgid "Invoice issuance lead time"
+msgstr "Antecedência para emissão de fatura"

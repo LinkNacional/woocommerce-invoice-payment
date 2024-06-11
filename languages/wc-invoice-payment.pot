@@ -238,3 +238,9 @@ msgstr ""
 
 msgid "Subscription settings"
 msgstr ""
+
+msgid "Set the lead time for invoice generation relative to the due date."
+msgstr ""
+
+msgid "Invoice issuance lead time"
+msgstr ""

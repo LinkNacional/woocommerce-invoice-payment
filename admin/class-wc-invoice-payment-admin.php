@@ -203,28 +203,43 @@ final class Wc_Payment_Invoice_Admin {
 
         wp_enqueue_style( 'woocommerce-style', plugins_url() . '/woocommerce/assets/css/woocommerce.css' );
         wp_enqueue_script( 'woocommerce', plugins_url() . '/woocommerce/assets/js/frontend/woocommerce.js', array( 'jquery' ), '', true );
-
+        
         wp_enqueue_editor();
 
-        if ( ! empty($_POST)) {
-            $global_pdf_template = sanitize_text_field($_POST['lkn_wcip_payment_global_template']);
-            $template_logo_url = sanitize_text_field($_POST['lkn_wcip_template_logo_url']);
-            $default_footer = wp_kses_post($_POST['lkn_wcip_default_footer']);
-            $sender_details = wp_kses_post($_POST['lkn_wcip_sender_details']);
-            $text_before_payment_link = wp_kses_post($_POST['lkn_wcip_text_before_payment_link']);
-            $email_verify = isset($_POST["lkn_wcip_after_save_button_email_check"]);
+        $current_tab = isset($_GET['settings']) ? $_GET['settings'] : 'Invoices';
 
-            update_option('lkn_wcip_global_pdf_template_id', $global_pdf_template);
-            update_option('lkn_wcip_template_logo_url', $template_logo_url);
-            update_option('lkn_wcip_default_footer', $default_footer);
-            update_option('lkn_wcip_sender_details', $sender_details);
-            update_option('lkn_wcip_text_before_payment_link', $text_before_payment_link);
-            update_option("lkn_wcip_after_save_button_email_check", $email_verify);
+        if ( ! empty($_POST)) {
+            if($current_tab !== 'Subscriptions'){
+                $global_pdf_template = sanitize_text_field($_POST['lkn_wcip_payment_global_template']);
+                $template_logo_url = sanitize_text_field($_POST['lkn_wcip_template_logo_url']);
+                $default_footer = wp_kses_post($_POST['lkn_wcip_default_footer']);
+                $sender_details = wp_kses_post($_POST['lkn_wcip_sender_details']);
+                $text_before_payment_link = wp_kses_post($_POST['lkn_wcip_text_before_payment_link']);
+                $email_verify = isset($_POST["lkn_wcip_after_save_button_email_check"]);
+    
+                update_option('lkn_wcip_global_pdf_template_id', $global_pdf_template);
+                update_option('lkn_wcip_template_logo_url', $template_logo_url);
+                update_option('lkn_wcip_default_footer', $default_footer);
+                update_option('lkn_wcip_sender_details', $sender_details);
+                update_option('lkn_wcip_text_before_payment_link', $text_before_payment_link);
+                update_option("lkn_wcip_after_save_button_email_check", $email_verify);
+            }else{
+                $interval_number = $_POST["lkn_wcip_subscription_interval_number"];
+                $interval_type = $_POST["lkn_wcip_subscription_interval_type"];
+
+                update_option('lkn_wcip_interval_number', $interval_number);
+                update_option('lkn_wcip_interval_type', $interval_type);
+
+                add_option("teste Subscription Option POST ". uniqid(), json_encode($_POST));
+                add_option("teste Subscription Option POST $interval_number  /  $interval_type   ". uniqid(), json_encode($_POST));
+            }
         }
 
         $templates_list = $this->handler_invoice_templates->get_templates_list();
         $global_template = get_option('lkn_wcip_global_pdf_template_id', 'linknacional');
         $template_logo_url = get_option('lkn_wcip_template_logo_url');
+        $interval_number = get_option('lkn_wcip_interval_number');
+        $interval_type = get_option('lkn_wcip_interval_type');
         $default_footer = get_option('lkn_wcip_default_footer');
         $sender_details = get_option('lkn_wcip_sender_details');
         $text_before_payment_link = get_option('lkn_wcip_text_before_payment_link');
@@ -242,7 +257,6 @@ final class Wc_Payment_Invoice_Admin {
 
         wp_create_nonce('wp_rest');
 
-        $current_tab = isset($_GET['settings']) ? $_GET['settings'] : 'Invoices';
 
         // Função para verificar qual aba está ativa
         function is_active_tab($tab_name, $current_tab) {
@@ -263,9 +277,17 @@ final class Wc_Payment_Invoice_Admin {
                 </a>
             </nav>
             <form
-                action="<?php menu_page_url('settings'); ?>"
+                action="<?php echo menu_page_url('settings', false) . "&settings=$current_tab"; ?>"
                 method="post" class="wcip-form-wrap">
                 <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
+
+                <input 
+                    name="lkn_wcip_settings_nonce" 
+                    id="lkn_wcip_settings_nonce" 
+                    type="hidden"
+                    value="<?php echo esc_attr(wp_create_nonce('settings_nonce')) ?>"
+                >
+
                 <div class="wcip-invoice-data">
                     <?php 
                         if ($current_tab == 'Invoices') {
@@ -307,8 +329,6 @@ final class Wc_Payment_Invoice_Admin {
                                         <input name="lkn_wcip_template_logo_url" id="lkn_wcip_template_logo_url" class="regular-text"
                                             type="url"
                                             value="<?php echo esc_attr($template_logo_url); ?>">
-                                        <input name="lkn_wcip_settings_nonce" id="lkn_wcip_settings_nonce" type="hidden"
-                                            value="<?php echo esc_attr(wp_create_nonce('settings_nonce')) ?>">
                                     </div>
         
                                     <div class="input-row-wrap input-row-wrap-global-settings">
@@ -361,26 +381,27 @@ final class Wc_Payment_Invoice_Admin {
                             </h2>
                             <div class="input-row-wrap" id="lkn_wcip_subscription_interval">
                                 <label
-                                    for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Subscription Interval', 'wc-invoice-payment'); ?></label>
+                                    for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Invoice issuance lead time', 'wc-invoice-payment'); ?></label>
                                 <div class="lkn_wcip_subscription_interval_div">
-                                    <input type="number" min="1" name="lkn_wcip_subscription_interval_number"
-                                        id="lkn_wcip_subscription_interval_number" value="1">
+                                    <input type="number" min="0" name="lkn_wcip_subscription_interval_number"
+                                        id="lkn_wcip_subscription_interval_number" value="<?php echo esc_attr($interval_number); ?>">
                                     <select name="lkn_wcip_subscription_interval_type">
-                                        <option value="day">
+                                        <option value="day" <?php echo esc_attr($interval_type == 'day' ? esc_attr("selected") : '') ?>>
                                             <?php esc_attr_e('Days', 'wc-invoice-payment'); ?>
                                         </option>
-                                        <option value="week">
+                                        <option value="week" <?php echo esc_attr($interval_type == 'week' ? esc_attr("selected") : '') ?>>
                                             <?php esc_attr_e('Weeks', 'wc-invoice-payment'); ?>
                                         </option>
-                                        <option value="month" selected>
+                                        <option value="month" <?php echo esc_attr($interval_type == 'month' ? esc_attr("selected") : '') ?>>
                                             <?php esc_attr_e('Months', 'wc-invoice-payment'); ?>
-                                        </option>
-                                        <option value="year">
-                                            <?php esc_attr_e('Years', 'wc-invoice-payment'); ?>
                                         </option>
                                     </select>
                                 </div>
-                                <span class="description"></span>
+                                <span class="description">
+                                    <?php esc_attr_e('Set the lead time for invoice generation relative to the due date.', 
+                                        'wc-invoice-payment'
+                                    ); ?>
+                                </span>
                             </div>
                         </div>
                     <?php 
