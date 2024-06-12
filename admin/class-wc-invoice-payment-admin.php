@@ -200,10 +200,7 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce') && wp_verify_nonce($_POST['lkn_wcip_settings_nonce'])) {
             return;
         }
-
-        wp_enqueue_style( 'woocommerce-style', plugins_url() . '/woocommerce/assets/css/woocommerce.css' );
-        wp_enqueue_script( 'woocommerce', plugins_url() . '/woocommerce/assets/js/frontend/woocommerce.js', array( 'jquery' ), '', true );
-        
+        wp_enqueue_style( 'my-tailwind-plugin-styles', WC_PAYMENT_INVOICE_ROOT_URL . 'public/css/style.css' );
         wp_enqueue_editor();
 
         $current_tab = isset($_GET['settings']) ? $_GET['settings'] : 'Invoices';
@@ -265,6 +262,37 @@ final class Wc_Payment_Invoice_Admin {
 
         ?>
         <div class="wrap">
+            <style>
+                .tooltip {
+                    position: relative;
+                    display: inline-block;
+                    background-color: #a99f93;
+
+                }
+
+                .tooltip .tooltiptext {
+                    visibility: hidden;
+                    width: 200px;
+                    background-color: #555;
+                    color: #fff;
+                    text-align: center;
+                    border-radius: 6px;
+                    padding: 5px;
+                    position: absolute;
+                    z-index: 1;
+                    bottom: 125%; /* Adjust this value to control the position of the tooltip */
+                    left: 50%;
+                    margin-left: -100px; /* Adjust this value to center the tooltip */
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                }
+
+                .tooltip:hover .tooltiptext {
+                    visibility: visible;
+                    opacity: 1;
+                }
+
+            </style>
             <h1><?php esc_attr_e('Settings', 'wc-invoice-payment'); ?>
             </h1>
             <?php settings_errors(); ?>
@@ -396,7 +424,14 @@ final class Wc_Payment_Invoice_Admin {
                                             <?php esc_attr_e('Months', 'wc-invoice-payment'); ?>
                                         </option>
                                     </select>
+
                                 </div>
+                                <!-- <div class="tooltip">
+                                    <span class="tootip w-8 h-8 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
+                                    <span class="tooltiptext">
+                                        <?php esc_attr_e('Set the lead time for invoice generation relative to the due date.', 'wc-invoice-payment'); ?>
+                                    </span>
+                                </div> //TODO Finalizar o botão de dicas -->
                                 <span class="description">
                                     <?php esc_attr_e('Set the lead time for invoice generation relative to the due date.', 
                                         'wc-invoice-payment'
