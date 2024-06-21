@@ -263,13 +263,19 @@ final class Wc_Payment_Invoice_Admin {
         ?>
         <div class="wrap">
             <style>
+                .flex-row{
+                    display: flex;
+                    flex-direction: row;
+                }
                 .tooltip {
                     position: relative;
                     display: inline-block;
                     background-color: #a99f93;
+                    border-radius: 70%;
+                    order: 3;
 
                 }
-
+        
                 .tooltip .tooltiptext {
                     visibility: hidden;
                     width: 200px;
@@ -410,7 +416,15 @@ final class Wc_Payment_Invoice_Admin {
                             <div class="input-row-wrap" id="lkn_wcip_subscription_interval">
                                 <label
                                     for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Invoice issuance lead time', 'wc-invoice-payment'); ?></label>
-                                <div class="lkn_wcip_subscription_interval_div">
+
+                            <div class="flex-row">
+                            <div class="tooltip">
+                                    <span class="tootip w-8 h-8 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
+                                    <span class="tooltiptext">
+                                        <?php esc_attr_e('Set the lead time for invoice generation relative to the due date.', 'wc-invoice-payment'); ?>
+                                    </span>
+                                 </div> <!--//TODO Finalizar o botão de dicas  -->
+                            <div class="lkn_wcip_subscription_interval_div">
                                     <input type="number" min="0" name="lkn_wcip_subscription_interval_number"
                                         id="lkn_wcip_subscription_interval_number" value="<?php echo esc_attr($interval_number); ?>">
                                     <select name="lkn_wcip_subscription_interval_type">
@@ -426,17 +440,10 @@ final class Wc_Payment_Invoice_Admin {
                                     </select>
 
                                 </div>
-                                <!-- <div class="tooltip">
-                                    <span class="tootip w-8 h-8 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                    <span class="tooltiptext">
-                                        <?php esc_attr_e('Set the lead time for invoice generation relative to the due date.', 'wc-invoice-payment'); ?>
-                                    </span>
-                                </div> //TODO Finalizar o botão de dicas -->
-                                <span class="description">
-                                    <?php esc_attr_e('Set the lead time for invoice generation relative to the due date.', 
-                                        'wc-invoice-payment'
-                                    ); ?>
-                                </span>
+                            
+                            </div>
+                               
+                            
                             </div>
                         </div>
                     <?php 
