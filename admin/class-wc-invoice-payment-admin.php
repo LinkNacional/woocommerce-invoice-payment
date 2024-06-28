@@ -197,7 +197,7 @@ final class Wc_Payment_Invoice_Admin {
     }
 
     public function render_settings_page(): void {
-        if ( ! current_user_can('manage_woocommerce') && wp_verify_nonce($_POST['lkn_wcip_settings_nonce'])) {
+        if ( ! current_user_can('manage_woocommerce') && !wp_verify_nonce($_POST['lkn_wcip_settings_nonce'], 'settings_nonce')) {
             return;
         }
         wp_enqueue_style( 'my-tailwind-plugin-styles', WC_PAYMENT_INVOICE_ROOT_URL . 'public/css/style.css' );
@@ -354,7 +354,7 @@ final class Wc_Payment_Invoice_Admin {
         
                                     <div class="input-row-wrap input-row-wrap-global-settings">
                                         <label class="lkn_wcip_payment_global_template_label" for="lkn_wcip_payment_global_template">
-                                            <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); ?>
+                                            <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); // TODO alterar configuração para input file do wordpress?>
                                             <div class="lkn_wcip_payment_global_template_label_description">
                                                 <?php esc_attr_e('Only SVG, maximum resolution 800x800', 'wc-invoice-payment'); ?>
                                             </div>

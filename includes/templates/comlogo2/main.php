@@ -46,8 +46,11 @@ $wcip_footer_notes = $order->get_meta('wcip_footer_notes');
 // Load logo as base 64.
 $logo_url_setting = get_option('lkn_wcip_template_logo_url');
 $logo_path = empty($logo_url_setting) ? 'https://dummyimage.com/180x180/000/fff' : $logo_url_setting;
+
 $response = wp_remote_get($logo_path, array(
     'timeout' => 10,
+    'sslverify' => false
+
 ));
 
 if (is_wp_error($response)) {
@@ -55,9 +58,13 @@ if (is_wp_error($response)) {
 } else {
     $data = wp_remote_retrieve_body($response);
     $type = wp_remote_retrieve_header($response, 'content-type');
-    
+
+    // Se precisar do base64 para uso posterior
     $logo_base64 = 'data:' . $type . ';base64,' . base64_encode($data);
 }
+
+
+add_option('uuni '.uniqid(), ($logo_base64));
 
 // Generates the QR Code as base 64 for the payment link.
 ob_start();
