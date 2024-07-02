@@ -245,8 +245,11 @@ msgstr ""
 msgid "Invoice issuance lead time"
 msgstr ""
 
-msgid "Maximum resolution 180x180"
+msgid "Maximum recommended width of 460 pixels"
 msgstr ""
 
 msgid "Upload image"
+msgstr ""
+
+msgid "Downloading..."
 msgstr ""

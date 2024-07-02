@@ -64,7 +64,7 @@ class Wc_Payment_Invoice_Subscription{
     public function add_checkbox( $products_type ) {
         global $post;
         //Criando uma nova checkbox no formulário de criação de produtos
-        $subscription_product = get_post_meta( $post->ID, '_lkn-wcip-subscription-product', true );
+        $subscription_product = get_post_meta( $post, '_lkn-wcip-subscription-product', true );
         $products_type['subscriptionCheckbox'] = array(
             'id'            => '_lkn-wcip-subscription-product',
 			'wrapper_class' => 'show_if_simple',

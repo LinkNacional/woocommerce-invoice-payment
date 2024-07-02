@@ -87,52 +87,70 @@ function lkn_get_wp_base_url() {
   return homeUrl
 }
 
-function lkn_wcip_generate_invoice_pdf(invoiceId) {
-  window.alert(__('Your download will begin shortly. Please wait a moment.', 'wc-invoice-payment'))
+function lkn_wcip_generate_invoice_pdf(invoiceId, key) {
 
   const loadingIcon = document.querySelector('.dashicons-image-rotate')
-  if (loadingIcon) {
-    loadingIcon.style.display = 'block'
-  }
-  fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
-    method: 'GET',
-    headers: {
-      'content-type': 'application/json',
-      'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
-    },
-    cache: 'no-store'
-  })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error()
+  const downloadButtons = document.querySelectorAll('.lkn_wcip_generate_pdf_btn')
+  downloadButtons.forEach((downloadButton, i) => {
+    if (i == key) {
+
+      if (!downloadButton?.disabled) {
+        if (downloadButton) {
+          downloadButton.innerHTML = phpattributes.downloading
+          downloadButton.disabled = true
+        }
+
+        if (loadingIcon) {
+          loadingIcon.style.display = 'block'
+        }
+        fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
+          method: 'GET',
+          headers: {
+            'content-type': 'application/json',
+            'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
+          },
+          cache: 'no-store'
+        })
+          .then(res => {
+            if (!res.ok) {
+              throw new Error()
+            }
+
+            return res.text() // Alterado para res.text() para obter a resposta como texto
+          })
+          .then(data => {
+            const blob = base64toBlob(data) // Função para converter base64 em Blob
+            const url = window.URL.createObjectURL(blob)
+            const link = document.createElement('a')
+
+            link.href = url
+            link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf')
+            document.body.appendChild(link)
+
+            link.click()
+
+            link.parentNode.removeChild(link)
+
+            if (loadingIcon) {
+              loadingIcon.style.display = 'none'
+            }
+
+            if (downloadButton) {
+              downloadButton.innerHTML = phpattributes.downloadInvoice
+              downloadButton.disabled = false
+            }
+          })
+          .catch(error => {
+            window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
+            console.error(error)
+            if (loadingIcon) {
+              loadingIcon.style.display = 'none'
+            }
+          })
       }
+    }
 
-      return res.text() // Alterado para res.text() para obter a resposta como texto
-    })
-    .then(data => {
-      const blob = base64toBlob(data) // Função para converter base64 em Blob
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-
-      link.href = url
-      link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf')
-      document.body.appendChild(link)
-
-      link.click()
-
-      link.parentNode.removeChild(link)
-
-      if (loadingIcon) {
-        loadingIcon.style.display = 'none'
-      }
-    })
-    .catch(error => {
-      window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
-      console.error(error)
-      if (loadingIcon) {
-        loadingIcon.style.display = 'none'
-      }
-    })
+  });
 }
 
 function base64toBlob(base64Data) {
@@ -194,8 +212,8 @@ function handlePreviewPdfTemplate(selectTpl, imgPreview) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const btnGenerateInvoicePdf = document.querySelectorAll('.lkn_wcip_generate_pdf_btn') ?? []
-  btnGenerateInvoicePdf.forEach(btn => {
-    btn.addEventListener('click', () => lkn_wcip_generate_invoice_pdf(btn.dataset.invoiceId))
+  btnGenerateInvoicePdf.forEach((btn, i) => {
+    btn.addEventListener('click', () => { lkn_wcip_generate_invoice_pdf(btn.dataset.invoiceId, i) })
   })
 
   const selectGlobalTemplate = document.getElementById('lkn_wcip_payment_global_template')

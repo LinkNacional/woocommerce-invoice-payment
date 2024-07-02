@@ -148,7 +148,14 @@ final class Wc_Payment_Invoice_Admin {
         ) {
             wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', array('wp-i18n'), $this->version, false);
             wp_set_script_translations($this->plugin_name . '-admin-js', 'wc-invoice-payment', WC_PAYMENT_INVOICE_TRANSLATION_PATH);
-            global $post_type;
+            wp_localize_script( 
+                $this->plugin_name . '-admin-js',
+                'phpattributes',
+                array(
+                    'downloadInvoice' => __('Download invoice', 'wc-invoice-payment'),
+                    'downloading' => __('Downloading...', 'wc-invoice-payment')
+                )
+            );
             wp_enqueue_media();
             wp_enqueue_script( 'cpt-admin-script', WC_PAYMENT_INVOICE_ROOT_URL . 'public/js/wc-invoice-payment-public-input-file.js', array( 'jquery' ), '1.0', true );
         }
@@ -363,7 +370,7 @@ final class Wc_Payment_Invoice_Admin {
                                         <label class="lkn_wcip_payment_global_template_label" for="lkn_wcip_payment_global_template">
                                             <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); // TODO alterar configuração para input file do wordpress?>
                                             <div class="lkn_wcip_payment_global_template_label_description">
-                                                <?php esc_attr_e('Maximum resolution 180x180', 'wc-invoice-payment'); ?>
+                                                <?php esc_attr_e('Maximum recommended width of 460 pixels', 'wc-invoice-payment'); ?>
                                             </div>
                                         </label>
         
@@ -777,12 +784,12 @@ final class Wc_Payment_Invoice_Admin {
 						<label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
 						<input
 							name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-							type="tel"
+							type="text"
 							id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
 							class="regular-text lkn_wcip_amount_input"
 							oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
 							required
-							value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
+							value="<?php echo esc_attr(number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>">
 					</div>
 					<?php
                                     } else {
@@ -805,7 +812,7 @@ final class Wc_Payment_Invoice_Admin {
 							class="regular-text lkn_wcip_amount_input"
 							oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
 							required readonly
-							value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
+							value="<?php echo esc_attr(number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>">
 					</div>
 					<?php
                                     }
@@ -1208,7 +1215,7 @@ final class Wc_Payment_Invoice_Admin {
                                     class="regular-text lkn_wcip_amount_input"
                                     oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
                                     required
-                                    value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>"
+                                    value="<?php echo esc_attr(number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>"
                                     readonly>
                             </div>
                             <?php
@@ -1227,12 +1234,12 @@ final class Wc_Payment_Invoice_Admin {
                                 <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
                                 <input
                                     name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                    type="tel"
+                                    type="text"
                                     id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
                                     class="regular-text lkn_wcip_amount_input"
                                     oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
                                     required
-                                    value="<?php echo esc_attr(number_format($item->get_total()), $decimalQtd, $decimalSeparator, $thousandSeparator); ?>">
+                                    value="<?php echo esc_attr(number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>">
                             </div>
                             <?php
                                             }
@@ -1284,23 +1291,30 @@ final class Wc_Payment_Invoice_Admin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
-        ?>
-<form id="invoices-filter" method="POST">
-	<input id="wcip_rest_nonce" type="hidden"
-		value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>">
 
-	<div class="wrap">
-		<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-		<div>
-			<?php
-                        $object = new Lkn_Wcip_List_Table();
-        $object->prepare_items($validate_nonce);
-        $object->display();
+        if (isset($_GET['message'])) {
+            // Decodifica a mensagem recebida na URL
+            $decoded_message = urldecode($_GET['message']);
+            
+            echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
+        }
         ?>
-		</div>
-	</div>
-</form>
-<?php
+        <form id="invoices-filter" method="POST">
+            <input id="wcip_rest_nonce" type="hidden"
+                value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>">
+
+            <div class="wrap">
+                <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+                <div>
+                    <?php
+                        $object = new Lkn_Wcip_List_Table();
+                        $object->prepare_items($validate_nonce);
+                        $object->display();
+                    ?>
+                </div>
+            </div>
+        </form>
+        <?php
     }
 
     /**
@@ -1319,22 +1333,22 @@ final class Wc_Payment_Invoice_Admin {
             echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
         }
         ?>
-<form id="invoices-filter" method="POST">
-	<input id="wcip_rest_nonce" type="hidden"
-		value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>">
+        <form id="invoices-filter" method="POST">
+            <input id="wcip_rest_nonce" type="hidden"
+                value="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>">
 
-	<div class="wrap">
-		<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-		<div>
-			<?php
+            <div class="wrap">
+                <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+                <div>
+                    <?php
                         $object = new Lkn_Wcip_List_Table();
-        $object->prepare_items($validate_nonce, true);
-        $object->display();
-        ?>
-		</div>
-	</div>
-</form>
-<?php
+                        $object->prepare_items($validate_nonce, true);
+                        $object->display();
+                    ?>
+                </div>
+            </div>
+        </form>
+        <?php
     }
 
     /**
@@ -1388,6 +1402,8 @@ final class Wc_Payment_Invoice_Admin {
         }
         if (isset($_GET['invoiceChecked'])){
             $invoiceChecked = 'checked';
+        }else{
+            $invoiceChecked = '';
         }
 
         wp_enqueue_editor();
@@ -1821,10 +1837,13 @@ final class Wc_Payment_Invoice_Admin {
                     // Redireciona para a página desejada com o parâmetro 'message'
                     wp_redirect(admin_url('admin.php?page=wc-subscription-payment&message=' . $message));
                     exit;
-                }
+                }else{
+                    $message = urlencode(__('Invoice successfully saved', 'wc-invoice-payment'));
 
-                // Success message
-                echo '<div class="lkn_wcip_notice_positive">' . esc_html(__('Invoice successfully saved', 'wc-invoice-payment')) . '</div>';
+                    // Redireciona para a página desejada com o parâmetro 'message'
+                    wp_redirect(admin_url('admin.php?page=wc-invoice-payment&message=' . $message));
+                    exit;
+                }
             } else {
                 // Error messages
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
