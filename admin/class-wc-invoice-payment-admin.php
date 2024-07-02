@@ -148,6 +148,9 @@ final class Wc_Payment_Invoice_Admin {
         ) {
             wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', array('wp-i18n'), $this->version, false);
             wp_set_script_translations($this->plugin_name . '-admin-js', 'wc-invoice-payment', WC_PAYMENT_INVOICE_TRANSLATION_PATH);
+            global $post_type;
+            wp_enqueue_media();
+            wp_enqueue_script( 'cpt-admin-script', WC_PAYMENT_INVOICE_ROOT_URL . 'public/js/wc-invoice-payment-public-input-file.js', array( 'jquery' ), '1.0', true );
         }
     }
 
@@ -202,13 +205,14 @@ final class Wc_Payment_Invoice_Admin {
         }
         wp_enqueue_style( 'my-tailwind-plugin-styles', WC_PAYMENT_INVOICE_ROOT_URL . 'public/css/style.css' );
         wp_enqueue_editor();
-
+        
         $current_tab = isset($_GET['settings']) ? $_GET['settings'] : 'Invoices';
 
         if ( ! empty($_POST)) {
             if($current_tab !== 'Subscriptions'){
                 $global_pdf_template = sanitize_text_field($_POST['lkn_wcip_payment_global_template']);
-                $template_logo_url = sanitize_text_field($_POST['lkn_wcip_template_logo_url']);
+                $template_logo_url = sanitize_text_field($_POST['lkn_wcip_template_logo_url']);                
+
                 $default_footer = wp_kses_post($_POST['lkn_wcip_default_footer']);
                 $sender_details = wp_kses_post($_POST['lkn_wcip_sender_details']);
                 $text_before_payment_link = wp_kses_post($_POST['lkn_wcip_text_before_payment_link']);
@@ -234,6 +238,8 @@ final class Wc_Payment_Invoice_Admin {
 
         $templates_list = $this->handler_invoice_templates->get_templates_list();
         $global_template = get_option('lkn_wcip_global_pdf_template_id', 'linknacional');
+    
+
         $template_logo_url = get_option('lkn_wcip_template_logo_url');
         $interval_number = get_option('lkn_wcip_interval_number');
         $interval_type = get_option('lkn_wcip_interval_type');
@@ -253,6 +259,7 @@ final class Wc_Payment_Invoice_Admin {
         }, $templates_list));
 
         wp_create_nonce('wp_rest');
+        
 
 
         // Função para verificar qual aba está ativa
@@ -356,15 +363,23 @@ final class Wc_Payment_Invoice_Admin {
                                         <label class="lkn_wcip_payment_global_template_label" for="lkn_wcip_payment_global_template">
                                             <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); // TODO alterar configuração para input file do wordpress?>
                                             <div class="lkn_wcip_payment_global_template_label_description">
-                                                <?php esc_attr_e('Only SVG, maximum resolution 800x800', 'wc-invoice-payment'); ?>
+                                                <?php esc_attr_e('Maximum resolution 180x180', 'wc-invoice-payment'); ?>
                                             </div>
                                         </label>
         
-                                        <input name="lkn_wcip_template_logo_url" id="lkn_wcip_template_logo_url" class="regular-text"
-                                            type="url"
-                                            value="<?php echo esc_attr($template_logo_url); ?>">
+                                        
+                                        <div class="flex gap-2 items-center">
+                                            <button type="button" value="<?php echo esc_attr($template_logo_url); ?>" class="button button-primary" id="lkn_wcip_template_logo_url_btn" data-media-uploader-target="#lkn_wcip_template_logo_url">
+                                                <?php esc_attr_e('Upload image', 'wc-invoice-payment') ?>    
+                                            </button>
+                                            <h3 id="lkn_wcip_template_logo_desc"></h3>
+                                        </div>
+                                        <div style="display: none;">
+                                            <input type="text" class="large-text" value="<?php echo esc_attr($template_logo_url); ?>" name="lkn_wcip_template_logo_url" id="lkn_wcip_template_logo_url"/>
+                                        </div>
                                     </div>
-        
+                                            
+
                                     <div class="input-row-wrap input-row-wrap-global-settings">
                                         <label for="lkn_wcip_default_footer">
                                             <?php esc_attr_e('Default footer', 'wc-invoice-payment'); ?>

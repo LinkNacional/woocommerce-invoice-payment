@@ -244,3 +244,9 @@ msgstr ""
 
 msgid "Invoice issuance lead time"
 msgstr ""
+
+msgid "Maximum resolution 180x180"
+msgstr ""
+
+msgid "Upload image"
+msgstr ""

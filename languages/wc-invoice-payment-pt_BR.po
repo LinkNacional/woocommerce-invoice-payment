@@ -244,3 +244,9 @@ msgstr "Configure a antecedência para a geração da fatura em relação à dat
 
 msgid "Invoice issuance lead time"
 msgstr "Antecedência para emissão de fatura"
+
+msgid "Maximum resolution 180x180"
+msgstr "Resulução máxima de 180x180"
+
+msgid "Upload image"
+msgstr "Enviar imagem"
