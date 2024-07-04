@@ -1,3 +1,10 @@
+# 1.7.0 - 04/07/2024
+* Adição de configuração para definir limite de faturas geradas por assinatura;
+* Adição de card para exibir IDs de faturas geradas pela assinatura;
+* Adição de coluna "Assinatura" na tabela de faturas;
+* Adição de configuração que permite ao administrador definir o tempo de antecedência com que a fatura será gerada;
+* Alteração na configuração de imagem do PDF para utilizar o modal do Wordpress.
+
 # 1.6.0 - 06/06/2024
 * Adicionar Feedback visual ao clicar no botão de baixar faturas; 
 * Adicionar alerta na criação de assinaturas; 
