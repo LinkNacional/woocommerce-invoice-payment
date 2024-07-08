@@ -239,7 +239,7 @@ class Wc_Payment_Invoice_Subscription{
         $interval_number_option = get_option('lkn_wcip_interval_number');
         $interval_type_option = get_option('lkn_wcip_interval_type');
         //Pega a quantidade de tempo de intervalo da cobrança e diminui horas, dias, semanas e meses de acordo com o que foi escolhido        
-        if($interval_number_option == 0){ //TODO corrigir evento cron não gerado
+        if($interval_number_option == 0){ 
             $return_array = $this->calcule_switch($interval_type, $interval_number, $current_time);
         }else{
             $next_due_date = strtotime( "+{$interval_number} $interval_type", $current_time );
@@ -250,7 +250,9 @@ class Wc_Payment_Invoice_Subscription{
                 'time_removed'  => $time_removed
             );
             //Caso o valor de antecedencia escolhido pelo usuário seja maior que o valor de recorrencia da fatura, é usado a lógica automatica do sistema
-            if($current_time > $next_due_date){
+            add_option('currten time ' . uniqid(), json_encode($current_time));
+            add_option(' next_due_date ' . uniqid(), json_encode($current_time));
+            if($current_time >= $next_due_date){
                 $return_array = $this->calcule_switch($interval_type, $interval_number, $current_time);
             }
         }

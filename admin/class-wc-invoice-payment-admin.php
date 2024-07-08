@@ -368,7 +368,7 @@ final class Wc_Payment_Invoice_Admin {
         
                                     <div class="input-row-wrap input-row-wrap-global-settings">
                                         <label class="lkn_wcip_payment_global_template_label" for="lkn_wcip_payment_global_template">
-                                            <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); // TODO alterar configuração para input file do wordpress?>
+                                            <?php esc_attr_e('Logo URL', 'wc-invoice-payment');?>
                                             <div class="lkn_wcip_payment_global_template_label_description">
                                                 <?php esc_attr_e('Maximum recommended width of 460 pixels', 'wc-invoice-payment'); ?>
                                             </div>
@@ -445,7 +445,7 @@ final class Wc_Payment_Invoice_Admin {
                                     <span class="tooltiptext">
                                         <?php esc_attr_e('Set the lead time for invoice generation relative to the due date.', 'wc-invoice-payment'); ?>
                                     </span>
-                                 </div> <!--//TODO Finalizar o botão de dicas  -->
+                                 </div>
                             <div class="lkn_wcip_subscription_interval_div">
                                     <input type="number" min="0" name="lkn_wcip_subscription_interval_number"
                                         id="lkn_wcip_subscription_interval_number" value="<?php echo esc_attr($interval_number); ?>">
@@ -1154,30 +1154,28 @@ final class Wc_Payment_Invoice_Admin {
                                 <?php
                                     $index = 1;
                                     //Lista as faturas geradas por essa assinatura
-                                    //for ($teste=0; $teste < 333; $teste++) { //TODO remover
-                                        foreach ($orders as $order) {
-                                            ?>
-                                                <p>
-                                            <?php
-                                            if ($i != 0) {
-                                                echo ' | ';
-                                            }
-                                            ?>
-                                                <a target="_blank">
-                                            <?php
-                                            echo esc_attr($order->get_id());
-                                            ?> 
-                                                </a>
-                                            <?php   
-                                            if ($index == count($orders)) {
-                                                echo ' | ';
-                                            }
-                                            $index++;
-                                            ?>
-                                                </p>
-                                            <?php
+                                    foreach ($orders as $order) {
+                                        ?>
+                                            <p>
+                                        <?php
+                                        if ($i != 0) {
+                                            echo ' | ';
                                         }
-                                    //}
+                                        ?>
+                                            <a target="_blank">
+                                        <?php
+                                        echo esc_attr($order->get_id());
+                                        ?> 
+                                            </a>
+                                        <?php   
+                                        if ($index == count($orders)) {
+                                            echo ' | ';
+                                        }
+                                        $index++;
+                                        ?>
+                                            </p>
+                                        <?php
+                                    }
                                 ?>
                         </div>
                     </div>
