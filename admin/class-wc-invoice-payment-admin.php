@@ -1101,6 +1101,12 @@ final class Wc_Payment_Invoice_Admin {
                                     min="<?php echo esc_attr(gmdate('Y-m-d')); ?>"
                                     readonly>
                             </div>
+                            <div class="input-column-wrap">
+                                <a class="lkn_wcip_generate_pdf_btn" href="#"
+                                    data-invoice-id="<?php echo esc_attr($invoiceId); ?>"><?php esc_attr_e('Download invoice', 'wc-invoice-payment'); ?></a>
+                                    &nbsp
+                                    <span class="dashicons dashicons-image-rotate"></span>
+                            </div>
                             <div class="input-row-wrap">
                                 <?php
                                     // Verifique se o invoiceId está agendado
