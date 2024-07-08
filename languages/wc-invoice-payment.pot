@@ -253,3 +253,6 @@ msgstr ""
 
 msgid "Downloading..."
 msgstr ""
+
+msgid "Create an invoice whenever a product is purchased."
+msgstr ""

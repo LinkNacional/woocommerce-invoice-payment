@@ -29,38 +29,6 @@ class Wc_Payment_Invoice_Subscription{
         }        
     }
 
-
-    // Adiciona o campo checkbox nas configurações gerais do WooCommerce
-    function custom_wc_general_settings_checkbox($settings) {
-        // Encontra a posição do botão de envio (submit)
-        $submit_position = count($settings) - 1;
-    
-        // Adiciona o novo campo antes do botão de envio
-        array_splice($settings, $submit_position, 0, array(
-            array(
-                'title'    => __('Activate invoices', 'woocommerce'),
-                'type'     => 'checkbox',
-                'id'       => 'active_product_invoices',
-                'desc_tip' => __('Create an invoice whenever a product is purchased.', 'woocommerce'),
-                'default'  => 'no',
-                'desc'     => __('Create invoices for products', 'woocommerce'),
-            )
-        ));
-    
-        return $settings;
-    }
-    
-    // Salva o valor do campo checkbox
-    function save_custom_wc_general_settings_checkbox() {
-        if(wp_verify_nonce($_POST['_wpnonce'])){            
-            woocommerce_update_options(
-                array(
-                    'active_product_invoices' => isset($_POST['active_product_invoices']) ? 'yes' : 'no', 
-                )
-            );
-        }
-    }
-
     public function add_checkbox( $products_type ) {
         global $post;
         //Criando uma nova checkbox no formulário de criação de produtos
@@ -179,8 +147,7 @@ class Wc_Payment_Invoice_Subscription{
         if(gettype($order_id) == "object"){
             $order_id = $order_id->id;
         }
-        if(get_option("active_product_invoices") == "yes"){
-
+        if(get_option("lkn_wcip_subscription_active_product_invoices")){
             $order = wc_get_order( $order_id );
             $items = $order->get_items();
 

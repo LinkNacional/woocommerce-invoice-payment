@@ -253,3 +253,6 @@ msgstr "Enviar imagem"
 
 msgid "Downloading..."
 msgstr "Baixando..."
+
+msgid "Create an invoice whenever a product is purchased."
+msgstr "Crie uma fatura sempre que um produto for adquirido."
