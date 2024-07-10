@@ -309,6 +309,10 @@
 	display: flex;
 }
 
+#lkn_wcip_subscription_limit_checkbox_div{
+	margin-top: 25px;
+}
+
 .lkn_wcip_payment_global_template_label {
 	display: flex;
 	flex-direction: column;

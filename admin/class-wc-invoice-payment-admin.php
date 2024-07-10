@@ -441,7 +441,7 @@ final class Wc_Payment_Invoice_Admin {
                                                     <div class="tooltip">
                                                         <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
                                                         <span class="tooltiptext">
-                                                            <?php esc_attr_e('Create an invoice whenever a product is purchased.', 'wc-invoice-payment'); ?>
+                                                            <?php esc_attr_e('By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store.', 'wc-invoice-payment'); ?>
                                                         </span>
                                                     </div>
                                             </label>
@@ -1598,25 +1598,10 @@ final class Wc_Payment_Invoice_Admin {
 				</div>
 				<div class="input-row-wrap" id="twoCheckboxDiv">
 					<label for="lkn_wcip_subscription_product">
-						Assinatura:
 						<input type="checkbox" name="lkn_wcip_subscription_product" id="lkn_wcip_subscription_product" <?php echo esc_attr($invoiceChecked) ?> >
+						<?php esc_attr_e('Subscription', 'wc-invoice-payment'); ?>
 					</label>
-                    <?php 
-                        woocommerce_wp_checkbox(
-                            array(
-                                'id' => 'lkn_wcip_subscription_limit_checkbox',
-                                'name' => 'lkn_wcip_subscription_limit_checkbox',
-                                'label' => __('Subscription limit', 'wc-invoice-payment') . ': ',
-                                'value' => 0,
-                                'type' => 'number',
-                                'custom_attributes' => array(
-                                    'min'  => '0',
-                                    'step' => '1.0',
-                                ),
-                            )
-                        );
-                    ?>
-				</div>  
+                </div>  
 				<div class="input-row-wrap" id="lkn_wcip_subscription_interval">
 					<label
 						for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Subscription Interval', 'wc-invoice-payment'); ?></label>
@@ -1639,6 +1624,12 @@ final class Wc_Payment_Invoice_Admin {
 						</select>
 					</div>
 				</div>
+                <div id="lkn_wcip_subscription_limit_checkbox_div">
+                    <label for="lkn_wcip_subscription_limit_checkbox">
+                        <input type="checkbox" name="lkn_wcip_subscription_limit_checkbox" id="lkn_wcip_subscription_limit_checkbox">
+                        <?php esc_attr_e('Limit number of invoices', 'wc-invoice-payment'); ?>
+                    </label>
+                </div>
                 <?php
                 woocommerce_wp_text_input(
                     array(

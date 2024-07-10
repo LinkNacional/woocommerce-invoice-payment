@@ -256,3 +256,9 @@ msgstr ""
 
 msgid "Create an invoice whenever a product is purchased."
 msgstr ""
+
+msgid "Limit number of invoices"
+msgstr ""
+
+msgid "By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store."
+msgstr ""

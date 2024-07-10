@@ -312,7 +312,7 @@ function lkn_wcip_cancel_subscription(deleteSubscription = false) {
 function lkn_wcip_display_subscription_inputs() {
   const subscription = document.querySelector('#lkn_wcip_subscription_product')
   const intervalElementSubscription = document.querySelector('#lkn_wcip_subscription_interval')
-  const limitCheckboxElementSubscription = document.querySelector('.form-field.lkn_wcip_subscription_limit_checkbox_field')
+  const limitCheckboxElementSubscription = document.querySelector('#lkn_wcip_subscription_limit_checkbox_div')
   const subscriptionLimit = document.querySelector('#lkn_wcip_subscription_limit_checkbox')
   const intervalElementSubscriptionLimit = document.querySelector('.lkn_wcip_subscription_limit_field')
 

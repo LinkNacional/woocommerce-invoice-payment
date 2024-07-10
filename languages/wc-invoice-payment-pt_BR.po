@@ -256,3 +256,9 @@ msgstr "Baixando..."
 
 msgid "Create an invoice whenever a product is purchased."
 msgstr "Crie uma fatura sempre que um produto for adquirido."
+
+msgid "Limit number of invoices"
+msgstr "Limitar quantidade de faturas"
+
+msgid "By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store."
+msgstr "Ao habilitar essa configuração todo pedido de compra do WooCommerce terá uma fatura disponível nas listas de faturas, esse recurso facilita o envio de um link de pagamento para o usuário que fez uma compra de produto na loja do WooCommerce."
