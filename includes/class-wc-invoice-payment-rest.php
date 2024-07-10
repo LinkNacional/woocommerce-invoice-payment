@@ -1,6 +1,7 @@
 <?php
 
 use Dompdf\Dompdf;
+use Dompdf\Options;
 
 /**
  * @see       https://www.linknacional.com/
@@ -54,7 +55,7 @@ final class Wc_Payment_Invoice_Loader_Rest
 
         // Displays the PDF in the browser
         // $dompdf = new Dompdf();
-        // $dompdf->loadHtml($getHtml());
+        // $dompdf->loadHt//throw $th;ml($getHtml());
         // $dompdf->setPaper('A4', 'portrait');
         // $dompdf->render();
         // $output = $dompdf->output();
@@ -66,7 +67,9 @@ final class Wc_Payment_Invoice_Loader_Rest
         // die();
 
         // Downloads the PDF
-        $dompdf = new Dompdf();
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
         $dompdf->loadHtml($getHtml());
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
@@ -79,6 +82,7 @@ final class Wc_Payment_Invoice_Loader_Rest
         header('Content-Disposition: attachment; filename="' . $file_name . '"');
         header('Content-Length: ' . strlen($output));
         header('Content-Transfer-Encoding: binary');
+        
         $base64_output = base64_encode($output);
         echo esc_html($base64_output);
         exit;
