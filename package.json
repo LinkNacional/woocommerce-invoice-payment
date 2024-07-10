@@ -6,7 +6,13 @@
     "type": "git",
     "url": "git+https://github.com/srbrunoferreira/docker-php-dev-container.git"
   },
-  "keywords": ["WordPress", "WHMCS", "plugin", "Dev Container", "VS Code"],
+  "keywords": [
+    "WordPress",
+    "WHMCS",
+    "plugin",
+    "Dev Container",
+    "VS Code"
+  ],
   "author": "Bruno Ferreira <srbrunoferreira@outlook.com>",
   "license": "MIT",
   "bugs": {
@@ -20,5 +26,13 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.6.1",
     "eslint-plugin-promise": "^6.1.1"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4"
+  },
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./public/css/tailwind.css -o ./public/css/style.css --watch"
   }
 }

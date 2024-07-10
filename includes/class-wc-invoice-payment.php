@@ -211,13 +211,13 @@ final class Wc_Payment_Invoice
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');
         $this->loader->add_action('woocommerce_checkout_order_processed', $subscription_class, 'validate_product');
+        $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $subscription_class, 'validate_product');
         $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
         $this->loader->add_action('woocommerce_process_product_meta', $subscription_class, 'save_subscription_fields');
-        $this->loader->add_action('woocommerce_general_settings', $subscription_class, 'custom_wc_general_settings_checkbox');
-        $this->loader->add_action('woocommerce_update_options_general', $subscription_class, 'save_custom_wc_general_settings_checkbox');
         $this->loader->add_action('wp_ajax_cancel_subscription', $subscription_class, 'cancel_subscription_callback');
 
         $this->loader->add_action('generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1);
+        
     }
 
     function custom_email_verification_required($verification_required)
@@ -240,10 +240,12 @@ final class Wc_Payment_Invoice
      */
     private function define_public_hooks(): void
     {
+        
         $plugin_public = new Wc_Payment_Invoice_Public($this->get_plugin_name(), $this->get_version());
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
-    }
+        
+    }    
 }

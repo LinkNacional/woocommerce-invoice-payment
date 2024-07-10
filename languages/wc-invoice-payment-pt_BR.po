@@ -65,6 +65,9 @@ msgstr "Preço"
 msgid "Add invoice"
 msgstr "Adicionar fatura"
 
+msgid "Add subscription"
+msgstr "Adicionar assinatura"
+
 msgid "Payment status"
 msgstr "Status de pagamento"
 
@@ -203,6 +206,9 @@ msgstr "Criar faturas para produtos"
 msgid "Edit subscription"
 msgstr "Editar assinatura"
 
+msgid "Subscription successfully saved"
+msgstr "Assinatura salva com sucesso"
+
 msgid "Subscription actions"
 msgstr "Ações da assinatura"
 
@@ -214,3 +220,45 @@ msgstr "Cancelar assinatura"
 
 msgid "Enable/Disable email verification."
 msgstr "Habilitar/Desabilitar verificação de email."
+
+msgid "Your download will begin shortly. Please wait a moment."
+msgstr "O seu download será iniciado em breve. Por favor, aguarde um momento."
+
+msgid "Select the checkbox to enable email verification."
+msgstr "Marque a caixa de seleção para ativar a verificação de e-mail."
+
+msgid "Subscription limit"
+msgstr "Limite da assinatura"
+
+msgid "Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit."
+msgstr "Defina um limite para a quantidade de faturas que serão geradas para a assinatura, por padrão não há limite."
+
+msgid "Generated invoices"
+msgstr "Faturas geradas"
+
+msgid "Subscription settings"
+msgstr "Configurações de assinatura"
+
+msgid "Set the lead time for invoice generation relative to the due date."
+msgstr "Configure a antecedência para a geração da fatura em relação à data de vencimento."
+
+msgid "Invoice issuance lead time"
+msgstr "Antecedência para emissão de fatura"
+
+msgid "Maximum recommended width of 460 pixels"
+msgstr "Largura máxima recomendada de 460 pixels"
+
+msgid "Upload image"
+msgstr "Enviar imagem"
+
+msgid "Downloading..."
+msgstr "Baixando..."
+
+msgid "Create an invoice whenever a product is purchased."
+msgstr "Crie uma fatura sempre que um produto for adquirido."
+
+msgid "Limit number of invoices"
+msgstr "Limitar quantidade de faturas"
+
+msgid "By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store."
+msgstr "Ao habilitar essa configuração todo pedido de compra do WooCommerce terá uma fatura disponível nas listas de faturas, esse recurso facilita o envio de um link de pagamento para o usuário que fez uma compra de produto na loja do WooCommerce."

@@ -87,39 +87,70 @@ function lkn_get_wp_base_url() {
   return homeUrl
 }
 
-function lkn_wcip_generate_invoice_pdf(invoiceId) {
-  fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
-    method: 'GET',
-    headers: {
-      'content-type': 'application/json',
-      'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
-    },
-    cache: 'no-store'
-  })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error()
+function lkn_wcip_generate_invoice_pdf(invoiceId, key) {
+
+  const loadingIcon = document.querySelector('.dashicons-image-rotate')
+  const downloadButtons = document.querySelectorAll('.lkn_wcip_generate_pdf_btn')
+  downloadButtons.forEach((downloadButton, i) => {
+    if (i == key) {
+
+      if (!downloadButton?.disabled) {
+        if (downloadButton) {
+          downloadButton.innerHTML = phpattributes.downloading
+          downloadButton.disabled = true
+        }
+
+        if (loadingIcon) {
+          loadingIcon.style.display = 'block'
+        }
+        fetch(`${lkn_get_wp_base_url()}/wp-json/wc-invoice-payment/v1/generate-pdf?invoice_id=${invoiceId}`, {
+          method: 'GET',
+          headers: {
+            'content-type': 'application/json',
+            'X-WP-Nonce': document.getElementById('wcip_rest_nonce').value
+          },
+          cache: 'no-store'
+        })
+          .then(res => {
+            if (!res.ok) {
+              throw new Error()
+            }
+
+            return res.text() // Alterado para res.text() para obter a resposta como texto
+          })
+          .then(data => {
+            const blob = base64toBlob(data) // Função para converter base64 em Blob
+            const url = window.URL.createObjectURL(blob)
+            const link = document.createElement('a')
+
+            link.href = url
+            link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf')
+            document.body.appendChild(link)
+
+            link.click()
+
+            link.parentNode.removeChild(link)
+
+            if (loadingIcon) {
+              loadingIcon.style.display = 'none'
+            }
+
+            if (downloadButton) {
+              downloadButton.innerHTML = phpattributes.downloadInvoice
+              downloadButton.disabled = false
+            }
+          })
+          .catch(error => {
+            window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
+            console.error(error)
+            if (loadingIcon) {
+              loadingIcon.style.display = 'none'
+            }
+          })
       }
+    }
 
-      return res.text() // Alterado para res.text() para obter a resposta como texto
-    })
-    .then(data => {
-      const blob = base64toBlob(data) // Função para converter base64 em Blob
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-
-      link.href = url
-      link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf')
-      document.body.appendChild(link)
-
-      link.click()
-
-      link.parentNode.removeChild(link)
-    })
-    .catch(error => {
-      window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
-      console.error(error)
-    })
+  });
 }
 
 function base64toBlob(base64Data) {
@@ -181,8 +212,8 @@ function handlePreviewPdfTemplate(selectTpl, imgPreview) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const btnGenerateInvoicePdf = document.querySelectorAll('.lkn_wcip_generate_pdf_btn') ?? []
-  btnGenerateInvoicePdf.forEach(btn => {
-    btn.addEventListener('click', () => lkn_wcip_generate_invoice_pdf(btn.dataset.invoiceId))
+  btnGenerateInvoicePdf.forEach((btn, i) => {
+    btn.addEventListener('click', () => { lkn_wcip_generate_invoice_pdf(btn.dataset.invoiceId, i) })
   })
 
   const selectGlobalTemplate = document.getElementById('lkn_wcip_payment_global_template')
@@ -279,15 +310,44 @@ function lkn_wcip_cancel_subscription(deleteSubscription = false) {
 
 // Função para adicionar e remover display none dos campos dependendo se a fatura é uma assinatura
 function lkn_wcip_display_subscription_inputs() {
-  const checkbox = document.querySelector('#lkn_wcip_subscription_product')
-  const intervalElement = document.querySelector('#lkn_wcip_subscription_interval')
-  intervalElement.style.display = 'none'
+  const subscription = document.querySelector('#lkn_wcip_subscription_product')
+  const intervalElementSubscription = document.querySelector('#lkn_wcip_subscription_interval')
+  const limitCheckboxElementSubscription = document.querySelector('#lkn_wcip_subscription_limit_checkbox_div')
+  const subscriptionLimit = document.querySelector('#lkn_wcip_subscription_limit_checkbox')
+  const intervalElementSubscriptionLimit = document.querySelector('.lkn_wcip_subscription_limit_field')
 
-  checkbox.addEventListener('change', function () {
-    if (checkbox.checked) {
-      intervalElement.style.display = ''
+  intervalElementSubscription.style.display = 'none'
+  intervalElementSubscriptionLimit.style.display = 'none'
+  limitCheckboxElementSubscription.style.display = 'none'
+
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const invoiceChecked = urlParams.get('invoiceChecked');
+  if (invoiceChecked) {
+    intervalElementSubscription.style.display = ''
+    limitCheckboxElementSubscription.style.display = ''
+  }
+
+  subscription.addEventListener('change', function () {
+    if (subscription.checked) {
+      intervalElementSubscription.style.display = ''
+      limitCheckboxElementSubscription.style.display = ''
     } else {
-      intervalElement.style.display = 'none'
+      intervalElementSubscription.style.display = 'none'
+      limitCheckboxElementSubscription.style.display = 'none'
+    }
+  })
+
+  subscriptionLimit.addEventListener('change', function () {
+    if (subscriptionLimit.checked) {
+      intervalElementSubscriptionLimit.style.display = ''
+    } else {
+      intervalElementSubscriptionLimit.style.display = 'none'
     }
   })
 }
+jQuery(document).ready(function ($) {
+  $('.woocommerce-help-tip').on('mouseover', function () {
+    $(this).attr('title', $(this).attr('aria-label'));
+  });
+});

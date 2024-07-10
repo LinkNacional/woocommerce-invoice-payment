@@ -203,6 +203,9 @@ msgstr ""
 msgid "Edit subscription"
 msgstr ""
 
+msgid "Invoice successfully saved"
+msgstr ""
+
 msgid "Subscription actions"
 msgstr ""
 
@@ -213,4 +216,49 @@ msgid "Cancel subscription"
 msgstr ""
 
 msgid "Enable/Disable email verification."
+msgstr ""
+
+msgid "Your download will begin shortly. Please wait a moment."
+msgstr ""
+
+msgid "Select the checkbox to enable email verification."
+msgstr ""
+
+msgid "Add subscription"
+msgstr ""
+
+msgid "Subscription limit"
+msgstr ""
+
+msgid "Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit."
+msgstr "
+
+msgid "Generated invoices"
+msgstr ""
+
+msgid "Subscription settings"
+msgstr ""
+
+msgid "Set the lead time for invoice generation relative to the due date."
+msgstr ""
+
+msgid "Invoice issuance lead time"
+msgstr ""
+
+msgid "Maximum recommended width of 460 pixels"
+msgstr ""
+
+msgid "Upload image"
+msgstr ""
+
+msgid "Downloading..."
+msgstr ""
+
+msgid "Create an invoice whenever a product is purchased."
+msgstr ""
+
+msgid "Limit number of invoices"
+msgstr ""
+
+msgid "By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store."
 msgstr ""
