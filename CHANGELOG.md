@@ -1,3 +1,7 @@
+# 1.7.1 - 04/07/2024
+* Corrigir bug de quebra de linha nas informações extra da fatura;
+* Troca de texto nas configurações de verificação de email.
+
 # 1.7.0 - 04/07/2024
 * Adição de configuração para definir limite de faturas geradas por assinatura;
 * Adição de card para exibir IDs de faturas geradas pela assinatura;
