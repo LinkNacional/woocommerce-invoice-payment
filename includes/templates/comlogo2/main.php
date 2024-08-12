@@ -4,8 +4,7 @@
 /**  @var int $invoice_id */
 require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/libs/phpqrcode.php';
 
-function to_wc_monetary_format(float $amount): string
-{
+function to_wc_monetary_format(float $amount): string {
     return number_format(
         $amount,
         wc_get_price_decimals(),
@@ -42,11 +41,9 @@ HTML;
 $wcip_extra_data = $order->get_meta('wcip_extra_data');
 $wcip_footer_notes = $order->get_meta('wcip_footer_notes');
 
-
 // Load logo as base 64.
 $logo_url_setting = get_option('lkn_wcip_template_logo_url');
 $logo_path = empty($logo_url_setting) ? 'https://dummyimage.com/180x180/000/fff' : $logo_url_setting;
-
 
 // Generates the QR Code as base 64 for the payment link.
 ob_start();
@@ -67,7 +64,10 @@ ob_start();
 <head>
     <title><?php echo esc_attr($document_title); ?></title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, user-scalable=1"
+    />
     <style>
         <?php include __DIR__ . '/styles.css'; ?>
     </style>
@@ -78,19 +78,27 @@ ob_start();
         <table>
             <tr>
                 <td id="invoice-details-column">
-                    <p><strong><?php esc_html_e('Invoice', 'wc-invoice-payment'); ?></strong> <?php echo esc_attr("#$invoice_number"); ?></p>
-                    <p><strong><?php esc_html_e('Date', 'wc-invoice-payment'); ?></strong> <?php echo esc_attr($invoice_created_at); ?></p>
+                    <p><strong><?php esc_html_e('Invoice', 'wc-invoice-payment'); ?></strong>
+                        <?php echo esc_attr("#$invoice_number"); ?>
+                    </p>
+                    <p><strong><?php esc_html_e('Date', 'wc-invoice-payment'); ?></strong>
+                        <?php echo esc_attr($invoice_created_at); ?>
+                    </p>
                     <?php if ($order_data) { ?>
-                        <?php $order_date = new DateTime($order_data) ?>
-                     
-                       <p>
-                        <strong> <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?></strong>
-                        <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>  
-                    <?php }?>
+                    <?php $order_date = new DateTime($order_data) ?>
+
+                    <p>
+                        <strong>
+                            <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?></strong>
+                        <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
+                        <?php }?>
                 </td>
-                
+
                 <td id="logo-td-container">
-                    <img src="<?php echo esc_attr($logo_path)?>" height ="160"/>
+                    <img
+                        src="<?php echo esc_attr($logo_path)?>"
+                        height="160"
+                    />
                 </td>
             </tr>
         </table>
@@ -99,7 +107,8 @@ ob_start();
     <table id="invoice-details-table">
         <tr>
             <td>
-                <p><?php echo wp_kses_post(get_option('lkn_wcip_sender_details')); ?></p>
+                <p><?php echo wp_kses_post(get_option('lkn_wcip_sender_details')); ?>
+                </p>
             </td>
         </tr>
         <tr>
@@ -109,14 +118,19 @@ ob_start();
         </tr>
         <tr>
             <td>
-                <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?></h1>
+                <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?>
+                </h1>
             </td>
         </tr>
         <tr>
             <td id="bill-to-container">
-                <div><?php echo esc_attr($invoice_client_name); ?></div>
-                <div><?php echo esc_attr($invoice_client_email); ?></div>
-                <div id="extra-data-container"><?php echo esc_attr(nl2br($wcip_extra_data)); ?></div>
+                <div><?php echo esc_attr($invoice_client_name); ?>
+                </div>
+                <div><?php echo esc_attr($invoice_client_email); ?>
+                </div>
+                <div id="extra-data-container">
+                    <?php echo wp_kses_post(nl2br($wcip_extra_data)); ?>
+                </div>
             </td>
         </tr>
     </table>
@@ -138,7 +152,8 @@ ob_start();
 
             <tfoot>
                 <tr>
-                    <th><?php esc_html_e('Total', 'wc-invoice-payment'); ?></th>
+                    <th><?php esc_html_e('Total', 'wc-invoice-payment'); ?>
+                    </th>
                     <td><?php echo esc_attr("$order_currency " . to_wc_monetary_format($order_total)); ?>
                     </td>
                 </tr>
@@ -150,9 +165,14 @@ ob_start();
         <figure>
             <figcaption>
                 <?php echo wp_kses_post(get_option('lkn_wcip_text_before_payment_link')); ?>
-                <span id="payment-link-container"><?php echo esc_attr($invoice_payment_link); ?></span>
+                <span
+                    id="payment-link-container"><?php echo esc_attr($invoice_payment_link); ?></span>
             </figcaption>
-            <img src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>" width="140" height="140">
+            <img
+                src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>"
+                width="140"
+                height="140"
+            >
         </figure>
     </section>
 
@@ -160,7 +180,10 @@ ob_start();
         <?php echo wp_kses_post($wcip_footer_notes); ?>
 
         <div style="text-align: center; width: 100%; opacity: 0.2; font-size: 0.8em; margin-top: 12px;">
-            <a href="https://www.linknacional.com.br/pagamento-internacional/" style="text-decoration: none;">
+            <a
+                href="https://www.linknacional.com.br/pagamento-internacional/"
+                style="text-decoration: none;"
+            >
                 <?php esc_html_e('Invoice By Link Nacional', 'wc-invoice-payment'); ?>
             </a>
         </div>

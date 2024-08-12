@@ -4,8 +4,7 @@
 /**  @var int $invoice_id */
 require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/libs/phpqrcode.php';
 
-function to_wc_monetary_format(float $amount): string
-{
+function to_wc_monetary_format(float $amount): string {
     return number_format(
         $amount,
         wc_get_price_decimals(),
@@ -62,7 +61,10 @@ ob_start();
 <head>
     <title><?php echo esc_attr($document_title); ?></title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, user-scalable=1"
+    />
     <style>
         <?php include __DIR__ . '/styles.css'; ?>
     </style>
@@ -72,7 +74,8 @@ ob_start();
     <table id="sender-details-table">
         <tr>
             <td>
-                <p><?php echo wp_kses_post(get_option('lkn_wcip_sender_details')); ?></p>
+                <p><?php echo wp_kses_post(get_option('lkn_wcip_sender_details')); ?>
+                </p>
             </td>
         </tr>
         <tr>
@@ -93,9 +96,15 @@ ob_start();
             <tr>
                 <td style="width: 50%;">
                     <section id="bill-to-container">
-                        <div><?php echo esc_attr($invoice_client_name); ?></div>
-                        <div><?php echo esc_attr($invoice_client_email); ?></div>
-                        <div id="extra-data-container"><?php echo esc_attr(nl2br($wcip_extra_data)); ?></div>
+                        <div>
+                            <?php echo esc_attr($invoice_client_name); ?>
+                        </div>
+                        <div>
+                            <?php echo esc_attr($invoice_client_email); ?>
+                        </div>
+                        <div id="extra-data-container">
+                            <?php echo wp_kses_post(nl2br($wcip_extra_data)); ?>
+                        </div>
                     </section>
                 </td>
                 <td id="invoice-details-column">
@@ -117,15 +126,15 @@ ob_start();
                             </td>
                         </tr>
                         <?php if ($order_data) : ?>
-                            <?php $order_date = new DateTime($order_data) ?>
-                            <tr>
-                                <td>
-                                    <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?>
-                                </td>
-                                <td>
-                                    <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
-                                </td>
-                            </tr>
+                        <?php $order_date = new DateTime($order_data) ?>
+                        <tr>
+                            <td>
+                                <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?>
+                            </td>
+                            <td>
+                                <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
+                            </td>
+                        </tr>
                         <?php endif; ?>
                         <tr>
                             <td>
@@ -169,10 +178,15 @@ ob_start();
 
     <section id="qr-code-container">
         <figure>
-            <img src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>" width="230" height="230">
+            <img
+                src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>"
+                width="230"
+                height="230"
+            >
             <figcaption>
                 <?php echo wp_kses_post(get_option('lkn_wcip_text_before_payment_link')); ?>
-                <span id="payment-link-container"><?php echo esc_url($invoice_payment_link); ?></span>
+                <span
+                    id="payment-link-container"><?php echo esc_url($invoice_payment_link); ?></span>
             </figcaption>
         </figure>
     </section>
@@ -183,7 +197,10 @@ ob_start();
         <?php echo wp_kses_post($wcip_footer_notes); ?>
 
         <div style="text-align: center; width: 100%; opacity: 0.2; font-size: 0.8em; margin-top: 12px;">
-            <a href="https://www.linknacional.com.br/pagamento-internacional/" style="text-decoration: none;">
+            <a
+                href="https://www.linknacional.com.br/pagamento-internacional/"
+                style="text-decoration: none;"
+            >
                 <?php esc_html_e('Invoice By Link Nacional', 'wc-invoice-payment'); ?>
             </a>
         </div>
