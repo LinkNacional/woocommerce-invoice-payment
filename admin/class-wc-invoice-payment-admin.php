@@ -427,20 +427,22 @@ final class Wc_Payment_Invoice_Admin
 
                                     </div>
                                     <div class="input-column-wrap input-row-wrap-global-settings">
-                                        <input type="checkbox"
-                                            name="lkn_wcip_after_save_button_email_check"
-                                            id="lkn_wcip_after_save_button_email_check"
-                                            <?php if ($email_verify) echo 'checked'; ?>>
-                                        <label for="lkn_wcip_after_save_button_email_check">
-                                            <?php esc_attr_e('Enable email verification on the invoice.', 'wc-invoice-payment'); ?>
-
-                                            <div class="tooltip">
-                                                <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                <span class="tooltiptext">
-                                                    <?php esc_attr_e('This feature will enable a text box for the user to enter their email address before displaying the invoice.', 'wc-invoice-payment'); ?>
-                                                </span>
-                                            </div>
-                                        </label>
+                                        <div class="input-column-wrap">                                            
+                                            <label for="lkn_wcip_after_save_button_email_check">
+                                                <input type="checkbox"
+                                                    name="lkn_wcip_after_save_button_email_check"
+                                                    id="lkn_wcip_after_save_button_email_check"
+                                                    <?php if ($email_verify) echo 'checked'; ?>>
+                                                <?php esc_attr_e('Enable email verification on the invoice.', 'wc-invoice-payment'); ?>
+    
+                                                <div class="tooltip">
+                                                    <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
+                                                    <span class="tooltiptext">
+                                                        <?php esc_attr_e('This feature will enable a text box for the user to enter their email address before displaying the invoice.', 'wc-invoice-payment'); ?>
+                                                    </span>
+                                                </div>
+                                            </label>
+                                        </div>
                                     </div>
                                     <div class="input-column-wrap input-row-wrap-global-settings">
                                         <div class="input-column-wrap" id="lkn_wcip_subscription_active_product">
