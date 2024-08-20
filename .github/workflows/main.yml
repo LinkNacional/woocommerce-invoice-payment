@@ -36,7 +36,7 @@ jobs:
       uses: mathieudutour/github-tag-action@v6.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        custom_tag: "1.7.0" # // TODO update tag on each release
+        custom_tag: "1.7.1" # // TODO update tag on each release
 
     # Generate new release
     - name: Generate new Release

@@ -5,7 +5,7 @@
   "image": "mcr.microsoft.com/vscode/devcontainers/php:7.4",
   "mounts": [
     {
-      "source": "/home/emanuellink/wordpress",
+      "source": "/home/{seu-diretório}/wordpress",
       "target": "/home/vscode/_wordpress",
       "type": "bind"
     }
