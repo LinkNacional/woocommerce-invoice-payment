@@ -1,5 +1,5 @@
 // Implements script internationalization
-const { __, _x, _n, sprintf } = wp.i18n
+const { __: translate, _x, _n, sprintf } = wp.i18n;
 
 /**
  * Adds a new line in the charges options box
