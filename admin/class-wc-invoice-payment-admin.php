@@ -158,7 +158,13 @@ final class Wc_Payment_Invoice_Admin
                 'phpattributes',
                 array(
                     'downloadInvoice' => __('Download invoice', 'wc-invoice-payment'),
-                    'downloading' => __('Downloading...', 'wc-invoice-payment')
+                    'downloading' => __('Downloading...', 'wc-invoice-payment'),
+                    'name' => __('Name', 'wc-invoice-payment'),
+                    'amount' => __('Amount', 'wc-invoice-payment'),
+                    'deleteConfirm' => __('Are you sure you want to delete the invoice?', 'wc-invoice-payment'),
+                    'invoice' => __('Invoice', 'wc-invoice-payment'),
+                    'pdfError' => __('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'),
+                    'cancelConfirm' => __('Are you sure you want to cancel the invoice?', 'wc-invoice-payment')
                 )
             );
             wp_enqueue_media();
