@@ -114,10 +114,9 @@ function lkn_wcip_generate_invoice_pdf (invoiceId, key) {
               throw new Error()
             }
 
-            return res.text() // Alterado para res.text() para obter a resposta como texto
+            return res.blob() // Alterado para res.blob() para obter a resposta como Blob
           })
-          .then(data => {
-            const blob = base64toBlob(data) // Função para converter base64 em Blob
+          .then(blob => {
             const url = window.URL.createObjectURL(blob)
             const link = document.createElement('a')
 
