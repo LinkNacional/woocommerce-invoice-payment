@@ -1,6 +1,3 @@
-// Implements script internationalization
-const { __, _x, _n, sprintf } = wp.i18n
-
 /**
  * Adds a new line in the charges options box
  *
@@ -26,11 +23,11 @@ function lkn_wcip_add_amount_row () {
 
   inputRow.innerHTML =
     '    <div class="input-row-wrap">' +
-    '        <label>' + __('Name', 'wc-invoice-payment') + '</label>' +
+    '        <label>' + phpattributes.name + '</label>' +
     '        <input name="lkn_wcip_name_invoice_' + lineQtd + '" type="text" id="lkn_wcip_name_invoice_' + lineQtd + '"  class="regular-text" required>' +
     '    </div>' +
     '    <div class="input-row-wrap">' +
-    '        <label>' + __('Amount', 'wc-invoice-payment') + '</label>' +
+    '        <label>' + phpattributes.amount + '</label>' +
     '        <input name="lkn_wcip_amount_invoice_' + lineQtd + '" type="tel" id="lkn_wcip_amount_invoice_' + lineQtd + '" class="regular-text lkn_wcip_amount_input" oninput="lkn_wcip_filter_amount_input(this.value, ' + lineQtd + ')" required>' +
     '    </div>' +
     '    <div class="input-row-wrap">' +
@@ -74,7 +71,7 @@ function lkn_wcip_filter_amount_input (val, row) {
  * @return void
  */
 function lkn_wcip_delete_invoice () {
-  if (confirm(__('Are you sure you want to delete the invoice?', 'wc-invoice-payment')) === true) {
+  if (confirm(phpattributes.deleteConfirm) === true) {
     lkn_wcip_cancel_subscription(true)
     window.location.href += '&lkn_wcip_delete=true'
   }
@@ -114,15 +111,14 @@ function lkn_wcip_generate_invoice_pdf (invoiceId, key) {
               throw new Error()
             }
 
-            return res.text() // Alterado para res.text() para obter a resposta como texto
+            return res.blob() // Alterado para res.blob() para obter a resposta como Blob
           })
-          .then(data => {
-            const blob = base64toBlob(data) // Função para converter base64 em Blob
+          .then(blob => {
             const url = window.URL.createObjectURL(blob)
             const link = document.createElement('a')
 
             link.href = url
-            link.setAttribute('download', __('Invoice', 'wc-invoice-payment') + '-' + invoiceId + '.pdf')
+            link.setAttribute('download', phpattributes.invoice + '-' + invoiceId + '.pdf')
             document.body.appendChild(link)
 
             link.click()
@@ -139,7 +135,7 @@ function lkn_wcip_generate_invoice_pdf (invoiceId, key) {
             }
           })
           .catch(error => {
-            window.alert(__('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'))
+            window.alert(phpattributes.pdfError)
             console.error(error)
             if (loadingIcon) {
               loadingIcon.style.display = 'none'
@@ -298,7 +294,7 @@ function lkn_wcip_cancel_subscription (deleteSubscription = false) {
 
       })
     }
-  } else if (confirm(__('Are you sure you want to cancel the invoice?'))) {
+  } else if (confirm(phpattributes.cancelConfirm)) {
     jQuery.post(ajaxurl, data, function (response) {
       window.location.reload()
     })

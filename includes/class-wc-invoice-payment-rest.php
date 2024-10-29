@@ -48,28 +48,19 @@ final class Wc_Payment_Invoice_Loader_Rest
 
             return require_once $template_file_path;
         };
-        // Prints the HTML
-        // header('Content-Type: text/html');
-        // echo $getHtml();
-        // exit;
 
-        // Displays the PDF in the browser
-        // $dompdf = new Dompdf();
-        // $dompdf->loadHt//throw $th;ml($getHtml());
-        // $dompdf->setPaper('A4', 'portrait');
-        // $dompdf->render();
-        // $output = $dompdf->output();
-        // $file_name = 'invoice_' . $invoice_id . '.pdf';
-        // header('Content-Type: application/pdf');
-        // header('Content-Disposition: inline; filename="' . $file_name . '"');
-        // header('Content-Length: ' . strlen($output));
-        // echo $output;
-        // die();
-
-        // Downloads the PDF
+        // Configurações do Dompdf
         $options = new Options();
         $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('debugKeepTemp', true);
+        $options->set('tempDir', sys_get_temp_dir());
+        $options->set('chroot', realpath(__DIR__));
+
         $dompdf = new Dompdf($options);
+        $dompdf->set_option('isHtml5ParserEnabled', true);
+        $dompdf->set_option('isRemoteEnabled', true);
         $dompdf->loadHtml($getHtml());
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
@@ -82,9 +73,8 @@ final class Wc_Payment_Invoice_Loader_Rest
         header('Content-Disposition: attachment; filename="' . $file_name . '"');
         header('Content-Length: ' . strlen($output));
         header('Content-Transfer-Encoding: binary');
-        
-        $base64_output = base64_encode($output);
-        echo esc_html($base64_output);
+
+        echo $output; //TODO adicionar escape de binário
         exit;
     }
 }

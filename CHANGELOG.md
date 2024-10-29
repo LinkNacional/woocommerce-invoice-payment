@@ -1,3 +1,7 @@
+# 1.7.2 - 25/10/2024
+* Correção de erros em PDFs com imagens;
+* Correção de erros de traduções.
+
 # 1.7.1 - 04/07/2024
 * Corrigir bug de quebra de linha nas informações extra da fatura;
 * Troca de texto nas configurações de verificação de email.

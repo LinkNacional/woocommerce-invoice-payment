@@ -268,3 +268,9 @@ msgstr "Ativar a verificação de e-mail na fatura."
 
 msgid "This feature will enable a text box for the user to enter their email address before displaying the invoice."
 msgstr "Esta funcionalidade irá ativar uma caixa de entrada de texto para o usuário informar o endereço de e-mail antes de exibir a fatura."
+
+msgid "Are you sure you want to delete the invoice?"
+msgstr "Tem certeza que deseja deletar a fatura?"
+
+msgid "Are you sure you want to cancel the invoice?"
+msgstr "Tem certeza que deseja cancelar a fatura?"
