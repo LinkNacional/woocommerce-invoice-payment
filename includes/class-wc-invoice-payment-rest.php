@@ -74,7 +74,7 @@ final class Wc_Payment_Invoice_Loader_Rest
         header('Content-Length: ' . strlen($output));
         header('Content-Transfer-Encoding: binary');
 
-        echo $output;
+        echo $output; //TODO adicionar escape de binário
         exit;
     }
 }
