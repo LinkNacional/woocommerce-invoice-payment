@@ -1,8 +1,10 @@
 <?php
+namespace LknWc\WcInvoicePayment\Admin;
+
 /**
  * Class Lkn_Wcip_List_Table
  */
-final class Lkn_Wcip_List_Table {
+final class LknWcipListTable {
     /**
      * The current list of items.
      *
@@ -355,12 +357,18 @@ final class Lkn_Wcip_List_Table {
         }
 
         $this->screen->render_screen_reader_content('heading_views');
-
         echo "<ul class='subsubsub'>\n";
         foreach ($views as $class => $view) {
-            $views[$class] = "\t<li class='$class'>$view";
+            // Sanitiza a classe e o conteúdo de $view com esc_attr
+            $class_escaped = esc_attr($class);
+            $view_escaped = esc_attr($view);
+            
+            // Atualiza cada elemento com a estrutura correta
+            $views[$class] = "\t<li class='$class_escaped'>$view_escaped";
         }
-        echo implode(" |</li>\n", esc_attr($views)) . "</li>\n";
+        
+        // Usa implode para juntar cada elemento com um separador adequado
+        echo implode(" |</li>\n", $views) . "</li>\n";
         echo '</ul>';
     }
 
@@ -499,10 +507,13 @@ final class Lkn_Wcip_List_Table {
      */
     protected function view_switcher($current_mode): void {
         ?>
-<input type="hidden" name="mode"
-	value="<?php echo esc_attr($current_mode); ?>" />
+<input
+    type="hidden"
+    name="mode"
+    value="<?php echo esc_attr($current_mode); ?>"
+/>
 <div class="view-switch">
-	<?php
+    <?php
         foreach ($this->modes as $mode => $title) {
             $classes = array('view-' . $mode);
             $aria_current = '';
@@ -1122,26 +1133,29 @@ final class Lkn_Wcip_List_Table {
 
         $this->screen->render_screen_reader_content('heading_list'); ?>
 <table
-	class="wp-list-table <?php echo esc_attr(implode(' ', $this->get_table_classes())); ?>">
-	<thead>
-		<tr>
-			<?php $this->print_column_headers(); ?>
-		</tr>
-	</thead>
+    class="wp-list-table <?php echo esc_attr(implode(' ', $this->get_table_classes())); ?>"
+>
+    <thead>
+        <tr>
+            <?php $this->print_column_headers(); ?>
+        </tr>
+    </thead>
 
-	<tbody id="the-list" <?php
+    <tbody
+        id="the-list"
+    <?php
                 if ($singular) {
                     echo " data-wp-lists='list:" . esc_attr($singular) . "'";
                 } ?>
-		>
-		<?php $this->display_rows_or_placeholder(); ?>
-	</tbody>
+        >
+        <?php $this->display_rows_or_placeholder(); ?>
+    </tbody>
 
-	<tfoot>
-		<tr>
-			<?php $this->print_column_headers(false); ?>
-		</tr>
-	</tfoot>
+    <tfoot>
+        <tr>
+            <?php $this->print_column_headers(false); ?>
+        </tr>
+    </tfoot>
 
 </table>
 <?php
@@ -1175,16 +1189,16 @@ final class Lkn_Wcip_List_Table {
         } ?>
 <div class="tablenav <?php echo esc_attr($which); ?>">
 
-	<?php if ($this->has_items()) : ?>
-	<div class="alignleft actions bulkactions">
-		<?php $this->bulk_actions($which); ?>
-	</div>
-	<?php
-	endif;
+    <?php if ($this->has_items()) : ?>
+    <div class="alignleft actions bulkactions">
+        <?php $this->bulk_actions($which); ?>
+    </div>
+    <?php
+    endif;
         $this->extra_tablenav($which);
         $this->pagination($which); ?>
 
-	<br class="clear" />
+    <br class="clear" />
 </div>
 <?php
     }
@@ -1450,27 +1464,33 @@ final class Lkn_Wcip_List_Table {
      */
     public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '', $invoiceList, $showSubscriptions) {
         ?>
-<section style="margin: 20px 0 0 0; ">
+        <section style="margin: 20px 0 0 0; "> 
     <?php
-        if (!$showSubscriptions) {
+        if ( ! $showSubscriptions) {
             $editUrl = home_url('wp-admin/admin.php?page=new-invoice');
             ?>
-            <div>
-                <a href="<?php echo $editUrl; ?>" class="button button-primary"><?php echo __('Add invoice', 'wc-invoice-payment'); ?></a>
-            </div>
-            <?php
-        }else{
+    <div>
+        <a
+            href="<?php echo $editUrl; ?>"
+            class="button button-primary"
+        ><?php echo __('Add invoice', 'wc-invoice-payment'); ?></a>
+    </div>
+    <?php
+        } else {
             $editUrl = home_url('wp-admin/admin.php?page=new-invoice&invoiceChecked=\"active\"');
             ?>
-            <div>
-                <a href="<?php echo $editUrl; ?>" class="button button-primary"><?php echo __('Add subscription', 'wc-invoice-payment'); ?></a>
-            </div>
-            <?php
+    <div>
+        <a
+            href="<?php echo $editUrl; ?>"
+            class="button button-primary"
+        ><?php echo __('Add subscription', 'wc-invoice-payment'); ?></a>
+    </div>
+    <?php
         }
-    ?>
-    
-	<?php
-        $data_array = array();
+        ?>
+
+    <?php
+            $data_array = array();
 
         if ($invoiceList) {
             $dateFormat = get_option('date_format');
@@ -1484,12 +1504,12 @@ final class Lkn_Wcip_List_Table {
                     $iniDate = $invoice->get_meta('lkn_ini_date');
                     $iniDate = empty($iniDate) ? '-' : gmdate($dateFormat, strtotime($iniDate));
                     
-                    if($invoice->get_meta('lkn_subscription_id') != ""){
+                    if($invoice->get_meta('lkn_subscription_id') != "") {
                         $subscription = wc_get_order($invoice->get_meta('lkn_subscription_id'));
                         $subscriptionInitialLimit = $invoice->get_meta('lkn_current_limit');
                         $subscriptionLimit = $subscription->get_meta('lkn_wcip_subscription_limit');
                         $fromSubscription = $subscriptionInitialLimit . '/' . $subscriptionLimit;
-                        if(!$subscriptionLimit){
+                        if( ! $subscriptionLimit) {
                             $fromSubscription = __('Subscription', 'wc-invoice-payment');
                         }
                     }
@@ -1540,7 +1560,7 @@ final class Lkn_Wcip_List_Table {
 
         $page = isset($_GET['page']) ? $_GET['page'] : null;
         
-        if($page == 'wc-subscription-payment'){
+        if('wc-subscription-payment' == $page) {
             unset($columns['lkn_wcip_from_subscription']);
         }
 
@@ -1626,7 +1646,7 @@ final class Lkn_Wcip_List_Table {
                             if ('generate_invoice_event' === $hook || 'lkn_wcip_cron_hook' === $hook) {
                                 // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
                                 $event_args = $event['args'];
-                                if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                                if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
                                     // Remova o evento do WP Cron
                                     wp_unschedule_event($timestamp, $hook, $event_args);
                                 }

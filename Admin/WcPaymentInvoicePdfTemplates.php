@@ -1,4 +1,5 @@
 <?php
+namespace LknWc\WcInvoicePayment\Admin;
 
 /**
  * Handles the logic for communicating with the existing PDF templates for invoices.
@@ -10,7 +11,7 @@
 /**
  * @author     Link Nacional
  */
-final class Wc_Payment_Invoice_Pdf_Templates {
+final class WcPaymentInvoicePdfTemplates {
     /**
      * The ID of this plugin.
      *
@@ -48,7 +49,7 @@ final class Wc_Payment_Invoice_Pdf_Templates {
         $this->plugin_name = $plugin_name;
         $this->version = $version;
 
-        $this->templates_root_dir = WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/templates';
+        $this->templates_root_dir = WC_PAYMENT_INVOICE_ROOT_DIR . 'Includes/templates';
     }
 
     public function get_templates_list(): array {
@@ -58,14 +59,14 @@ final class Wc_Payment_Invoice_Pdf_Templates {
     
         // Verifica se o sistema de arquivos foi inicializado corretamente
         global $wp_filesystem;
-        if (!$wp_filesystem) {
+        if ( ! $wp_filesystem) {
             return array(); // Retorna um array vazio se não foi possível inicializar o sistema de arquivos
         }   
 
         return array_map(function (string $template_json_path) use ($wp_filesystem): array {
             $template_info = json_decode($wp_filesystem->get_contents($template_json_path));
             $template_id = basename(dirname($template_json_path));
-            $template_preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "includes/templates/$template_id/preview.webp";
+            $template_preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "Includes/templates/$template_id/preview.webp";
 
             return array(
                 'id' => $template_id,
@@ -74,5 +75,4 @@ final class Wc_Payment_Invoice_Pdf_Templates {
             );
         }, $templates_json_paths);
     }
-    
 }

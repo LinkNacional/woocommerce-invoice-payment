@@ -1,16 +1,16 @@
 <?php
+namespace LknWc\WcInvoicePayment\Includes;
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use WP_REST_Request;
 
 /**
  * @see       https://www.linknacional.com/
  * @since      1.2.0
  */
-final class Wc_Payment_Invoice_Loader_Rest
-{
-    public function register_routes(): void
-    {
+final class WcPaymentInvoiceLoaderRest {
+    public function register_routes(): void {
         register_rest_route(
             'wc-invoice-payment/v1',
             '/generate-pdf',
@@ -22,13 +22,11 @@ final class Wc_Payment_Invoice_Loader_Rest
         );
     }
 
-    public function check_permission()
-    {
+    public function check_permission() {
         return current_user_can('administrator');
     }
 
-    public function generate_invoice(WP_REST_Request $request): void
-    {
+    public function generate_invoice(WP_REST_Request $request): void {
         $invoice_id = $request->get_param('invoice_id');
 
         $getHtml = function () use ($invoice_id) {
@@ -42,7 +40,7 @@ final class Wc_Payment_Invoice_Loader_Rest
 
             $template_file_path = __DIR__ . "/templates/$invoice_pdf_template_id/main.php";
 
-            if (!file_exists($template_file_path)) {
+            if ( ! file_exists($template_file_path)) {
                 return require_once __DIR__ . "/templates/linknacional/main.php";
             }
 

@@ -1,8 +1,11 @@
 <?php
 
 /**  @var WC_Order $order */
+
+use Give\Framework\FieldsAPI\Date;
+
 /**  @var int $invoice_id */
-require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/libs/phpqrcode.php';
+require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'Includes/libs/phpqrcode.php';
 
 function to_wc_monetary_format(float $amount): string {
     return number_format(
@@ -17,7 +20,6 @@ $order_currency = $order->get_currency();
 $order_total = $order->get_total();
 $invoice_number = $order->get_order_number();
 $invoice_created_at = $invoice_date = $order->get_date_created()->format('d/m/y');
-$invoice_payment_method = wc_get_payment_gateway_by_order($order)->title;
 $invoice_client_name = "{$order->get_billing_first_name()} {$order->get_billing_last_name()}";
 $invoice_client_email = $order->get_billing_email();
 
@@ -41,6 +43,10 @@ HTML;
 
 $wcip_extra_data = $order->get_meta('wcip_extra_data');
 $wcip_footer_notes = $order->get_meta('wcip_footer_notes');
+
+// Load logo as base 64.
+$logo_url_setting = get_option('lkn_wcip_template_logo_url');
+$logo_path = empty($logo_url_setting) ? 'https://dummyimage.com/180x180/000/fff' : $logo_url_setting;
 
 // Generates the QR Code as base 64 for the payment link.
 ob_start();
@@ -71,6 +77,19 @@ ob_start();
 </head>
 
 <body>
+    <header>
+        <table>
+            <tr>
+                <td id="logo-td-container">
+                    <img
+                        src="<?php echo esc_attr($logo_path); ?>"
+                        height="160"
+                    >
+                </td>
+            </tr>
+        </table>
+    </header>
+
     <table id="sender-details-table">
         <tr>
             <td>
@@ -85,70 +104,56 @@ ob_start();
         </tr>
     </table>
 
-    <header>
-        <table>
-            <tr>
-                <td>
-                    <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?>
-                    </h1>
-                </td>
-            </tr>
-            <tr>
-                <td style="width: 50%;">
-                    <section id="bill-to-container">
-                        <div>
-                            <?php echo esc_attr($invoice_client_name); ?>
-                        </div>
-                        <div>
-                            <?php echo esc_attr($invoice_client_email); ?>
-                        </div>
-                        <div id="extra-data-container">
-                            <?php echo wp_kses_post(nl2br($wcip_extra_data)); ?>
-                        </div>
-                    </section>
-                </td>
-                <td id="invoice-details-column">
-                    <table>
-                        <tr>
-                            <td style="width: 70%;">
-                                <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
-                            </td>
-                            <td>
-                                <?php echo esc_attr("#$invoice_number"); ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <?php esc_html_e('Date', 'wc-invoice-payment'); ?>
-                            </td>
-                            <td>
-                                <?php echo esc_attr($invoice_created_at); ?>
-                            </td>
-                        </tr>
-                        <?php if ($order_data) : ?>
-                        <?php $order_date = new DateTime($order_data) ?>
-                        <tr>
-                            <td>
-                                <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?>
-                            </td>
-                            <td>
-                                <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        <tr>
-                            <td>
-                                <?php esc_html_e('Payment method', 'wc-invoice-payment'); ?>
-                            </td>
-                            <td>
-                                <?php echo esc_attr($invoice_payment_method) ?>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </header>
+    <table id="invoice-details-table">
+        <tr>
+            <td>
+                <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?>
+                </h1>
+            </td>
+        </tr>
+        <tr>
+            <td id="bill-to-container">
+                <div><?php echo esc_attr($invoice_client_name); ?>
+                </div>
+                <div><?php echo esc_attr($invoice_client_email); ?>
+                </div>
+                <div id="extra-data-container">
+                    <?php echo wp_kses_post(nl2br($wcip_extra_data)); ?>
+                </div>
+            </td>
+            <td id="invoice-details-column">
+                <table>
+                    <tr>
+                        <td>
+                            <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
+                        </td>
+                        <td>
+                            <?php echo esc_attr("#$invoice_number"); ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <?php esc_html_e('Date', 'wc-invoice-payment'); ?>
+                        </td>
+                        <td>
+                            <?php echo esc_attr($invoice_created_at); ?>
+                        </td>
+                    </tr>
+                    <?php if ($order_data) : ?>
+                    <?php $order_date = new DateTime($order_data) ?>
+                    <tr>
+                        <td>
+                            <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?>
+                        </td>
+                        <td>
+                            <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                </table>
+            </td>
+        </tr>
+    </table>
 
     <section id="order-items-table-container">
         <table id="order-items-table">
@@ -178,22 +183,20 @@ ob_start();
 
     <section id="qr-code-container">
         <figure>
-            <img
-                src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>"
-                width="230"
-                height="230"
-            >
             <figcaption>
                 <?php echo wp_kses_post(get_option('lkn_wcip_text_before_payment_link')); ?>
                 <span
-                    id="payment-link-container"><?php echo esc_url($invoice_payment_link); ?></span>
+                    id="payment-link-container"><?php echo esc_attr($invoice_payment_link); ?></span>
             </figcaption>
+            <img
+                src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>"
+                width="180"
+                height="180"
+            >
         </figure>
     </section>
 
     <footer id="main-footer">
-        <h1><?php esc_html_e('Payment details', 'wc-invoice-payment'); ?>
-        </h1>
         <?php echo wp_kses_post($wcip_footer_notes); ?>
 
         <div style="text-align: center; width: 100%; opacity: 0.2; font-size: 0.8em; margin-top: 12px;">

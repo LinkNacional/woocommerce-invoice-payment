@@ -1,22 +1,8 @@
 <?php
 
-/**
- * The public-facing functionality of the plugin.
- *
- * @see       https://www.linknacional.com/
- * @since      1.0.0
- */
+namespace LknWc\WcInvoicePayment\PublicView;
 
-/**
- * The public-facing functionality of the plugin.
- *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the public-facing stylesheet and JavaScript.
- *
- * @author     Link Nacional
- */
-final class Wc_Payment_Invoice_Public
-{
+final class WcPaymentInvoicePublic {
     /**
      * The ID of this plugin.
      *
@@ -43,8 +29,7 @@ final class Wc_Payment_Invoice_Public
      * @param string $plugin_name the name of the plugin
      * @param string $version     the version of this plugin
      */
-    public function __construct($plugin_name, $version)
-    {
+    public function __construct($plugin_name, $version) {
         $this->plugin_name = $plugin_name;
         $this->version = $version;
     }
@@ -54,8 +39,7 @@ final class Wc_Payment_Invoice_Public
      *
      * @param  [type] $orderId
      */
-    public function check_invoice_exp_date(): void
-    {
+    public function check_invoice_exp_date(): void {
         $orderId = sanitize_text_field(get_query_var('order-pay'));
         $order = wc_get_order($orderId);
         $defaultPaymethod = esc_attr($order->get_payment_method());
@@ -80,8 +64,7 @@ HTML;
      *
      * @since    1.0.0
      */
-    public function enqueue_styles(): void
-    {
+    public function enqueue_styles(): void {
         /**
          * This function is provided for demonstration purposes only.
          *
@@ -93,7 +76,6 @@ HTML;
          * between the defined hooks and the functions defined in this
          * class.
          */
-
         $checkoutPage = get_option('woocommerce_checkout_page_id');
 
         if (is_page($checkoutPage) === true) {
@@ -106,8 +88,7 @@ HTML;
      *
      * @since    1.0.0
      */
-    public function enqueue_scripts(): void
-    {
+    public function enqueue_scripts(): void {
         /**
          * This function is provided for demonstration purposes only.
          *

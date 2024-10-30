@@ -1,4 +1,5 @@
 <?php
+namespace LknWc\WcInvoicePayment\Includes;
 
 /**
  * Register all actions and filters for the plugin.
@@ -16,7 +17,7 @@
  *
  * @author     Link Nacional
  */
-final class Wc_Payment_Invoice_Loader {
+final class WcPaymentInvoiceLoader {
     /**
      * The array of actions registered with WordPress.
      *

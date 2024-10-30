@@ -1,4 +1,14 @@
 <?php
+namespace LknWc\WcInvoicePayment\Includes;
+
+use LknWc\WcInvoicePayment\Admin\WcPaymentInvoiceAdmin;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoader;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceActivator;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceEndpoint;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoaderRest;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
+use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
 
 /**
  * The file that defines the core plugin class.
@@ -23,8 +33,7 @@
  *
  * @author     Link Nacional
  */
-final class Wc_Payment_Invoice
-{
+final class WcPaymentInvoice {
     /**
      * The loader that's responsible for maintaining and registering all hooks that power
      * the plugin.
@@ -62,15 +71,13 @@ final class Wc_Payment_Invoice
      *
      * @since    1.0.0
      */
-    public function __construct()
-    {
+    public function __construct() {
         if (defined('WC_PAYMENT_INVOICE_VERSION')) {
             $this->version = WC_PAYMENT_INVOICE_VERSION;
         } else {
             $this->version = '1.0.0';
         }
         $this->plugin_name = 'wc-invoice-payment';
-
         $this->load_dependencies();
         $this->set_locale();
         $this->define_admin_hooks();
@@ -82,8 +89,7 @@ final class Wc_Payment_Invoice
      *
      * @since    1.0.0
      */
-    public function run(): void
-    {
+    public function run(): void {
         $this->loader->run();
     }
 
@@ -95,8 +101,7 @@ final class Wc_Payment_Invoice
      *
      * @return string the name of the plugin
      */
-    public function get_plugin_name()
-    {
+    public function get_plugin_name() {
         return $this->plugin_name;
     }
 
@@ -107,8 +112,7 @@ final class Wc_Payment_Invoice
      *
      * @return Wc_Payment_Invoice_Loader orchestrates the hooks of the plugin
      */
-    public function get_loader()
-    {
+    public function get_loader() {
         return $this->loader;
     }
 
@@ -119,8 +123,7 @@ final class Wc_Payment_Invoice
      *
      * @return string the version number of the plugin
      */
-    public function get_version()
-    {
+    public function get_version() {
         return $this->version;
     }
 
@@ -139,41 +142,8 @@ final class Wc_Payment_Invoice
      *
      * @since    1.0.0
      */
-    private function load_dependencies(): void
-    {
-        /**
-         * The class responsible for orchestrating the actions and filters of the
-         * core plugin.
-         */
-        require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-loader.php';
-
-        /**
-         * The class responsible for defining internationalization functionality
-         * of the plugin.
-         */
-        require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-i18n.php';
-
-        /**
-         * The class responsible for defining all actions that occur in the admin area.
-         */
-        require_once plugin_dir_path(__DIR__) . 'admin/class-wc-invoice-payment-admin.php';
-
-        /**
-         * The class responsible for rendering the invoice table.
-         */
-        require_once plugin_dir_path(__DIR__) . 'admin/class-wc-invoice-payment-table.php';
-
-        /**
-         * The class responsible for defining all actions that occur in the public-facing
-         * side of the site.
-         */
-        require_once plugin_dir_path(__DIR__) . 'public/class-wc-invoice-payment-public.php';
-
-        require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-rest.php';
-        require_once plugin_dir_path(__DIR__) . 'includes/class-wc-invoice-payment-subscription.php';
-        require_once plugin_dir_path(__DIR__) . 'admin/class-wc-invoice-payment-pdf-templates.php';
-
-        $this->loader = new Wc_Payment_Invoice_Loader();
+    private function load_dependencies(): void {
+        $this->loader = new WcPaymentInvoiceLoader();
     }
 
     /**
@@ -184,9 +154,8 @@ final class Wc_Payment_Invoice
      *
      * @since    1.0.0
      */
-    private function set_locale(): void
-    {
-        $plugin_i18n = new Wc_Payment_Invoice_i18n();
+    private function set_locale(): void {
+        $plugin_i18n = new WcPaymentInvoicei18n();
 
         $this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
     }
@@ -197,16 +166,15 @@ final class Wc_Payment_Invoice
      *
      * @since    1.0.0
      */
-    private function define_admin_hooks(): void
-    {
-        $plugin_admin = new Wc_Payment_Invoice_Admin($this->get_plugin_name(), $this->get_version());
+    private function define_admin_hooks(): void {
+        $plugin_admin = new WcPaymentInvoiceAdmin($this->get_plugin_name(), $this->get_version());
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
         $this->loader->add_action('lkn_wcip_cron_hook', $plugin_admin, 'check_invoice_exp_date', 10, 1);
 
-        $api_handler = new Wc_Payment_Invoice_Loader_Rest();
+        $api_handler = new WcPaymentInvoiceLoaderRest();
         $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
-        $subscription_class = new Wc_Payment_Invoice_Subscription();
+        $subscription_class = new WcPaymentInvoiceSubscription();
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');
         $this->loader->add_action('woocommerce_checkout_order_processed', $subscription_class, 'validate_product');
@@ -216,35 +184,30 @@ final class Wc_Payment_Invoice
         $this->loader->add_action('wp_ajax_cancel_subscription', $subscription_class, 'cancel_subscription_callback');
 
         $this->loader->add_action('generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1);
-        
     }
 
-    function custom_email_verification_required($verification_required)
-    {
+    public function custom_email_verification_required($verification_required) {
         $email_verify = get_option("lkn_wcip_after_save_button_email_check");
-        if (!$email_verify) {
+        if ( ! $email_verify) {
             $verification_required = false; // Defina como false para não exigir verificação de e-mail
-
         } else {
             $verification_required = true;
         }
 
         return $verification_required;
     }
+
     /**
      * Register all of the hooks related to the public-facing functionality
      * of the plugin.
      *
      * @since    1.0.0
      */
-    private function define_public_hooks(): void
-    {
-        
-        $plugin_public = new Wc_Payment_Invoice_Public($this->get_plugin_name(), $this->get_version());
+    private function define_public_hooks(): void {
+        $plugin_public = new WcPaymentInvoicePublic($this->get_plugin_name(), $this->get_version());
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
-        
-    }    
+    }
 }

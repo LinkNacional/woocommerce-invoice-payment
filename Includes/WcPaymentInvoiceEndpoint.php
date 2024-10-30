@@ -1,8 +1,9 @@
 <?php
 use WP_Error;
 use WP_REST_Response;
+namespace LknWc\WcInvoicePayment\Includes;
 
-final class Wc_Payment_Invoice_Endpoint {
+final class WcPaymentInvoiceEndpoint {
     public function createInvoiceEndpoint(): void {
         register_rest_route('invoice_payments', '/create_invoice', array(
             'methods' => 'POST',

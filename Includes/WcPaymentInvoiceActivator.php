@@ -1,5 +1,6 @@
 <?php
 
+namespace LknWc\WcInvoicePayment\Includes;
 /**
  * Fired during plugin activation.
  *
@@ -16,7 +17,7 @@
  *
  * @author     Link Nacional
  */
-final class Wc_Payment_Invoice_Activator {
+final class WcPaymentInvoiceActivator {
     /**
      * Short Description. (use period).
      *

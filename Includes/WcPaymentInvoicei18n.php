@@ -1,4 +1,5 @@
 <?php
+namespace LknWc\WcInvoicePayment\Includes;
 
 /**
  * Define the internationalization functionality.
@@ -20,7 +21,7 @@
  *
  * @author     Link Nacional
  */
-final class Wc_Payment_Invoice_i18n {
+final class WcPaymentInvoicei18n {
     /**
      * Load the plugin text domain for translation.
      *

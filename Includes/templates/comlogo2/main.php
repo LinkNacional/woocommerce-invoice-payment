@@ -1,11 +1,8 @@
 <?php
 
 /**  @var WC_Order $order */
-
-use Give\Framework\FieldsAPI\Date;
-
 /**  @var int $invoice_id */
-require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'includes/libs/phpqrcode.php';
+require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'Includes/libs/phpqrcode.php';
 
 function to_wc_monetary_format(float $amount): string {
     return number_format(
@@ -80,17 +77,34 @@ ob_start();
     <header>
         <table>
             <tr>
+                <td id="invoice-details-column">
+                    <p><strong><?php esc_html_e('Invoice', 'wc-invoice-payment'); ?></strong>
+                        <?php echo esc_attr("#$invoice_number"); ?>
+                    </p>
+                    <p><strong><?php esc_html_e('Date', 'wc-invoice-payment'); ?></strong>
+                        <?php echo esc_attr($invoice_created_at); ?>
+                    </p>
+                    <?php if ($order_data) { ?>
+                    <?php $order_date = new DateTime($order_data) ?>
+
+                    <p>
+                        <strong>
+                            <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?></strong>
+                        <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
+                        <?php }?>
+                </td>
+
                 <td id="logo-td-container">
                     <img
-                        src="<?php echo esc_attr($logo_path); ?>"
+                        src="<?php echo esc_attr($logo_path)?>"
                         height="160"
-                    >
+                    />
                 </td>
             </tr>
         </table>
     </header>
 
-    <table id="sender-details-table">
+    <table id="invoice-details-table">
         <tr>
             <td>
                 <p><?php echo wp_kses_post(get_option('lkn_wcip_sender_details')); ?>
@@ -102,9 +116,6 @@ ob_start();
                 <hr>
             </td>
         </tr>
-    </table>
-
-    <table id="invoice-details-table">
         <tr>
             <td>
                 <h1><?php esc_html_e('Bill To', 'wc-invoice-payment'); ?>
@@ -120,37 +131,6 @@ ob_start();
                 <div id="extra-data-container">
                     <?php echo wp_kses_post(nl2br($wcip_extra_data)); ?>
                 </div>
-            </td>
-            <td id="invoice-details-column">
-                <table>
-                    <tr>
-                        <td>
-                            <?php esc_html_e('Invoice', 'wc-invoice-payment'); ?>
-                        </td>
-                        <td>
-                            <?php echo esc_attr("#$invoice_number"); ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <?php esc_html_e('Date', 'wc-invoice-payment'); ?>
-                        </td>
-                        <td>
-                            <?php echo esc_attr($invoice_created_at); ?>
-                        </td>
-                    </tr>
-                    <?php if ($order_data) : ?>
-                    <?php $order_date = new DateTime($order_data) ?>
-                    <tr>
-                        <td>
-                            <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?>
-                        </td>
-                        <td>
-                            <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
-                        </td>
-                    </tr>
-                    <?php endif; ?>
-                </table>
             </td>
         </tr>
     </table>
@@ -190,8 +170,8 @@ ob_start();
             </figcaption>
             <img
                 src="data:image/png;base64, <?php echo esc_attr($payment_link_qr_code); ?>"
-                width="180"
-                height="180"
+                width="140"
+                height="140"
             >
         </figure>
     </section>
@@ -213,7 +193,6 @@ ob_start();
 </html>
 
 <?php
-
 return ob_get_clean();
 
 ?>
