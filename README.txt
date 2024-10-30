@@ -89,7 +89,7 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 
 == Changelog ==
 
-= 1.7.2 = *25/10/2024*
+= 1.7.2 = *30/10/2024*
 * Fix errors in PDFs with images;
 * Fix translation errors.
 
