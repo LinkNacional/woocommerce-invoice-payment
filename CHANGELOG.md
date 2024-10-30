@@ -1,4 +1,4 @@
-# 1.7.2 - 25/10/2024
+# 1.7.2 - 30/10/2024
 * Correção de erros em PDFs com imagens;
 * Correção de erros de traduções.
 
