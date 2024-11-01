@@ -1087,7 +1087,7 @@ final class WcPaymentInvoiceAdmin {
                     if ('generate_invoice_event' === $hook) {
                         // Verifique se os argumentos do evento contêm o invoiceId
                         $event_args = $event['args'];
-                        if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
+                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
                             // O invoiceId está agendado, então retorne verdadeiro
                             return true;
                         }
