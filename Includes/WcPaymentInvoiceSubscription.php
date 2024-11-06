@@ -341,6 +341,7 @@ final class WcPaymentInvoiceSubscription {
         
         $customer_id = $order->get_customer_id();
         $billing_email = $order->get_billing_email();
+        $billing_country = $order->get_billing_country();
         $billing_first_name = $order->get_billing_first_name();
         $billing_last_name = $order->get_billing_last_name();
         $payment_method = $order->get_payment_method();
@@ -355,6 +356,7 @@ final class WcPaymentInvoiceSubscription {
             'status' => 'wc-pending',
             'customer_id' => $customer_id,
         ) );
+        $new_order->set_billing_country($billing_country);
         $new_order->set_billing_first_name($billing_first_name);
         $new_order->set_billing_last_name($billing_last_name);
         $new_order->set_billing_email($billing_email);

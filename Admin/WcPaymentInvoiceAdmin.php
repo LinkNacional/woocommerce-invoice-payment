@@ -660,6 +660,16 @@ final class WcPaymentInvoiceAdmin {
         $currency_codes = array_keys($currencies);
         sort($currency_codes);
 
+        $countries = WC()->countries->get_countries(); // Pega os países
+        $currency_codes = array_keys($currencies); // Pega os códigos de moeda
+        $current_country = $order->get_billing_country();
+        // Coloca o Brasil no início, se estiver no array
+        if (isset($countries['BR'])) {
+            $brazil = $countries['BR'];
+            unset($countries['BR']);
+            $countries = ['BR' => $brazil] + $countries; // Coloca 'BR' no início
+        }
+
         $gateways = WC()->payment_gateways->payment_gateways();
         $enabled_gateways = array();
 
@@ -813,6 +823,19 @@ final class WcPaymentInvoiceAdmin {
                             required
                             value="<?php echo esc_html($order->get_billing_email()); ?>"
                         >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_country_input">
+                            <?php esc_attr_e('Country', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select name="lkn_wcip_country" id="lkn_wcip_country_input" class="regular-text">
+                            <?php
+                                foreach ($countries as $code => $currency_name) {
+                                    $selected = ($current_country === $code) ? 'selected' : '';
+                                    echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($currency_name) . '</option>';
+                                }
+                            ?>
+                        </select>
                     </div>
                     <div class="input-row-wrap">
                         <label
@@ -1169,6 +1192,16 @@ final class WcPaymentInvoiceAdmin {
         }
         sort($currency_codes);
 
+        $countries = WC()->countries->get_countries(); // Pega os países
+        $currency_codes = array_keys($currencies); // Pega os códigos de moeda
+        $current_country = $order->get_billing_country();
+        // Coloca o Brasil no início, se estiver no array
+        if (isset($countries['BR'])) {
+            $brazil = $countries['BR'];
+            unset($countries['BR']);
+            $countries = ['BR' => $brazil] + $countries; // Coloca 'BR' no início
+        }
+
         $gateways = WC()->payment_gateways->payment_gateways();
         $enabled_gateways = array();
 
@@ -1319,6 +1352,19 @@ final class WcPaymentInvoiceAdmin {
                             required
                             value="<?php echo esc_html($order->get_billing_email()); ?>"
                         >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_country_input">
+                            <?php esc_attr_e('Country', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select name="lkn_wcip_country" id="lkn_wcip_country_input" class="regular-text">
+                            <?php
+                                foreach ($countries as $code => $currency_name) {
+                                    $selected = ($current_country === $code) ? 'selected' : '';
+                                    echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_attr($currency_name) . '</option>';
+                                }
+                            ?>
+                        </select>
                     </div>
                     <div class="input-row-wrap">
                         <label
@@ -1724,6 +1770,16 @@ final class WcPaymentInvoiceAdmin {
         $currency_codes = array_keys($currencies);
         sort($currency_codes);
 
+        $countries = WC()->countries->get_countries(); // Pega os países
+        $currency_codes = array_keys($currencies); // Pega os códigos de moeda
+
+        // Coloca o Brasil no início, se estiver no array
+        if (isset($countries['BR'])) {
+            $brazil = $countries['BR'];
+            unset($countries['BR']);
+            $countries = ['BR' => $brazil] + $countries; // Coloca 'BR' no início
+        }
+        
         $active_currency = get_woocommerce_currency();
 
         $gateways = WC()->payment_gateways->payment_gateways();
@@ -1758,9 +1814,14 @@ final class WcPaymentInvoiceAdmin {
     >
         <?php wp_nonce_field('lkn_wcip_add_invoice', 'nonce'); ?>
         <div class="wcip-invoice-data">
-            <h2 class="title">
-                <?php esc_attr_e('Invoice details', 'wc-invoice-payment'); ?>
-            </h2>
+            <div id="wcPaymentInvoiceTitles">
+                <h2 class="title">
+                    <?php esc_attr_e('Invoice details', 'wc-invoice-payment'); ?>
+                </h2>
+                <h2 class="title">
+                    <?php esc_attr_e('Payer Data', 'wc-invoice-payment'); ?>
+                </h2>
+            </div>
             <div class="invoice-row-wrap">
                 <div class="invoice-column-wrap">
                     <div class="input-row-wrap">
@@ -1881,6 +1942,18 @@ final class WcPaymentInvoiceAdmin {
                             class="regular-text"
                             required
                         >
+                    </div>
+                    <div class="input-row-wrap">
+                        <label for="lkn_wcip_country_input">
+                            <?php esc_attr_e('Country', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select name="lkn_wcip_country" id="lkn_wcip_country_input" class="regular-text">
+                            <?php
+                                foreach ($countries as $code => $currency_name) {
+                                    echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency_name) . '</option>';
+                                }
+                            ?>
+                        </select>
                     </div>
                     <div class="input-row-wrap">
                         <label
@@ -2124,6 +2197,7 @@ final class WcPaymentInvoiceAdmin {
                 $intarvalType = sanitize_text_field($_POST['lkn_wcip_subscription_interval_type']);
                 $subscriptionLimit = sanitize_text_field($_POST['lkn_wcip_subscription_limit']);
                 $currency = sanitize_text_field($_POST['lkn_wcip_currency']);
+                $country = sanitize_text_field($_POST['lkn_wcip_country']);
                 $name = sanitize_text_field($_POST['lkn_wcip_name']);
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
@@ -2141,7 +2215,7 @@ final class WcPaymentInvoiceAdmin {
                         'total' => $totalAmount,
                     )
                 );
-
+                $order->set_billing_country($country);
                 $order->update_meta_data('wcip_extra_data', $extraData);
                 $order->update_meta_data('wcip_footer_notes', $footerNotes);
                 $order->update_meta_data('wcip_footer_notes', $footerNotes);
@@ -2287,6 +2361,7 @@ final class WcPaymentInvoiceAdmin {
                 $paymentStatus = sanitize_text_field($_POST['lkn_wcip_payment_status']);
                 $paymentMethod = sanitize_text_field($_POST['lkn_wcip_default_payment_method']);
                 $currency = sanitize_text_field($_POST['lkn_wcip_currency']);
+                $country = sanitize_text_field($_POST['lkn_wcip_country']);
                 $name = sanitize_text_field($_POST['lkn_wcip_name']);
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
@@ -2315,6 +2390,7 @@ final class WcPaymentInvoiceAdmin {
                 }
 
                 // Set all order attributes
+                $order->set_billing_country($country);
                 $order->set_billing_email($email);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);
@@ -2423,6 +2499,7 @@ final class WcPaymentInvoiceAdmin {
                 $paymentStatus = sanitize_text_field($_POST['lkn_wcip_payment_status']);
                 $paymentMethod = sanitize_text_field($_POST['lkn_wcip_default_payment_method']);
                 $currency = sanitize_text_field($_POST['lkn_wcip_currency']);
+                $country = sanitize_text_field($_POST['lkn_wcip_country']);
                 $name = sanitize_text_field($_POST['lkn_wcip_name']);
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
@@ -2451,6 +2528,7 @@ final class WcPaymentInvoiceAdmin {
                 }
 
                 // Set all order attributes
+                $order->set_billing_country($country);
                 $order->set_billing_email($email);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);
