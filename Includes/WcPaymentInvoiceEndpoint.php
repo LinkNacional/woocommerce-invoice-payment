@@ -1,7 +1,7 @@
 <?php
-use WP_Error;
-use WP_REST_Response;
 namespace LknWc\WcInvoicePayment\Includes;
+
+use WP_REST_Response;
 
 final class WcPaymentInvoiceEndpoint {
     public function createInvoiceEndpoint(): void {

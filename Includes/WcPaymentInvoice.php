@@ -3,8 +3,6 @@ namespace LknWc\WcInvoicePayment\Includes;
 
 use LknWc\WcInvoicePayment\Admin\WcPaymentInvoiceAdmin;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoader;
-use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceActivator;
-use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceEndpoint;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoaderRest;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
