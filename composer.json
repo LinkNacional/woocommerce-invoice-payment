@@ -1,4 +1,24 @@
 {
+    "name": "lknwc/wcinvoicepayment",
+    "type": "project",
+    "license": "Proprietary",
+    "autoload": {
+        "psr-4": {
+            "LknWc\\WcInvoicePayment\\Includes\\": "Includes/",
+            "LknWc\\WcInvoicePayment\\Admin\\": "Admin/",
+            "LknWc\\WcInvoicePayment\\PublicView\\": "Public/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Link Nacional",
+            "email": "ticket@linknacional.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "phan/phan": "5.4.1"
+    },
     "require": {
         "dompdf/dompdf": "^3.0"
     }

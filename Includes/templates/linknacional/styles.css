@@ -1,0 +1,144 @@
+@font-face {
+	font-family: "Lato";
+	src: url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	font-family: "Lato", sans-serif;
+	padding: 50px;
+}
+
+h1 {
+	font-size: 1.5em;
+	margin-bottom: 12px;
+}
+
+header {
+	width: 100%;
+	position: relative;
+}
+
+#bill-to-container {
+	margin: 50px 0px;
+}
+
+header table {
+	width: 100%;
+}
+
+#invoice-details-table {
+	width: 100%;
+	margin: 28px 0px;
+	line-height: 21px;
+}
+
+#invoice-details-table td {
+	width: 50%;
+}
+
+#invoice-details-column {
+	vertical-align: top;
+	text-transform: uppercase;
+	font-size: 0.9em;
+	width: 100%;
+}
+
+#invoice-details-column table {
+	width: 100%;
+}
+
+#invoice-details-column tbody td {
+	width: 50%;
+}
+
+#sender-details-table {
+	width: 100%;
+	margin: 12px 0px;
+}
+
+#sender-details-table td:first-child {
+	padding-bottom: 4px;
+}
+
+#invoice-details-column tbody td:first-child {
+	font-weight: bold;
+}
+
+#qr-code-container {
+	margin: 0 auto 0;
+	max-width: 400px;
+	text-align: center;
+	margin-top: 12px;
+}
+
+#qr-code-container figcaption {
+	font-size: 0.7em;
+}
+
+#payment-link-container {
+	color: blue;
+	margin-top: 12px;
+	display: block;
+}
+
+#extra-data-container {
+	margin-top: 12px;
+}
+
+#order-items-table {
+	width: 100%;
+	border: 1px solid rgba(0, 0, 0, .12);
+	font-size: 0.95em;
+}
+
+#order-items-table thead th:first-child {
+	width: 70%;
+}
+
+#order-items-table th {
+	padding: 16px;
+	border-bottom: 1px solid rgba(0, 0, 0, .12);
+}
+
+#order-items-table th {
+	text-align: left;
+	/* border-bottom: 1px solid rgba(0, 0, 0, .12); */
+}
+
+#order-items-table tbody td {
+	padding: 8px 16px;
+	border-bottom: 1px solid rgba(0, 0, 0, .12);
+}
+
+#order-items-table tfoot th:first-child {
+	width: 70%;
+}
+
+#order-items-table tfoot th {
+	text-align: right;
+}
+
+#order-items-table tfoot td {
+	text-align: left;
+	padding: 8px 16px;
+}
+
+#order-items-table tfoot * {
+	border-bottom: none;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+#main-footer {
+	position: absolute;
+	bottom: 50px;
+	left: 50px;
+	right: 50px;
+	font-size: 0.8em;
+}

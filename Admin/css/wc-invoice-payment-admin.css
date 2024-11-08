@@ -1,0 +1,323 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+.wcip-invoice-data {
+	background-color: white;
+	border: 1px solid #c3c4c7;
+	padding: 23px 24px 12px;
+	margin-top: 20px;
+	min-width: 714px;
+}
+
+.invoice-row-wrap {
+	display: flex;
+	gap: 10px;
+	margin: 20px 0px;
+}
+
+.input-row-wrap-global-settings {
+	background-color: #FBFBFB;
+	border: 1px solid #ccc;
+	padding: 25px !important;
+	margin: 10px 0 10px;
+	font-size: 15px;
+}
+
+.invoice-column-wrap {
+	display: flex;
+	flex-direction: column;
+	margin: 20px 0px;
+}
+
+.input-row-wrap {
+	display: flex;
+	flex-direction: column;
+	padding: 6px 0px;
+}
+
+.input-column-wrap {
+	display: flex;
+	flex-direction: row;
+	padding: 6px 0px;
+	flex-wrap: nowrap;
+	align-items: flex-end;
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(360deg);
+	}
+
+	to {
+		transform: rotate(0deg);
+	}
+}
+
+.dashicons-image-rotate {
+	display: none;
+	/* Oculto por padrão */
+	animation: spin 1s linear infinite;
+	/* Aplica a animação de rotação */
+}
+
+.wcip-form-wrap {
+	display: flex;
+	flex-flow: wrap;
+	gap: 2%;
+}
+
+.wcip-postbox {
+	min-width: 255px;
+	/* max-height: 128px; */
+}
+
+.wcip-row {
+	display: flex;
+	flex-direction: column;
+}
+
+.text-bold {
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.action-btn {
+	display: flex;
+	justify-content: end;
+}
+
+.price-row-wrap {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	gap: 15px;
+	margin: 10px 0px;
+}
+
+.btn {
+	border: none;
+	/* Remove borders */
+	font-size: 13px;
+	/* Set a font size */
+	cursor: pointer;
+	/* Mouse pointer on hover */
+}
+
+.btn-delete {
+	background-color: white;
+	color: black;
+	padding: 4px 10px;
+}
+
+.btn-delete:hover {
+	background-color: rgba(202, 0, 0, 0.767);
+}
+
+.btn-add-line {
+	background-color: #f6f7f7;
+	color: #2271b1;
+	border-color: #2271b1;
+	border: solid 1px;
+	padding: 0px 30px;
+	min-height: 30px;
+	border-radius: 3px;
+}
+
+.btn-add-line:hover {
+	background: #f0f0f1;
+	border-color: #0a4b78;
+	color: #0a4b78;
+}
+
+.lkn_wcip_amount_input {
+	width: 193px;
+}
+
+#lkn_wcip_due_date_input {
+	width: 100%;
+}
+
+.lkn_wcip_notice_positive {
+	background-color: green;
+	display: flex;
+	justify-content: center;
+	color: white;
+	padding: 8px;
+	font-size: 1.1em;
+	animation: hideAnimation 0s ease-in 5s;
+	animation-fill-mode: forwards;
+}
+
+.lkn_wcip_notice_negative {
+	background-color: rgb(175, 2, 2);
+	display: flex;
+	justify-content: center;
+	color: white;
+	padding: 8px;
+	font-size: 1.1em;
+	animation: hideAnimation 0s ease-in 5s;
+	animation-fill-mode: forwards;
+}
+
+@keyframes hideAnimation {
+	to {
+		visibility: hidden;
+		width: 0;
+		height: 0;
+	}
+}
+
+.lkn_wcip_delete_btn_form {
+	color: #ee0000 !important;
+	border-color: #ee0000 !important;
+	margin: 0px 7px 0px 0px !important;
+}
+
+#lkn-wcip-preview-img {
+	width: 352px !important;
+	max-width: 352px !important;
+	min-width: 352px !important;
+	border: 2px solid rgb(211, 213, 159);
+	border-radius: 3px;
+	position: absolute;
+	z-index: 999999;
+	box-shadow: 3px 3px 3px 0 #d3d3d35e;
+	display: none;
+}
+
+#lkn-wcip-preview-template-btn {
+	margin-top: 10px;
+}
+
+#lkn-wcip-share-modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 9999;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#lkn-wcip-share-modal-content {
+	background: #fff;
+	padding: 20px;
+	border: 1px solid #ccc;
+	max-width: 80%;
+	max-height: 80%;
+	overflow: auto;
+	position: relative;
+	text-align: center;
+	border-radius: 0.4rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1vh;
+}
+
+#lkn-wcip-share-buttons {
+	display: flex;
+	gap: 0.5rem;
+}
+
+
+.lkn-wcip-share-icon {
+	display: block;
+	width: 50px;
+	height: 50px;
+	margin-bottom: 10px;
+	border-radius: 50%;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	font-size: 24px;
+	color: white !important;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#lkn-wcip-whatsapp-share {
+	background-color: #25D366;
+}
+
+#lkn-wcip-twitter-share {
+	background-color: #1DA1F2;
+}
+
+#lkn-wcip-email-share {
+	background-color: #0072b1;
+}
+
+#modalHeader {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	padding: 10px;
+	position: relative;
+}
+
+#lkn-wcip-close-modal-btn {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	font-size: 24px;
+	color: #000 !important;
+	text-decoration: none;
+}
+
+.lkn_swcip_share_btn_form {
+	margin: 0px 7px 0px 0px !important;
+}
+
+#twoCheckboxDiv {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 17px;
+}
+
+#lkn-wcip-share-title {
+	text-align: start;
+}
+
+#lkn-wcip-copy-link-div {
+	display: flex;
+	align-items: center;
+}
+
+#lkn-wcip-copy-input {
+	flex: 1;
+	padding: 0.6em;
+	border: 1px solid #ccc;
+}
+
+.lkn-wcip-copy-button {
+	cursor: pointer;
+	background-color: #f0f0f0;
+	padding: 0.9em;
+	border: 1px solid #ccc;
+}
+
+.lkn-wcip-copy-button:hover {
+	background-color: #e0e0e0;
+}
+
+.lkn_wcip_subscription_interval_div {
+	display: flex;
+}
+
+#lkn_wcip_subscription_limit_checkbox_div {
+	margin-top: 25px;
+}
+
+.lkn_wcip_payment_global_template_label {
+	display: flex;
+	flex-direction: column;
+}
+
+.lkn_wcip_payment_global_template_label_description {
+	font-size: small;
+}

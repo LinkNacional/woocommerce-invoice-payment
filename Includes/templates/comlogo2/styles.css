@@ -1,0 +1,150 @@
+@font-face {
+	font-family: "Lato";
+	src: url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	font-family: "Lato", sans-serif;
+	padding: 50px;
+}
+
+h1 {
+	font-size: 1.5em;
+	margin-bottom: 12px;
+}
+
+header {
+	width: 100%;
+	position: relative;
+}
+
+#bill-to-container {
+	margin: 50px 0px;
+}
+
+header table {
+	width: 100%;
+}
+
+#extra-data-container {
+	margin-top: 12px;
+}
+
+#invoice-details-table {
+	width: 100%;
+	margin: 40px 0px;
+	line-height: 21px;
+}
+
+#invoice-details-table tbody tr:first-child td p {
+	font-weight: bold;
+}
+
+#invoice-details-table tbody tr:nth-child(2) td {
+	padding: 12px 0px;
+}
+
+#invoice-details-table td {
+	width: 50%;
+}
+
+#invoice-details-column {
+	vertical-align: bottom;
+	text-transform: uppercase;
+	font-size: 0.9em;
+	width: 100%;
+}
+
+#invoice-details-column table {
+	width: 100%;
+}
+
+#invoice-details-column tbody td {
+	width: 50%;
+}
+
+#invoice-details-column tbody td:first-child {
+	font-weight: bold;
+}
+
+#qr-code-container {
+	width: 100%;
+	margin: 32px 0px;
+	/* height: 500px; */
+}
+
+#logo-td-container {
+	text-align: right;
+}
+
+#qr-code-container figcaption {
+	font-size: 0.7em;
+	max-width: 500px;
+	margin-bottom: 21px;
+}
+
+#payment-link-container {
+	color: blue;
+	margin-top: 12px;
+	display: block;
+}
+
+#order-items-table {
+	width: 100%;
+	border: 1px solid rgba(0, 0, 0, .6);
+	font-size: 0.95em;
+	border-collapse: collapse;
+}
+
+#order-items-table thead th:first-child {
+	width: 70%;
+}
+
+#order-items-table th {
+	padding: 16px;
+	border-bottom: 1px solid rgba(0, 0, 0, .6);
+}
+
+#order-items-table th {
+	text-align: left;
+	border-right: 1px solid rgba(0, 0, 0, .6);
+}
+
+#order-items-table tbody td {
+	padding: 8px 16px;
+	border-right: 1px solid rgba(0, 0, 0, .6);
+	border-bottom: 1px solid rgba(0, 0, 0, .6);
+}
+
+#order-items-table tfoot th:first-child {
+	width: 70%;
+}
+
+#order-items-table tfoot th {
+	text-align: right;
+}
+
+#order-items-table tfoot td {
+	text-align: left;
+	padding: 8px 16px;
+}
+
+#order-items-table tfoot * {
+	border-bottom: none;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+#main-footer {
+	position: absolute;
+	bottom: 50px;
+	left: 50px;
+	right: 50px;
+	font-size: 0.8em;
+}
