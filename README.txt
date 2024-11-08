@@ -18,6 +18,10 @@ The free [Invoice Issue plugin](https://www.linknacional.com/wordpress/plugins/)
 
 Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Invoice Payment for WooCommerce installation.
 
+*External Libraries used*
+* We use the PHP external library [DOMPDF](https://github.com/dompdf/dompdf) for generating PDF invoices.
+* We use PHP [QR Code encoder](https://phpqrcode.sourceforge.net/) for generating the redirect URL page.
+
 **User instructions**
 
 1. Search the WordPress sidebar for 'Invoice Payment for WooCommerce';
