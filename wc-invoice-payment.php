@@ -18,6 +18,7 @@
  * Version:           2.0.0
  * Author:            Link Nacional
  * Author URI:        https://www.linknacional.com/
+ * Requires Plugins: woocommerce
  * License:           GPL-3.0+
  * License URI:       http://www.gnu.org/licenses/gpl-3.0.txt
  * Text Domain:       wc-invoice-payment
@@ -76,14 +77,5 @@ register_deactivation_hook(__FILE__, 'deactivate_wc_payment_invoice');
 function run_wc_payment_invoice(): void {
     $plugin = new WcPaymentInvoice();
     $plugin->run();
-
-    add_action('admin_notices', 'lkn_wcip_woocommerce_missing_notice');
 }
 run_wc_payment_invoice();
-
-/**
- * WooCommerce missing notice.
- */
-function lkn_wcip_woocommerce_missing_notice(): void {
-    include_once __DIR__ . '/Admin/partials/wc-invoice-payment-admin-missing-woocommerce.php';
-}
