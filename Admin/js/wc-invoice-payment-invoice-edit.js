@@ -11,18 +11,18 @@ jQuery(document).ready(function ($) {
   $subMenu.css('min-width', 'auto')
   $subMenu.css('border-left', '0')
 
-  //Define o link para as faturas listadas
-  const $listInvoices = $('#lknListGeneratedInvoices');
-  const currentUrl = window.location.href;
+  // Define o link para as faturas listadas
+  const $listInvoices = $('#lknListGeneratedInvoices')
+  const currentUrl = window.location.href
 
-  $listInvoices.find('a').each(function() {
-      const $link = $(this);
-      const invoiceId = $link.text().trim();
-      const url = new URL(currentUrl);
+  $listInvoices.find('a').each(function () {
+    const $link = $(this)
+    const invoiceId = $link.text().trim()
+    const url = new URL(currentUrl)
 
-      url.searchParams.set('page', 'edit-invoice');
-      url.searchParams.set('invoice', invoiceId);
+    url.searchParams.set('page', 'edit-invoice')
+    url.searchParams.set('invoice', invoiceId)
 
-      $link.attr('href', url.toString());
-  });
+    $link.attr('href', url.toString())
+  })
 })

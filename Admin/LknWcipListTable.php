@@ -157,8 +157,8 @@ final class LknWcipListTable {
 
         if (empty($this->modes)) {
             $this->modes = array(
-                'list' => __('Compact view'),
-                'excerpt' => __('Extended view'),
+                'list' => __('Compact view', 'wc-invoice-payment'),
+                'excerpt' => __('Extended view', 'wc-invoice-payment'),
             );
         }
     }
@@ -316,7 +316,7 @@ final class LknWcipListTable {
      * @since 3.1.0
      */
     public function no_items(): void {
-        esc_attr_e('No items found.');
+        esc_attr_e('No items found.', 'wc-invoice-payment');
     }
 
     /**
@@ -366,9 +366,12 @@ final class LknWcipListTable {
             // Atualiza cada elemento com a estrutura correta
             $views[$class] = "\t<li class='$class_escaped'>$view_escaped";
         }
-        
+        $allowed_tags = array(
+            'ul' => array(),
+            'li' => array()
+        );
         // Usa implode para juntar cada elemento com um separador adequado
-        echo implode(" |</li>\n", $views) . "</li>\n";
+        echo wp_kses(implode(" |</li>\n", $views) . "</li>\n", $allowed_tags);
         echo '</ul>';
     }
 
@@ -407,9 +410,9 @@ final class LknWcipListTable {
         }
         $nonceAction = wp_create_nonce( 'nonce_action' );
         echo '<input type="hidden" name="nonce_action_field" value="' . esc_attr( $nonceAction ) . '" />';
-        echo '<label for="bulk-action-selector-' . esc_attr($which) . '" class="screen-reader-text">' . esc_attr(__('Select bulk action')) . '</label>';
+        echo '<label for="bulk-action-selector-' . esc_attr($which) . '" class="screen-reader-text">' . esc_attr(__('Select bulk action', 'wc-invoice-payment')) . '</label>';
         echo '<select name="action' . esc_attr($two) . '" id="bulk-action-selector-' . esc_attr($which) . "\">\n";
-        echo '<option value="-1">' . esc_attr(__('Bulk actions')) . "</option>\n";
+        echo '<option value="-1">' . esc_attr(__('Bulk actions', 'wc-invoice-payment')) . "</option>\n";
 
         foreach ($this->_actions as $key => $value) {
             if (is_array($value)) {
@@ -430,7 +433,7 @@ final class LknWcipListTable {
 
         echo "</select>\n";
 
-        submit_button(__('Apply'), 'action', '', false, array('id' => 'doaction' . esc_attr($two)));
+        submit_button(__('Apply', 'wc-invoice-payment'), 'action', '', false, array('id' => 'doaction' . esc_attr($two)));
         echo "\n";
     }
 
@@ -451,7 +454,7 @@ final class LknWcipListTable {
         }
 
         if (isset($_REQUEST['action']) && -1 != $_REQUEST['action']) {
-            return $_REQUEST['action'];
+            return sanitize_text_field(wp_unslash($_REQUEST['action']));
         }
 
         return false;
@@ -493,7 +496,7 @@ final class LknWcipListTable {
 
         $out .= '</div>';
 
-        $out .= '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __('Show more details') . '</span></button>';
+        $out .= '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __('Show more details', 'wc-invoice-payment') . '</span></button>';
 
         return $out;
     }
@@ -551,19 +554,19 @@ final class LknWcipListTable {
 
         $approved_only_phrase = sprintf(
             /* translators: %s: Number of comments. */
-            _n('%s comment', '%s comments', $approved_comments),
+            _n('%s comment', '%s comments', $approved_comments, 'wc-invoice-payment'),
             $approved_comments_number
         );
 
         $approved_phrase = sprintf(
             /* translators: %s: Number of comments. */
-            _n('%s approved comment', '%s approved comments', $approved_comments),
+            _n('%s approved comment', '%s approved comments', $approved_comments, 'wc-invoice-payment'),
             $approved_comments_number
         );
 
         $pending_phrase = sprintf(
             /* translators: %s: Number of comments. */
-            _n('%s pending comment', '%s pending comments', $pending_comments),
+            _n('%s pending comment', '%s pending comments', $pending_comments, 'wc-invoice-payment'),
             $pending_comments_number
         );
 
@@ -571,7 +574,7 @@ final class LknWcipListTable {
             // No comments at all.
             printf(
                 '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">%s</span>',
-                esc_html__('No comments')
+                esc_html__('No comments', 'wc-invoice-payment')
             );
         } elseif ($approved_comments && 'trash' === get_post_status($post_id)) {
             // Don't link the comment bubble for a trashed post.
@@ -601,7 +604,7 @@ final class LknWcipListTable {
             printf(
                 '<span class="post-com-count post-com-count-no-comments"><span class="comment-count comment-count-no-comments" aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></span>',
                 esc_html($approved_comments_number),
-                $pending_comments ? esc_html__('No approved comments') : esc_html__('No comments')
+                $pending_comments ? esc_html__('No approved comments', 'wc-invoice-payment') : esc_html__('No comments', 'wc-invoice-payment')
             );
         }
 
@@ -624,7 +627,7 @@ final class LknWcipListTable {
             printf(
                 '<span class="post-com-count post-com-count-pending post-com-count-no-pending"><span class="comment-count comment-count-no-pending" aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></span>',
                 esc_html($pending_comments_number),
-                $approved_comments ? esc_html__('No pending comments') : esc_html__('No comments')
+                $approved_comments ? esc_html__('No pending comments', 'wc-invoice-payment') : esc_html__('No comments', 'wc-invoice-payment')
             );
         }
     }
@@ -717,15 +720,18 @@ final class LknWcipListTable {
 
         $output = '<span class="displaying-num">' . sprintf(
             /* translators: %s: Number of items. */
-            _n('%s item', '%s items', $total_items),
+            _n('%s item', '%s items', $total_items, 'wc-invoice-payment'),
             number_format_i18n($total_items)
         ) . '</span>';
 
         $current = $this->get_pagenum();
         $removable_query_args = wp_removable_query_args();
 
-        $sanitizedUrl = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $current_url = sanitize_url($sanitizedUrl);
+        $httpHost = isset($_SERVER['HTTP_HOST']) ? wp_unslash($_SERVER['HTTP_HOST']) : '';
+        $requestURI = isset($_SERVER['REQUEST_URI']) ? wp_unslash($_SERVER['REQUEST_URI']) : '';
+
+        $sanitizedUrl = sanitize_url('https://' . $httpHost . $requestURI);
+        $current_url = $sanitizedUrl;
 
         $page_links = array();
 
@@ -752,7 +758,7 @@ final class LknWcipListTable {
             $page_links[] = sprintf(
                 "<a class='first-page button' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
                 esc_url(remove_query_arg('paged', $current_url)),
-                __('First page'),
+                __('First page', 'wc-invoice-payment'),
                 '&laquo;'
             );
         }
@@ -763,18 +769,18 @@ final class LknWcipListTable {
             $page_links[] = sprintf(
                 "<a class='prev-page button' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
                 esc_url(add_query_arg('paged', max(1, $current - 1), $current_url)),
-                __('Previous page'),
+                __('Previous page', 'wc-invoice-payment'),
                 '&lsaquo;'
             );
         }
 
         if ('bottom' === $which) {
             $html_current_page = $current;
-            $total_pages_before = '<span class="screen-reader-text">' . __('Current Page') . '</span><span id="table-paging" class="paging-input"><span class="tablenav-paging-text">';
+            $total_pages_before = '<span class="screen-reader-text">' . __('Current Page', 'wc-invoice-payment') . '</span><span id="table-paging" class="paging-input"><span class="tablenav-paging-text">';
         } else {
             $html_current_page = sprintf(
                 "%s<input class='current-page' id='current-page-selector' type='text' name='paged' value='%s' size='%d' aria-describedby='table-paging' /><span class='tablenav-paging-text'>",
-                '<label for="current-page-selector" class="screen-reader-text">' . __('Current Page') . '</label>',
+                '<label for="current-page-selector" class="screen-reader-text">' . __('Current Page', 'wc-invoice-payment') . '</label>',
                 $current,
                 strlen($total_pages)
             );
@@ -782,7 +788,7 @@ final class LknWcipListTable {
         $html_total_pages = sprintf("<span class='total-pages'>%s</span>", number_format_i18n($total_pages));
         $page_links[] = $total_pages_before . sprintf(
             /* translators: 1: Current page, 2: Total pages. */
-            _x('%1$s of %2$s', 'paging'),
+            _x('%1$s of %2$s', 'paging', 'wc-invoice-payment'),
             $html_current_page,
             $html_total_pages
         ) . $total_pages_after;
@@ -793,7 +799,7 @@ final class LknWcipListTable {
             $page_links[] = sprintf(
                 "<a class='next-page button' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
                 esc_url(add_query_arg('paged', min($total_pages, $current + 1), $current_url)),
-                __('Next page'),
+                __('Next page', 'wc-invoice-payment'),
                 '&rsaquo;'
             );
         }
@@ -804,7 +810,7 @@ final class LknWcipListTable {
             $page_links[] = sprintf(
                 "<a class='last-page button' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
                 esc_url(add_query_arg('paged', $total_pages, $current_url)),
-                __('Last page'),
+                __('Last page', 'wc-invoice-payment'),
                 '&raquo;'
             );
         }
@@ -1012,16 +1018,19 @@ final class LknWcipListTable {
             return;
         }
 
-        $sanitizedUrl = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $httpHost = isset($_SERVER['HTTP_HOST']) ? wp_unslash($_SERVER['HTTP_HOST']) : '';
+        $requestURI = isset($_SERVER['REQUEST_URI']) ? wp_unslash($_SERVER['REQUEST_URI']) : '';
+
+        $sanitizedUrl = sanitize_url('https://' . $httpHost . $requestURI);
         $current_url = sanitize_url($sanitizedUrl);
 
         if (isset($_GET['orderby'])) {
-            $current_orderby = sanitize_text_field($_GET['orderby']);
+            $current_orderby = sanitize_text_field(wp_unslash($_GET['orderby']));
         } else {
             $current_orderby = '';
         }
 
-        if (isset($_GET['order']) && 'desc' === sanitize_text_field($_GET['order'])) {
+        if (isset($_GET['order']) && 'desc' === sanitize_text_field(wp_unslash($_GET['order']))) {
             $current_order = 'desc';
         } else {
             $current_order = 'asc';
@@ -1029,7 +1038,7 @@ final class LknWcipListTable {
 
         if ( ! empty($columns['cb'])) {
             static $cb_counter = 1;
-            $columns['cb'] = '<label class="screen-reader-text" for="cb-select-all-' . esc_attr($cb_counter) . '">' . __('Select All') . '</label>'
+            $columns['cb'] = '<label class="screen-reader-text" for="cb-select-all-' . esc_attr($cb_counter) . '">' . __('Select All', 'wc-invoice-payment') . '</label>'
                 . '<input id="cb-select-all-' . esc_attr($cb_counter) . '" type="checkbox" />';
             $cb_counter++;
         }
@@ -1143,11 +1152,10 @@ final class LknWcipListTable {
 
     <tbody
         id="the-list"
-    <?php
+        <i></i><?php
                 if ($singular) {
                     echo " data-wp-lists='list:" . esc_attr($singular) . "'";
                 } ?>
-        >
         <?php $this->display_rows_or_placeholder(); ?>
     </tbody>
 
@@ -1338,7 +1346,7 @@ final class LknWcipListTable {
         if (isset($this->_pagination_args['total_items'])) {
             $response['total_items_i18n'] = sprintf(
                 /* translators: Number of items. */
-                _n('%s item', '%s items', $this->_pagination_args['total_items']),
+                _n('%s item', '%s items', $this->_pagination_args['total_items'], 'wc-invoice-payment'),
                 number_format_i18n($this->_pagination_args['total_items'])
             );
         }
@@ -1358,9 +1366,9 @@ final class LknWcipListTable {
     public function prepare_items($validate_nonce, $showSubscriptions = false): void {
         if(wp_verify_nonce($validate_nonce, 'validate_nonce')) {
             $this->_nonce = $validate_nonce;
-            $order_by = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
-            $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
-            $search_term = isset($_POST['s']) ? sanitize_text_field($_POST['s']) : '';
+            $order_by = isset($_GET['orderby']) ? sanitize_text_field(wp_unslash($_GET['orderby'])) : '';
+            $order = isset($_GET['order']) ? sanitize_text_field(wp_unslash($_GET['order'])) : '';
+            $search_term = isset($_POST['s']) ? sanitize_text_field(wp_unslash($_POST['s'])) : '';
             $invoiceList = get_option('lkn_wcip_invoices', array());
     
             // Deletes invoices that have no order.
@@ -1407,7 +1415,7 @@ final class LknWcipListTable {
      */
     public function get_bulk_actions() {
         return array(
-            'delete' => __('Delete'),
+            'delete' => __('Delete', 'wc-invoice-payment'),
         );
     }
 
@@ -1445,9 +1453,9 @@ final class LknWcipListTable {
         }
         
         $action = array();
-        $action['edit'] = '<a href="' . $editUrl . '">' . __('Edit') . '</a>';
-        $action['payment'] = '<a href="' . $paymentUrl . '" target="_blank">' . __('Payment link', 'wc-invoice-payment') . '</a>';
-        $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$orderId' href='#'>" . __('Download invoice', 'wc-invoice-payment') . '</a>';
+        $action['edit'] = '<a href="' . esc_url($editUrl) . '">' . __('Edit', 'wc-invoice-payment') . '</a>';
+        $action['payment'] = '<a href="' . esc_url($paymentUrl) . '" target="_blank">' . esc_html__('Payment link', 'wc-invoice-payment') . '</a>';
+        $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$orderId' href='#'>" . esc_html__('Download invoice', 'wc-invoice-payment') . '</a>';
 
         return $this->row_actions($action);
     }
@@ -1464,16 +1472,16 @@ final class LknWcipListTable {
      */
     public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '', $invoiceList, $showSubscriptions) {
         ?>
-        <section style="margin: 20px 0 0 0; "> 
+<section style="margin: 20px 0 0 0; ">
     <?php
         if ( ! $showSubscriptions) {
             $editUrl = home_url('wp-admin/admin.php?page=new-invoice');
             ?>
     <div>
         <a
-            href="<?php echo $editUrl; ?>"
+            href="<?php echo esc_url($editUrl); ?>"
             class="button button-primary"
-        ><?php echo __('Add invoice', 'wc-invoice-payment'); ?></a>
+        ><?php esc_html_e('Add invoice', 'wc-invoice-payment'); ?></a>
     </div>
     <?php
         } else {
@@ -1481,9 +1489,9 @@ final class LknWcipListTable {
             ?>
     <div>
         <a
-            href="<?php echo $editUrl; ?>"
+            href="<?php echo esc_url($editUrl); ?>"
             class="button button-primary"
-        ><?php echo __('Add subscription', 'wc-invoice-payment'); ?></a>
+        ><?php esc_html_e('Add subscription', 'wc-invoice-payment'); ?></a>
     </div>
     <?php
         }
@@ -1558,7 +1566,7 @@ final class LknWcipListTable {
             'lkn_wcip_exp_date' => __('Due date', 'wc-invoice-payment'),
         );
 
-        $page = isset($_GET['page']) ? $_GET['page'] : null;
+        $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : null;
         
         if('wc-subscription-payment' == $page) {
             unset($columns['lkn_wcip_from_subscription']);
@@ -1609,9 +1617,9 @@ final class LknWcipListTable {
     public function usort_reorder($a, $b) {
         if(wp_verify_nonce($this->_nonce, 'validate_nonce')) {
             // If no sort, default to title
-            $orderby = ( ! empty($_GET['orderby'])) ? sanitize_text_field($_GET['orderby']) : 'lkn_wcip_id';
+            $orderby = ( ! empty($_GET['orderby'])) ? sanitize_text_field(wp_unslash($_GET['orderby'])) : 'lkn_wcip_id';
             // If no order, default to desc
-            $order = ( ! empty($_GET['order'])) ? sanitize_text_field($_GET['order']) : 'desc';
+            $order = ( ! empty($_GET['order'])) ? sanitize_text_field(wp_unslash($_GET['order'])) : 'desc';
             // Determine sort order
             $result = strcmp($a[$orderby], $b[$orderby]);
             // Send final sort direction to usort
@@ -1625,8 +1633,9 @@ final class LknWcipListTable {
      * @return void
      */
     public function proccess_bulk_action(): void {
-        if ('delete' === $this->current_action() && wp_verify_nonce( $_POST['nonce_action_field'], 'nonce_action' )) {
-            $invoicesDelete = array_map( 'sanitize_text_field', $_POST['invoices'] );
+        if ('delete' === $this->current_action() && isset($_POST['nonce_action_field']) && wp_verify_nonce( $_POST['nonce_action_field'], 'nonce_action' )) {
+            $invoicesRaw = isset($_POST['invoices']) ? $_POST['invoices'] : array();
+            $invoicesDelete = array_map('sanitize_text_field', $invoicesRaw);
             $invoices = get_option('lkn_wcip_invoices');
 
             $invoices = array_diff($invoices, $invoicesDelete);
@@ -1646,7 +1655,7 @@ final class LknWcipListTable {
                             if ('generate_invoice_event' === $hook || 'lkn_wcip_cron_hook' === $hook) {
                                 // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
                                 $event_args = $event['args'];
-                                if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                                if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
                                     // Remova o evento do WP Cron
                                     wp_unschedule_event($timestamp, $hook, $event_args);
                                 }
@@ -1657,7 +1666,8 @@ final class LknWcipListTable {
             }
             update_option('lkn_wcip_invoices', $invoices);
 
-            wp_redirect(sanitize_url($_SERVER['HTTP_REFERER']));
+            $referer = wp_unslash($_SERVER['HTTP_REFERER']);
+            wp_redirect(sanitize_url($referer));
         }
     }
 }

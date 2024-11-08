@@ -132,7 +132,7 @@ ob_start();
                                 <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?>
                             </td>
                             <td>
-                                <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
+                                <?php echo esc_html($order_date->format("d/m/y")); ?>
                             </td>
                         </tr>
                         <?php endif; ?>

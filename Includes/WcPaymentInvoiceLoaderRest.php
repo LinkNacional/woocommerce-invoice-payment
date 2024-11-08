@@ -72,7 +72,9 @@ final class WcPaymentInvoiceLoaderRest {
         header('Content-Length: ' . strlen($output));
         header('Content-Transfer-Encoding: binary');
 
-        echo $output; //TODO adicionar escape de binário
+        // This is a binary file for download
+        // Can't use esc_html here
+        echo $output;
         exit;
     }
 }
