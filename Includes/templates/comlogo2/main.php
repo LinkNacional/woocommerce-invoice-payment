@@ -90,7 +90,7 @@ ob_start();
                     <p>
                         <strong>
                             <?php esc_html_e("Invoice due date", 'wc-invoice-payment'); ?></strong>
-                        <?php esc_html_e($order_date->format("d/m/y"), 'wc-invoice-payment'); ?>
+                        <?php echo esc_html($order_date->format("d/m/y")); ?>
                         <?php }?>
                 </td>
 

@@ -1,5 +1,6 @@
-# 2.0.0 - 01/11/2024
-* Refatoração no carregamento das classes (Padrão PSR-4).
+# 2.0.0 - 12/11/2024
+* Refatoração no carregamento das classes (Padrão PSR-4);
+* Correção de vulnerabilidades.
 
 # 1.7.2 - 30/10/2024
 * Correção de erros em PDFs com imagens;
