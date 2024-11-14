@@ -274,3 +274,9 @@ msgstr "Tem certeza que deseja deletar a fatura?"
 
 msgid "Are you sure you want to cancel the invoice?"
 msgstr "Tem certeza que deseja cancelar a fatura?"
+
+msgid "Payer Data"
+msgstr "Dados do Pagador"
+
+msgid "Country"
+msgstr "País"

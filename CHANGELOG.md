@@ -1,3 +1,6 @@
+# 2.0.1 - 18/11/2024
+* Correção de erro para métodos de pagamentos que exigem o país do pedido.
+
 # 2.0.0 - 12/11/2024
 * Refatoração no carregamento das classes (Padrão PSR-4);
 * Correção de vulnerabilidades.

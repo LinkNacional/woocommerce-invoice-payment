@@ -321,3 +321,9 @@
 .lkn_wcip_payment_global_template_label_description {
 	font-size: small;
 }
+
+#wcPaymentInvoiceTitles {
+	display: flex;
+	justify-content: space-between;
+	margin-right: 210px;
+}
