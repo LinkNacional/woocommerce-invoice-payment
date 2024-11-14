@@ -268,3 +268,9 @@ msgstr ""
 
 msgid "Are you sure you want to cancel the invoice?"
 msgstr ""
+
+msgid "Payer Data"
+msgstr ""
+
+msgid "Country"
+msgstr ""
