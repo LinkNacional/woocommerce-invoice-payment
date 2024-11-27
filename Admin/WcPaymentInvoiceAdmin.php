@@ -74,22 +74,23 @@ final class WcPaymentInvoiceAdmin {
      */
     public function check_invoice_exp_date($orderId) {
         $order = wc_get_order($orderId);
-
-        $todayObj = new DateTime();
-        $expDate = $order->get_meta('lkn_exp_date') . ' 23:59'; // Needs to set the hour to not cancel invoice in the last day of payment
-        $format = 'Y-m-d H:i';
-        $expDateObj = DateTime::createFromFormat($format, $expDate);
-        if ($todayObj > $expDateObj && $order->get_status() == 'pending') {
-            $order->set_status('wc-cancelled', __('Invoice expired', 'wc-invoice-payment'));
-            $order->save();
-
-            $timestamp = wp_next_scheduled('lkn_wcip_cron_hook', array($orderId));
-            wp_unschedule_event($timestamp, 'lkn_wcip_cron_hook', array($orderId));
-
-            return false;
+        if($order){
+            $todayObj = new DateTime();
+            $expDate = $order->get_meta('lkn_exp_date') . ' 23:59'; // Needs to set the hour to not cancel invoice in the last day of payment
+            $format = 'Y-m-d H:i';
+            $expDateObj = DateTime::createFromFormat($format, $expDate);
+            if ($todayObj > $expDateObj && $order->get_status() == 'pending') {
+                $order->set_status('wc-cancelled', __('Invoice expired', 'wc-invoice-payment'));
+                $order->save();
+    
+                $timestamp = wp_next_scheduled('lkn_wcip_cron_hook', array($orderId));
+                wp_unschedule_event($timestamp, 'lkn_wcip_cron_hook', array($orderId));
+    
+                return false;
+            }
+    
+            return true;
         }
-
-        return true;
     }
 
     /**
@@ -1929,6 +1930,39 @@ final class WcPaymentInvoiceAdmin {
                         </select>
                     </div>
                     <div class="input-row-wrap">
+                        <label for="lkn_wcip_select_invoice_language">
+                            <?php esc_attr_e('Idioma do PDF da fatura', 'wc-invoice-payment'); ?>
+                        </label>
+                        <select
+                            name="lkn_wcip_select_invoice_language"
+                            id="lkn_wcip_select_invoice_language"
+                            class="regular-text"
+                            required
+                        >
+                            <?php
+                            $languages = get_available_languages();
+                            // Adiciona manualmente o inglês à lista de idiomas
+                            array_unshift($languages, 'en_US');
+                            // Define o idioma atual do WordPress
+                            $current_language = get_locale();
+                            // Remove o idioma atual da lista
+                            if (($key = array_search($current_language, $languages)) !== false) {
+                                unset($languages[$key]);
+                            }
+                            // Ordena os idiomas restantes em ordem alfabética
+                            sort($languages);
+                            // Adiciona o idioma atual no início da lista
+                            array_unshift($languages, $current_language);
+                            // Gera as opções do select
+                            foreach ($languages as $language) {
+                                $language_name = locale_get_display_name($language, 'en');
+                                $selected = ($language === $current_language) ? 'selected' : '';
+                                echo '<option value="' . esc_attr($language) . '" ' . $selected . '>' . esc_html($language_name) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap">
                         <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
                     </div>
                 </div>
@@ -2238,6 +2272,9 @@ final class WcPaymentInvoiceAdmin {
 
                 $pdfTemplateId = sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_template']));
                 $order->update_meta_data('wcip_select_invoice_template_id', $pdfTemplateId);
+
+                $pdfTemplateId = sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_language']));
+                $order->update_meta_data('wcip_select_invoice_language', $pdfTemplateId);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); ++$i) {
