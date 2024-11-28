@@ -58,6 +58,10 @@ $payment_link_qr_code = base64_encode($qrCodeData);
 
 $document_title = __('Invoice', 'wc-invoice-payment') . $invoice_id . '.pdf';
 
+// Define o idioma desejado
+$orderLanguage = $order->get_meta('wcip_select_invoice_language');
+switch_to_locale($orderLanguage);
+
 ob_start();
 ?>
 
@@ -213,7 +217,7 @@ ob_start();
 </html>
 
 <?php
-
+restore_previous_locale();
 return ob_get_clean();
 
 ?>
