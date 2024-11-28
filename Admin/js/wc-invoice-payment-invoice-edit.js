@@ -25,4 +25,17 @@ jQuery(document).ready(function ($) {
 
     $link.attr('href', url.toString())
   })
+
+  const $showSubscriptionInvoices = $('#lknShowSubscription')
+
+  $showSubscriptionInvoices.find('a').each(function () {
+    const $link = $(this)
+    const invoiceId = $link.text().trim()
+    const url = new URL(currentUrl)
+
+    url.searchParams.set('page', 'edit-subscription')
+    url.searchParams.set('invoice', invoiceId)
+
+    $link.attr('href', url.toString())
+  })
 })

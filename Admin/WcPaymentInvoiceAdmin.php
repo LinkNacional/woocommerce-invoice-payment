@@ -594,7 +594,9 @@ final class WcPaymentInvoiceAdmin {
 
         $c = 0;
         $order = wc_get_order($invoiceId);
-
+        if($order->get_meta('lkn_subscription_id')){
+            $subscription_id = $order->get_meta('lkn_subscription_id');
+        }
         $items = $order->get_items();
         $checkoutUrl = $order->get_checkout_payment_url();
         $orderStatus = $order->get_status();
@@ -968,6 +970,45 @@ final class WcPaymentInvoiceAdmin {
                 <?php submit_button(__('Update', 'wc-invoice-payment')); ?>
             </div>
         </div>
+        <!-- Subscription  -->
+        <?php
+            if($subscription_id = $order->get_meta('lkn_subscription_id')) {
+        ?>
+            <div
+                class="wcip-invoice-data wcip-postbox"
+                id="lknShowSubscription">
+                <span
+                    class="text-bold"><?php esc_attr_e('Assinatura', 'wc-invoice-payment'); ?></span>
+                <span><?php echo esc_attr($order->get_meta('lkn_wcip_subscription_initial_limit')) ?></span>
+                <hr>
+                <div class="wcip-row">
+                    <div
+                        class="input-row-wrap"
+                        id="lknShowSubscription">
+                        <?php
+                        //Lista as faturas geradas por essa assinatura
+                        ?>
+                            <p>
+                                <?php
+                                echo esc_attr(' | ');
+                                ?>
+                                <a >
+                                    <?php
+                                    echo esc_attr($subscription_id);
+                                    ?>
+                                </a>
+                                <?php
+                                echo esc_attr(' | ');
+                                ?>
+                            </p>
+                        <?php
+                        ?>
+                    </div>
+                </div>
+            </div>
+        <?php
+            }
+        ?>
         <!-- Invoice charges -->
         <div class="wcip-invoice-data">
             <h2 class="title">
