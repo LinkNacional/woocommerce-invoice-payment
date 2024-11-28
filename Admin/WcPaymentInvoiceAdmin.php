@@ -453,10 +453,11 @@ final class WcPaymentInvoiceAdmin {
                                         type="checkbox"
                                         class=""
                                         value="1"
+                                        <?php if ($product_invoices) {
+                                            echo 'checked';
+                                        } ?>
                                         <i
-                                    ></i><?php if ($product_invoices) {
-                                        echo 'checked';
-                                    } ?>
+                                    ></i>
                                     <?php esc_attr_e('Create invoices for products', 'wc-invoice-payment') ?>
 
                                     <div class="tooltip">
@@ -505,20 +506,23 @@ final class WcPaymentInvoiceAdmin {
                             <select name="lkn_wcip_subscription_interval_type">
                                 <option
                                     value="day"
+                                    <?php echo esc_attr('day' == $interval_type ? esc_attr("selected") : '') ?>
                                     <i
-                                ></i><?php echo esc_attr('day' == $interval_type ? esc_attr("selected") : '') ?>
+                                ></i>
                                     <?php esc_attr_e('Days', 'wc-invoice-payment'); ?>
                                 </option>
                                 <option
                                     value="week"
+                                    <?php echo esc_attr('week' == $interval_type ? esc_attr("selected") : '') ?>
                                     <i
-                                ></i><?php echo esc_attr('week' == $interval_type ? esc_attr("selected") : '') ?>
+                                ></i>
                                     <?php esc_attr_e('Weeks', 'wc-invoice-payment'); ?>
                                 </option>
                                 <option
                                     value="month"
+                                    <?php echo esc_attr('month' == $interval_type ? esc_attr("selected") : '') ?>
                                     <i
-                                ></i><?php echo esc_attr('month' == $interval_type ? esc_attr("selected") : '') ?>
+                                ></i>
                                     <?php esc_attr_e('Months', 'wc-invoice-payment'); ?>
                                 </option>
                             </select>
