@@ -280,3 +280,6 @@ msgstr "Dados do Pagador"
 
 msgid "Country"
 msgstr "País"
+
+msgid "Invoice PDF language"
+msgstr "Idioma do PDF da fatura"

@@ -274,3 +274,6 @@ msgstr ""
 
 msgid "Country"
 msgstr ""
+
+msgid "Invoice PDF language"
+msgstr ""
