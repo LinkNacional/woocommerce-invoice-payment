@@ -283,3 +283,6 @@ msgstr "País"
 
 msgid "Invoice PDF language"
 msgstr "Idioma do PDF da fatura"
+
+msgid "To add other languages, install the language in your WordPress."
+msgstr "Para adicionar outros idiomas, instale o idioma em seu Wordpress."

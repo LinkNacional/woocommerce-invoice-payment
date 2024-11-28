@@ -287,54 +287,6 @@ final class WcPaymentInvoiceAdmin {
 
         ?>
 <div class="wrap">
-    <style>
-        .flex-row {
-            display: flex;
-            flex-direction: row;
-        }
-
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            background-color: #a99f93;
-            border-radius: 70%;
-            order: 3;
-            width: 20px;
-            height: 20px;
-        }
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            /* Adjust this value to control the position of the tooltip */
-            left: 50%;
-            margin-left: -100px;
-            /* Adjust this value to center the tooltip */
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        #lkn_wcip_subscription_active {
-            padding-top: 23px;
-        }
-
-        #lkn_wcip_subscription_interval_div_tip {
-            padding-left: 6px;
-        }
-    </style>
     <h1><?php esc_attr_e('Settings', 'wc-invoice-payment'); ?>
     </h1>
     <?php settings_errors(); ?>
@@ -815,6 +767,12 @@ final class WcPaymentInvoiceAdmin {
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_select_invoice_language">
                             <?php esc_attr_e('Invoice PDF language', 'wc-invoice-payment'); ?>
+                            <div class="tooltip">
+                                <span>?</span>
+                                <span class="tooltiptext">
+                                    <?php esc_attr_e('To add other languages, install the language in your WordPress.', 'wc-invoice-payment'); ?>
+                                </span>
+                            </div>
                         </label>
                         <select
                             name="lkn_wcip_select_invoice_language"
@@ -1382,6 +1340,12 @@ final class WcPaymentInvoiceAdmin {
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_select_invoice_language">
                             <?php esc_attr_e('Invoice PDF language', 'wc-invoice-payment'); ?>
+                            <div class="tooltip">
+                                <span>?</span>
+                                <span class="tooltiptext">
+                                    <?php esc_attr_e('To add other languages, install the language in your WordPress.', 'wc-invoice-payment'); ?>
+                                </span>
+                            </div>
                         </label>
                         <select
                             name="lkn_wcip_select_invoice_language"
@@ -1882,7 +1846,21 @@ final class WcPaymentInvoiceAdmin {
                     $enabled_gateways[] = $gateway;
                 }
             }
-        } ?>
+        }
+
+        $languages = get_available_languages();
+        // Adiciona manualmente o inglês à lista de idiomas
+        array_unshift($languages, 'en_US');
+        $orderLanguage = get_locale();
+        // Remove o idioma atual da lista
+        if (($key = array_search($orderLanguage, $languages)) !== false) {
+            unset($languages[$key]);
+        }
+        // Ordena os idiomas restantes em ordem alfabética
+        sort($languages);
+        // Adiciona o idioma atual no início da lista
+        array_unshift($languages, $orderLanguage);
+        ?>
 <div class="wrap">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
     <?php settings_errors(); ?>
@@ -1975,7 +1953,7 @@ final class WcPaymentInvoiceAdmin {
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_select_invoice_template">
-                            <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>
+                            <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>                            
                         </label>
                         <select
                             name="lkn_wcip_select_invoice_template"
@@ -1998,6 +1976,12 @@ final class WcPaymentInvoiceAdmin {
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_select_invoice_language">
                             <?php esc_attr_e('Invoice PDF language', 'wc-invoice-payment'); ?>
+                            <div class="tooltip">
+                                <span>?</span>
+                                <span class="tooltiptext">
+                                    <?php esc_attr_e('To add other languages, install the language in your WordPress.', 'wc-invoice-payment'); ?>
+                                </span>
+                            </div>
                         </label>
                         <select
                             name="lkn_wcip_select_invoice_language"
@@ -2006,24 +1990,11 @@ final class WcPaymentInvoiceAdmin {
                             required
                         >
                             <?php
-                            $languages = get_available_languages();
-                            // Adiciona manualmente o inglês à lista de idiomas
-                            array_unshift($languages, 'en_US');
-                            // Define o idioma atual do WordPress
-                            $current_language = get_locale();
-                            // Remove o idioma atual da lista
-                            if (($key = array_search($current_language, $languages)) !== false) {
-                                unset($languages[$key]);
-                            }
-                            // Ordena os idiomas restantes em ordem alfabética
-                            sort($languages);
-                            // Adiciona o idioma atual no início da lista
-                            array_unshift($languages, $current_language);
                             // Gera as opções do select
                             foreach ($languages as $language) {
                                 $language_name = locale_get_display_name($language, 'en');
-                                $selected = ($language === $current_language) ? 'selected' : '';
-                                echo '<option value="' . esc_attr($language) . '" ' . $selected . '>' . esc_html($language_name) . '</option>';
+                                $selected = ($language === $orderLanguage) ? 'selected' : '';
+                                echo '<option value="' . esc_attr($language) . '" ' . esc_attr($selected) . '>' . esc_html($language_name) . '</option>';
                             }
                             ?>
                         </select>

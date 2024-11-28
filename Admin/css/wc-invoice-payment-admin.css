@@ -36,6 +36,10 @@
 	padding: 6px 0px;
 }
 
+.input-row-wrap label {
+	margin-bottom: 2px;
+}
+
 .input-column-wrap {
 	display: flex;
 	flex-direction: row;
@@ -326,4 +330,54 @@
 	display: flex;
 	justify-content: space-between;
 	margin-right: 210px;
+}
+
+.flex-row {
+	display: flex;
+	flex-direction: row;
+}
+
+.tooltip {
+	position: relative;
+	display: inline-block;
+	background-color: #a99f93;
+	border-radius: 70%;
+	order: 3;
+	width: 20px;
+	height: 20px;
+	color: white;
+    text-align: center;
+    cursor: pointer;
+}
+
+.tooltip .tooltiptext {
+	visibility: hidden;
+	width: 200px;
+	background-color: #555;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px;
+	position: absolute;
+	z-index: 1;
+	bottom: 125%;
+	/* Adjust this value to control the position of the tooltip */
+	left: 50%;
+	margin-left: -100px;
+	/* Adjust this value to center the tooltip */
+	opacity: 0;
+	transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+	visibility: visible;
+	opacity: 1;
+}
+
+#lkn_wcip_subscription_active {
+	padding-top: 23px;
+}
+
+#lkn_wcip_subscription_interval_div_tip {
+	padding-left: 6px;
 }

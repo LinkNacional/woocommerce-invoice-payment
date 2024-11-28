@@ -277,3 +277,6 @@ msgstr ""
 
 msgid "Invoice PDF language"
 msgstr ""
+
+msgid "To add other languages, install the language in your WordPress."
+msgstr ""
