@@ -1,3 +1,8 @@
+# 2.2.0 - 28/11/2024
+* Adição de referência de asssinatura na página de fatura;
+* Adição de configuração para definir idioma do PDF da fatura;
+* Correção de exclusão de eventos cron.
+
 # 2.0.1 - 18/11/2024
 * Correção de erro para métodos de pagamentos que exigem o país do pedido.
 
