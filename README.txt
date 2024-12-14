@@ -93,7 +93,7 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
-= 2.2.0 = *28/11/2024*
+= 2.2.0 = *14/12/2024*
 * Add subscription reference on the invoice page;
 * Add setting to define the invoice PDF language;
 * Fix cron event deletion.
