@@ -12,7 +12,7 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Invoice payment generation and management for WooCommerce.
 
 == Description ==
-The free [Invoice Issue plugin](https://www.linknacional.com/wordpress/plugins/) is an extension for  WooCommerce, which came to facilitate billing over the internet. With it, you can generate new invoices and send them to your customers via email, with a payment link. Another great advantage is that it can offer different payment options for paying off the invoice.
+The free [Invoice Issue plugin](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) is an extension for  WooCommerce, which came to facilitate billing over the internet. With it, you can generate new invoices and send them to your customers via email, with a payment link. Another great advantage is that it can offer different payment options for paying off the invoice.
 
 **Dependencies**
 
