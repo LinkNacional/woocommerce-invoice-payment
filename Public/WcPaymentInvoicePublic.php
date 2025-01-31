@@ -42,14 +42,13 @@ final class WcPaymentInvoicePublic {
     public function check_invoice_exp_date(): void {
         $orderId = sanitize_text_field(get_query_var('order-pay'));
         $order = wc_get_order($orderId);
-        if($order) {
+        if ($order) {
             $defaultPaymethod = esc_attr($order->get_payment_method());
             $dueDate = esc_attr($order->get_meta('lkn_exp_date'));
     
-            $html = <<<HTML
-                <input id="lkn_wcip_default_paymethod" type="hidden" value="{$defaultPaymethod}">
-                <input id="lkn_wcip_due_date" type="hidden" value="{$dueDate}">
-            HTML;
+            $html = "
+                <input id=\"lkn_wcip_default_paymethod\" type=\"hidden\" value=\"$defaultPaymethod\">
+                <input id=\"lkn_wcip_due_date\" type=\"hidden\" value=\"$dueDate\">";
     
             echo wp_kses($html, array(
                 'input' => array(

@@ -74,7 +74,7 @@ final class WcPaymentInvoiceAdmin {
      */
     public function check_invoice_exp_date($orderId) {
         $order = wc_get_order($orderId);
-        if($order){
+        if ($order) {
             $todayObj = new DateTime();
             $expDate = $order->get_meta('lkn_exp_date') . ' 23:59'; // Needs to set the hour to not cancel invoice in the last day of payment
             $format = 'Y-m-d H:i';
@@ -222,7 +222,7 @@ final class WcPaymentInvoiceAdmin {
     }
 
     public function render_settings_page(): void {
-        if ( ! current_user_can('manage_woocommerce') && isset($_POST['lkn_wcip_settings_nonce']) && ! wp_verify_nonce($_POST['lkn_wcip_settings_nonce'], 'settings_nonce')) {
+        if ( ! current_user_can('manage_woocommerce') && isset($_POST['lkn_wcip_settings_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['lkn_wcip_settings_nonce'])), 'settings_nonce')) {
             return;
         }
         wp_enqueue_style('my-tailwind-plugin-styles', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/style.css', array(), $this->version);
@@ -453,11 +453,9 @@ final class WcPaymentInvoiceAdmin {
                                         type="checkbox"
                                         class=""
                                         value="1"
-                                        <?php if ($product_invoices) {
-                                            echo 'checked';
-                                        } ?>
-                                        <i
-                                    ></i>
+                                        ><?php if ($product_invoices) {
+                                        echo 'checked';
+                                    } ?>
                                     <?php esc_attr_e('Create invoices for products', 'wc-invoice-payment') ?>
 
                                     <div class="tooltip">
@@ -506,23 +504,17 @@ final class WcPaymentInvoiceAdmin {
                             <select name="lkn_wcip_subscription_interval_type">
                                 <option
                                     value="day"
-                                    <?php echo esc_attr('day' == $interval_type ? esc_attr("selected") : '') ?>
-                                    <i
-                                ></i>
+                                    ><?php echo esc_attr('day' == $interval_type ? esc_attr("selected") : '') ?>
                                     <?php esc_attr_e('Days', 'wc-invoice-payment'); ?>
                                 </option>
                                 <option
                                     value="week"
-                                    <?php echo esc_attr('week' == $interval_type ? esc_attr("selected") : '') ?>
-                                    <i
-                                ></i>
+                                    ><?php echo esc_attr('week' == $interval_type ? esc_attr("selected") : '') ?>
                                     <?php esc_attr_e('Weeks', 'wc-invoice-payment'); ?>
                                 </option>
                                 <option
                                     value="month"
-                                    <?php echo esc_attr('month' == $interval_type ? esc_attr("selected") : '') ?>
-                                    <i
-                                ></i>
+                                ><?php echo esc_attr('month' == $interval_type ? esc_attr("selected") : '') ?>
                                     <?php esc_attr_e('Months', 'wc-invoice-payment'); ?>
                                 </option>
                             </select>
@@ -573,7 +565,7 @@ final class WcPaymentInvoiceAdmin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
-        if ( ! empty($_POST) && ! isset($_POST['wcip_rest_nonce']) && ! wp_verify_nonce($_POST['wcip_rest_nonce'], 'wp_rest')) {
+        if ( ! empty($_POST) && ! isset($_POST['wcip_rest_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['wcip_rest_nonce'])), 'wp_rest')) {
             return;
         }
 
@@ -598,7 +590,7 @@ final class WcPaymentInvoiceAdmin {
 
         $c = 0;
         $order = wc_get_order($invoiceId);
-        if($order->get_meta('lkn_subscription_id')){
+        if ($order->get_meta('lkn_subscription_id')) {
             $subscription_id = $order->get_meta('lkn_subscription_id');
         }
         $items = $order->get_items();
@@ -650,7 +642,7 @@ final class WcPaymentInvoiceAdmin {
         array_unshift($languages, 'en_US');
         $orderLanguage = $order->get_meta('wcip_select_invoice_language');
         // Remove o idioma atual da lista
-        if (($key = array_search($orderLanguage, $languages)) !== false) {
+        if (false !== ($key = array_search($orderLanguage, $languages, true))) {
             unset($languages[$key]);
         }
         // Ordena os idiomas restantes em ordem alfabética
@@ -793,7 +785,7 @@ final class WcPaymentInvoiceAdmin {
                                 $selected = ($language === $orderLanguage) ? 'selected' : '';
                                 echo '<option value="' . esc_attr($language) . '" ' . esc_attr($selected) . '>' . esc_html($language_name) . '</option>';
                             }
-                            ?>
+        ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">
@@ -835,10 +827,10 @@ final class WcPaymentInvoiceAdmin {
                             class="regular-text"
                         >
                             <?php
-                                foreach ($countries as $code => $currency_name) {
-                                    $selected = ($current_country === $code) ? 'selected' : '';
-                                    echo '<option value="' . esc_attr($code) . '" ' . esc_attr($selected) . '>' . esc_attr($currency_name) . '</option>';
-                                }
+            foreach ($countries as $code => $currency_name) {
+                $selected = ($current_country === $code) ? 'selected' : '';
+                echo '<option value="' . esc_attr($code) . '" ' . esc_attr($selected) . '>' . esc_attr($currency_name) . '</option>';
+            }
         ?>
                         </select>
                     </div>
@@ -976,40 +968,42 @@ final class WcPaymentInvoiceAdmin {
         </div>
         <!-- Subscription  -->
         <?php
-            if($subscription_id = $order->get_meta('lkn_subscription_id')) {
-        ?>
-            <div
-                class="wcip-invoice-data wcip-postbox"
-                id="lknShowSubscription">
-                <span
-                    class="text-bold"><?php esc_attr_e('Assinatura', 'wc-invoice-payment'); ?></span>
-                <span><?php echo esc_attr($order->get_meta('lkn_wcip_subscription_initial_limit')) ?></span>
-                <hr>
-                <div class="wcip-row">
-                    <div
-                        class="input-row-wrap"
-                        id="lknShowSubscription">
+            if ($subscription_id = $order->get_meta('lkn_subscription_id')) {
+                ?>
+        <div
+            class="wcip-invoice-data wcip-postbox"
+            id="lknShowSubscription"
+        >
+            <span
+                class="text-bold"><?php esc_attr_e('Assinatura', 'wc-invoice-payment'); ?></span>
+            <span><?php echo esc_attr($order->get_meta('lkn_wcip_subscription_initial_limit')) ?></span>
+            <hr>
+            <div class="wcip-row">
+                <div
+                    class="input-row-wrap"
+                    id="lknShowSubscription"
+                >
+                    <?php
+                                //Lista as faturas geradas por essa assinatura
+                ?>
+                    <p>
                         <?php
-                        //Lista as faturas geradas por essa assinatura
-                        ?>
-                            <p>
-                                <?php
-                                echo esc_attr(' | ');
-                                ?>
-                                <a >
-                                    <?php
-                                    echo esc_attr($subscription_id);
-                                    ?>
-                                </a>
-                                <?php
-                                echo esc_attr(' | ');
-                                ?>
-                            </p>
+                        echo esc_attr(' | ');
+                ?>
+                        <a>
+                            <?php
+                    echo esc_attr($subscription_id);
+                ?>
+                        </a>
                         <?php
-                        ?>
-                    </div>
+                                echo esc_attr(' | ');
+                ?>
+                    </p>
+                    <?php
+                ?>
                 </div>
             </div>
+        </div>
         <?php
             }
         ?>
@@ -1154,7 +1148,7 @@ final class WcPaymentInvoiceAdmin {
                     if ('generate_invoice_event' === $hook) {
                         // Verifique se os argumentos do evento contêm o invoiceId
                         $event_args = $event['args'];
-                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                        if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
                             // O invoiceId está agendado, então retorne verdadeiro
                             return true;
                         }
@@ -1176,7 +1170,7 @@ final class WcPaymentInvoiceAdmin {
         if ( ! current_user_can('manage_woocommerce')) {
             return;
         }
-        if ( ! empty($_POST) && ! isset($_POST['wcip_rest_nonce']) && ! wp_verify_nonce($_POST['wcip_rest_nonce'], 'wp_rest')) {
+        if ( ! empty($_POST) && ! isset($_POST['wcip_rest_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['wcip_rest_nonce'])), 'wp_rest')) {
             return;
         }
 
@@ -1263,7 +1257,7 @@ final class WcPaymentInvoiceAdmin {
         array_unshift($languages, 'en_US');
         $orderLanguage = $order->get_meta('wcip_select_invoice_language');
         // Remove o idioma atual da lista
-        if (($key = array_search($orderLanguage, $languages)) !== false) {
+        if (false !== ($key = array_search($orderLanguage, $languages, true))) {
             unset($languages[$key]);
         }
         // Ordena os idiomas restantes em ordem alfabética
@@ -1405,7 +1399,7 @@ final class WcPaymentInvoiceAdmin {
                                 $selected = ($language === $orderLanguage) ? 'selected' : '';
                                 echo '<option value="' . esc_attr($language) . '" ' . esc_attr($selected) . '>' . esc_html($language_name) . '</option>';
                             }
-                            ?>
+        ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">
@@ -1447,10 +1441,10 @@ final class WcPaymentInvoiceAdmin {
                             class="regular-text"
                         >
                             <?php
-                                foreach ($countries as $code => $currency_name) {
-                                    $selected = ($current_country === $code) ? 'selected' : '';
-                                    echo '<option value="' . esc_attr($code) . '" ' . esc_attr($selected) . '>' . esc_attr($currency_name) . '</option>';
-                                }
+            foreach ($countries as $code => $currency_name) {
+                $selected = ($current_country === $code) ? 'selected' : '';
+                echo '<option value="' . esc_attr($code) . '" ' . esc_attr($selected) . '>' . esc_attr($currency_name) . '</option>';
+            }
         ?>
                         </select>
                     </div>
@@ -1898,7 +1892,7 @@ final class WcPaymentInvoiceAdmin {
         array_unshift($languages, 'en_US');
         $orderLanguage = get_locale();
         // Remove o idioma atual da lista
-        if (($key = array_search($orderLanguage, $languages)) !== false) {
+        if (false !== ($key = array_search($orderLanguage, $languages, true))) {
             unset($languages[$key]);
         }
         // Ordena os idiomas restantes em ordem alfabética
@@ -1998,7 +1992,7 @@ final class WcPaymentInvoiceAdmin {
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_select_invoice_template">
-                            <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>                            
+                            <?php esc_attr_e('Invoice PDF template', 'wc-invoice-payment'); ?>
                         </label>
                         <select
                             name="lkn_wcip_select_invoice_template"
@@ -2041,7 +2035,7 @@ final class WcPaymentInvoiceAdmin {
                                 $selected = ($language === $orderLanguage) ? 'selected' : '';
                                 echo '<option value="' . esc_attr($language) . '" ' . esc_attr($selected) . '>' . esc_html($language_name) . '</option>';
                             }
-                            ?>
+        ?>
                         </select>
                     </div>
                     <div class="input-row-wrap">
@@ -2081,9 +2075,9 @@ final class WcPaymentInvoiceAdmin {
                             class="regular-text"
                         >
                             <?php
-                                foreach ($countries as $code => $currency_name) {
-                                    echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency_name) . '</option>';
-                                }
+            foreach ($countries as $code => $currency_name) {
+                echo '<option value="' . esc_attr($code) . '">' . esc_attr($currency_name) . '</option>';
+            }
         ?>
                         </select>
                     </div>
@@ -2137,8 +2131,7 @@ final class WcPaymentInvoiceAdmin {
                             type="checkbox"
                             name="lkn_wcip_subscription_product"
                             id="lkn_wcip_subscription_product"
-                            <?php echo esc_attr($invoiceChecked) ?>
-                            <i></i>
+                            ><?php echo esc_attr($invoiceChecked) ?>
                         <?php esc_attr_e('Subscription', 'wc-invoice-payment'); ?>
                     </label>
                 </div>
@@ -2292,8 +2285,9 @@ final class WcPaymentInvoiceAdmin {
      * Handles submission from add invoice form.
      */
     public function add_invoice_form_submit_handle(): void {
-        if ('POST' == $_SERVER['REQUEST_METHOD']) {
-            if (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_add_invoice')) {
+        $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
+        if ('POST' == $method) {
+            if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_add_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
@@ -2458,9 +2452,11 @@ final class WcPaymentInvoiceAdmin {
      */
     public function edit_invoice_form_submit_handle(): void {
         // Validates request method
-        if ('POST' == $_SERVER['REQUEST_METHOD']) {
+        $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
+
+        if ('POST' == $method) {
             // Validates WP nonce
-            if (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_edit_invoice')) {
+            if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_edit_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
@@ -2476,7 +2472,7 @@ final class WcPaymentInvoiceAdmin {
                 foreach ($_POST as $key => $value) {
                     // Get invoice description
                     if (preg_match('/lkn_wcip_name_invoice_/i', $key)) {
-                        $invoices[$c]['desc'] = sanitize_text_field($value);
+                        $invoices[$c]['desc'] = sanitize_text_field(wp_unslash($value));
                     }
                     // Get invoice amount
                     if (preg_match('/lkn_wcip_amount_invoice_/i', $key)) {
@@ -2571,7 +2567,7 @@ final class WcPaymentInvoiceAdmin {
                 // Error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
-        } elseif ('GET' == $_SERVER['REQUEST_METHOD'] && isset($_GET['lkn_wcip_delete'])) {
+        } elseif ('GET' == $method && isset($_GET['lkn_wcip_delete'])) {
             $invoiceDeleteSanitized = sanitize_text_field(wp_unslash($_GET['lkn_wcip_delete']));
             // Validates request for deleting invoice
             if ('true' === $invoiceDeleteSanitized) {
@@ -2599,9 +2595,11 @@ final class WcPaymentInvoiceAdmin {
      */
     public function edit_subscription_form_submit_handle(): void {
         // Validates request method
-        if ('POST' == $_SERVER['REQUEST_METHOD']) {
+        $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
+
+        if ('POST' == $method) {
             // Validates WP nonce
-            if (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'lkn_wcip_edit_invoice')) {
+            if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_edit_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
@@ -2622,7 +2620,7 @@ final class WcPaymentInvoiceAdmin {
                 foreach ($_POST as $key => $value) {
                     // Get invoice description
                     if (preg_match('/lkn_wcip_name_invoice_/i', $key)) {
-                        $invoices[$c]['desc'] = sanitize_text_field($value);
+                        $invoices[$c]['desc'] = sanitize_text_field(wp_unslash($value));
                     }
                     // Get invoice amount
                     if (preg_match('/lkn_wcip_amount_invoice_/i', $key)) {
@@ -2717,7 +2715,7 @@ final class WcPaymentInvoiceAdmin {
                 // Error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
-        } elseif ('GET' == $_SERVER['REQUEST_METHOD'] && isset($_GET['lkn_wcip_delete'])) {
+        } elseif ('GET' == $method && isset($_GET['lkn_wcip_delete'])) {
             // Validates request for deleting invoice
             $invoiceDeleteSanitized = sanitize_text_field(wp_unslash($_GET['lkn_wcip_delete']));
             if ('true' === $invoiceDeleteSanitized) {
@@ -2740,7 +2738,7 @@ final class WcPaymentInvoiceAdmin {
                             if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
                                 // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
                                 $event_args = $event['args'];
-                                if (is_array($event_args) && in_array($invoiceDelete[0], $event_args)) {
+                                if (is_array($event_args) && in_array($invoiceDelete[0], $event_args, true)) {
                                     // Remova o evento do WP Cron
                                     wp_unschedule_event($timestamp, $hook, $event_args);
                                 }
