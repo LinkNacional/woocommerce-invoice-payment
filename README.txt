@@ -93,7 +93,7 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
-= 2.2.1 = *28/01/2024*
+= 2.2.1 = *31/01/2024*
 * Compatibility fix with the "Payment Gateway Based Fees for WooCommerce" plugin;
 * Updating plugin description link.
 

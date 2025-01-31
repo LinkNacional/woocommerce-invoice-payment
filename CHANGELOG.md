@@ -1,4 +1,4 @@
-# 2.2.1 - 28/01/2025
+# 2.2.1 - 31/01/2025
 * Correção de compatibilidade com o plugin "Payment Gateway Based Fees for WooCommerce";
 * Atualizando link da descrição do plugin.
 
