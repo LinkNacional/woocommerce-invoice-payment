@@ -32,12 +32,11 @@ $invoice_items_html = implode(
         $item_descrip = $item->get_name();
         $item_price = to_wc_monetary_format($item->get_total());
 
-        return <<<HTML
+        return "
     <tr>
-        <td>{$item_descrip}</td>
-        <td>{$order_currency} {$item_price}</td>
-    </tr>
-HTML;
+        <td>$item_descrip</td>
+        <td>$order_currency $item_price</td>
+    </tr>";
     }, $items)
 );
 

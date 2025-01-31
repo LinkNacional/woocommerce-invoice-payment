@@ -5,7 +5,7 @@ use DateTime;
 
 final class WcPaymentInvoiceSubscription {
     public function cancel_subscription_callback(): void {
-        if (isset($_POST['wcip_rest_nonce']) && wp_verify_nonce($_POST['wcip_rest_nonce'], 'wp_rest' )) {
+        if (isset($_POST['wcip_rest_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['wcip_rest_nonce'])), 'wp_rest' )) {
             // Obter o ID da fatura do pedido
             $invoice_id = isset($_POST['invoice_id']) ? sanitize_text_field(wp_unslash($_POST['invoice_id'])) : '';
 
@@ -22,7 +22,7 @@ final class WcPaymentInvoiceSubscription {
                         if ('generate_invoice_event' === $hook) {
                             // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
                             $event_args = $event['args'];
-                            if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                            if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
                                 // Remova o evento do WP Cron
                                 wp_unschedule_event($timestamp, $hook, $event_args);
                             }
@@ -142,7 +142,7 @@ final class WcPaymentInvoiceSubscription {
     public function save_subscription_fields( $post_id ): void {
         //Salva todos os campos criados na meta do post
     
-        if (isset($_POST['lkn_wcip_subscription_nonce']) && wp_verify_nonce($_POST['lkn_wcip_subscription_nonce'], 'subscription_nonce')) {
+        if (isset($_POST['lkn_wcip_subscription_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['lkn_wcip_subscription_nonce'])), 'subscription_nonce')) {
             if ( isset( $_POST['lkn_wcip_subscription_interval_number'] ) ) {
                 $subscription_number = sanitize_text_field(wp_unslash($_POST['lkn_wcip_subscription_interval_number']));
                 update_post_meta( $post_id, 'lkn_wcip_subscription_interval_number', $subscription_number );
@@ -332,7 +332,7 @@ final class WcPaymentInvoiceSubscription {
                         if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
                             // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
                             $event_args = $event['args'];
-                            if (is_array($event_args) && in_array($order_id, $event_args)) {
+                            if (is_array($event_args) && in_array($order_id, $event_args, true)) {
                                 // Remova o evento do WP Cron
                                 wp_unschedule_event($timestamp, $hook, $event_args);
                             }

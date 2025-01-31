@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce, invoice, payment
 Requires at least: 5.7
 Tested up to: 6.7
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Invoice payment generation and management for WooCommerce.
 
 == Description ==
-The free [Invoice Issue plugin](https://www.linknacional.com/wordpress/plugins/) is an extension for  WooCommerce, which came to facilitate billing over the internet. With it, you can generate new invoices and send them to your customers via email, with a payment link. Another great advantage is that it can offer different payment options for paying off the invoice.
+The free [Invoice Issue plugin](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) is an extension for  WooCommerce, which came to facilitate billing over the internet. With it, you can generate new invoices and send them to your customers via email, with a payment link. Another great advantage is that it can offer different payment options for paying off the invoice.
 
 **Dependencies**
 
@@ -93,7 +93,11 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
-= 2.2.0 = *28/11/2024*
+= 2.2.1 = *31/01/2024*
+* Compatibility fix with the "Payment Gateway Based Fees for WooCommerce" plugin;
+* Updating plugin description link.
+
+= 2.2.0 = *14/12/2024*
 * Add subscription reference on the invoice page;
 * Add setting to define the invoice PDF language;
 * Fix cron event deletion.

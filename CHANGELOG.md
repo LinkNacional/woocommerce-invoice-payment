@@ -1,3 +1,7 @@
+# 2.2.1 - 31/01/2025
+* Correção de compatibilidade com o plugin "Payment Gateway Based Fees for WooCommerce";
+* Atualizando link da descrição do plugin.
+
 # 2.2.0 - 14/12/2024
 * Adição de referência de asssinatura na página de fatura;
 * Adição de configuração para definir idioma do PDF da fatura;

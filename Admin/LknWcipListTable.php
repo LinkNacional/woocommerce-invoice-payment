@@ -1152,7 +1152,7 @@ final class LknWcipListTable {
 
     <tbody
         id="the-list"
-        <i></i><?php
+    ><?php
                 if ($singular) {
                     echo " data-wp-lists='list:" . esc_attr($singular) . "'";
                 } ?>
@@ -1634,6 +1634,7 @@ final class LknWcipListTable {
      */
     public function proccess_bulk_action(): void {
         if ('delete' === $this->current_action() && isset($_POST['nonce_action_field']) && wp_verify_nonce( $_POST['nonce_action_field'], 'nonce_action' )) {
+            // Since we expect an array it did not need sanitization of the value
             $invoicesRaw = isset($_POST['invoices']) ? $_POST['invoices'] : array();
             $invoicesDelete = array_map('sanitize_text_field', $invoicesRaw);
             $invoices = get_option('lkn_wcip_invoices');
@@ -1655,7 +1656,7 @@ final class LknWcipListTable {
                             if ('generate_invoice_event' === $hook || 'lkn_wcip_cron_hook' === $hook) {
                                 // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
                                 $event_args = $event['args'];
-                                if (is_array($event_args) && in_array($invoice_id, $event_args)) {
+                                if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
                                     // Remova o evento do WP Cron
                                     wp_unschedule_event($timestamp, $hook, $event_args);
                                 }
@@ -1666,8 +1667,8 @@ final class LknWcipListTable {
             }
             update_option('lkn_wcip_invoices', $invoices);
 
-            $referer = wp_unslash($_SERVER['HTTP_REFERER']);
-            wp_redirect(sanitize_url($referer));
+            $referer = isset($_SERVER['HTTP_REFERER']) ? sanitize_url(wp_unslash($_SERVER['HTTP_REFERER'])) : '';
+            wp_redirect($referer);
         }
     }
 }
