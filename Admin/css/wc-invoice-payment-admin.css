@@ -280,7 +280,7 @@
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	gap: 17px;
+	gap: 6px;
 }
 
 #lkn-wcip-share-title {
@@ -380,4 +380,29 @@
 
 #lkn_wcip_subscription_interval_div_tip {
 	padding-left: 6px;
+}
+
+.select2-selection__placeholder{
+	color: rgb(0, 0, 0) !important;
+}
+
+.select2-selection__rendered{
+	box-shadow: 0 0 0 transparent;
+    border-radius: 4px;
+    border: 1px solid #8c8f94;
+    background-color: #fff;
+}
+
+
+#select2-lkn_wcip_email_input-container{
+	border: 0px !important;
+}
+
+.select2.select2-container.select2-container--default{
+	width: 350px !important;
+}
+
+label[for="lkn_wcip_email_input"] {
+	display: flex;
+	justify-content: space-between;
 }

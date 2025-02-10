@@ -280,3 +280,9 @@ msgstr ""
 
 msgid "To add other languages, install the language in your WordPress."
 msgstr ""
+
+msgid "Feature available for registered user"
+msgstr ""
+
+msgid "Create user"
+msgstr ""

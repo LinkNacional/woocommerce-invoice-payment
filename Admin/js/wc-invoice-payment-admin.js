@@ -344,3 +344,21 @@ jQuery(document).ready(function ($) {
     $(this).attr('title', $(this).attr('aria-label'))
   })
 })
+
+
+jQuery(document).ready(function ($) {
+  $('#lkn_wcip_subscription_product').prop('checked', false).prop('disabled', true);
+  $('#lkn_wcip_subscription_product').closest('label').css('opacity', '0.5');
+
+  $('#lkn_wcip_email_input').on('change', function() {
+    var selectedValue = $(this).val();
+    if (!selectedValue) {
+      $('#lkn_wcip_subscription_product').prop('checked', false).prop('disabled', true);
+      $('#lkn_wcip_subscription_product').change();
+      $('#lkn_wcip_subscription_product').closest('label').css('opacity', '0.5');
+    } else {
+      $('#lkn_wcip_subscription_product').prop('disabled', false);
+      $('#lkn_wcip_subscription_product').closest('label').css('opacity', '1');
+    }
+  });
+});
