@@ -1158,7 +1158,7 @@ final class WcPaymentInvoiceAdmin {
                     if ('generate_invoice_event' === $hook) {
                         // Verifique se os argumentos do evento contêm o invoiceId
                         $event_args = $event['args'];
-                        if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
+                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
                             // O invoiceId está agendado, então retorne verdadeiro
                             return true;
                         }
@@ -2151,7 +2151,7 @@ final class WcPaymentInvoiceAdmin {
                             type="checkbox"
                             name="lkn_wcip_subscription_product"
                             id="lkn_wcip_subscription_product"
-                            ><?php echo esc_attr($invoiceChecked) ?>
+                            <?php echo esc_attr($invoiceChecked) ?>>
                         <?php esc_attr_e('Subscription', 'wc-invoice-payment'); ?>
                     </label>
                     <div class="tooltip">
@@ -2210,8 +2210,6 @@ final class WcPaymentInvoiceAdmin {
                 'id' => 'lkn_wcip_subscription_limit',
                 'name' => 'lkn_wcip_subscription_limit',
                 'label' => __('Subscription limit', 'wc-invoice-payment'),
-                'desc_tip' => 'true',
-                'description' => __('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'wc-invoice-payment'),
                 'value' => 0,
                 'type' => 'number',
                 'custom_attributes' => array(
@@ -2221,6 +2219,12 @@ final class WcPaymentInvoiceAdmin {
             )
         );
         ?>
+            <div class="tooltip" id="subscriptionLimitTooltip">
+                <span>?</span>
+                <span class="tooltiptext">
+                    <?php esc_attr_e('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'wc-invoice-payment'); ?>
+                </span>
+            </div>
             </div>
             <script>
                 //Valida se a checkbox de assinatura está ativada para mostrar campos
@@ -2427,7 +2431,7 @@ final class WcPaymentInvoiceAdmin {
                 //Chama a função que configura o evento cron
                 if ($isSubscription) {
                     $subscription_class = new WcPaymentInvoiceSubscription();
-                    $subscription_class->validate_product($orderId);
+                    $subscription_class->validate_product($orderId, true);
                 }
 
                 $invoiceList = get_option('lkn_wcip_invoices');
@@ -2794,7 +2798,7 @@ final class WcPaymentInvoiceAdmin {
                             if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
                                 // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
                                 $event_args = $event['args'];
-                                if (is_array($event_args) && in_array($invoiceDelete[0], $event_args, true)) {
+                                if (is_array($event_args) && in_array($invoiceDelete[0], $event_args)) {
                                     // Remova o evento do WP Cron
                                     wp_unschedule_event($timestamp, $hook, $event_args);
                                 }

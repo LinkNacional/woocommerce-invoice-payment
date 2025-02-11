@@ -396,6 +396,7 @@
 
 #select2-lkn_wcip_email_input-container{
 	border: 0px !important;
+	height: 100% !important;
 }
 
 .select2.select2-container.select2-container--default{

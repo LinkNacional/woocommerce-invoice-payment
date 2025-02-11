@@ -286,3 +286,6 @@ msgstr ""
 
 msgid "Create user"
 msgstr ""
+
+msgid "Feature available for registered user."
+msgstr ""

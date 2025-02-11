@@ -292,3 +292,6 @@ msgstr "Recurso disponivel para usuário cadastrado"
 
 msgid "Create user"
 msgstr "Criar usuário"
+
+msgid "Feature available for registered user."
+msgstr "Recurso disponivel para usuário cadastrados"
