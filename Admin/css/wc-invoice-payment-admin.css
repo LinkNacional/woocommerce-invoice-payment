@@ -403,7 +403,7 @@
 	width: 350px !important;
 }
 
-label[for="lkn_wcip_email_input"] {
+label[for="lkn_wcip_customer_input"] {
 	display: flex;
 	justify-content: space-between;
 }

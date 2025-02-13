@@ -346,6 +346,15 @@ final class WcPaymentInvoiceSubscription {
         
         $customerId = $order->get_customer_id();
         $billing_email = $order->get_billing_email();
+        $user = get_user_by('email', $billing_email);
+
+        if ($user) {
+            $user_id = $user->ID; // Obtém o ID do usuário
+            $customerId = $user_id;
+            $order->set_customer_id($customerId);
+            $order->save();
+        }
+
         $billing_country = $order->get_billing_country();
         $billing_first_name = $order->get_billing_first_name();
         $billing_last_name = $order->get_billing_last_name();
@@ -362,6 +371,7 @@ final class WcPaymentInvoiceSubscription {
             'customerId' => $customerId,
         ) );
         $new_order->set_billing_country($billing_country);
+        $new_order->set_customer_id($customerId);
         $new_order->set_billing_first_name($billing_first_name);
         $new_order->set_billing_last_name($billing_last_name);
         $new_order->set_billing_email($billing_email);

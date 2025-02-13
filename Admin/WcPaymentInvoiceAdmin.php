@@ -424,10 +424,10 @@ final class WcPaymentInvoiceAdmin {
                                         type="checkbox"
                                         name="lkn_wcip_after_save_button_email_check"
                                         id="lkn_wcip_after_save_button_email_check"
-                                        <i
-                                    ></i><?php if ($email_verify) {
-                                        echo 'checked';
-                                    } ?>
+                                        <?php if ($email_verify) {
+                                            echo 'checked';
+                                        } ?>
+                                        <i></i>
                                     <?php esc_attr_e('Enable email verification on the invoice.', 'wc-invoice-payment'); ?>
 
                                     <div class="tooltip">
@@ -453,9 +453,10 @@ final class WcPaymentInvoiceAdmin {
                                         type="checkbox"
                                         class=""
                                         value="1"
-                                        ><?php if ($product_invoices) {
-                                        echo 'checked';
-                                    } ?>
+                                        <?php if ($product_invoices) {
+                                            echo 'checked';
+                                        } ?>
+                                        >
                                     <?php esc_attr_e('Create invoices for products', 'wc-invoice-payment') ?>
 
                                     <div class="tooltip">
@@ -822,10 +823,26 @@ final class WcPaymentInvoiceAdmin {
                         >
                     </div>
                     <div class="input-row-wrap">
-                        <label for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
-                        <select class="wc-customer-search" id="lkn_wcip_email_input" name="lkn_wcip_email" data-placeholder="Visitante" data-allow_clear="true">
+                        <label for="lkn_wcip_customer_input">
+                            <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                            <a target="_blank" href="<?php echo esc_attr(admin_url('user-new.php')); ?>"><?php esc_attr_e('Create user', 'wc-invoice-payment'); ?></a>
+                        </label>
+                        <select class="wc-customer-search" id="lkn_wcip_customer_input" name="lkn_wcip_customer" data-placeholder="Visitante" data-allow_clear="true">
                             <option value="<?php echo esc_attr( $userId ); ?>" selected="selected"><?php echo esc_html( $userInfos ); ?></option>
                         </select>
+                    </div>
+                    <div class="input-row-wrap" id="lknWcipEmailInput" <?php echo (!empty($userId)) ? 'style="display: none;"' : ''; ?>>
+                        <label
+                            for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_email"
+                            type="email"
+                            id="lkn_wcip_email_input"
+                            class="regular-text"
+                            required
+                            value="<?php echo esc_html($order->get_billing_email()); ?>"
+                            <?php echo esc_attr(!empty($userId) ? '' : 'required'); ?>
+                        >
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_country_input">
@@ -1447,10 +1464,26 @@ final class WcPaymentInvoiceAdmin {
                         >
                     </div>
                     <div class="input-row-wrap">
-                        <label for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
-                        <select class="wc-customer-search" id="lkn_wcip_email_input" name="lkn_wcip_email" data-placeholder="Visitante" data-allow_clear="true">
+                        <label for="lkn_wcip_customer_input">
+                            <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                            <a target="_blank" href="<?php echo esc_attr(admin_url('user-new.php')); ?>"><?php esc_attr_e('Create user', 'wc-invoice-payment'); ?></a>
+                        </label>
+                        <select class="wc-customer-search" id="lkn_wcip_customer_input" name="lkn_wcip_customer" data-placeholder="Visitante" data-allow_clear="true">
                             <option value="<?php echo esc_attr( $userId ); ?>" selected="selected"><?php echo esc_html( $userInfos ); ?></option>
                         </select>
+                    </div>
+                    <div class="input-row-wrap" id="lknWcipEmailInput" <?php echo (!empty($userId)) ? 'style="display: none;"' : ''; ?>>
+                        <label
+                            for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_email"
+                            type="email"
+                            id="lkn_wcip_email_input"
+                            class="regular-text"
+                            required
+                            value="<?php echo esc_html($order->get_billing_email()); ?>"
+                            <?php echo esc_attr(!empty($userId) ? '' : 'required'); ?>
+                        >
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_country_input">
@@ -2078,12 +2111,23 @@ final class WcPaymentInvoiceAdmin {
                         >
                     </div>
                     <div class="input-row-wrap">
-                        <label for="lkn_wcip_email_input">
-                            <?php esc_attr_e('Email', 'wc-invoice-payment'); ?>
+                        <label for="lkn_wcip_customer_input">
+                            <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
                             <a target="_blank" href="<?php echo esc_attr(admin_url('user-new.php')); ?>"><?php esc_attr_e('Create user', 'wc-invoice-payment'); ?></a>
                         </label>
-                        <select class="wc-customer-search" id="lkn_wcip_email_input" name="lkn_wcip_email" data-placeholder="Visitante" data-allow_clear="true">
+                        <select class="wc-customer-search" id="lkn_wcip_customer_input" name="lkn_wcip_customer" data-placeholder="Visitante" data-allow_clear="true">
                         </select>
+                    </div>
+                    <div class="input-row-wrap" id="lknWcipEmailInput">
+                        <label
+                            for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
+                        <input
+                            name="lkn_wcip_email"
+                            type="email"
+                            id="lkn_wcip_email_input"
+                            class="regular-text"
+                            required
+                        >
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_country_input">
@@ -2357,7 +2401,8 @@ final class WcPaymentInvoiceAdmin {
                 $name = sanitize_text_field(wp_unslash($_POST['lkn_wcip_name']));
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
-                $userId = isset($_POST['lkn_wcip_email']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_email'])) : '';
+                $userId = isset($_POST['lkn_wcip_customer']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_customer'])) : '';
+                $email = sanitize_email(wp_unslash($_POST['lkn_wcip_email']));
                 $expDate = sanitize_text_field(wp_unslash($_POST['lkn_wcip_exp_date']));
                 $iniDate = new DateTime();
                 $extraData = sanitize_text_field(wp_unslash($_POST['lkn_wcip_extra_data']));
@@ -2404,6 +2449,8 @@ final class WcPaymentInvoiceAdmin {
                         $order->set_customer_id($userId);
                     }
                 }
+
+                $order->set_billing_email($email);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);
                 $order->set_payment_method($paymentMethod);
@@ -2533,7 +2580,8 @@ final class WcPaymentInvoiceAdmin {
                 $country = sanitize_text_field(wp_unslash($_POST['lkn_wcip_country']));
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
-                $userId = isset($_POST['lkn_wcip_email']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_email'])) : '';
+                $userId = isset($_POST['lkn_wcip_customer']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_customer'])) : '';
+                $email = sanitize_email(wp_unslash($_POST['lkn_wcip_email']));
                 $expDate = sanitize_text_field(wp_unslash($_POST['lkn_wcip_exp_date']));
                 $pdfTemplateId = sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_template']));
                 $pdfLanguage = sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_language']));
@@ -2570,9 +2618,9 @@ final class WcPaymentInvoiceAdmin {
                     }
                 }else {
                     $order->set_customer_id(0);
-                    $order->set_billing_email('');
                 }
 
+                $order->set_billing_email($email);
                 $order->set_billing_country($country);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);
@@ -2693,7 +2741,8 @@ final class WcPaymentInvoiceAdmin {
                 $country = sanitize_text_field(wp_unslash($_POST['lkn_wcip_country']));
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
-                $userId = isset($_POST['lkn_wcip_email']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_email'])) : '';
+                $userId = isset($_POST['lkn_wcip_customer']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_customer'])) : '';
+                $email = sanitize_email(wp_unslash($_POST['lkn_wcip_email']));
                 $expDate = sanitize_text_field(wp_unslash($_POST['lkn_wcip_exp_date']));
                 $pdfTemplateId = sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_template']));
                 $pdfLanguage = sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_language']));
@@ -2729,9 +2778,9 @@ final class WcPaymentInvoiceAdmin {
                     }
                 }else {
                     $order->set_customer_id(0);
-                    $order->set_billing_email('');
                 }
 
+                $order->set_billing_email($email);
                 $order->set_billing_country($country);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);

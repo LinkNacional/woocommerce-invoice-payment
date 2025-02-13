@@ -52,3 +52,69 @@ HTML to PDF lib: https://github.com/dompdf/dompdf
 Setup a WYSIWYG editor in a textarea: https://codex.wordpress.org/Javascript_Reference/wp.editor
 
 QR Code lib: https://phpqrcode.sourceforge.net/#home
+
+# How to integrate with subscription processing
+
+This document explains how to use the `lkn_process_subscription_{paymentMethod}` filter to process subscriptions in your system.
+
+## Filter Name
+
+The filter name should include the payment method ID. For example, if the payment method is `creditCard`, the filter should be named `lkn_process_subscription_creditCard`.
+
+## Filter Parameters
+
+The `lkn_process_subscription_{paymentMethod}` filter receives three parameters:
+
+1. **New Subscription Invoice ID** (`$newOrderId`): This is the ID of the new invoice generated for the subscription.
+2. **Customer ID** (`$customerId`): This is the ID of the customer associated with the subscription and invoice.
+3. **Retry** (`$retry`): This parameter is a boolean that indicates whether the current call is a retry.
+
+## Expected Filter Return
+
+The `lkn_process_subscription_{paymentMethod}` filter should return an associative array with the following elements:
+
+1. **status**: A boolean value indicating whether the subscription processing was successful. If `true`, the system understands that the payment was completed and calls the `payment_complete()` method to finalize the process.
+2. **makeRetry**: A boolean value that signals whether a new attempt to process the subscription should be made. This parameter is used when the processing was not successful, but the application logic allows for a retry.
+3. **nextCronHours**: A numeric value (integer) that defines the interval, in hours, for the next processing attempt. If `makeRetry` is `true` and `nextCronHours` is greater than 0, the system will schedule a new execution of the filter after this interval using the `wp_schedule_single_event` function.
+
+## Processing Logic
+
+### Example of filter usage
+
+```php
+add_filter('lkn_process_subscription_genericPayment', 'process_subscription_generic_payment', 10, 3);
+
+function process_subscription_generic_payment($newOrderId, $customerId, $retry) {
+    // Get the subscription order
+    $order = wc_get_order($newOrderId);
+    
+    if (!$order) {
+        return [
+            'status' => false,
+            'makeRetry' => false,
+            'nextCronHours' => 0
+        ];
+    }
+
+    // Simulate the call to the payment gateway API
+    $paymentResponse = process_payment_with_gateway($order);
+
+    if ($paymentResponse['success']) {
+        return [
+            'status' => true, // Successful payment
+            'makeRetry' => false,
+            'nextCronHours' => 0
+        ];
+    } else {
+        return [
+            'status' => false, // Payment failed
+            'makeRetry' => true, // Retry
+            'nextCronHours' => 6 // Try again in 6 hours
+        ];
+    }
+}
+```
+
+### Automatic Status Update
+
+The subscription status is automatically updated only if the success status (`$status`) is `true` and it is not a retry. If it is a retry, the method itself must change the status.
