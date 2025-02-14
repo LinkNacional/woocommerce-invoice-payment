@@ -353,7 +353,9 @@ jQuery(document).ready(function ($) {
   if(subscriptionInput){
     subscriptionInput.dispatchEvent(new Event("change"))
   }
-  
+  if(!$('#lkn_wcip_customer_input').val()){
+    $('#message').css('display', 'block')
+  }
   $('#lkn_wcip_customer_input').on('change', function() {
       var selectedValue = $(this).val();
 

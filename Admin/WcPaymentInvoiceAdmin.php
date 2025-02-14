@@ -12,8 +12,8 @@ use DateTime;
 use LknWc\WcInvoicePayment\Admin\LknWcipListTable;
 use LknWc\WcInvoicePayment\Admin\WcPaymentInvoicePdfTemplates;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
-use WC_Product;
 use WC_Customer;
+use WC_Product;
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -712,8 +712,15 @@ final class WcPaymentInvoiceAdmin {
                         </select>
                     </div>
                     <div class="input-row-wrap">
-                        <label
-                            for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
+                        <label for="lkn_wcip_default_payment_method_input">
+                            <?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?>
+                            <div class="tooltip">
+                                <span>?</span>
+                                <span class="tooltiptext">
+                                    <?php esc_attr_e('If the multiple payments option is selected, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                </span>
+                            </div>
+                        </label>
                         <select
                             name="lkn_wcip_default_payment_method"
                             id="lkn_wcip_default_payment_method_input"
@@ -824,7 +831,15 @@ final class WcPaymentInvoiceAdmin {
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_customer_input">
-                            <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                            <div>
+                                <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                                <div class="tooltip">
+                                    <span>?</span>
+                                    <span class="tooltiptext">
+                                        <?php esc_attr_e('If the assigned user is a guest, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                    </span>
+                                </div>
+                            </div>
                             <a target="_blank" href="<?php echo esc_attr(admin_url('user-new.php')); ?>"><?php esc_attr_e('Create user', 'wc-invoice-payment'); ?></a>
                         </label>
                         <select class="wc-customer-search" id="lkn_wcip_customer_input" name="lkn_wcip_customer" data-placeholder="Visitante" data-allow_clear="true">
@@ -1353,8 +1368,15 @@ final class WcPaymentInvoiceAdmin {
                         </select>
                     </div>
                     <div class="input-row-wrap">
-                        <label
-                            for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
+                        <label for="lkn_wcip_default_payment_method_input">
+                            <?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?>
+                            <div class="tooltip">
+                                <span>?</span>
+                                <span class="tooltiptext">
+                                    <?php esc_attr_e('If the multiple payments option is selected, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                </span>
+                            </div>
+                        </label>
                         <select
                             name="lkn_wcip_default_payment_method"
                             id="lkn_wcip_default_payment_method_input"
@@ -1465,7 +1487,15 @@ final class WcPaymentInvoiceAdmin {
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_customer_input">
-                            <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                            <div>
+                                <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                                <div class="tooltip">
+                                    <span>?</span>
+                                    <span class="tooltiptext">
+                                        <?php esc_attr_e('If the assigned user is a guest, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                    </span>
+                                </div>
+                            </div>
                             <a target="_blank" href="<?php echo esc_attr(admin_url('user-new.php')); ?>"><?php esc_attr_e('Create user', 'wc-invoice-payment'); ?></a>
                         </label>
                         <select class="wc-customer-search" id="lkn_wcip_customer_input" name="lkn_wcip_customer" data-placeholder="Visitante" data-allow_clear="true">
@@ -2008,8 +2038,15 @@ final class WcPaymentInvoiceAdmin {
                         </select>
                     </div>
                     <div class="input-row-wrap">
-                        <label
-                            for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
+                        <label for="lkn_wcip_default_payment_method_input">
+                            <?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?>
+                            <div class="tooltip">
+                                <span>?</span>
+                                <span class="tooltiptext">
+                                    <?php esc_attr_e('If the multiple payments option is selected, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                </span>
+                            </div>
+                        </label>
                         <select
                             name="lkn_wcip_default_payment_method"
                             id="lkn_wcip_default_payment_method_input"
@@ -2112,7 +2149,15 @@ final class WcPaymentInvoiceAdmin {
                     </div>
                     <div class="input-row-wrap">
                         <label for="lkn_wcip_customer_input">
-                            <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                            <div>
+                                <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                                <div class="tooltip">
+                                    <span>?</span>
+                                    <span class="tooltiptext">
+                                        <?php esc_attr_e('If the assigned user is a guest, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                    </span>
+                                </div>
+                            </div>
                             <a target="_blank" href="<?php echo esc_attr(admin_url('user-new.php')); ?>"><?php esc_attr_e('Create user', 'wc-invoice-payment'); ?></a>
                         </label>
                         <select class="wc-customer-search" id="lkn_wcip_customer_input" name="lkn_wcip_customer" data-placeholder="Visitante" data-allow_clear="true">

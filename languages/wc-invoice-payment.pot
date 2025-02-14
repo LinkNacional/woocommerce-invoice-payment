@@ -289,3 +289,9 @@ msgstr ""
 
 msgid "Feature available for registered user."
 msgstr ""
+
+msgid "If the multiple payments option is selected, automatic recurring payments will be disabled."
+msgstr ""
+
+msgid "If the assigned user is a guest, automatic recurring payments will be disabled."
+msgstr ""

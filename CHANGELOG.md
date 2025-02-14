@@ -1,3 +1,8 @@
+# 2.3.0 - 14/02/2025
+* Adição de campo para pesquisar email do usuário;
+* Adição de hook para processar assinatura automaticamente;
+* Adição de função para forçar registro do cliente no checkout.
+
 # 2.2.1 - 31/01/2025
 * Correção de compatibilidade com o plugin "Payment Gateway Based Fees for WooCommerce";
 * Atualizando link da descrição do plugin.
