@@ -295,3 +295,6 @@ msgstr ""
 
 msgid "If the assigned user is a guest, automatic recurring payments will be disabled."
 msgstr ""
+
+msgid "Customer"
+msgstr ""
