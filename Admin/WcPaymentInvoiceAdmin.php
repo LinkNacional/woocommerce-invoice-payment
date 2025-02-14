@@ -717,7 +717,7 @@ final class WcPaymentInvoiceAdmin {
                             <div class="tooltip">
                                 <span>?</span>
                                 <span class="tooltiptext">
-                                    <?php esc_attr_e('If the multiple payments option is selected, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                    <?php esc_attr_e('To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic.', 'wc-invoice-payment'); ?>
                                 </span>
                             </div>
                         </label>
@@ -836,7 +836,7 @@ final class WcPaymentInvoiceAdmin {
                                 <div class="tooltip">
                                     <span>?</span>
                                     <span class="tooltiptext">
-                                        <?php esc_attr_e('If the assigned user is a guest, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                        <?php esc_attr_e('Select a user to generate subscriptions. Guests cannot process automatic charges.', 'wc-invoice-payment'); ?>
                                     </span>
                                 </div>
                             </div>
@@ -1373,7 +1373,7 @@ final class WcPaymentInvoiceAdmin {
                             <div class="tooltip">
                                 <span>?</span>
                                 <span class="tooltiptext">
-                                    <?php esc_attr_e('If the multiple payments option is selected, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                    <?php esc_attr_e('To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic.', 'wc-invoice-payment'); ?>
                                 </span>
                             </div>
                         </label>
@@ -1492,7 +1492,7 @@ final class WcPaymentInvoiceAdmin {
                                 <div class="tooltip">
                                     <span>?</span>
                                     <span class="tooltiptext">
-                                        <?php esc_attr_e('If the assigned user is a guest, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                        <?php esc_attr_e('Select a user to generate subscriptions. Guests cannot process automatic charges.', 'wc-invoice-payment'); ?>
                                     </span>
                                 </div>
                             </div>
@@ -2043,7 +2043,7 @@ final class WcPaymentInvoiceAdmin {
                             <div class="tooltip">
                                 <span>?</span>
                                 <span class="tooltiptext">
-                                    <?php esc_attr_e('If the multiple payments option is selected, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                    <?php esc_attr_e('To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic.', 'wc-invoice-payment'); ?>
                                 </span>
                             </div>
                         </label>
@@ -2154,7 +2154,7 @@ final class WcPaymentInvoiceAdmin {
                                 <div class="tooltip">
                                     <span>?</span>
                                     <span class="tooltiptext">
-                                        <?php esc_attr_e('If the assigned user is a guest, automatic recurring payments will be disabled.', 'wc-invoice-payment'); ?>
+                                        <?php esc_attr_e('Select a user to generate subscriptions. Guests cannot process automatic charges.', 'wc-invoice-payment'); ?>
                                     </span>
                                 </div>
                             </div>

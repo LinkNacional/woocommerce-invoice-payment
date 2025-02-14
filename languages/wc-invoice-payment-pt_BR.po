@@ -296,11 +296,11 @@ msgstr "Criar usuário"
 msgid "Feature available for registered user."
 msgstr "Recurso disponivel para usuário cadastrados"
 
-msgid "If the multiple payments option is selected, automatic recurring payments will be disabled."
-msgstr "Se a opção de pagamentos múltiplos estiver selecionada, os pagamentos recorrentes automáticos estarão desabilitados."
+msgid "To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic."
+msgstr "Para automatizar as cobranças selecione um meio de pagamento com essa capacidade (ex.: Plugin Cielo Pro). Ao marcar pagamentos múltiplos a cobrança não será automática."
 
-msgid "If the assigned user is a guest, automatic recurring payments will be disabled."
-msgstr "Se o usuário atribuído for um visitante, os pagamentos recorrentes automáticos estarão desabilitados."
+msgid "Select a user to generate subscriptions. Guests cannot process automatic charges."
+msgstr "Selecione um usuário para gerar assinaturas. Visitantes não tem capacidade para cobranças automáticas."
 
 msgid "Customer"
 msgstr "Cliente"
