@@ -280,3 +280,21 @@ msgstr ""
 
 msgid "To add other languages, install the language in your WordPress."
 msgstr ""
+
+msgid "Feature available for registered user"
+msgstr ""
+
+msgid "Create user"
+msgstr ""
+
+msgid "Feature available for registered user."
+msgstr ""
+
+msgid "To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic."
+msgstr ""
+
+msgid "Select a user to generate subscriptions. Guests cannot process automatic charges."
+msgstr ""
+
+msgid "Customer"
+msgstr ""

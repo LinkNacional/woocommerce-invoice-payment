@@ -286,3 +286,21 @@ msgstr "Idioma do PDF da fatura"
 
 msgid "To add other languages, install the language in your WordPress."
 msgstr "Para adicionar outros idiomas, instale o idioma em seu Wordpress."
+
+msgid "Feature available for registered user"
+msgstr "Recurso disponivel para usuário cadastrado"
+
+msgid "Create user"
+msgstr "Criar usuário"
+
+msgid "Feature available for registered user."
+msgstr "Recurso disponivel para usuário cadastrados"
+
+msgid "To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic."
+msgstr "Para automatizar as cobranças selecione um meio de pagamento com essa capacidade (ex.: Plugin Cielo Pro). Ao marcar pagamentos múltiplos a cobrança não será automática."
+
+msgid "Select a user to generate subscriptions. Guests cannot process automatic charges."
+msgstr "Selecione um usuário para gerar assinaturas. Visitantes não tem capacidade para cobranças automáticas."
+
+msgid "Customer"
+msgstr "Cliente"

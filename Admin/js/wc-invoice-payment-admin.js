@@ -344,3 +344,46 @@ jQuery(document).ready(function ($) {
     $(this).attr('title', $(this).attr('aria-label'))
   })
 })
+
+
+jQuery(document).ready(function ($) {
+  $('#lkn_wcip_subscription_product').prop('checked', false).prop('disabled', true);
+  $('#lkn_wcip_subscription_product').closest('label').css('opacity', '0.5');
+  subscriptionInput = document.getElementById("lkn_wcip_subscription_product")
+  if(subscriptionInput){
+    subscriptionInput.dispatchEvent(new Event("change"))
+  }
+  if(!$('#lkn_wcip_customer_input').val()){
+    $('#message').css('display', 'block')
+  }
+  $('#lkn_wcip_customer_input').on('change', function() {
+      var selectedValue = $(this).val();
+
+      if (!selectedValue) {
+        $('#lkn_wcip_subscription_product').prop('checked', false).prop('disabled', true);
+        $('#lkn_wcip_subscription_product').closest('label').css('opacity', '0.5');
+        $('#lknWcipEmailInput').css('display', 'flex')
+        $('#lkn_wcip_email_input').prop('required', true)
+      } else {
+        $('#lkn_wcip_subscription_product').prop('disabled', false);
+        $('#lkn_wcip_subscription_product').closest('label').css('opacity', '1');
+        $('#lknWcipEmailInput').css('display', 'none')
+        $('#lkn_wcip_email_input').prop('required', false)
+      }
+
+      if(subscriptionInput){
+        subscriptionInput.dispatchEvent(new Event("change"))
+      }
+    });
+
+  $(".form-field").each(function () {
+    var $field = $(this);
+    var $tooltip = $field.next(".tooltip");
+
+    if ($tooltip.length) {
+        $field.find("label").after($tooltip); 
+        $tooltip.css("margin-left", "4px");
+        $tooltip.css("margin-bottom", "4px");
+    }
+  });
+});

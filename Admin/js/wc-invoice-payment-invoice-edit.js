@@ -38,4 +38,11 @@ jQuery(document).ready(function ($) {
 
     $link.attr('href', url.toString())
   })
+
+  if (window.location.search.includes("page=edit-subscription")) {
+    const removeUserButton = document.querySelector(".select2-selection__clear");
+    if (removeUserButton) {
+        removeUserButton.remove();
+    }
+  }
 })

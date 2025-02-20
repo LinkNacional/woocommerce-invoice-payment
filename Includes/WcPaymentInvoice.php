@@ -3,11 +3,11 @@ namespace LknWc\WcInvoicePayment\Includes;
 
 use LknWc\WcInvoicePayment\Admin\WcPaymentInvoiceAdmin;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoader;
-use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoaderRest;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
-
+use WC_Order;
 /**
  * The file that defines the core plugin class.
  *
@@ -178,10 +178,26 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_checkout_order_processed', $subscription_class, 'validate_product');
         $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $subscription_class, 'validate_product');
         $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
+        $this->loader->add_action('woocommerce_init', $this, 'subscriptionNotice');
         $this->loader->add_action('woocommerce_process_product_meta', $subscription_class, 'save_subscription_fields');
         $this->loader->add_action('wp_ajax_cancel_subscription', $subscription_class, 'cancel_subscription_callback');
 
         $this->loader->add_action('generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1);
+    }
+
+    public function subscriptionNotice(): void {
+        $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
+        $invoice = isset($_GET['invoice']) ? sanitize_text_field(wp_unslash($_GET['invoice'])) : 0;
+        if($page == 'edit-subscription' && $invoice != 0){
+            $message = "
+            <div style='display: none;' id='message' class='notice notice-warning'>
+                <p>
+                    <b>Atenção: </b> Pagamentos automáticos desativados, por favor crie um usuário para o cliente.
+                </p>
+            </div>";
+        
+            echo $message;
+        }
     }
 
     public function custom_email_verification_required($verification_required) {
@@ -203,9 +219,12 @@ final class WcPaymentInvoice {
      */
     private function define_public_hooks(): void {
         $plugin_public = new WcPaymentInvoicePublic($this->get_plugin_name(), $this->get_version());
+        $subscription_class = new WcPaymentInvoiceSubscription();
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
+        $this->loader->add_filter( 'woocommerce_checkout_registration_enabled', $subscription_class, 'forceUserRegistration' );
+        $this->loader->add_filter( 'woocommerce_checkout_registration_required', $subscription_class, 'forceUserRegistration' );
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
     }
 }

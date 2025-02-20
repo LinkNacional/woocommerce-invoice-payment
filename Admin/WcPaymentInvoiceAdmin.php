@@ -12,8 +12,8 @@ use DateTime;
 use LknWc\WcInvoicePayment\Admin\LknWcipListTable;
 use LknWc\WcInvoicePayment\Admin\WcPaymentInvoicePdfTemplates;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
+use WC_Customer;
 use WC_Product;
-
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -155,7 +155,7 @@ final class WcPaymentInvoiceAdmin {
             || 'admin_page_edit-subscription' === $hook
             || 'wc-invoice-payment_page_wc-subscription-payment' === $hook
         ) {
-            wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', array('wp-i18n'), $this->version, false);
+            wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', array('wp-i18n', 'jquery'), $this->version, false);
             wp_set_script_translations($this->plugin_name . '-admin-js', 'wc-invoice-payment', WC_PAYMENT_INVOICE_TRANSLATION_PATH);
             wp_localize_script(
                 $this->plugin_name . '-admin-js',
@@ -424,10 +424,10 @@ final class WcPaymentInvoiceAdmin {
                                         type="checkbox"
                                         name="lkn_wcip_after_save_button_email_check"
                                         id="lkn_wcip_after_save_button_email_check"
-                                        <i
-                                    ></i><?php if ($email_verify) {
-                                        echo 'checked';
-                                    } ?>
+                                        <?php if ($email_verify) {
+                                            echo 'checked';
+                                        } ?>
+                                        <i></i>
                                     <?php esc_attr_e('Enable email verification on the invoice.', 'wc-invoice-payment'); ?>
 
                                     <div class="tooltip">
@@ -453,9 +453,10 @@ final class WcPaymentInvoiceAdmin {
                                         type="checkbox"
                                         class=""
                                         value="1"
-                                        ><?php if ($product_invoices) {
-                                        echo 'checked';
-                                    } ?>
+                                        <?php if ($product_invoices) {
+                                            echo 'checked';
+                                        } ?>
+                                        >
                                     <?php esc_attr_e('Create invoices for products', 'wc-invoice-payment') ?>
 
                                     <div class="tooltip">
@@ -571,6 +572,8 @@ final class WcPaymentInvoiceAdmin {
 
         wp_enqueue_editor();
         wp_create_nonce('wp_rest');
+        wp_enqueue_script( 'wc-enhanced-select' );
+        wp_enqueue_style( 'woocommerce_admin_styles' );
 
         $invoiceId = sanitize_text_field(wp_unslash($_GET['invoice']));
 
@@ -590,7 +593,21 @@ final class WcPaymentInvoiceAdmin {
 
         $c = 0;
         $order = wc_get_order($invoiceId);
-        if ($order->get_meta('lkn_subscription_id')) {
+        if ( $order->get_user_id() ) {
+            $userId = absint( $order->get_user_id() );
+            $user = get_userdata( $userId );
+            $userInfos = sprintf(
+                '%s (#%d – %s)',
+                $user->display_name, // Nome completo do usuário
+                $userId, // ID do usuário
+                $user->user_email // Email do usuário
+            );
+        }else{
+            $userId = '';
+            $userInfos = '';
+        }
+
+        if($order->get_meta('lkn_subscription_id')){
             $subscription_id = $order->get_meta('lkn_subscription_id');
         }
         $items = $order->get_items();
@@ -695,8 +712,15 @@ final class WcPaymentInvoiceAdmin {
                         </select>
                     </div>
                     <div class="input-row-wrap">
-                        <label
-                            for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
+                        <label for="lkn_wcip_default_payment_method_input">
+                            <?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?>
+                            <div class="tooltip">
+                                <span>?</span>
+                                <span class="tooltiptext">
+                                    <?php esc_attr_e('To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic.', 'wc-invoice-payment'); ?>
+                                </span>
+                            </div>
+                        </label>
                         <select
                             name="lkn_wcip_default_payment_method"
                             id="lkn_wcip_default_payment_method_input"
@@ -806,6 +830,23 @@ final class WcPaymentInvoiceAdmin {
                         >
                     </div>
                     <div class="input-row-wrap">
+                        <label for="lkn_wcip_customer_input">
+                            <div>
+                                <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                                <div class="tooltip">
+                                    <span>?</span>
+                                    <span class="tooltiptext">
+                                        <?php esc_attr_e('Select a user to generate subscriptions. Guests cannot process automatic charges.', 'wc-invoice-payment'); ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <a target="_blank" href="<?php echo esc_attr(admin_url('user-new.php')); ?>"><?php esc_attr_e('Create user', 'wc-invoice-payment'); ?></a>
+                        </label>
+                        <select class="wc-customer-search" id="lkn_wcip_customer_input" name="lkn_wcip_customer" data-placeholder="Visitante" data-allow_clear="true">
+                            <option value="<?php echo esc_attr( $userId ); ?>" selected="selected"><?php echo esc_html( $userInfos ); ?></option>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap" id="lknWcipEmailInput" <?php echo (!empty($userId)) ? 'style="display: none;"' : ''; ?>>
                         <label
                             for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
                         <input
@@ -815,6 +856,7 @@ final class WcPaymentInvoiceAdmin {
                             class="regular-text"
                             required
                             value="<?php echo esc_html($order->get_billing_email()); ?>"
+                            <?php echo esc_attr(!empty($userId) ? '' : 'required'); ?>
                         >
                     </div>
                     <div class="input-row-wrap">
@@ -1148,7 +1190,7 @@ final class WcPaymentInvoiceAdmin {
                     if ('generate_invoice_event' === $hook) {
                         // Verifique se os argumentos do evento contêm o invoiceId
                         $event_args = $event['args'];
-                        if (is_array($event_args) && in_array($invoice_id, $event_args, true)) {
+                        if (is_array($event_args) && in_array($invoice_id, $event_args)) {
                             // O invoiceId está agendado, então retorne verdadeiro
                             return true;
                         }
@@ -1164,6 +1206,9 @@ final class WcPaymentInvoiceAdmin {
      * Render html page for subscription edit.
      */
     public function render_edit_subscription_page(): void {
+        wp_enqueue_script( 'wc-enhanced-select' );
+        wp_enqueue_style( 'woocommerce_admin_styles' );
+        
         wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array(), $this->version, 'all');
         wp_enqueue_style($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-invoice-edit.css', array(), $this->version, 'all');
 
@@ -1195,6 +1240,20 @@ final class WcPaymentInvoiceAdmin {
 
         $c = 0;
         $order = wc_get_order($invoiceId);
+
+        if ( $order->get_user_id() ) {
+            $userId = absint( $order->get_user_id() );
+            $user = get_userdata( $userId );
+            $userInfos = sprintf(
+                '%s (#%d – %s)',
+                $user->display_name, // Nome completo do usuário
+                $userId, // ID do usuário
+                $user->user_email // Email do usuário
+            );
+        }else{
+            $userId = '';
+            $userInfos = '';
+        }
 
         $args = array(
             'meta_key' => 'lkn_subscription_id',
@@ -1309,8 +1368,15 @@ final class WcPaymentInvoiceAdmin {
                         </select>
                     </div>
                     <div class="input-row-wrap">
-                        <label
-                            for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
+                        <label for="lkn_wcip_default_payment_method_input">
+                            <?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?>
+                            <div class="tooltip">
+                                <span>?</span>
+                                <span class="tooltiptext">
+                                    <?php esc_attr_e('To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic.', 'wc-invoice-payment'); ?>
+                                </span>
+                            </div>
+                        </label>
                         <select
                             name="lkn_wcip_default_payment_method"
                             id="lkn_wcip_default_payment_method_input"
@@ -1420,6 +1486,23 @@ final class WcPaymentInvoiceAdmin {
                         >
                     </div>
                     <div class="input-row-wrap">
+                        <label for="lkn_wcip_customer_input">
+                            <div>
+                                <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                                <div class="tooltip">
+                                    <span>?</span>
+                                    <span class="tooltiptext">
+                                        <?php esc_attr_e('Select a user to generate subscriptions. Guests cannot process automatic charges.', 'wc-invoice-payment'); ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <a target="_blank" href="<?php echo esc_attr(admin_url('user-new.php')); ?>"><?php esc_attr_e('Create user', 'wc-invoice-payment'); ?></a>
+                        </label>
+                        <select class="wc-customer-search" id="lkn_wcip_customer_input" name="lkn_wcip_customer" data-placeholder="Visitante" data-allow_clear="true">
+                            <option value="<?php echo esc_attr( $userId ); ?>" selected="selected"><?php echo esc_html( $userInfos ); ?></option>
+                        </select>
+                    </div>
+                    <div class="input-row-wrap" id="lknWcipEmailInput" <?php echo (!empty($userId)) ? 'style="display: none;"' : ''; ?>>
                         <label
                             for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
                         <input
@@ -1429,6 +1512,7 @@ final class WcPaymentInvoiceAdmin {
                             class="regular-text"
                             required
                             value="<?php echo esc_html($order->get_billing_email()); ?>"
+                            <?php echo esc_attr(!empty($userId) ? '' : 'required'); ?>
                         >
                     </div>
                     <div class="input-row-wrap">
@@ -1847,6 +1931,8 @@ final class WcPaymentInvoiceAdmin {
         }
 
         wp_enqueue_editor();
+        wp_enqueue_script( 'wc-enhanced-select' );
+        wp_enqueue_style( 'woocommerce_admin_styles' );
 
         $currencies = get_woocommerce_currencies();
         $currency_codes = array_keys($currencies);
@@ -1952,8 +2038,15 @@ final class WcPaymentInvoiceAdmin {
                         </select>
                     </div>
                     <div class="input-row-wrap">
-                        <label
-                            for="lkn_wcip_default_payment_method_input"><?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?></label>
+                        <label for="lkn_wcip_default_payment_method_input">
+                            <?php esc_attr_e('Default payment method', 'wc-invoice-payment'); ?>
+                            <div class="tooltip">
+                                <span>?</span>
+                                <span class="tooltiptext">
+                                    <?php esc_attr_e('To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic.', 'wc-invoice-payment'); ?>
+                                </span>
+                            </div>
+                        </label>
                         <select
                             name="lkn_wcip_default_payment_method"
                             id="lkn_wcip_default_payment_method_input"
@@ -2055,6 +2148,22 @@ final class WcPaymentInvoiceAdmin {
                         >
                     </div>
                     <div class="input-row-wrap">
+                        <label for="lkn_wcip_customer_input">
+                            <div>
+                                <?php esc_attr_e('Customer', 'wc-invoice-payment'); ?>
+                                <div class="tooltip">
+                                    <span>?</span>
+                                    <span class="tooltiptext">
+                                        <?php esc_attr_e('Select a user to generate subscriptions. Guests cannot process automatic charges.', 'wc-invoice-payment'); ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <a target="_blank" href="<?php echo esc_attr(admin_url('user-new.php')); ?>"><?php esc_attr_e('Create user', 'wc-invoice-payment'); ?></a>
+                        </label>
+                        <select class="wc-customer-search" id="lkn_wcip_customer_input" name="lkn_wcip_customer" data-placeholder="Visitante" data-allow_clear="true">
+                        </select>
+                    </div>
+                    <div class="input-row-wrap" id="lknWcipEmailInput">
                         <label
                             for="lkn_wcip_email_input"><?php esc_attr_e('Email', 'wc-invoice-payment'); ?></label>
                         <input
@@ -2131,9 +2240,15 @@ final class WcPaymentInvoiceAdmin {
                             type="checkbox"
                             name="lkn_wcip_subscription_product"
                             id="lkn_wcip_subscription_product"
-                            ><?php echo esc_attr($invoiceChecked) ?>
+                            <?php echo esc_attr($invoiceChecked) ?>>
                         <?php esc_attr_e('Subscription', 'wc-invoice-payment'); ?>
                     </label>
+                    <div class="tooltip">
+                        <span>?</span>
+                        <span class="tooltiptext">
+                            <?php esc_attr_e('Feature available for registered user.', 'wc-invoice-payment'); ?>
+                        </span>
+                    </div>
                 </div>
                 <div
                     class="input-row-wrap"
@@ -2184,8 +2299,6 @@ final class WcPaymentInvoiceAdmin {
                 'id' => 'lkn_wcip_subscription_limit',
                 'name' => 'lkn_wcip_subscription_limit',
                 'label' => __('Subscription limit', 'wc-invoice-payment'),
-                'desc_tip' => 'true',
-                'description' => __('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'wc-invoice-payment'),
                 'value' => 0,
                 'type' => 'number',
                 'custom_attributes' => array(
@@ -2195,6 +2308,12 @@ final class WcPaymentInvoiceAdmin {
             )
         );
         ?>
+            <div class="tooltip" id="subscriptionLimitTooltip">
+                <span>?</span>
+                <span class="tooltiptext">
+                    <?php esc_attr_e('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'wc-invoice-payment'); ?>
+                </span>
+            </div>
             </div>
             <script>
                 //Valida se a checkbox de assinatura está ativada para mostrar campos
@@ -2327,6 +2446,7 @@ final class WcPaymentInvoiceAdmin {
                 $name = sanitize_text_field(wp_unslash($_POST['lkn_wcip_name']));
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
+                $userId = isset($_POST['lkn_wcip_customer']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_customer'])) : '';
                 $email = sanitize_email(wp_unslash($_POST['lkn_wcip_email']));
                 $expDate = sanitize_text_field(wp_unslash($_POST['lkn_wcip_exp_date']));
                 $iniDate = new DateTime();
@@ -2366,6 +2486,15 @@ final class WcPaymentInvoiceAdmin {
                 }
 
                 // Set all order attributes
+                if (!empty($userId)) {
+                    $user = get_user_by('ID', $userId);
+                    if ($user) {
+                        $email = $user->user_email;
+                        $order->set_billing_email($email);
+                        $order->set_customer_id($userId);
+                    }
+                }
+
                 $order->set_billing_email($email);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);
@@ -2394,7 +2523,7 @@ final class WcPaymentInvoiceAdmin {
                 //Chama a função que configura o evento cron
                 if ($isSubscription) {
                     $subscription_class = new WcPaymentInvoiceSubscription();
-                    $subscription_class->validate_product($orderId);
+                    $subscription_class->validate_product($orderId, true);
                 }
 
                 $invoiceList = get_option('lkn_wcip_invoices');
@@ -2496,6 +2625,7 @@ final class WcPaymentInvoiceAdmin {
                 $country = sanitize_text_field(wp_unslash($_POST['lkn_wcip_country']));
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
+                $userId = isset($_POST['lkn_wcip_customer']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_customer'])) : '';
                 $email = sanitize_email(wp_unslash($_POST['lkn_wcip_email']));
                 $expDate = sanitize_text_field(wp_unslash($_POST['lkn_wcip_exp_date']));
                 $pdfTemplateId = sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_template']));
@@ -2523,8 +2653,20 @@ final class WcPaymentInvoiceAdmin {
                 }
 
                 // Set all order attributes
-                $order->set_billing_country($country);
+
+                if (!empty($userId)) {
+                    $user = get_user_by('ID', $userId);
+                    if ($user) {
+                        $email = $user->user_email;
+                        $order->set_billing_email($email);
+                        $order->set_customer_id($userId);
+                    }
+                }else {
+                    $order->set_customer_id(0);
+                }
+
                 $order->set_billing_email($email);
+                $order->set_billing_country($country);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);
                 $order->set_payment_method($paymentMethod);
@@ -2644,6 +2786,7 @@ final class WcPaymentInvoiceAdmin {
                 $country = sanitize_text_field(wp_unslash($_POST['lkn_wcip_country']));
                 $firstName = explode(' ', $name)[0];
                 $lastname = substr(strstr($name, ' '), 1);
+                $userId = isset($_POST['lkn_wcip_customer']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_customer'])) : '';
                 $email = sanitize_email(wp_unslash($_POST['lkn_wcip_email']));
                 $expDate = sanitize_text_field(wp_unslash($_POST['lkn_wcip_exp_date']));
                 $pdfTemplateId = sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_template']));
@@ -2671,8 +2814,19 @@ final class WcPaymentInvoiceAdmin {
                 }
 
                 // Set all order attributes
-                $order->set_billing_country($country);
+                if (!empty($userId)) {
+                    $user = get_user_by('ID', $userId);
+                    if ($user) {
+                        $email = $user->user_email;
+                        $order->set_billing_email($email);
+                        $order->set_customer_id($userId);
+                    }
+                }else {
+                    $order->set_customer_id(0);
+                }
+
                 $order->set_billing_email($email);
+                $order->set_billing_country($country);
                 $order->set_billing_first_name($firstName);
                 $order->set_billing_last_name($lastname);
                 $order->set_payment_method($paymentMethod);
@@ -2738,7 +2892,7 @@ final class WcPaymentInvoiceAdmin {
                             if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
                                 // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
                                 $event_args = $event['args'];
-                                if (is_array($event_args) && in_array($invoiceDelete[0], $event_args, true)) {
+                                if (is_array($event_args) && in_array($invoiceDelete[0], $event_args)) {
                                     // Remova o evento do WP Cron
                                     wp_unschedule_event($timestamp, $hook, $event_args);
                                 }
