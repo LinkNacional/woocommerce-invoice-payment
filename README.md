@@ -1,10 +1,10 @@
 # Link Invoice Payment for WooCommerce
-The [Link Invoice Payment](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) plugin is a powerful and free extension for WooCommerce, designed to simplify online billing — whether for one-time or recurring invoices.
+The [Link Invoice Payment](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) plugin is a powerful and free extension for [WordPress](linknacional.com.br/wordpress/), designed to simplify online billing — whether for one-time or recurring invoices.
 
 ## Description
 The **Link Invoice Payment** plugin is a powerful and free extension for **WooCommerce**, designed to simplify online billing — whether for one-time or recurring invoices. With [Link Invoice Payment](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) plugin for WooCommerce, you can easily generate both **one-time** and **recurring** invoices and send them to your customers via email, WhatsApp, or social networks — complete with a secure payment link. One of its biggest advantages is the ability to offer multiple payment options to settle the invoice.
 
-Now enhanced with even more advanced features, **Link Invoice Payment** is the perfect tool for flexible and professional invoicing in your WooCommerce store.
+Now enhanced with even more advanced features, **Link Invoice Payment** is the perfect tool for flexible and professional invoicing in your [WooCommerce](https://www.linknacional.com.br/wordpress/woocommerce/) store.
 
 ## ✅ Key Features
 
