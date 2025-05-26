@@ -1,9 +1,26 @@
-# Invoice Payment for WooCommerce
+# Link Invoice Payment for WooCommerce
+The (Link Invoice Payment)(https://www.linknacional.com.br/wordpress/woocommerce/faturas/) plugin is a powerful and free extension for WooCommerce, designed to simplify online billing — whether for one-time or recurring invoices.
 
-[Invoice Payment for WooCommerce](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) is an extension plugin for WooCommerce that aims to facilitate the management of invoices through the platform. It sends a new invoice email notification for the client and invoice creation with a direct payment link.
+== Description ==
+The **Link Invoice Payment** plugin is a powerful and free extension for **WooCommerce**, designed to simplify online billing — whether for one-time or recurring invoices. With [Link Invoice Payment](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) plugin for WooCommerce, you can easily generate both **one-time** and **recurring** invoices and send them to your customers via email, WhatsApp, or social networks — complete with a secure payment link. One of its biggest advantages is the ability to offer multiple payment options to settle the invoice.
 
-Plugin at WordPress marketplace 
-https://wordpress.org/plugins/lkn-wc-gateway-cielo/
+Now enhanced with even more advanced features, **Link Invoice Payment** is the perfect tool for flexible and professional invoicing in your WooCommerce store.
+
+## ✅ Key Features
+
+- **Recurring Invoices** – Automate billing for subscriptions or regular payments  
+- **Subscription-type Products** – Easily manage recurring billing cycles  
+- **PDF Invoices** – Generate professional downloadable and printable invoice documents  
+- **Payment Links** – Instantly share payment URLs for quick customer access  
+- **Multi-currency Invoices** – Issue invoices in different currencies based on customer location  
+- **Due Date Management** – Set custom due dates for each invoice  
+- **Multiple or Specific Payment Methods** – Choose which payment gateways appear per invoice  
+- **Multi-language Support** – Display invoices in the language preferred by your customer  
+- **Partial Order Payments in WooCommerce** – Allow customers to pay part of an order upfront using multiple payment methods
+
+And much more!
+
+Plugin at WordPress marketplace: https://wordpress.org/plugins/lkn-wc-gateway-cielo/
 
 ## Dependencies
 
