@@ -1,4 +1,4 @@
-=== Invoice Payment for WooCommerce ===
+=== Link Invoice Payment for WooCommerce ===
 Contributors: linknacional
 Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: subscription, invoice, payment, recorrente, faturas
@@ -9,12 +9,12 @@ Requires PHP: 7.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Invoice payment generation and management for WooCommerce.
+The Link Invoice Payment plugin is a powerful and free extension for WooCommerce, designed to simplify online billing — whether for one-time or recurring invoices.
 
 == Description ==
-The **Invoice Payment** plugin is a powerful and free extension for **WooCommerce**, designed to simplify online billing — whether for one-time or recurring invoices. With [Invoice Payment plugin](https://www.linknacional.com.br/wordpress/woocommerce/faturas/), you can easily generate both **one-time** and **recurring** invoices and send them to your customers via email, WhatsApp, or social networks — complete with a secure payment link. One of its biggest advantages is the ability to offer multiple payment options to settle the invoice.
+The **Link Invoice Payment** plugin is a powerful and free extension for **WooCommerce**, designed to simplify online billing — whether for one-time or recurring invoices. With [Link Invoice Payment](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) plugin for WooCommerce, you can easily generate both **one-time** and **recurring** invoices and send them to your customers via email, WhatsApp, or social networks — complete with a secure payment link. One of its biggest advantages is the ability to offer multiple payment options to settle the invoice.
 
-Now enhanced with even more advanced features, **Invoice Paymento** is the perfect tool for flexible and professional invoicing in your WooCommerce store.
+Now enhanced with even more advanced features, **Link Invoice Payment** is the perfect tool for flexible and professional invoicing in your WooCommerce store.
 
 ## ✅ Key Features
 
@@ -33,7 +33,7 @@ And much more!
 
 **Dependencies**
 
-Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Invoice Payment for WooCommerce installation.
+Link Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Invoice Payment for WooCommerce installation.
 
 *External Libraries used*
 * We use the PHP external library [DOMPDF](https://github.com/dompdf/dompdf) for generating PDF invoices.
