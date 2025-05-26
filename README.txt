@@ -1,7 +1,7 @@
 === Invoice Payment for WooCommerce ===
 Contributors: linknacional
 Donate link: https://www.linknacional.com/wordpress/plugins/
-Tags: woocommerce, invoice, payment
+Tags: subscription, invoice, payment, recorrente, faturas
 Requires at least: 5.7
 Tested up to: 6.7
 Stable tag: 2.3.0
@@ -12,7 +12,24 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Invoice payment generation and management for WooCommerce.
 
 == Description ==
-The free [Invoice Issue plugin](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) is an extension for  WooCommerce, which came to facilitate billing over the internet. With it, you can generate new invoices and send them to your customers via email, with a payment link. Another great advantage is that it can offer different payment options for paying off the invoice.
+The **Invoice Payment** plugin is a powerful and free extension for **WooCommerce**, designed to simplify online billing — whether for one-time or recurring invoices. With [Invoice Payment plugin](https://www.linknacional.com.br/wordpress/woocommerce/faturas/), you can easily generate both **one-time** and **recurring** invoices and send them to your customers via email, WhatsApp, or social networks — complete with a secure payment link. One of its biggest advantages is the ability to offer multiple payment options to settle the invoice.
+
+Now enhanced with even more advanced features, **Invoice Paymento** is the perfect tool for flexible and professional invoicing in your WooCommerce store.
+
+## ✅ Key Features
+
+- **Recurring Invoices** – Automate billing for subscriptions or regular payments  
+- **Subscription-type Products** – Easily manage recurring billing cycles  
+- **PDF Invoices** – Generate professional downloadable and printable invoice documents  
+- **Payment Links** – Instantly share payment URLs for quick customer access  
+- **Multi-currency Invoices** – Issue invoices in different currencies based on customer location  
+- **Due Date Management** – Set custom due dates for each invoice  
+- **Multiple or Specific Payment Methods** – Choose which payment gateways appear per invoice  
+- **Multi-language Support** – Display invoices in the language preferred by your customer  
+- **Partial Order Payments in WooCommerce** – Allow customers to pay part of an order upfront using multiple payment methods
+
+And much more!
+
 
 **Dependencies**
 
