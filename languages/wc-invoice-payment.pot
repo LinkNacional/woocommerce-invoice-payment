@@ -1,5 +1,5 @@
 # Invoice Payment for WooCommerce en_US translation
-msgid "Invoice payment generation and management for WooCommerce."
+msgid "Invoice Payment plugin is a powerful and free extension for WooCommerce, designed to simplify online billing — whether for one-time or recurring invoices."
 msgstr ""
 
 msgid "List invoices"
