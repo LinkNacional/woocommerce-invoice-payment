@@ -1,3 +1,6 @@
+# 2.3.3 - 27/05/2025
+* Alteração em descrição.
+
 # 2.3.2 - 27/05/2025
 * Alteração em descrição e correção em icones.
 
