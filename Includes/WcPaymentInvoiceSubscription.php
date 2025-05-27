@@ -439,7 +439,7 @@ final class WcPaymentInvoiceSubscription {
     }
 
     public function forceUserRegistration($forceRegistration) {
-        $cart = WC()->cart->get_cart();
+        $cart = WC()->cart->get_cart() ? WC()->cart->get_cart() : null;
     
         if (!empty($cart)) {
             foreach ($cart as $cart_item) {

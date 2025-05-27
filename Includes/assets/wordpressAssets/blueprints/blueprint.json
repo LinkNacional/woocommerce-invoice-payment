@@ -1,0 +1,37 @@
+{
+    "landingPage": "/wp-json/wc-invoice-payment/v1/redirect",
+    "phpExtensionBundles": [
+        "kitchen-sink"
+    ],
+    "steps": [
+        {
+            "step": "login",
+            "username": "admin",
+            "password": "admin"
+        },
+        {
+            "step": "installPlugin",
+            "pluginZipFile": {
+                "resource": "wordpress.org/plugins",
+                "slug": "woocommerce"
+            },
+            "options": {
+                "activate": true
+            }
+        },
+        {
+            "step": "installPlugin",
+            "pluginZipFile": {
+                "resource": "wordpress.org/plugins",
+                "slug": "invoice-payment-for-woocommerce"
+            },
+            "options": {
+                "activate": true
+            }
+        },
+        {
+            "step": "runPHP",
+            "code": "<?php require '/wordpress/wp-load.php';do_action('plugins_loaded');add_action('init', function () {    if (!class_exists('WC_Product_Simple')) {        return;    }    update_option('woocommerce_default_country', 'BR:SP');    update_option('woocommerce_store_postcode', '05833-290');    update_option('woocommerce_currency', 'BRL');    update_option('woocommerce_onboarding_profile', ['completed' => true]);    update_option('woocommerce_admin_install_timestamp', time());    update_option('woocommerce_admin_onboarding_opt_in', true);    update_option('woocommerce_show_admin_notice', 'no');});do_action('init');"
+        }
+    ]
+}
