@@ -1,6 +1,6 @@
 # Invoice Payment for WooCommerce tradução pt_BR
-msgid "Invoice payment generation and management for WooCommerce."
-msgstr "Gerenciador de faturas para pagamento para WooCommerce"
+msgid "Invoice Payment plugin is a powerful and free extension for WooCommerce, designed to simplify online billing — whether for one-time or recurring invoices."
+msgstr "O plugin Link de Pagamento por Faturas é uma extensão poderosa e gratuita para o WooCommerce, criada para facilitar a emissão de faturas online — sejam elas avulsas ou recorrentes."
 
 msgid "List invoices"
 msgstr "Listar faturas"

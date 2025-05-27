@@ -1,3 +1,6 @@
+# 2.3.1 - 27/05/2025
+* Adição de blueprint na página do wordpress.
+
 # 2.3.0 - 14/02/2025
 * Adição de campo para pesquisar email do usuário;
 * Adição de hook para processar assinatura automaticamente;

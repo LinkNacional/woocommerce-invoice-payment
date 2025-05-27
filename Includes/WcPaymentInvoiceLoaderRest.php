@@ -20,6 +20,18 @@ final class WcPaymentInvoiceLoaderRest {
                 'permission_callback' => array($this, 'check_permission'),
             )
         );
+        register_rest_route(
+            'wc-invoice-payment/v1', 
+            '/redirect', 
+            [
+                'methods'  => 'GET',
+                'callback' => function () {
+                    wp_redirect(admin_url('admin.php?page=wc-invoice-payment'));
+                    exit;
+                },
+                'permission_callback' => '__return_true',
+            ]
+        );
     }
 
     public function check_permission() {
