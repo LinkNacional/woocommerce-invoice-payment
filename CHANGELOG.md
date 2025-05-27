@@ -1,3 +1,6 @@
+# 2.3.2 - 27/05/2025
+* Alteração em descrição e correção em icones.
+
 # 2.3.1 - 27/05/2025
 * Adição de blueprint na página do wordpress.
 
