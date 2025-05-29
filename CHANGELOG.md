@@ -1,3 +1,6 @@
+# 2.3.4 - 29/05/2025
+* Correção de erro fatal ao editar página.
+
 # 2.3.3 - 27/05/2025
 * Alteração em descrição.
 
