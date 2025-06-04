@@ -60,6 +60,8 @@ final class WcPaymentInvoice {
      */
     private $version;
 
+    public $WcPaymentInvoicePartialClass;
+
     /**
      * Define the core functionality of the plugin.
      *
@@ -142,6 +144,7 @@ final class WcPaymentInvoice {
      */
     private function load_dependencies(): void {
         $this->loader = new WcPaymentInvoiceLoader();
+        $this->WcPaymentInvoicePartialClass = new WcPaymentInvoicePartial();
     }
 
     /**
@@ -225,6 +228,7 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
         $this->loader->add_filter( 'woocommerce_checkout_registration_enabled', $subscription_class, 'forceUserRegistration' );
         $this->loader->add_filter( 'woocommerce_checkout_registration_required', $subscription_class, 'forceUserRegistration' );
+		$this->loader->add_action( 'enqueue_block_assets', $this->WcPaymentInvoicePartialClass, 'enqueueCheckoutScripts');
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
     }
 }

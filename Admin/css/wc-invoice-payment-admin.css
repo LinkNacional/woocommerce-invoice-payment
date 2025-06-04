@@ -309,7 +309,7 @@
 	background-color: #e0e0e0;
 }
 
-.lkn_wcip_subscription_interval_div {
+.lkn_wcip_subscription_interval_div, .lkn_wcip_partial_field_div{
 	display: flex;
 }
 
@@ -378,8 +378,60 @@
 	padding-top: 23px;
 }
 
-#lkn_wcip_subscription_interval_div_tip {
+#lkn_wcip_subscription_interval_div_tip, #lkn_wcip_partial_complete_status_tip{
 	padding-left: 6px;
+}
+
+#lkn_wcip_partial_interval_fields{
+	display: flex;
+    gap: 15px;
+    flex-direction: column;
+}
+
+#lkn_wcip_partial_field{
+	min-width: 216px;
+}
+
+.lkn_wcip_partial_title{
+	margin-bottom: 20px;
+}
+
+.lkn_wcip_partial_payments_method_div{
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.lkn_wcip_partial_payments_methods_div{
+	display: flex;
+	flex-direction: column;
+	gap: 30px;
+}
+
+.lkn_wcip_partial_payments_method_label p{
+	margin-bottom: 4px;
+}
+
+.lkn_wcip_partial_payments_method_label{
+	display: flex;
+    flex-direction: row;
+    align-items: center;
+	gap: 3px;
+}
+
+.lkn_wcip_partial_payments_method_div_fields{
+	display: flex;
+	gap: 8px;
+}
+
+#lkn_wcip_partial_payments_method_div{
+	padding: 20px;
+    margin-top: 40px;
+    border: solid;
+    border-color: #CCCCCC;
+    border-width: 1px;
+    background-color: #F0F0F1;
+	width: 405px;
 }
 
 .select2-selection__placeholder{
