@@ -1,0 +1,33 @@
+.wcPaymentInvoiceContainer {
+    margin-top: 20px;
+}
+
+.wcPaymentInvoiceInner {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.wcPaymentInvoiceCheckboxWrapper {
+    margin-bottom: 10px;
+}
+
+.wcPaymentInvoiceCheckboxLabel {
+    align-items: center !important;
+    display: flex;
+}
+
+.wcPaymentInvoiceFields {
+    display: flex;
+    flex-direction: column;
+    padding-left: 45px;
+    gap: 20px;
+}
+
+.wcPaymentInvoiceInputWrapper {
+    width: 280px;
+}
+
+.wcPaymentInvoiceButton {
+    width: 185px;
+}

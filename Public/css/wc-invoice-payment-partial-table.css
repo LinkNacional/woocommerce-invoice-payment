@@ -1,0 +1,49 @@
+.wcPaymentInvoiceInputWrapper{
+    margin-top: 0px !important;
+}
+
+.wcPaymentInvoiceTableInputs{
+    display: flex;
+    gap: 15px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.wcPaymentInvoiceButton{
+    max-height: 44px !important;
+    max-width: 85px !important;
+    border-radius: 4px !important;
+    font-size: initial !important;
+}
+
+.wcPaymentInvoiceTotalButton{
+    max-height: 44px !important;
+    max-width: 140px !important;
+    border-radius: 4px !important;
+    font-size: initial !important;
+}
+
+.wcPaymentInvoiceTotalButton span div{
+    text-wrap: nowrap;
+}
+
+#wcPaymentInvoicePartialAmountFormatted{
+    height: 44px !important;
+    font-size: initial !important;
+}
+
+.wcPaymentInvoiceActionsButtons{
+    max-height: 12px !important;
+    max-width: 13px !important;
+    border-radius: 4px !important;
+    font-size: initial !important;
+}
+
+.wcPaymentThActions{
+    text-align: end !important;
+}
+
+.wcPaymentInvoiceCenter{
+    text-align: center !important;
+}

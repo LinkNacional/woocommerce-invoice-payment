@@ -1370,7 +1370,6 @@ final class LknWcipListTable {
             $order = isset($_GET['order']) ? sanitize_text_field(wp_unslash($_GET['order'])) : '';
             $search_term = isset($_POST['s']) ? sanitize_text_field(wp_unslash($_POST['s'])) : '';
             $invoiceList = get_option('lkn_wcip_invoices', array());
-    
             // Deletes invoices that have no order.
             $invoicesWithExistingOrder = array_filter(
                 $invoiceList,
