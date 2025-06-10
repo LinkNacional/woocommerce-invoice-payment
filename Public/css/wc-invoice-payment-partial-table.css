@@ -10,6 +10,10 @@
     justify-content: flex-end;
 }
 
+.wcPaymentInvoiceTable{
+    width: 100% !important;
+}
+
 .wcPaymentInvoiceButton{
     max-height: 44px !important;
     max-width: 85px !important;
@@ -46,4 +50,8 @@
 
 .wcPaymentInvoiceCenter{
     text-align: center !important;
+}
+
+.wcPaymentInvoicePartialTableAdmin thead tr th{
+    width: 100% !important;
 }

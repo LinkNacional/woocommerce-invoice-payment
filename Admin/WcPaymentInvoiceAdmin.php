@@ -128,6 +128,7 @@ final class WcPaymentInvoiceAdmin
             || 'toplevel_page_wc-invoice-payment' === $hook
             || 'admin_page_edit-invoice' === $hook
             || 'admin_page_edit-subscription' === $hook
+            || 'woocommerce_page_wc-orders' === $hook
         ) {
             wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', array(), $this->version, 'all');
         }
@@ -305,7 +306,7 @@ final class WcPaymentInvoiceAdmin
         $product_invoices = get_option("lkn_wcip_subscription_active_product_invoices");
         $saved_methods = get_option('lkn_wcip_partial_payment_methods_enabled', []);
         $saved_statuses = get_option('lkn_wcip_partial_payment_methods_statuses', []);
-        $partial_complete_status = get_option('lkn_wcip_partial_complete_status', 'wc-lkn-partial-completed');
+        $partial_complete_status = get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp');
         $partial_minimum_value = get_option('lkn_wcip_partial_interval_minimum', '0.00');
 
         $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
@@ -630,7 +631,7 @@ final class WcPaymentInvoiceAdmin
 
                                         foreach ( $payment_gateways as $gateway_id => $gateway ) :
                                             $checked = isset($saved_methods[$gateway_id]) ? checked($saved_methods[$gateway_id], 'yes', false) : 'checked'; // checked por padrão
-                                            $selected_status = $saved_statuses[$gateway_id] ?? 'wc-lkn-partial-completed';
+                                            $selected_status = $saved_statuses[$gateway_id] ?? 'wc-completed';
                                             ?>
                                             <div class="lkn_wcip_partial_payments_method_div">
                                                 <div class="lkn_wcip_partial_payments_method_div_fields">

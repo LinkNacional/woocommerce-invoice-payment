@@ -54,6 +54,10 @@
                 return;
             }
 
+            if (!confirm('Tem certeza que deseja pagar ' + formattedInput.val() + '?')) {
+                return;
+            }
+
             // Cria o payload
             const data = {
                 partialAmount: partialValue,
@@ -67,21 +71,21 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data)
-            })                        
-            .then(async response => {
-                const result = await response.json();
-            
-                if (!response.ok) {
-                    // Lida com erro retornado pela API
-                    throw new Error(result.error || 'Erro desconhecido');
-                }
-            
-                // Sucesso: redireciona
-                window.location.href = result.payment_url;
             })
-            .catch(error => {
-                alert(error.message || 'Erro na requisição');
-            });
+                .then(async response => {
+                    const result = await response.json();
+            
+                    if (!response.ok) {
+                        // Lida com erro retornado pela API
+                        throw new Error(result.error || 'Erro desconhecido');
+                    }
+            
+                    // Sucesso: redireciona
+                    window.location.href = result.payment_url;
+                })
+                .catch(error => {
+                    alert(error.message || 'Erro na requisição');
+                });
         });
 
         $('.wcPaymentInvoiceTotalButton').on('click', function (e) {
@@ -94,27 +98,39 @@
             };
         
             // Envia a requisição POST para a REST API
+            this.disabled = true;
+
             fetch(`${wpApiSettings.root}invoice_payments/create_partial_payment`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data)
-            })                        
-            .then(async response => {
-                const result = await response.json();
-            
-                if (!response.ok) {
-                    // Lida com erro retornado pela API
-                    throw new Error(result.error || 'Erro desconhecido');
-                }
-            
-                // Sucesso: redireciona
-                window.location.href = result.payment_url;
             })
-            .catch(error => {
-                alert(error.message || 'Erro na requisição');
-            });
+                .then(async response => {
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        // Lida com erro retornado pela API
+                        this.disabled = false;
+
+                        throw new Error(result.error || 'Erro desconhecido');
+                    }
+
+                    // Sucesso: redireciona
+                    window.location.href = result.payment_url;
+                })
+                .catch(error => {
+                    alert(error.message || 'Erro na requisição');
+                    this.disabled = false;
+
+                });
+        });
+
+        $(document).on('click', '.wcPaymentInvoiceTableInputs .cancel', function (e) {
+            if (!confirm('Tem certeza que deseja cancelar este pagamento parcial?')) {
+                e.preventDefault();
+            }
         });
     });
 })(jQuery);

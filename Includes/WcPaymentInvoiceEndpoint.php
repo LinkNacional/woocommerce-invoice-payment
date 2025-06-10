@@ -29,9 +29,10 @@ final class WcPaymentInvoiceEndpoint {
         
         $order_total = floatval($order->get_total());
         $total_peding = floatval($order->get_meta('_wc_lkn_total_peding')) ?: 0.0;
+        $total_confirmed = floatval($order->get_meta('_wc_lkn_total_confirmed')) ?: 0.0;
 
         // Verifica se o cliente pode gerar mais uma fatura com o valor informado
-        $max_allowed = $order_total - $total_peding;
+        $max_allowed = $order_total - $total_peding - $total_confirmed;
 
         if ($partial_amount > $max_allowed) {
             return new WP_REST_Response(['error' => 'Valor solicitado excede o valor disponível para pagamento.'], 404);
@@ -66,9 +67,8 @@ final class WcPaymentInvoiceEndpoint {
             }
         }
         
-
-        
-        $partial_order->update_meta_data('_wc_lkn_partial_is_order', 'yes');
+        $partial_order->update_meta_data('_wc_lkn_is_partial_order', 'yes');
+        $order->update_meta_data('_wc_lkn_is_partial_main_order', 'yes');
         $partial_order_id = $partial_order->get_id();
         $partial_order->set_payment_method('multiplePayment');
         
@@ -89,7 +89,7 @@ final class WcPaymentInvoiceEndpoint {
 
         $partial_order->calculate_totals();
         $partial_order->update_status('wc-partial-pend');
-        $order->update_status('wc-partial-pend');
+        $order->update_status('wc-on-hold');
 
         $partialsList = $order->get_meta('_wc_lkn_partials_id', true);
         // Garante que é array
@@ -136,7 +136,7 @@ final class WcPaymentInvoiceEndpoint {
     
         $partial_order = wc_get_order($partial_order_id);
     
-        if (!$partial_order || $partial_order->get_meta('_wc_lkn_partial_is_order') !== 'yes') {
+        if (!$partial_order || $partial_order->get_meta('_wc_lkn_is_partial_order') !== 'yes') {
             return new WP_REST_Response(['error' => 'Ordem parcial não encontrada ou inválida.'], 404);
         }
     

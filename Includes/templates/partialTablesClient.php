@@ -4,7 +4,7 @@ if (! defined('ABSPATH')) {
 }
 ?>
 <h2 class="wp-block-heading" style="font-size:clamp(15.747px, 0.984rem + ((1vw - 3.2px) * 0.809), 24px);">Pagamento Parcial</h2>
-<table cellspacing="0" style="">
+<table cellspacing="0" class="woocommerce-table woocommerce-table--order-details shop_table order_details wcPaymentInvoiceTable">
     <tbody>
         <tr class="woocommerce-table__line-item order_item">
             <td class="wc-block-order-confirmation-totals__product">
@@ -30,41 +30,38 @@ if (! defined('ABSPATH')) {
                 <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">R$</span> <?php echo esc_attr($total); ?></span>
             </td>
         </tr>
-        <tr class="woocommerce-table__line-item order_item">
-            <td class="wc-block-order-confirmation-totals__product">
-                Ações:
-            </td>
-            <td class="wc-block-order-confirmation-totals__total wcPaymentInvoiceTableInputs">
-                <div class="wc-block-components-text-input wcPaymentInvoiceInputWrapper">
-                    <input id="wcPaymentInvoicePartialAmountFormatted" type="text" placeholder="R$ 0,00">
-                    <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
-                </div>
-                <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
-                    <span class="wc-block-components-button__text">
-                        <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
-                            Pagar
-                        </div>
-                    </span>
-                </button>
-                <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceTotalButton" type="button">
-                    <span class="wc-block-components-button__text">
-                        <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
-                            Pagar restante
-                        </div>
-                    </span>
-                </button>
-            </td>
-
-        </tr>
+        <?php  if ($orderStatus == 'on-hold') : ?>
+            <tr class="woocommerce-table__line-item order_item">
+                <td class="wc-block-order-confirmation-totals__product">
+                    Ações:
+                </td>
+                <td class="wc-block-order-confirmation-totals__total wcPaymentInvoiceTableInputs">
+                    <div class="wc-block-components-text-input wcPaymentInvoiceInputWrapper">
+                        <input id="wcPaymentInvoicePartialAmountFormatted" type="text" placeholder="R$ 0,00">
+                        <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
+                    </div>
+                    <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
+                        <span class="wc-block-components-button__text">
+                            <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
+                                Pagar
+                            </div>
+                        </span>
+                    </button>
+                    <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceTotalButton" type="button">
+                        <span class="wc-block-components-button__text">
+                            <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
+                                Pagar restante
+                            </div>
+                        </span>
+                    </button>
+                </td>
+    
+            </tr>
+        <?php endif; ?>
 </table>
-<?php
-if (! defined('ABSPATH')) {
-    exit();
-}
-?>
 
 <h2 class="wp-block-heading" style="font-size:clamp(15.747px, 0.984rem + ((1vw - 3.2px) * 0.809), 24px);">Detalhes de pagamento parcial</h2>
-<table cellspacing="0" class="">
+<table cellspacing="0" class="woocommerce-table woocommerce-table--order-details shop_table order_details wcPaymentInvoiceTable">
     <thead>
         <tr>
             <th>Data</th>
@@ -89,13 +86,13 @@ if (! defined('ABSPATH')) {
             $cancel_url = $partial_order->get_cancel_order_url(wc_get_page_permalink('cart'));
         ?>
             <tr class="woocommerce-table__line-item order_item">
-                <td class="wcPaymentInvoiceCenter"><?php echo esc_html($created_date); ?></td>
+                <td><?php echo esc_html($created_date); ?></td>
                 <td class="wcPaymentInvoiceCenter"><?php echo esc_html($payment_method); ?></td>
                 <td class="wcPaymentInvoiceCenter"><?php echo esc_html($status); ?></td>
                 <td class="wcPaymentInvoiceCenter"><?php echo wp_kses_post($total); ?></td>
                 <td class="wc-block-order-confirmation-totals__total wcPaymentInvoiceTableInputs">
                     <?php if ($partial_order->get_status() == 'partial-pend') : ?>
-                        <a class="" href="<?php echo esc_url($cancel_url); ?>" class="button cancel">Cancelar</a>
+                        <a class="cancel" href="<?php echo esc_url($cancel_url); ?>">Cancelar</a>
                         <a class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceActionsButtons" href="<?php echo esc_url($pay_url); ?>" class="button pay">Pagar</a>
                     <?php else : ?>
                         <span>-</span>

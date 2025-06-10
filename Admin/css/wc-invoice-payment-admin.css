@@ -459,3 +459,8 @@ label[for="lkn_wcip_customer_input"] {
 	display: flex;
 	justify-content: space-between;
 }
+
+.order-status.status-partial-comp {
+	background: #68cf68;
+    color: #224522;
+}

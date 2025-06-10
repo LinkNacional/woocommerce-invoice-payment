@@ -126,6 +126,8 @@
                         };
                     
                         // Envia a requisição POST para a REST API
+                        this.disabled = true;
+
                         fetch(`${wpApiSettings.root}invoice_payments/create_partial_payment`, {
                             method: 'POST',
                             headers: {
@@ -138,6 +140,7 @@
                         
                             if (!response.ok) {
                                 // Lida com erro retornado pela API
+                                this.disabled = false;
                                 throw new Error(result.error || 'Erro desconhecido');
                             }
                         
@@ -146,6 +149,7 @@
                         })
                         .catch(error => {
                             alert(error.message || 'Erro na requisição');
+                            this.disabled = false;
                         });
                     });
 
