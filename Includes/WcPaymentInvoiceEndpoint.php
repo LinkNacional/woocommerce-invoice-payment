@@ -18,8 +18,31 @@ final class WcPaymentInvoiceEndpoint {
     public function createPartialPayment($request) {
         $parameters = $request->get_params();
     
-        $order_id = isset($parameters['orderId']) ? intval($parameters['orderId']) : 0;
+        $order_id = isset($parameters['orderId']) ? $parameters['orderId'] : 0;
+        $user_id = isset($parameters['userId']) ? intval($parameters['userId']) : 0;
         $partial_amount = isset($parameters['partialAmount']) ? floatval($parameters['partialAmount']) : 0.0;
+
+        if($order_id == 'newOrder'){
+            $cart = isset($parameters['cart']) ? $parameters['cart'] : null;
+
+            $total = 0;
+            if (isset($cart['cart_contents']) && is_array($cart['cart_contents'])) {
+                foreach ($cart['cart_contents'] as $item) {
+                    if (isset($item['line_total'])) {
+                        $total += floatval($item['line_total']);
+                    }
+                }
+            }
+
+            $order = wc_create_order( array(
+                'status' => 'pending',
+                'customer_id' => $user_id
+            ));
+            $order->set_total($total);
+            $order->save();
+
+            $order_id = $order->get_id();
+        }
         
         if (!$order_id || !$partial_amount) {
             return new WP_REST_Response(['error' => 'Parâmetros inválidos.'], 400);
@@ -71,6 +94,13 @@ final class WcPaymentInvoiceEndpoint {
         $order->update_meta_data('_wc_lkn_is_partial_main_order', 'yes');
         $partial_order_id = $partial_order->get_id();
         $partial_order->set_payment_method('multiplePayment');
+
+        $order_link = admin_url("post.php?post={$order_id}&action=edit");
+        $partial_order->add_order_note("Pedido parcial criado a partir do pedido <a href=\"{$order_link}\" target=\"_blank\">#{$order_id}</a>", false);
+        
+        $order_link = admin_url("post.php?post={$partial_order_id}&action=edit");
+        $order->add_order_note("Pedido parcial criado <a href=\"{$order_link}\" target=\"_blank\">#{$partial_order_id}</a>", false);
+
         
         $invoiceList = get_option('lkn_wcip_invoices', array());
         

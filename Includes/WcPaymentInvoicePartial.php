@@ -10,21 +10,22 @@ final class WcPaymentInvoicePartial
             wp_enqueue_style('wcInvoicePaymentPartialStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
             wp_localize_script('wcInvoicePaymentPartialScript', 'wcInvoicePaymentPartialVariables', array(
                 'minPartialAmount' => get_option('lkn_wcip_partial_interval_minimum', 0),
-                'cart' => WC()->cart
+                'cart' => WC()->cart,
+                'userId' => get_current_user_id(),
             ));
         }
     }
 
     public function registerStatus( $order_statuses ) {
         $order_statuses['wc-partial-pend'] = array(
-            'label' => __('Partial payment pending', 'wc-invoice-payment'),
+            'label' => __('Pagamento parcial pendente', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
          );
          $order_statuses['wc-partial-comp'] = array(
-             'label' => __('Partial payment completed', 'wc-invoice-payment'),
+             'label' => __('Pagamento parcial completo', 'wc-invoice-payment'),
              'public' => true,
              'exclude_from_search' => false,
              'show_in_admin_all_list' => true,
@@ -34,8 +35,8 @@ final class WcPaymentInvoicePartial
 	}
 
     public function createStatus($order_statuses){
-        $order_statuses['wc-partial-pend'] = __('Partial payment pending', 'fraud-detection-for-woocommerce');
-        $order_statuses['wc-partial-comp'] = __('Partial payment completed', 'fraud-detection-for-woocommerce');
+        $order_statuses['wc-partial-pend'] = __('Pagamento parcial pendente', 'fraud-detection-for-woocommerce');
+        $order_statuses['wc-partial-comp'] = __('Pagamento parcial completo', 'fraud-detection-for-woocommerce');
         return $order_statuses;
     }
 
@@ -99,12 +100,12 @@ final class WcPaymentInvoicePartial
                     case $successStatuses:
                         $parentOrder->update_meta_data('_wc_lkn_total_peding', $totalPending - $orderTotal);
                         $parentOrder->update_meta_data('_wc_lkn_total_confirmed', $totalConfirmed + $orderTotal);
+                        if(($totalConfirmed + $orderTotal) >= $parentOrder->get_total()) {
+                            $parentOrder->update_status(get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp'));
+                        }
                         break;
                 }
                 
-                if(($totalConfirmed + $orderTotal) >= $parentOrder->get_total()) {
-                    $parentOrder->update_status(get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp'));
-                }
                 $parentOrder->save();
                 $order->save();
             }
@@ -112,17 +113,22 @@ final class WcPaymentInvoicePartial
     }
 
     public function showPartialsPayments($order){
-        $screen = class_exists( '\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' ) && wc_get_container()->get( 'Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' )->custom_orders_table_usage_is_enabled()
-        ? wc_get_page_screen_id( 'shop-order' )
-        : 'shop_order';
-        
-        add_meta_box(
-            'showPartialsPayments',
-            'Pagamentos Parciais',
-            array($this, 'showLogsContent'),
-            $screen,
-            'advanced',
-        );
+        $orderId = isset($_GET['id']) ? $_GET['id'] : 0;
+        $order = wc_get_order( $orderId );
+        add_option('teste order' . uniqid(), json_encode($order));
+        if($order && $order->get_meta('_wc_lkn_is_partial_main_order') == 'yes'){
+            $screen = class_exists( '\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' ) && wc_get_container()->get( 'Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' )->custom_orders_table_usage_is_enabled()
+            ? wc_get_page_screen_id( 'shop-order' )
+            : 'shop_order';
+            
+            add_meta_box(
+                'showPartialsPayments',
+                'Pagamentos Parciais',
+                array($this, 'showLogsContent'),
+                $screen,
+                'advanced',
+            );
+        }
     }
     
     public function showLogsContent($object): void

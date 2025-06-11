@@ -1,5 +1,6 @@
 .wcPaymentInvoiceContainer {
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .wcPaymentInvoiceInner {
@@ -12,10 +13,20 @@
     margin-bottom: 10px;
 }
 
-.wcPaymentInvoiceCheckboxLabel {
+.wcPaymentInvoiceCheckboxLabel, .wcPaymentInvoiceCheckboxLabelCartFlow{
+    display: flex !important;
     align-items: center !important;
-    display: flex;
 }
+
+.wcPaymentInvoiceCheckboxLabelCartFlow{
+    gap: 20px;
+}
+
+.wcPaymentInvoiceCheckboxTitleCartFlow{
+    color: black;
+    font-weight: 400
+}
+
 
 .wcPaymentInvoiceFields {
     display: flex;

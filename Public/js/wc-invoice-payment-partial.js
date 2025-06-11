@@ -1,49 +1,104 @@
 (function ($) {
     $(window).on('load', function () {
+        let orderId
+        if(typeof wcSettings != 'undefined'){
+            orderId = wcSettings?.checkoutData?.order_id
+        }else{
+            orderId = 'newOrder';
+        }
+        console.log(wcInvoicePaymentPartialVariables)
         const intervalId = setInterval(() => {
-            const shippingFieldset = $('#shipping-option');
-            if (shippingFieldset.length) {
+            const checkoutForm = document.querySelector('.wc-block-components-form.wc-block-checkout__form')
+            const cartFlowDiv = document.querySelector('.wcf-ic-layout-left-column');
+            if (checkoutForm || cartFlowDiv) {
                 clearInterval(intervalId);
 
-                const totalElement = $('.wc-block-formatted-money-amount.wc-block-components-formatted-money-amount.wc-block-components-totals-footer-item-tax-value');
+                if(checkoutForm){
+                    totalElement = $('.wc-block-formatted-money-amount.wc-block-components-formatted-money-amount.wc-block-components-totals-footer-item-tax-value');
+                }else{
+                    totalElement = $('.woocommerce-Price-amount.amount').last();
+                }
                 const totalText = totalElement.text();
                 const numericText = totalText.replace(/[^\d,.-]/g, '').replace(',', '.');
                 const cartTotal = parseFloat(numericText);
                 if(cartTotal > parseFloat(wcInvoicePaymentPartialVariables.minPartialAmount)){
-                    const partialPaymentHTML = `
-                    <div class="wcPaymentInvoiceContainer">
-                        <h1 class="wc-block-components-title wc-block-components-checkout-step__title">Pagamento Parcial</h1>
-                        <div class="wcPaymentInvoiceInner">
-                            <div class="wcPaymentInvoiceCheckboxWrapper">
-                                <div class="wc-block-components-checkbox wc-block-checkout__use-address-for-billing">
-                                    <label for="wcPaymentInvoiceContainerCheckboxPartial" class="wcPaymentInvoiceCheckboxLabel">
-                                        <input id="wcPaymentInvoiceContainerCheckboxPartial" class="wc-block-components-checkbox__input" type="checkbox" aria-invalid="false">
-                                        <svg class="wc-block-components-checkbox__mark" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 20">
-                                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"></path>
-                                        </svg>
-                                        <span class="wc-block-components-checkbox__label">
-                                            Utilize essa opção para dividir o pagamento do pedido em diversos métodos. Digite o valor que deseja pagar agora, o restante pode ser pago depois com outros métodos de pagamento.
+                    if(checkoutForm){
+                        partialPaymentHTML = `
+                        <div class="wcPaymentInvoiceContainer">
+                            <h1 class="wc-block-components-title wc-block-components-checkout-step__title">Pagamento Parcial</h1>
+                            <div class="wcPaymentInvoiceInner">
+                                <div class="wcPaymentInvoiceCheckboxWrapper">
+                                    <div class="wc-block-components-checkbox wc-block-checkout__use-address-for-billing">
+                                        <label for="wcPaymentInvoiceContainerCheckboxPartial" class="wcPaymentInvoiceCheckboxLabel">
+                                            <input id="wcPaymentInvoiceContainerCheckboxPartial" class="wc-block-components-checkbox__input" type="checkbox" aria-invalid="false">
+                                            <svg class="wc-block-components-checkbox__mark" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 20">
+                                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"></path>
+                                            </svg>
+                                            <span class="wc-block-components-checkbox__label">
+                                                Utilize essa opção para dividir o pagamento do pedido em diversos métodos. Digite o valor que deseja pagar agora, o restante pode ser pago depois com outros métodos de pagamento.
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="wcPaymentInvoiceFields">
+                                    <div class="wc-block-components-text-input wcPaymentInvoiceInputWrapper">
+                                        <input id="wcPaymentInvoicePartialAmountFormatted" type="text" placeholder="R$ 0,00">
+                                        <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
+                                    </div>
+                                    <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
+                                        <span class="wc-block-components-button__text">
+                                            <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
+                                                Pagar parcial
+                                            </div>
                                         </span>
-                                    </label>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="wcPaymentInvoiceFields">
-                                <div class="wc-block-components-text-input wcPaymentInvoiceInputWrapper">
-                                    <input id="wcPaymentInvoicePartialAmountFormatted" type="text" placeholder="R$ 0,00">
-                                    <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
+                        </div>`;
+
+                    }else{
+                        partialPaymentHTML = `
+                        <div class="wcPaymentInvoiceContainer">
+                            <h1 class="wcf-shipping-methods-title">Pagamento Parcial</h1>
+                            <div class="wcPaymentInvoiceInner">
+                                <div class="woocommerce-shipping-fields">
+                                <label for="wcPaymentInvoiceContainerCheckboxPartial" class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox wcPaymentInvoiceCheckboxLabelCartFlow">
+                                    <input id="wcPaymentInvoiceContainerCheckboxPartial"
+                                        class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" type="checkbox"
+                                        value="1"> <span class="wcPaymentInvoiceCheckboxTitleCartFlow">Utilize essa opção para dividir o pagamento do pedido em diversos métodos. Digite o valor que deseja
+                                            pagar agora, o restante pode ser pago depois com outros métodos de pagamento.</span>
+                                </label>
+                                    <h3>
+                                    </h3>
                                 </div>
-                                <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
-                                    <span class="wc-block-components-button__text">
-                                        <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
-                                            Pagar parcial
-                                        </div>
-                                    </span>
-                                </button>
+                                <div class="wcPaymentInvoiceFields">
+                                    <div class="wc-block-components-text-input wcPaymentInvoiceInputWrapper">
+                                        <input type="text" class="input-text " id="wcPaymentInvoicePartialAmountFormatted" placeholder="R$ 0,00" aria-required="true">
+                                        <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
+                                    </div>
+                                    <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
+                                        <span class="wc-block-components-button__text">
+                                            <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
+                                                Pagar parcial
+                                            </div>
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </div>`;
+                        </div>`;
+                    }
     
-                    shippingFieldset.append(partialPaymentHTML);
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = partialPaymentHTML;
+                    const partialPaymentElement = tempDiv.firstElementChild;
+
+                    if(checkoutForm){
+                        const fifthElement = checkoutForm.children[6]
+                        checkoutForm.insertBefore(partialPaymentElement, fifthElement)
+                    }else{
+                        const fifthElement = cartFlowDiv.children[3]
+                        cartFlowDiv.insertBefore(partialPaymentElement, fifthElement)
+                    }
     
                     const checkboxPartial = $('#wcPaymentInvoiceContainerCheckboxPartial');
                     const wcPaymentInvoiceFields = $('.wcPaymentInvoiceFields');
@@ -121,8 +176,9 @@
                         // Cria o payload
                         const data = {
                             partialAmount: partialValue,
-                            orderId: wcSettings.checkoutData.order_id,
-                            cart: wcInvoicePaymentPartialVariables.cart
+                            orderId: orderId,
+                            cart: wcInvoicePaymentPartialVariables.cart,
+                            userId: wcInvoicePaymentPartialVariables.userId,
                         };
                     
                         // Envia a requisição POST para a REST API
@@ -167,8 +223,9 @@
                         // Cria o payload
                         const data = {
                             partialAmount: partialValue,
-                            orderId: wcSettings.checkoutData.order_id,
-                            cart: wcInvoicePaymentPartialVariables.cart
+                            orderId: orderId,
+                            cart: wcInvoicePaymentPartialVariables.cart,
+                            userId: wcInvoicePaymentPartialVariables.userId,
                         };
                     
                         // Envia a requisição POST para a REST API
