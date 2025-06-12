@@ -35,8 +35,8 @@ final class WcPaymentInvoicePartial
 	}
 
     public function createStatus($order_statuses){
-        $order_statuses['wc-partial-pend'] = __('Pagamento parcial pendente', 'fraud-detection-for-woocommerce');
-        $order_statuses['wc-partial-comp'] = __('Pagamento parcial completo', 'fraud-detection-for-woocommerce');
+        $order_statuses['wc-partial-pend'] = __('Pagamento parcial pendente', 'wc-invoice-payment');
+        $order_statuses['wc-partial-comp'] = __('Pagamento parcial completo', 'wc-invoice-payment');
         return $order_statuses;
     }
 

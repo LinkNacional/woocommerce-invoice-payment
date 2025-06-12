@@ -639,7 +639,7 @@ final class WcPaymentInvoiceAdmin
                                                         <input 
                                                             name="lkn_wcip_partial_payments_method_<?php echo esc_attr($gateway_id); ?>" 
                                                             id="lkn_wcip_partial_payments_method_<?php echo esc_attr($gateway_id); ?>" 
-                                                            type="checkbox" <?php echo $checked; ?>>
+                                                            type="checkbox" <?php echo esc_attr($checked); ?>>
                                                         <p>
                                                             <?php echo esc_html( $gateway->get_title() ); ?>
                                                         </p>

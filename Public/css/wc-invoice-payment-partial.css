@@ -42,3 +42,8 @@
 .wcPaymentInvoiceButton {
     width: 185px;
 }
+
+.wcPaymentInvoiceTitleCartFlow {
+    color: black !important;
+    font-size: x-large !important;
+}

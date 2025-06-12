@@ -59,7 +59,7 @@
                     }else{
                         partialPaymentHTML = `
                         <div class="wcPaymentInvoiceContainer">
-                            <h1 class="wcf-shipping-methods-title">Pagamento Parcial</h1>
+                            <h1 class="wcf-shipping-methods-title wcPaymentInvoiceTitleCartFlow">Pagamento Parcial</h1>
                             <div class="wcPaymentInvoiceInner">
                                 <div class="woocommerce-shipping-fields">
                                 <label for="wcPaymentInvoiceContainerCheckboxPartial" class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox wcPaymentInvoiceCheckboxLabelCartFlow">

@@ -1,3 +1,6 @@
+# 2.4.0 - 12/06/2025
+* Adição de pagamento parciais para todos métodos de pagamentos.
+
 # 2.3.4 - 29/05/2025
 * Correção de erro fatal ao editar página.
 

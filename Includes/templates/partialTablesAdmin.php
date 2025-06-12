@@ -55,7 +55,7 @@ if (! defined('ABSPATH')) {
                         <?php echo esc_html($shipping); ?>
                     </a>
                 </td>
-                <td class="order_total column-order_total" data-colname="Total"><?php echo $total; ?></td>
+                <td class="order_total column-order_total" data-colname="Total"><?php echo wp_kses_post($total); ?></td>
                 <td class="wc_actions column-wc_actions hidden" data-colname="Ações">
                     <p><a class="button wc-action-button wc-action-button-complete complete"
                             href="<?php echo esc_url(admin_url("admin-ajax.php?action=woocommerce_mark_order_status&status=completed&order_id={$order_id}&_wpnonce=" . wp_create_nonce('woocommerce-mark-order-status'))); ?>"
