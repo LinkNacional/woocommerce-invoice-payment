@@ -113,9 +113,8 @@ final class WcPaymentInvoicePartial
     }
 
     public function showPartialsPayments($order){
-        $orderId = isset($_GET['id']) ? $_GET['id'] : 0;
+        $orderId = get_the_id();
         $order = wc_get_order( $orderId );
-        add_option('teste order' . uniqid(), json_encode($order));
         if($order && $order->get_meta('_wc_lkn_is_partial_main_order') == 'yes'){
             $screen = class_exists( '\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' ) && wc_get_container()->get( 'Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' )->custom_orders_table_usage_is_enabled()
             ? wc_get_page_screen_id( 'shop-order' )
