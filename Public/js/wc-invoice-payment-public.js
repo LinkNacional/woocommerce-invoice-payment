@@ -1,50 +1,52 @@
 document.addEventListener('DOMContentLoaded', function () {
-  let defaultPaymethod = document.getElementById('lkn_wcip_default_paymethod')
+  let defaultPaymethod = document.getElementById('lkn_wcip_default_paymethod');
 
   if (defaultPaymethod) {
-    defaultPaymethod = defaultPaymethod.value
+    defaultPaymethod = defaultPaymethod.value;
 
-    if (defaultPaymethod == 'multiplePayment') return ''
+    const listPaymethods = document.getElementsByClassName('wc_payment_method');
 
-    const inputPaymethod = document.getElementById('payment_method_' + defaultPaymethod)
-    const listPaymethods = document.getElementsByClassName('wc_payment_method')
+    if (wcInvoicePaymentMethods.isPartialOrder === 'yes') {
+      const enabledMethods = wcInvoicePaymentMethods.enabledMethods;
 
-    let uniquePaymethod
+      // Oculta todos os métodos de pagamento que não estão em enabledMethods
+      for (let i = listPaymethods.length - 1; i >= 0; i--) {
+        const methodInput = listPaymethods[i].querySelector('input');
+        const methodId = methodInput ? methodInput.value : null;
 
-    let otherPaymethods = []
+        if (!enabledMethods[methodId] || enabledMethods[methodId] !== 'yes') {
+          listPaymethods[i].remove();
+        }
+      }
 
-    for (let i = 0; i < listPaymethods.length; i++) {
-      const temp = (listPaymethods[i].getElementsByTagName('input'))[0].value
-      otherPaymethods.push(temp)
+      return; // Evita execução do restante do script se for pagamento parcial
     }
 
-    let difPaymethod
+    // Caso padrão (não é pagamento parcial)
+    if (defaultPaymethod === 'multiplePayment') return;
 
-    for (let i = 0; i < otherPaymethods.length; i++) {
-      if (defaultPaymethod === (otherPaymethods[i])) {
-        otherPaymethods = otherPaymethods.filter(Paymethods => Paymethods !== (String(defaultPaymethod)))
-        difPaymethod = false
-        break
-      } else if (defaultPaymethod !== (otherPaymethods[i])) {
-        difPaymethod = true
+    const inputPaymethod = document.getElementById('payment_method_' + defaultPaymethod);
+
+    let otherPaymethods = [];
+
+    for (let i = 0; i < listPaymethods.length; i++) {
+      const methodInput = listPaymethods[i].querySelector('input');
+      if (methodInput) {
+        otherPaymethods.push(methodInput.value);
       }
     }
 
-    if (difPaymethod) {
-      uniquePaymethod = (listPaymethods[0].getElementsByTagName('input'))[0].value
-      otherPaymethods = otherPaymethods.filter(Paymethods => Paymethods !== (String(uniquePaymethod)))
-    }
-
+    // Remove métodos diferentes do default
     for (let i = 0; i < otherPaymethods.length; i++) {
-      otherPaymethods[i] = document.getElementsByClassName('wc_payment_method payment_method_' + otherPaymethods[i])
+      if (otherPaymethods[i] !== defaultPaymethod) {
+        const el = document.querySelector('.wc_payment_method.payment_method_' + otherPaymethods[i]);
+        if (el) el.remove();
+      }
     }
 
-    for (let i = 0; i < otherPaymethods.length; i++) {
-      otherPaymethods[i][0].remove()
-    }
-
+    // Ativa o método padrão
     if (inputPaymethod) {
-      inputPaymethod.click()
+      inputPaymethod.click();
     }
   }
-})
+});

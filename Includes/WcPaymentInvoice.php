@@ -60,6 +60,9 @@ final class WcPaymentInvoice {
      */
     private $version;
 
+    public $WcPaymentInvoicePartialClass;
+    public $WcPaymentInvoiceEndpointClass;
+
     /**
      * Define the core functionality of the plugin.
      *
@@ -142,6 +145,8 @@ final class WcPaymentInvoice {
      */
     private function load_dependencies(): void {
         $this->loader = new WcPaymentInvoiceLoader();
+        $this->WcPaymentInvoicePartialClass = new WcPaymentInvoicePartial();
+        $this->WcPaymentInvoiceEndpointClass = new WcPaymentInvoiceEndpoint();
     }
 
     /**
@@ -179,10 +184,15 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $subscription_class, 'validate_product');
         $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
         $this->loader->add_action('woocommerce_init', $this, 'subscriptionNotice');
+		$this->loader->add_filter( 'wc_order_statuses', $this->WcPaymentInvoicePartialClass, 'createStatus' );
+		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoicePartialClass, 'registerStatus' );
+		$this->loader->add_action( 'woocommerce_order_status_changed', $this->WcPaymentInvoicePartialClass, 'statusChanged', 10, 4);
+        $this->loader->add_action( 'add_meta_boxes', $this->WcPaymentInvoicePartialClass, 'showPartialsPayments');
         $this->loader->add_action('woocommerce_process_product_meta', $subscription_class, 'save_subscription_fields');
         $this->loader->add_action('wp_ajax_cancel_subscription', $subscription_class, 'cancel_subscription_callback');
-
         $this->loader->add_action('generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1);
+        
+        
     }
 
     public function subscriptionNotice(): void {
@@ -225,6 +235,12 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
         $this->loader->add_filter( 'woocommerce_checkout_registration_enabled', $subscription_class, 'forceUserRegistration' );
         $this->loader->add_filter( 'woocommerce_checkout_registration_required', $subscription_class, 'forceUserRegistration' );
+		$this->loader->add_action( 'enqueue_block_assets', $this->WcPaymentInvoicePartialClass, 'enqueueCheckoutScripts');
+        $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoicePartialClass, "showPartialFields");
+		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoicePartialClass, 'allowStatusCancel');
+		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
+        $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
+        
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
     }
 }

@@ -105,6 +105,23 @@ final class WcPaymentInvoicePublic {
 
         if (is_page($checkoutPage) === true) {
             wp_enqueue_script($this->plugin_name . '-public-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-public.js', array('jquery'), $this->version, false);
+            
+            $orderId = sanitize_text_field(get_query_var('order-pay'));
+            $order = wc_get_order($orderId);
+            if($order){
+                wp_localize_script($this->plugin_name . '-public-js', 'wcInvoicePaymentMethods', array(
+                    'enabledMethods' => get_option(
+                        'lkn_wcip_partial_payment_methods_enabled',
+                        array_map(
+                            function ( $gateway ) {
+                                return 'yes';
+                            },
+                            WC()->payment_gateways()->get_available_payment_gateways()
+                        )
+                    ),
+                    'isPartialOrder' => $order->get_meta('_wc_lkn_is_partial_order'),
+                ));
+            }
         }
     }
 }
