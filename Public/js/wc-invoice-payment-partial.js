@@ -102,13 +102,16 @@
     
                     const checkboxPartial = $('#wcPaymentInvoiceContainerCheckboxPartial');
                     const wcPaymentInvoiceFields = $('.wcPaymentInvoiceFields');
+                    const wcPaymentInvoiceButton = $('.wcPaymentInvoiceButton');
     
                     // Função para alternar a visibilidade com base no estado do checkbox
                     function toggleFields() {
                         if (checkboxPartial.is(':checked')) {
                             wcPaymentInvoiceFields.show();
+                            wcPaymentInvoiceButton.show();
                         } else {
                             wcPaymentInvoiceFields.hide();
+                            wcPaymentInvoiceButton.hide();
                         }
                     }
     
