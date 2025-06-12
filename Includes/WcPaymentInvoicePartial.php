@@ -124,14 +124,14 @@ final class WcPaymentInvoicePartial
             add_meta_box(
                 'showPartialsPayments',
                 'Pagamentos Parciais',
-                array($this, 'showLogsContent'),
+                array($this, 'showPartialOrders'),
                 $screen,
                 'advanced',
             );
         }
     }
     
-    public function showLogsContent($object): void
+    public function showPartialOrders($object): void
     {
         $order = is_a($object, 'WP_Post') ? wc_get_order($object->ID) : $object;
         

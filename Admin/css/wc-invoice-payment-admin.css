@@ -8,6 +8,7 @@
 	padding: 23px 24px 12px;
 	margin-top: 20px;
 	min-width: 714px;
+	max-width: 714px;
 }
 
 .invoice-row-wrap {

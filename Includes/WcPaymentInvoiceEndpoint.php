@@ -2,6 +2,7 @@
 namespace LknWc\WcInvoicePayment\Includes;
 
 use WP_REST_Response;
+use WC_Customer;
 
 final class WcPaymentInvoiceEndpoint {
     public function registerEndpoints(): void {
@@ -38,6 +39,10 @@ final class WcPaymentInvoiceEndpoint {
                 'status' => 'pending',
                 'customer_id' => $user_id
             ));
+
+            $customer = new WC_Customer($user_id);
+            $first_name = $customer->get_billing_first_name() ?: $customer->get_first_name();
+            $order->set_billing_first_name($first_name);
             $order->set_total($total);
             $order->save();
 
@@ -118,6 +123,9 @@ final class WcPaymentInvoiceEndpoint {
         ]);
 
         $partial_order->calculate_totals();
+        $order->update_meta_data('lkn_ini_date', gmdate('Y-m-d', time()));
+        $partial_order->update_meta_data('lkn_ini_date', gmdate('Y-m-d', time()));
+
         $partial_order->update_status('wc-partial-pend');
         $order->update_status('wc-on-hold');
 

@@ -2,6 +2,16 @@
 if (! defined('ABSPATH')) {
     exit();
 }
+
+if($invoicePage == 'true'){
+    ?>
+    <div class="wcip-invoice-data">
+    <h2 class="title">
+        Pagamentos parciais                
+    </h2>
+    <hr>
+    <?php
+}
 ?>
 <table class="wp-list-table widefat fixed striped table-view-list orders wc-orders-list-table wc-orders-list-table-shop_order wcPaymentInvoicePartialTableAdmin">
     <thead>
@@ -67,3 +77,11 @@ if (! defined('ABSPATH')) {
 
     </tbody>
 </table>
+
+<?php 
+    if($invoicePage == 'true'){
+        ?>
+        </div>
+        <?php
+    }
+?>
