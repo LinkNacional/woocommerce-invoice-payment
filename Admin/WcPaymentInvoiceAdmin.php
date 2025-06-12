@@ -346,7 +346,7 @@ final class WcPaymentInvoiceAdmin
                 <a
                     href="admin.php?page=settings&settings=Partial"
                     class="nav-tab <?php echo esc_attr(is_active_tab('Partial', $current_tab)); ?>">
-                    <?php esc_attr_e('Partial Payment', 'wc-invoice-payment') ?>
+                    <?php esc_attr_e('Pagamento parcial', 'wc-invoice-payment') ?>
                 </a>
             </nav>
             <form
