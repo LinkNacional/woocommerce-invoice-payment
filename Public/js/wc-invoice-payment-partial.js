@@ -6,7 +6,6 @@
         }else{
             orderId = 'newOrder';
         }
-        console.log(wcInvoicePaymentPartialVariables)
         const intervalId = setInterval(() => {
             const checkoutForm = document.querySelector('.wc-block-components-form.wc-block-checkout__form')
             const cartFlowDiv = document.querySelector('.wcf-ic-layout-left-column');
