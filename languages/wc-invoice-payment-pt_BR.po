@@ -304,3 +304,6 @@ msgstr "Selecione um usuário para gerar assinaturas. Visitantes não tem capaci
 
 msgid "Customer"
 msgstr "Cliente"
+
+msgid "Type"
+msgstr "Tipo"

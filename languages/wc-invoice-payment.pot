@@ -299,3 +299,6 @@ msgstr ""
 
 msgid "Customer"
 msgstr ""
+
+msgid "Type"
+msgstr ""

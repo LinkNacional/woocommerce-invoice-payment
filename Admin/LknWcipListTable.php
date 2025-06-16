@@ -1520,13 +1520,24 @@ final class LknWcipListTable {
                             $fromSubscription = __('Subscription', 'wc-invoice-payment');
                         }
                     }
+
+                    if($invoice->get_meta('_wc_lkn_is_partial_order') == "yes" || $invoice->get_meta('_wc_lkn_is_partial_main_order') == "yes") {
+                        $fromSubscription = __('Pagamento Parcial', 'wc-invoice-payment');
+                    }
+
+                    if(!($invoice->get_meta('_wc_lkn_is_partial_order') == "yes" || 
+                        $invoice->get_meta('_wc_lkn_is_partial_main_order') == "yes") == "yes" 
+                        && !$invoice->get_meta('lkn_subscription_id') != "")
+                    {
+                        $fromSubscription = '-';
+                    }
                                        
                     $data_array[] = array(
                         'lkn_wcip_id' => $invoiceId,
                         'lkn_wcip_client' => $invoice->get_billing_first_name(),
                         'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
                         'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
-                        'lkn_wcip_from_subscription' => $invoice->get_meta('lkn_subscription_id') == "" ? '-' : $fromSubscription,
+                        'lkn_wcip_from_subscription' => $fromSubscription,
                         'lkn_wcip_exp_date' => $dueDate,
                         'lkn_wcip_ini_date' => $iniDate
                     );
@@ -1560,7 +1571,7 @@ final class LknWcipListTable {
             'lkn_wcip_client' => __('Name', 'wc-invoice-payment'),
             'lkn_wcip_status' => __('Payment status', 'wc-invoice-payment'),
             'lkn_wcip_total_price' => __('Total', 'wc-invoice-payment'),
-            'lkn_wcip_from_subscription' => __('Subscription', 'wc-invoice-payment'),
+            'lkn_wcip_from_subscription' => __('Tipo', 'wc-invoice-payment'),
             'lkn_wcip_ini_date' => __('Start date', 'wc-invoice-payment'),
             'lkn_wcip_exp_date' => __('Due date', 'wc-invoice-payment'),
         );

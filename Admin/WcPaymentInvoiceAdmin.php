@@ -1291,22 +1291,23 @@ final class WcPaymentInvoiceAdmin
         </script>
     <?php
 
-        wc_get_template(
-            '../../Includes/templates/partialTablesAdmin.php',
-            array(
-                'orderStatus' => $order->get_status(),
-                'totalPeding' => number_format(floatval($order->get_meta('_wc_lkn_total_peding')) ?: 0.0, 2, ',', '.'),
-                'totalConfirmed' => number_format(floatval($order->get_meta('_wc_lkn_total_confirmed')) ?: 0.0, 2, ',', '.'),
-                'total' => number_format(floatval($order->get_total()) ?: 0.0, 2, ',', '.'),
-                'partialsOrdersIds' => $order->get_meta('_wc_lkn_partials_id'),
-                'invoicePage' => 'true',
-            ),
-            'woocommerce/pix/',
-            plugin_dir_path( __FILE__ ) . 'templates/'
-        );
-
-        wp_enqueue_style('wcInvoicePaymentPartialStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
-
+        if ($order->get_meta('_wc_lkn_is_partial_main_order') == 'yes') {
+            wc_get_template(
+                '../../Includes/templates/partialTablesAdmin.php',
+                array(
+                    'orderStatus' => $order->get_status(),
+                    'totalPeding' => number_format(floatval($order->get_meta('_wc_lkn_total_peding')) ?: 0.0, 2, ',', '.'),
+                    'totalConfirmed' => number_format(floatval($order->get_meta('_wc_lkn_total_confirmed')) ?: 0.0, 2, ',', '.'),
+                    'total' => number_format(floatval($order->get_total()) ?: 0.0, 2, ',', '.'),
+                    'partialsOrdersIds' => $order->get_meta('_wc_lkn_partials_id'),
+                    'invoicePage' => 'true',
+                ),
+                'woocommerce/pix/',
+                plugin_dir_path( __FILE__ ) . 'templates/'
+            );
+    
+            wp_enqueue_style('wcInvoicePaymentPartialStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
+        }
     }
 
     public function is_invoice_id_scheduled($invoice_id)
