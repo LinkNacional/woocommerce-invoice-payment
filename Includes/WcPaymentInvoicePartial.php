@@ -6,12 +6,15 @@ final class WcPaymentInvoicePartial
 {
     public function enqueueCheckoutScripts(){
         if (is_checkout()) {
+            $currency_code =  get_woocommerce_currency();
+            $currency_symbol = get_woocommerce_currency_symbol( $currency_code );
             wp_enqueue_script( 'wcInvoicePaymentPartialScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-partial.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
             wp_enqueue_style('wcInvoicePaymentPartialStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
             wp_localize_script('wcInvoicePaymentPartialScript', 'wcInvoicePaymentPartialVariables', array(
                 'minPartialAmount' => get_option('lkn_wcip_partial_interval_minimum', 0),
                 'cart' => WC()->cart,
                 'userId' => get_current_user_id(),
+                'symbol' => $currency_symbol,
             ));
         }
     }
@@ -65,6 +68,7 @@ final class WcPaymentInvoicePartial
                     'totalConfirmed' => number_format(floatval($order->get_meta('_wc_lkn_total_confirmed')) ?: 0.0, 2, ',', '.'),
                     'total' => number_format(floatval($order->get_total()) ?: 0.0, 2, ',', '.'),
                     'partialsOrdersIds' => $order->get_meta('_wc_lkn_partials_id'),
+                    'symbol' => get_woocommerce_currency_symbol( $order->get_currency() ),
                 ),
                 'woocommerce/pix/',
                 plugin_dir_path( __FILE__ ) . 'templates/'

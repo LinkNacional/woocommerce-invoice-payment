@@ -11,7 +11,7 @@ if (! defined('ABSPATH')) {
                 Pagamento parcial confirmado:
             </td>
             <td class="wc-block-order-confirmation-totals__total">
-                <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">R$</span> <?php echo esc_attr($totalConfirmed); ?></span>
+                <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($totalConfirmed); ?></span>
             </td>
         </tr>
         <tr class="woocommerce-table__line-item order_item">
@@ -19,7 +19,7 @@ if (! defined('ABSPATH')) {
                 Pagamento parcial pendente:
             </td>
             <td class="wc-block-order-confirmation-totals__total">
-                <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">R$</span> <?php echo esc_attr($totalPeding); ?></span>
+                <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($totalPeding); ?></span>
             </td>
         </tr>
         <tr class="woocommerce-table__line-item order_item">
@@ -27,7 +27,7 @@ if (! defined('ABSPATH')) {
                 Restante:
             </td>
             <td class="wc-block-order-confirmation-totals__total">
-                <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">R$</span> <?php echo esc_attr($total); ?></span>
+                <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($total); ?></span>
             </td>
         </tr>
         <?php  if ($orderStatus == 'on-hold') : ?>
@@ -37,7 +37,7 @@ if (! defined('ABSPATH')) {
                 </td>
                 <td class="wc-block-order-confirmation-totals__total wcPaymentInvoiceTableInputs">
                     <div class="wc-block-components-text-input wcPaymentInvoiceInputWrapper">
-                        <input id="wcPaymentInvoicePartialAmountFormatted" type="text" placeholder="R$ 0,00">
+                        <input id="wcPaymentInvoicePartialAmountFormatted" type="text" placeholder="<?php echo esc_attr($symbol); ?> 0,00">
                         <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
                     </div>
                     <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">

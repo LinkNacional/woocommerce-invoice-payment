@@ -10,6 +10,7 @@
             const checkoutForm = document.querySelector('.wc-block-components-form.wc-block-checkout__form')
             const cartFlowDiv = document.querySelector('.wcf-ic-layout-left-column');
             if (checkoutForm || cartFlowDiv) {
+                symbol = wcInvoicePaymentPartialVariables.symbol
                 clearInterval(intervalId);
 
                 if(checkoutForm){
@@ -41,7 +42,7 @@
                                 </div>
                                 <div class="wcPaymentInvoiceFields">
                                     <div class="wc-block-components-text-input wcPaymentInvoiceInputWrapper">
-                                        <input id="wcPaymentInvoicePartialAmountFormatted" type="text" placeholder="R$ 0,00">
+                                        <input id="wcPaymentInvoicePartialAmountFormatted" type="text" placeholder="${symbol} 0,00">
                                         <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
                                     </div>
                                     <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
@@ -72,7 +73,7 @@
                                 </div>
                                 <div class="wcPaymentInvoiceFields">
                                     <div class="wc-block-components-text-input wcPaymentInvoiceInputWrapper">
-                                        <input type="text" class="input-text " id="wcPaymentInvoicePartialAmountFormatted" placeholder="R$ 0,00" aria-required="true">
+                                        <input type="text" class="input-text " id="wcPaymentInvoicePartialAmountFormatted" placeholder="${symbol} 0,00" aria-required="true">
                                         <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
                                     </div>
                                     <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
