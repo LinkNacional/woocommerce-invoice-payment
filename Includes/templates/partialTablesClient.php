@@ -30,7 +30,7 @@ if (! defined('ABSPATH')) {
                 <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($total); ?></span>
             </td>
         </tr>
-        <?php  if ($orderStatus == 'on-hold') : ?>
+        <?php  if ($orderStatus == 'partial') : ?>
             <tr class="woocommerce-table__line-item order_item">
                 <td class="wc-block-order-confirmation-totals__product">
                     Ações:

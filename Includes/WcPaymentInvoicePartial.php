@@ -1,6 +1,7 @@
 <?php
 
 namespace LknWc\WcInvoicePayment\Includes;
+use WC_Order;
 
 final class WcPaymentInvoicePartial
 {
@@ -26,20 +27,28 @@ final class WcPaymentInvoicePartial
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
-         );
-         $order_statuses['wc-partial-comp'] = array(
-             'label' => __('Pagamento parcial completo', 'wc-invoice-payment'),
-             'public' => true,
-             'exclude_from_search' => false,
-             'show_in_admin_all_list' => true,
-             'show_in_admin_status_list' => true
-         );
+        );
+        $order_statuses['wc-partial-comp'] = array(
+            'label' => __('Pagamento parcial completo', 'wc-invoice-payment'),
+            'public' => true,
+            'exclude_from_search' => false,
+            'show_in_admin_all_list' => true,
+            'show_in_admin_status_list' => true
+        );
+        $order_statuses['wc-partial'] = array(
+            'label' => __('Pagamento parcial', 'wc-invoice-payment'),
+            'public' => true,
+            'exclude_from_search' => false,
+            'show_in_admin_all_list' => true,
+            'show_in_admin_status_list' => true
+        );
 		return $order_statuses;
 	}
 
     public function createStatus($order_statuses){
         $order_statuses['wc-partial-pend'] = __('Pagamento parcial pendente', 'wc-invoice-payment');
         $order_statuses['wc-partial-comp'] = __('Pagamento parcial completo', 'wc-invoice-payment');
+        $order_statuses['wc-partial'] = __('Pagamento parcial', 'wc-invoice-payment');
         return $order_statuses;
     }
 
@@ -105,6 +114,7 @@ final class WcPaymentInvoicePartial
                         $parentOrder->update_meta_data('_wc_lkn_total_peding', $totalPending - $orderTotal);
                         $parentOrder->update_meta_data('_wc_lkn_total_confirmed', $totalConfirmed + $orderTotal);
                         if(($totalConfirmed + $orderTotal) >= $parentOrder->get_total()) {
+                            $parentOrder->update_status('wc-completed');
                             $parentOrder->update_status(get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp'));
                         }
                         break;
@@ -154,5 +164,15 @@ final class WcPaymentInvoicePartial
             
             wp_enqueue_style('wcInvoicePaymentPartialStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         }
+    }
+
+    public function hidePartialOrders ( $classes, $order ) {
+        if ( $order instanceof WC_Order ) {
+            $meta_value = $order->get_meta( '_wc_lkn_is_partial_order' );
+            if ( $meta_value === 'yes' ) {
+                $classes[] = 'lkn-hidden-order';
+            }
+        }
+        return $classes;
     }
 }

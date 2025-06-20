@@ -465,3 +465,7 @@ label[for="lkn_wcip_customer_input"] {
 	background: #68cf68;
     color: #224522;
 }
+
+tr.lkn-hidden-order {
+	display: none !important;
+}

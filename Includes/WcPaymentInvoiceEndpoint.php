@@ -127,7 +127,7 @@ final class WcPaymentInvoiceEndpoint {
         $partial_order->update_meta_data('lkn_ini_date', gmdate('Y-m-d', time()));
 
         $partial_order->update_status('wc-partial-pend');
-        $order->update_status('wc-on-hold');
+        $order->update_status('wc-partial');
 
         $partialsList = $order->get_meta('_wc_lkn_partials_id', true);
         // Garante que é array

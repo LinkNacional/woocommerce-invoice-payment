@@ -3,7 +3,7 @@ if (! defined('ABSPATH')) {
     exit();
 }
 
-if($invoicePage == 'true'){
+if(isset($invoicePage) && $invoicePage == 'true'){
     ?>
     <div class="wcip-invoice-data">
     <h2 class="title">
@@ -79,7 +79,7 @@ if($invoicePage == 'true'){
 </table>
 
 <?php 
-    if($invoicePage == 'true'){
+    if(isset($invoicePage) && $invoicePage == 'true'){
         ?>
         </div>
         <?php
