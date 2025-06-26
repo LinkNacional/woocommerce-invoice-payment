@@ -19,7 +19,7 @@
                     totalElement = $('.woocommerce-Price-amount.amount').last();
                 }
                 const totalText = totalElement.text();
-                const numericText = totalText.replace(/[^\d,.-]/g, '').replace(',', '.');
+                const numericText = totalText.replace(/[^\d,]/g, '').replace(',', '.');
                 const cartTotal = parseFloat(numericText);
                 if(cartTotal > parseFloat(wcInvoicePaymentPartialVariables.minPartialAmount)){
                     if(checkoutForm){
@@ -103,15 +103,27 @@
                     const checkboxPartial = $('#wcPaymentInvoiceContainerCheckboxPartial');
                     const wcPaymentInvoiceFields = $('.wcPaymentInvoiceFields');
                     const wcPaymentInvoiceButton = $('.wcPaymentInvoiceButton');
-    
+                    const wcPaymentInvoiceInner = $('.wcPaymentInvoiceInner');
+                    const wcPaymentMethods = $('#payment-method');
+                    const wcPaymentNotes = $('#order-notes');
+                    const wcSubmitButton = $('.wc-block-components-button.wp-element-button.wc-block-components-checkout-place-order-button.contained').last();
+                    
                     // Função para alternar a visibilidade com base no estado do checkbox
                     function toggleFields() {
                         if (checkboxPartial.is(':checked')) {
                             wcPaymentInvoiceFields.show();
                             wcPaymentInvoiceButton.show();
+                            wcPaymentMethods.hide();
+                            wcPaymentNotes.hide();
+                            wcSubmitButton.hide();
+                            wcPaymentInvoiceInner.addClass('active');
                         } else {
                             wcPaymentInvoiceFields.hide();
                             wcPaymentInvoiceButton.hide();
+                            wcPaymentMethods.show();
+                            wcPaymentNotes.show();
+                            wcSubmitButton.show();
+                            wcPaymentInvoiceInner.removeClass('active');
                         }
                     }
     
@@ -126,22 +138,22 @@
     
                     // Formata o valor como moeda BRL
                     function formatToCurrency(value) {
-                        const number = parseFloat(value.replace(/[^\d,\.]/g, '').replace(',', '.'));
-                        if (isNaN(number) || number >= cartTotal) return '';
+                        const number = parseFloat(value.replace(/[^\d,]/g, '').replace(',', '.'));
+                        if (isNaN(number)) return '';
                         return new Intl.NumberFormat('pt-BR', {
                             style: 'currency',
-                            currency: 'BRL'
+                            currency: wc.wcSettings.CURRENCY.code
                         }).format(number);
                     }
     
                     // Evento ao digitar no campo formatado
                     formattedInput.on('input', function () {
                         const raw = $(this).val();
-                        const cleaned = raw.replace(/[^\d,\.]/g, '').replace(',', '.');
+                        const cleaned = raw.replace(/[^\d,]/g, '').replace(',', '.');
                         const numeric = parseFloat(cleaned);
     
                         // Atualiza o campo hidden com o valor numérico real
-                        if (!isNaN(numeric) && numeric < cartTotal) {
+                        if (!isNaN(numeric)) {
                             hiddenInput.val(numeric.toFixed(2));
                         } else {
                             hiddenInput.val('');
@@ -169,10 +181,14 @@
                         e.preventDefault();
                     
                         const partialValue = parseFloat($('#wcPaymentInvoicePartialAmount').val());
-                    
                         // Verifica se o valor está válido
                         if (partialValue == 0 || isNaN(partialValue)) {
                             alert('Digite um valor válido para pagamento parcial.');
+                            return;
+                        }
+
+                        if ( partialValue >= cartTotal ) {
+                            alert('Valor solicitado para pagamento parcial não pode ser maior ou igual ao total do pedido.');
                             return;
                         }
                     

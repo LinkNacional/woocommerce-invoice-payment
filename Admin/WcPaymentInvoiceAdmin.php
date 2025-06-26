@@ -287,9 +287,11 @@ final class WcPaymentInvoiceAdmin
 
                 $partial_complete_status = sanitize_text_field(wp_unslash($_POST['lkn_wcip_partial_complete_status'] ?? ''));
                 $partial_minimum_value = sanitize_text_field(wp_unslash($_POST['lkn_wcip_partial_interval_minimum'] ?? '0.00'));
+                $partial_payments_enabled = sanitize_text_field(wp_unslash($_POST['lkn_wcip_partial_payments_enabled'] ?? ''));
 
                 update_option('lkn_wcip_partial_complete_status', $partial_complete_status);
                 update_option('lkn_wcip_partial_interval_minimum', $partial_minimum_value);
+                update_option('lkn_wcip_partial_payments_enabled', $partial_payments_enabled);
             }
         }
 
@@ -308,6 +310,7 @@ final class WcPaymentInvoiceAdmin
         $saved_statuses = get_option('lkn_wcip_partial_payment_methods_statuses', []);
         $partial_complete_status = get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp');
         $partial_minimum_value = get_option('lkn_wcip_partial_interval_minimum', '0.00');
+        $partial_payments_enabled = get_option('lkn_wcip_partial_payments_enabled', '')  == 'on' ? 'checked' : '';
 
         $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
             $template_id = esc_attr($template['id']);
@@ -570,6 +573,23 @@ final class WcPaymentInvoiceAdmin
                             <?php esc_attr_e('Configuração de pagamento parcial', 'wc-invoice-payment'); ?>
                         </h2>
                         <div class="input-row-wrap">
+                            <div class="lkn_wcip_partial_payments_method_div_fields firstField">
+                                <label class="lkn_wcip_partial_payments_method_label" for="lkn_wcip_partial_payments_enabled">
+                                    <input 
+                                        name="lkn_wcip_partial_payments_enabled" 
+                                        id="lkn_wcip_partial_payments_enabled" 
+                                        type="checkbox" <?php echo esc_attr($partial_payments_enabled); ?>>
+                                    <p>
+                                        Habilitar pagamentos parciais
+                                    </p>
+                                </label>
+                                <div class="tooltip">
+                                    <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
+                                    <span class="tooltiptext">
+                                        <?php esc_html_e( 'Habilita o pagamento parcial', 'wc-invoice-payment' ); ?>
+                                    </span>
+                                </div>
+                            </div>
                             <div id="lkn_wcip_partial_interval_fields">
                                 <div>
                                     <label for="lkn_wcip_partial_interval_number">
@@ -581,6 +601,22 @@ final class WcPaymentInvoiceAdmin
                                             <select class="lkn_wcip_partial_field" name="lkn_wcip_partial_complete_status">
                                                 <?php 
                                                     $status = wc_get_order_statuses();
+
+                                                    // Status a serem ignorados
+                                                    $excluded_statuses = array(
+                                                        'wc-pending',
+                                                        'wc-completed',
+                                                        'wc-refunded',
+                                                        'wc-partial-pend',
+                                                        'wc-partial'
+                                                    );
+                                                    
+                                                    // Remove os status indesejados
+                                                    foreach ( $excluded_statuses as $excluded ) {
+                                                        unset( $status[ $excluded ] );
+                                                    }
+                                                    
+                                                    // Gera as opções
                                                     foreach ($status as $key => $value) {
                                                         $selected = ($key == $partial_complete_status) ? 'selected' : '';
                                                         echo "<option value='" . esc_attr($key) . "' " . esc_attr($selected) . ">" . esc_html($value) . "</option>";

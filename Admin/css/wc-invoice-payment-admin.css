@@ -389,6 +389,10 @@
     flex-direction: column;
 }
 
+#lkn_wcip_partial_interval_fields, #lkn_wcip_partial_payments_method_div{
+	display: none;
+}
+
 #lkn_wcip_partial_field{
 	min-width: 216px;
 }
@@ -423,6 +427,11 @@
 .lkn_wcip_partial_payments_method_div_fields{
 	display: flex;
 	gap: 8px;
+}
+
+.lkn_wcip_partial_payments_method_div_fields.firstField{
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 #lkn_wcip_partial_payments_method_div{
@@ -464,8 +473,4 @@ label[for="lkn_wcip_customer_input"] {
 .order-status.status-partial-comp {
 	background: #68cf68;
     color: #224522;
-}
-
-tr.lkn-hidden-order {
-	display: none !important;
 }

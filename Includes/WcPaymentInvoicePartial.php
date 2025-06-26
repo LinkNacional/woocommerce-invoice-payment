@@ -6,7 +6,7 @@ use WC_Order;
 final class WcPaymentInvoicePartial
 {
     public function enqueueCheckoutScripts(){
-        if (is_checkout()) {
+        if ( is_checkout() && WC()->payment_gateways() && ! empty( WC()->payment_gateways()->get_available_payment_gateways() ) && get_option('lkn_wcip_partial_payments_enabled', '') == 'on'){
             $currency_code =  get_woocommerce_currency();
             $currency_symbol = get_woocommerce_currency_symbol( $currency_code );
             wp_enqueue_script( 'wcInvoicePaymentPartialScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-partial.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
@@ -166,13 +166,96 @@ final class WcPaymentInvoicePartial
         }
     }
 
-    public function hidePartialOrders ( $classes, $order ) {
-        if ( $order instanceof WC_Order ) {
-            $meta_value = $order->get_meta( '_wc_lkn_is_partial_order' );
-            if ( $meta_value === 'yes' ) {
-                $classes[] = 'lkn-hidden-order';
+    public function hidePartialOrdersRequest ( $queryArgs ) {
+        $queryArgs['meta_query'][] = array(
+            'relation' => 'OR',
+            array(
+                'key'     => '_wc_lkn_is_partial_order',
+                'compare' => 'NOT EXISTS',
+            ),
+            array(
+                'key'     => '_wc_lkn_is_partial_order',
+                'value'   => 'yes',
+                'compare' => '!=',
+            ),
+        );
+        wp_enqueue_style('teste-admin-style', plugin_dir_url(__FILE__) . 'css/wc-teste21.css', array(), '', 'all');
+        
+        return $queryArgs;
+    }
+
+    public function fixTableCount($count, $statuses) {
+        $statuses = array_map('sanitize_text_field', (array) $statuses);
+
+        if (empty($statuses)) {
+            return $count;
+        }
+
+        // Buscar todas as orders com a meta parcial
+        $excluded_orders = wc_get_orders(array(
+            'limit'        => -1,
+            'status'       => $statuses,
+            'return'       => 'ids',
+            'meta_query'   => array(
+                array(
+                    'key'     => '_wc_lkn_is_partial_order',
+                    'value'   => 'yes',
+                    'compare' => '=',
+                ),
+            ),
+        ));
+
+        $excluded_count = count($excluded_orders);
+        return max(0, $count - $excluded_count);
+    }
+
+    public function deletePartialOrders($orderId) {
+        // Verifica se é uma order do WooCommerce
+        $order = wc_get_order( $orderId );
+        if ( ! $order ) {
+            return;
+        }
+
+        // Recupera os IDs dos pedidos filhos (parciais)
+        $partialsList = $order->get_meta( '_wc_lkn_partials_id', true );
+        // Garante que é array
+        if ( ! is_array( $partialsList ) ) {
+            return;
+        }
+        
+        // Sanitiza os IDs para garantir que são inteiros
+        $partialsList = array_map( 'intval', $partialsList );
+        
+        // Remove duplicados e valores inválidos
+        $partialsList = array_filter( array_unique( $partialsList ) );
+        
+        // Deleta cada pedido filho
+        foreach ( $partialsList as $partial_id ) {
+            // Confirma se é um pedido válido antes de deletar
+            $partial_order = wc_get_order( $partial_id );
+            if ( $partial_order && $partial_order->get_type() === 'shop_order' ) {
+                
+                // Remove do cache (WooCommerce 8+ com COT)
+                if ( class_exists( \Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore::class ) ) {
+                    $container = wc_get_container();
+                    $order_data_store = $container->get( \Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore::class );
+                    if ( method_exists( $order_data_store, 'delete_order_data_from_custom_order_tables' ) ) {
+                        $order_data_store->delete_order_data_from_custom_order_tables( $partial_id );
+                    }
+                }
+
+                // Limpa cache do WordPress
+                clean_post_cache($partial_id);
+
+                // Remove do banco de dados permanentemente
+                wp_delete_post($partial_id, true); // true = deletar permanentemente (sem ir pra lixeira)
+
+                // Pode forçar mais limpeza se desejar
+                global $wpdb;
+                $wpdb->delete( $wpdb->prefix . 'postmeta', array( 'post_id' => $partial_id ) );
+                $wpdb->delete( $wpdb->prefix . 'woocommerce_order_items', array( 'order_id' => $partial_id ) );
+                $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}woocommerce_order_itemmeta WHERE order_item_id NOT IN (SELECT order_item_id FROM {$wpdb->prefix}woocommerce_order_items)" ) );
             }
         }
-        return $classes;
     }
 }

@@ -20,7 +20,6 @@ if(isset($invoicePage) && $invoicePage == 'true'){
             <th scope="col" id="order_date" class="manage-column column-order_date sortable desc"><span>Data</span></th>
             <th scope="col" id="order_status" class="manage-column column-order_status">Status</th>
             <th scope="col" id="order_total" class="manage-column column-order_total sortable desc"><span>Total</span></th>
-            <th scope="col" id="origin" class="manage-column column-origin">Origem</th>
         </tr>
     </thead>
 
@@ -71,7 +70,6 @@ if(isset($invoicePage) && $invoicePage == 'true'){
                             href="<?php echo esc_url(admin_url("admin-ajax.php?action=woocommerce_mark_order_status&status=completed&order_id={$order_id}&_wpnonce=" . wp_create_nonce('woocommerce-mark-order-status'))); ?>"
                             aria-label="Concluído">Concluído</a></p>
                 </td>
-                <td class="origin column-origin" data-colname="Origem">Desconhecido</td>
             </tr>
         <?php endforeach; ?>
 
