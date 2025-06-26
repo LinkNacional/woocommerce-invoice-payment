@@ -311,6 +311,9 @@ final class WcPaymentInvoiceAdmin
         $partial_complete_status = get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp');
         $partial_minimum_value = get_option('lkn_wcip_partial_interval_minimum', '0.00');
         $partial_payments_enabled = get_option('lkn_wcip_partial_payments_enabled', '')  == 'on' ? 'checked' : '';
+        $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        $disabled = ! empty($payment_gateways) ? '' : 'disabled';
+
 
         $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
             $template_id = esc_attr($template['id']);
@@ -578,7 +581,7 @@ final class WcPaymentInvoiceAdmin
                                     <input 
                                         name="lkn_wcip_partial_payments_enabled" 
                                         id="lkn_wcip_partial_payments_enabled" 
-                                        type="checkbox" <?php echo esc_attr($partial_payments_enabled); ?>>
+                                        type="checkbox" <?php echo esc_attr($partial_payments_enabled); ?> <?php echo esc_attr($disabled); ?>>
                                     <p>
                                         Habilitar pagamentos parciais
                                     </p>
@@ -663,11 +666,19 @@ final class WcPaymentInvoiceAdmin
                                 </h2>
                                 <div class="lkn_wcip_partial_payments_methods_div">
                                     <?php
-                                        $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
-
+                                        
+                                        if(empty($payment_gateways)){
+                                            ?>
+                                            <div id="message" class="error">
+                                                <p>
+                                                    Nenhum método de pagamento disponível. Por favor, ative pelo menos um método de pagamento para utilizar o pagamento parcial.
+                                                </p>
+                                            </div>
+                                            <?php
+                                        }
                                         foreach ( $payment_gateways as $gateway_id => $gateway ) :
                                             $checked = isset($saved_methods[$gateway_id]) ? checked($saved_methods[$gateway_id], 'yes', false) : 'checked'; // checked por padrão
-                                            $selected_status = $saved_statuses[$gateway_id] ?? 'wc-completed';
+                                            $selected_status = $saved_statuses[$gateway_id] ?? 'wc-processing';
                                             ?>
                                             <div class="lkn_wcip_partial_payments_method_div">
                                                 <div class="lkn_wcip_partial_payments_method_div_fields">

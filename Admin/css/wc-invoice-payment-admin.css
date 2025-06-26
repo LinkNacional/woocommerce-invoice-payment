@@ -444,6 +444,16 @@
 	width: 405px;
 }
 
+.lkn_wcip_partial_payments_method_div_empty{
+	padding: 20px;
+    margin-top: 40px;
+    border: solid;
+    border-color: #CCCCCC;
+    border-width: 1px;
+    background-color: #F0F0F1;
+	width: 405px;
+}
+
 .select2-selection__placeholder{
 	color: rgb(0, 0, 0) !important;
 }
