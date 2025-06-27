@@ -312,7 +312,7 @@ final class WcPaymentInvoiceAdmin
         $partial_minimum_value = get_option('lkn_wcip_partial_interval_minimum', '0.00');
         $partial_payments_enabled = get_option('lkn_wcip_partial_payments_enabled', '')  == 'on' ? 'checked' : '';
         $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
-        $disabled = ! empty($payment_gateways) ? '' : 'disabled';
+        $disabled =  !empty($payment_gateways) ? '' : 'disabled';
 
 
         $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
@@ -734,7 +734,7 @@ final class WcPaymentInvoiceAdmin
                             ?>
 
                             <div class="action-btn">
-                                <?php submit_button(__('Save', 'wc-invoice-payment')); ?>
+                                <?php submit_button(__('Save', 'wc-invoice-payment'), 'primary', 'submit', true, $disabled == 'disabled' ? ['disabled' => ''] : ''); ?>
                             </div>
                         </div>
                     </div>
@@ -790,6 +790,8 @@ final class WcPaymentInvoiceAdmin
 
         $c = 0;
         $order = wc_get_order($invoiceId);
+        $parentOrderId = $order->get_meta('_wc_lkn_parent_id', $order);
+        $parentOrder = wc_get_order($parentOrderId);
         if ($order->get_user_id()) {
             $userId = absint($order->get_user_id());
             $user = get_userdata($userId);
@@ -995,8 +997,10 @@ final class WcPaymentInvoiceAdmin
                                     // Gera as opções do select
                                     foreach ($languages as $language) {
                                         $language_name = locale_get_display_name($language, 'en');
-                                        $selected = ($language === $orderLanguage) ? 'selected' : '';
-                                        echo '<option value="' . esc_attr($language) . '" ' . esc_attr($selected) . '>' . esc_html($language_name) . '</option>';
+                                        if(!empty($language)){
+                                            $selected = ($language === $orderLanguage) ? 'selected' : '';
+                                            echo '<option value="' . esc_attr($language) . '" ' . esc_attr($selected) . '>' . esc_html($language_name) . '</option>';
+                                        }
                                     }
                                     ?>
                                 </select>
@@ -1313,6 +1317,40 @@ final class WcPaymentInvoiceAdmin
                     <?php
                     } ?>
                 </div>
+                <?php
+                if ($parentOrder || $order->get_meta('_wc_lkn_is_partial_main_order') == 'yes') {
+                ?>
+                    <div class="wcip-invoice-data wcip-postbox">
+                        <h2 class="title">
+                            <?php esc_attr_e('Pagamento Parcial', 'wc-invoice-payment'); ?>
+                        </h2>
+                        <div class="input-column-wrap">
+                            <?php
+                            if ($parentOrder) {
+                            ?>
+                            <h4>
+                                Pagamento parcial referente ao pedido
+                                <a href="<?php echo esc_attr(admin_url("admin.php?page=wc-orders&action=edit&id={$parentOrderId}")); ?>">#<?php echo esc_attr($parentOrderId); ?></a>
+                            </h4>
+                            <?php
+                            }
+                            ?>
+
+<?php
+                            if ($order->get_meta('_wc_lkn_is_partial_main_order') == 'yes') {
+                            ?>
+                            <h4>
+                                Fatura referente ao pedido
+                                <a href="<?php echo esc_attr(admin_url("admin.php?page=wc-orders&action=edit&id={$invoiceId}")); ?>">#<?php echo esc_attr($invoiceId); ?></a>
+                            </h4>
+                            <?php
+                            }
+                            ?>
+                        </div>
+                    </div>
+                <?php
+                }
+                ?>
                 <div style="width: 100%;"></div>
                 <div class="wcip-invoice-data">
                     <h2 class="title">

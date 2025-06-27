@@ -100,17 +100,18 @@ final class WcPaymentInvoiceEndpoint {
         $partial_order_id = $partial_order->get_id();
         $partial_order->set_payment_method('multiplePayment');
 
-        $order_link = admin_url("post.php?post={$order_id}&action=edit");
-        $partial_order->add_order_note("Pedido parcial criado a partir do pedido <a href=\"{$order_link}\" target=\"_blank\">#{$order_id}</a>", false);
+        $order_link = admin_url("admin.php?page=edit-invoice&invoice={$order_id}");
+        $partial_order->add_order_note("Pedido parcial criado a partir do pedido <a href=\"{$order_link}\">#{$order_id}</a>", false);
         
-        $order_link = admin_url("post.php?post={$partial_order_id}&action=edit");
-        $order->add_order_note("Pedido parcial criado <a href=\"{$order_link}\" target=\"_blank\">#{$partial_order_id}</a>", false);
+        $order_link = admin_url("admin.php?page=edit-invoice&invoice={$partial_order_id}");
+        $order->add_order_note("Pedido parcial criado <a href=\"{$order_link}\">#{$partial_order_id}</a>", false);
 
         
         $invoiceList = get_option('lkn_wcip_invoices', array());
         
-        // Adiciona como array simples de dois elementos
-        $invoiceList[] =  $order_id;
+        if ( !in_array( $order_id, $invoiceList ) ) {
+            $invoiceList[] = $order_id;
+        }
         $invoiceList[] =  $partial_order_id;
         
         update_option('lkn_wcip_invoices', $invoiceList);

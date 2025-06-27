@@ -94,7 +94,12 @@
 
                     if(checkoutForm){
                         const fifthElement = checkoutForm.children[6]
-                        checkoutForm.insertBefore(partialPaymentElement, fifthElement)
+                        const methodsElement = document.querySelector('#payment-method');
+                        if(methodsElement){
+                            checkoutForm.insertBefore(partialPaymentElement, methodsElement)
+                        }else{
+                            checkoutForm.insertBefore(partialPaymentElement, fifthElement)
+                        }
                     }else{
                         const fifthElement = cartFlowDiv.children[3]
                         cartFlowDiv.insertBefore(partialPaymentElement, fifthElement)

@@ -75,7 +75,7 @@ final class WcPaymentInvoicePartial
                     'orderStatus' => $order->get_status(),
                     'totalPeding' => number_format(floatval($order->get_meta('_wc_lkn_total_peding')) ?: 0.0, 2, ',', '.'),
                     'totalConfirmed' => number_format(floatval($order->get_meta('_wc_lkn_total_confirmed')) ?: 0.0, 2, ',', '.'),
-                    'total' => number_format(floatval($order->get_total()) ?: 0.0, 2, ',', '.'),
+                    'total' => number_format($totalToPay ?: 0.0, 2, ',', '.'),
                     'partialsOrdersIds' => $order->get_meta('_wc_lkn_partials_id'),
                     'symbol' => get_woocommerce_currency_symbol( $order->get_currency() ),
                 ),
@@ -113,6 +113,7 @@ final class WcPaymentInvoicePartial
                     case $successStatuses:
                         $parentOrder->update_meta_data('_wc_lkn_total_peding', $totalPending - $orderTotal);
                         $parentOrder->update_meta_data('_wc_lkn_total_confirmed', $totalConfirmed + $orderTotal);
+                        $order->update_status('wc-partial-comp');
                         if(($totalConfirmed + $orderTotal) >= $parentOrder->get_total()) {
                             $parentOrder->update_status('wc-completed');
                             $parentOrder->update_status(get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp'));

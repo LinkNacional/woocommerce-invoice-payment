@@ -45,4 +45,13 @@ jQuery(document).ready(function ($) {
         removeUserButton.remove();
     }
   }
+
+  const elementBar = document.querySelector('.wp-has-submenu.wp-not-current-submenu.menu-top.toplevel_page_wc-invoice-payment.menu-top-last.wp-has-current-submenu.wp-menu-open')
+  if(elementBar) {
+    const firstItem = elementBar.querySelector('.wp-submenu .wp-first-item a');
+    if (firstItem) {
+      firstItem.classList.add('current');
+      firstItem.parentElement.classList.add('current');
+    }
+  }
 })

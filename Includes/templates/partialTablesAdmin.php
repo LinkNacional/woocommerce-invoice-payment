@@ -42,7 +42,7 @@ if(isset($invoicePage) && $invoicePage == 'true'){
 
             $order_number = $partial_order->get_order_number();
             $customer_name = $partial_order->get_formatted_billing_full_name();
-            $order_link = admin_url("admin.php?page=wc-orders&action=edit&id={$order_id}");
+            $order_link = admin_url("admin.php?page=edit-invoice&invoice={$order_id}");
         ?>
             <tr class="type-shop_order status-<?php echo esc_attr($status_slug); ?>">
                 <td class="order_number column-order_number has-row-actions column-primary" data-colname="Pedido">
