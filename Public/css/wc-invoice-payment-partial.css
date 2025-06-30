@@ -1,0 +1,58 @@
+.wcPaymentInvoiceContainer {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.wcPaymentInvoiceInner {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+    padding: 0px 14px 16px 14px;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+}
+
+.wcPaymentInvoiceInner.active {
+    border: 1px solid #000000;
+    border-radius: 4px;
+}
+
+.wcPaymentInvoiceCheckboxWrapper {
+    margin-bottom: 10px;
+}
+
+.wcPaymentInvoiceCheckboxLabel, .wcPaymentInvoiceCheckboxLabelCartFlow{
+    display: flex !important;
+    align-items: center !important;
+}
+
+.wcPaymentInvoiceCheckboxLabelCartFlow{
+    gap: 20px;
+}
+
+.wcPaymentInvoiceCheckboxTitleCartFlow{
+    color: black;
+    font-weight: 400
+}
+
+
+.wcPaymentInvoiceFields {
+    display: flex;
+    flex-direction: column;
+    padding-left: 45px;
+    gap: 20px;
+}
+
+.wcPaymentInvoiceInputWrapper {
+    width: 280px;
+}
+
+.wcPaymentInvoiceButton {
+    width: 185px;
+}
+
+.wcPaymentInvoiceTitleCartFlow {
+    color: black !important;
+    font-size: x-large !important;
+}

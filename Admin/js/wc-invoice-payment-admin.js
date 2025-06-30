@@ -243,7 +243,9 @@ function startTinyMce(elementId, btnSubmitId) {
   const footerNotesTextarea = document.getElementById(elementId)
 
   btnSubmit.addEventListener('click', () => {
-    footerNotesTextarea.innerHTML = wp.editor.getContent(elementId)
+    if(footerNotesTextarea){
+      footerNotesTextarea.innerHTML = wp.editor.getContent(elementId)
+    }
   })
 }
 
@@ -386,4 +388,28 @@ jQuery(document).ready(function ($) {
         $tooltip.css("margin-bottom", "4px");
     }
   });
+
+
+  const checkboxPartial = $('#lkn_wcip_partial_payments_enabled');
+  const wcFields = $('#lkn_wcip_partial_interval_fields');
+  const wcMethodsFields = $('#lkn_wcip_partial_payments_method_div');
+  
+  // Função para alternar a visibilidade com base no estado do checkbox
+  function toggleFields() {
+    console.log(wcMethodsFields)
+    if (checkboxPartial.is(':checked')) {
+      wcFields.css('display', 'flex');
+      wcMethodsFields.css('display', 'block');
+    } else {
+      wcFields.css('display', 'none');
+      wcMethodsFields.css('display', 'none');
+    }
+  }
+
+  // Verifica no carregamento inicial
+  toggleFields();
+
+  // Escuta mudanças no checkbox
+  checkboxPartial.on('change', toggleFields);
+
 });
