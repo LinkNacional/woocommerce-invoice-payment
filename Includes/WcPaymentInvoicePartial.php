@@ -115,8 +115,7 @@ final class WcPaymentInvoicePartial
                         $parentOrder->update_meta_data('_wc_lkn_total_confirmed', $totalConfirmed + $orderTotal);
                         $order->update_status('wc-partial-comp');
                         if(($totalConfirmed + $orderTotal) >= $parentOrder->get_total()) {
-                            $parentOrder->update_status('wc-completed');
-                            $parentOrder->update_status(get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp'));
+                            $parentOrder->update_status(get_option('lkn_wcip_partial_complete_status', 'wc-processing'));
                         }
                         break;
                 }
@@ -140,7 +139,8 @@ final class WcPaymentInvoicePartial
                 'Pagamentos Parciais',
                 array($this, 'showPartialOrders'),
                 $screen,
-                'advanced',
+                'normal',
+                'high'
             );
         }
     }

@@ -308,7 +308,7 @@ final class WcPaymentInvoiceAdmin
         $product_invoices = get_option("lkn_wcip_subscription_active_product_invoices");
         $saved_methods = get_option('lkn_wcip_partial_payment_methods_enabled', []);
         $saved_statuses = get_option('lkn_wcip_partial_payment_methods_statuses', []);
-        $partial_complete_status = get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp');
+        $partial_complete_status = get_option('lkn_wcip_partial_complete_status', 'wc-processing');
         $partial_minimum_value = get_option('lkn_wcip_partial_interval_minimum', '0.00');
         $partial_payments_enabled = get_option('lkn_wcip_partial_payments_enabled', '')  == 'on' ? 'checked' : '';
         $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
@@ -596,7 +596,7 @@ final class WcPaymentInvoiceAdmin
                             <div id="lkn_wcip_partial_interval_fields">
                                 <div>
                                     <label for="lkn_wcip_partial_interval_number">
-                                        <?php esc_attr_e('Status de pagamento completo', 'wc-invoice-payment'); ?>
+                                        <?php esc_attr_e('Status de pedido com pagamento completo', 'wc-invoice-payment'); ?>
                                     </label>
         
                                     <div class="flex-row">
@@ -607,9 +607,6 @@ final class WcPaymentInvoiceAdmin
 
                                                     // Status a serem ignorados
                                                     $excluded_statuses = array(
-                                                        'wc-pending',
-                                                        'wc-completed',
-                                                        'wc-refunded',
                                                         'wc-partial-pend',
                                                         'wc-partial'
                                                     );
@@ -633,7 +630,7 @@ final class WcPaymentInvoiceAdmin
                                                     <span
                                                         class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
                                                     <span class="tooltiptext">
-                                                        <?php esc_attr_e('Selecione o status do pedido após a confirmação do pagamento.', 'wc-invoice-payment'); ?>
+                                                        <?php esc_attr_e('Selecione o status do pedido após confirmação pagamento total do pedido. Padrão WooCommerce: Processando.', 'wc-invoice-payment'); ?>
                                                     </span>
                                                 </div>
                                             </div>
