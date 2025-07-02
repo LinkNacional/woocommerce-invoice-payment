@@ -1,3 +1,6 @@
+# 2.4.1 - 02/07/2025
+* Correção em script de pagamento parcial.
+
 # 2.4.0 - 12/06/2025
 * Adição de pagamento parciais para todos métodos de pagamentos.
 

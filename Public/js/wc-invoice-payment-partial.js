@@ -8,7 +8,12 @@
         }
         const intervalId = setInterval(() => {
             const checkoutForm = document.querySelector('.wc-block-components-form.wc-block-checkout__form')
-            const cartFlowDiv = document.querySelector('.wcf-ic-layout-left-column');
+            const urlParams = new URLSearchParams(window.location.search);
+            const payForOrder = urlParams.get('pay_for_order');
+            cartFlowDiv = false
+            if(!checkoutForm && payForOrder != 'true'){
+                cartFlowDiv = document.querySelector('#payment');
+            }
             if (checkoutForm || cartFlowDiv) {
                 symbol = wcInvoicePaymentPartialVariables.symbol
                 clearInterval(intervalId);
@@ -101,8 +106,17 @@
                             checkoutForm.insertBefore(partialPaymentElement, fifthElement)
                         }
                     }else{
-                        const fifthElement = cartFlowDiv.children[3]
-                        cartFlowDiv.insertBefore(partialPaymentElement, fifthElement)
+
+                        const parentElement = cartFlowDiv.parentElement
+                        const textElement = parentElement.querySelector('.wcf-payment-option-heading')
+                        if(textElement){
+                            divPartialPaymentElement = partialPaymentElement.querySelector('.woocommerce-shipping-fields');
+                            divPartialPaymentElement.style.paddingTop = '13px';
+                            divPartialPaymentElement.style.display = 'flex';
+                            parentElement.insertBefore(partialPaymentElement, textElement)
+                        }else{
+                            parentElement.insertBefore(partialPaymentElement, cartFlowDiv)
+                        }
                     }
     
                     const checkboxPartial = $('#wcPaymentInvoiceContainerCheckboxPartial');
@@ -120,14 +134,18 @@
                             wcPaymentInvoiceButton.show();
                             wcPaymentMethods.hide();
                             wcPaymentNotes.hide();
-                            wcSubmitButton.hide();
+                            if(!cartFlowDiv){
+                                wcSubmitButton.hide();
+                            }
                             wcPaymentInvoiceInner.addClass('active');
                         } else {
                             wcPaymentInvoiceFields.hide();
                             wcPaymentInvoiceButton.hide();
                             wcPaymentMethods.show();
                             wcPaymentNotes.show();
-                            wcSubmitButton.show();
+                            if(!cartFlowDiv){
+                                wcSubmitButton.show();
+                            }
                             wcPaymentInvoiceInner.removeClass('active');
                         }
                     }
@@ -144,10 +162,14 @@
                     // Formata o valor como moeda BRL
                     function formatToCurrency(value) {
                         const number = parseFloat(value.replace(/[^\d,]/g, '').replace(',', '.'));
+                        currency = 'BRL';
+                        if(typeof(wc) != 'undefined'){
+                            currency = wc?.wcSettings?.CURRENCY?.code ?? 'BRL'
+                        };
                         if (isNaN(number)) return '';
                         return new Intl.NumberFormat('pt-BR', {
                             style: 'currency',
-                            currency: wc.wcSettings.CURRENCY.code
+                            currency: currency
                         }).format(number);
                     }
     

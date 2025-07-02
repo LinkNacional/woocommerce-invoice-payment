@@ -484,3 +484,7 @@ label[for="lkn_wcip_customer_input"] {
 	background: #68cf68;
     color: #224522;
 }
+
+#wpfooter{
+	display: contents !important;
+}
