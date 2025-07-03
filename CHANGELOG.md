@@ -1,3 +1,6 @@
+# 2.4.2 - 03/07/2025
+* Correção em script e css de pagamento parcial.
+
 # 2.4.1 - 02/07/2025
 * Correção em script de pagamento parcial.
 
