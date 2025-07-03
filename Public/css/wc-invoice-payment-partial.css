@@ -33,7 +33,14 @@
 
 .wcPaymentInvoiceCheckboxTitleCartFlow{
     color: black;
-    font-weight: 400
+    font-weight: 400;
+    font-size: 15px;
+}
+
+.wcPaymentInvoiceCheckboxTitleCartFlowSmall{
+    color: black;
+    font-weight: 400;
+    font-size: 13px;
 }
 
 

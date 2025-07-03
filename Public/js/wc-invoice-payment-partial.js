@@ -40,7 +40,7 @@
                                                 <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"></path>
                                             </svg>
                                             <span class="wc-block-components-checkbox__label">
-                                                Utilize essa opção para dividir o pagamento do pedido em diversos métodos. Digite o valor que deseja pagar agora, o restante pode ser pago depois com outros métodos de pagamento.
+                                                Utilize essa opção para dividir o pagamento do pedido em diversos métodos.
                                             </span>
                                         </label>
                                     </div>
@@ -50,6 +50,9 @@
                                         <input id="wcPaymentInvoicePartialAmountFormatted" type="text" placeholder="${symbol} 0,00">
                                         <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
                                     </div>
+                                    <span class="wcPaymentInvoiceCheckboxTitleCartFlowSmall">
+                                        Digite o valor que deseja pagar agora, o restante pode ser pago depois com outros métodos de pagamento.
+                                    </span>
                                     <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
                                         <span class="wc-block-components-button__text">
                                             <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
@@ -70,17 +73,20 @@
                                 <label for="wcPaymentInvoiceContainerCheckboxPartial" class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox wcPaymentInvoiceCheckboxLabelCartFlow">
                                     <input id="wcPaymentInvoiceContainerCheckboxPartial"
                                         class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" type="checkbox"
-                                        value="1"> <span class="wcPaymentInvoiceCheckboxTitleCartFlow">Utilize essa opção para dividir o pagamento do pedido em diversos métodos. Digite o valor que deseja
-                                            pagar agora, o restante pode ser pago depois com outros métodos de pagamento.</span>
+                                        value="1"> 
+                                            <span class="wcPaymentInvoiceCheckboxTitleCartFlow">
+                                                Utilize essa opção para dividir o pagamento do pedido em diversos métodos.
+                                            </span>
                                 </label>
-                                    <h3>
-                                    </h3>
                                 </div>
                                 <div class="wcPaymentInvoiceFields">
                                     <div class="wc-block-components-text-input wcPaymentInvoiceInputWrapper">
                                         <input type="text" class="input-text " id="wcPaymentInvoicePartialAmountFormatted" placeholder="${symbol} 0,00" aria-required="true">
                                         <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
                                     </div>
+                                    <span class="wcPaymentInvoiceCheckboxTitleCartFlow wcPaymentInvoiceCheckboxTitleCartFlowSmall">
+                                        Digite o valor que deseja pagar agora, o restante pode ser pago depois com outros métodos de pagamento.
+                                    </span>
                                     <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
                                         <span class="wc-block-components-button__text">
                                             <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
@@ -136,6 +142,13 @@
                             wcPaymentNotes.hide();
                             if(!cartFlowDiv){
                                 wcSubmitButton.hide();
+                            }else{
+                                parentElement = cartFlowDiv.parentElement
+                                textElement = parentElement.querySelector('.wcf-payment-option-heading')
+                                if(textElement){
+                                    textElement.style.display = 'none';
+                                }
+                                cartFlowDiv.style.display = 'none';
                             }
                             wcPaymentInvoiceInner.addClass('active');
                         } else {
@@ -145,6 +158,13 @@
                             wcPaymentNotes.show();
                             if(!cartFlowDiv){
                                 wcSubmitButton.show();
+                            }else{
+                                parentElement = cartFlowDiv.parentElement
+                                textElement = parentElement.querySelector('.wcf-payment-option-heading')
+                                if(textElement){
+                                    textElement.style.display = '';
+                                }
+                                cartFlowDiv.style.display = '';
                             }
                             wcPaymentInvoiceInner.removeClass('active');
                         }
