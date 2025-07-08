@@ -77,7 +77,7 @@
             
                     if (!response.ok) {
                         // Lida com erro retornado pela API
-                        throw new Error(result.error || 'Erro desconhecido');
+                        throw new Error(result.message);
                     }
             
                     // Sucesso: redireciona
@@ -114,7 +114,7 @@
                         // Lida com erro retornado pela API
                         this.disabled = false;
 
-                        throw new Error(result.error || 'Erro desconhecido');
+                        throw new Error(result.message);
                     }
 
                     // Sucesso: redireciona
