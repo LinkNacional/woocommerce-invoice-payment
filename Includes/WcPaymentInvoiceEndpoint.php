@@ -26,24 +26,35 @@ final class WcPaymentInvoiceEndpoint {
         if($order_id == 'newOrder'){
             $cart = isset($parameters['cart']) ? $parameters['cart'] : null;
 
-            $total = 0;
-            if (isset($cart['cart_contents']) && is_array($cart['cart_contents'])) {
-                foreach ($cart['cart_contents'] as $item) {
-                    if (isset($item['line_total'])) {
-                        $total += floatval($item['line_total']);
-                    }
-                }
-            }
-
-            $order = wc_create_order( array(
+            $order = wc_create_order([
                 'status' => 'pending',
                 'customer_id' => $user_id
-            ));
+            ]);
 
             $customer = new WC_Customer($user_id);
             $first_name = $customer->get_billing_first_name() ?: $customer->get_first_name();
             $order->set_billing_first_name($first_name);
-            $order->set_total($total);
+
+
+            // Adicionar produtos ao pedido
+            foreach ($cart['cart_contents'] as $item) {
+                if (isset($item['product_id']) && isset($item['quantity'])) {
+                    $product_id = $item['product_id'];
+                    $quantity = $item['quantity'];
+                    $variation_id = isset($item['variation_id']) ? $item['variation_id'] : 0;
+                    $variation = isset($item['variation']) && is_array($item['variation']) ? $item['variation'] : [];
+
+                    try {
+                        $order->add_product(wc_get_product($variation_id > 0 ? $variation_id : $product_id), $quantity, [
+                            'variation' => $variation,
+                        ]);
+                    } catch (Exception $e) {
+                        return new WP_REST_Response(['error' => 'Erro ao adicionar produto: ' . $e->getMessage()], 400);
+                    }
+                }
+            }
+
+            $order->calculate_totals();
             $order->save();
 
             $order_id = $order->get_id();

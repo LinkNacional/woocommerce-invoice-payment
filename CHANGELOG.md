@@ -1,3 +1,6 @@
+# 2.4.3 - 11/07/2025
+* Correção em adição de produtos em pedidos criados com CartFlows.
+
 # 2.4.2 - 03/07/2025
 * Correção em script e css de pagamento parcial.
 
