@@ -292,6 +292,29 @@ final class WcPaymentInvoiceAdmin
                 update_option('lkn_wcip_partial_complete_status', $partial_complete_status);
                 update_option('lkn_wcip_partial_interval_minimum', $partial_minimum_value);
                 update_option('lkn_wcip_partial_payments_enabled', $partial_payments_enabled);
+            }else if('FeesOrDiscounts' === $current_tab) {
+                $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
+
+                foreach ( $payment_gateways as $gateway_id => $gateway ) {
+                    if(isset($_POST['lkn_wcip_fee_or_discount_method_activated_' . $gateway_id])) {
+                        $isActive = sanitize_text_field(wp_unslash($_POST['lkn_wcip_fee_or_discount_method_activated_' . $gateway_id]));
+                        update_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, $isActive);
+                    }else{
+                        update_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'off');
+                    }
+                    if(isset($_POST['lkn_wcip_fee_or_discount_type_' . $gateway_id])) {
+                        $type = sanitize_text_field(wp_unslash($_POST['lkn_wcip_fee_or_discount_type_' . $gateway_id]));
+                        update_option('lkn_wcip_fee_or_discount_type_' . $gateway_id, $type);
+                    }
+                    if(isset($_POST['lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id])) {
+                        $percentOrFixed = sanitize_text_field(wp_unslash($_POST['lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id]));
+                        update_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id, $percentOrFixed);
+                    }
+                    if(isset($_POST['lkn_wcip_fee_or_discount_value_' . $gateway_id])) {
+                        $value = sanitize_text_field(wp_unslash($_POST['lkn_wcip_fee_or_discount_value_' . $gateway_id]));
+                        update_option('lkn_wcip_fee_or_discount_value_' . $gateway_id, $value);
+                    }
+                }
             }
         }
 
@@ -353,6 +376,11 @@ final class WcPaymentInvoiceAdmin
                     href="admin.php?page=settings&settings=Partial"
                     class="nav-tab <?php echo esc_attr(is_active_tab('Partial', $current_tab)); ?>">
                     <?php esc_attr_e('Pagamento parcial', 'wc-invoice-payment') ?>
+                </a>
+                <a
+                    href="admin.php?page=settings&settings=FeesOrDiscounts"
+                    class="nav-tab <?php echo esc_attr(is_active_tab('FeesOrDiscounts', $current_tab)); ?>">
+                    <?php esc_attr_e('Fees or Discounts', 'wc-invoice-payment') ?>
                 </a>
             </nav>
             <form
@@ -729,6 +757,123 @@ final class WcPaymentInvoiceAdmin
                             <?php
                             }
                             ?>
+
+                    <?php
+                    if ('FeesOrDiscounts' == $current_tab) {
+                        ?>
+                        <div class="invoice_settings">
+                            <h2 class="title">
+                                <b><?php esc_attr_e('Método de Pagamentos', 'wc-invoice-payment'); ?></b>
+                            </h2>
+                            <p>Configurar taxas ou descontos para cada método de pagamento</p>
+                            <div class="input-row-wrap">
+                                <div id="lkn_wcip_partial_payments_fees_or_discounts">
+                                    <div class="lkn_wcip_partial_payments_methods_div">
+                                        <?php
+                                            if(empty($payment_gateways)){
+                                                ?>
+                                                <div id="message" class="error">
+                                                    <p>
+                                                        Nenhum método de pagamento disponível. Por favor, ative pelo menos um método de pagamento para utilizar o pagamento parcial.
+                                                    </p>
+                                                </div>
+                                                <?php
+                                            }
+                                            foreach ( $payment_gateways as $gateway_id => $gateway ) :
+                                                $checked = get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'off') === 'on' ? 'checked' : '';
+                                                /* "lkn_wcip_fee_or_discount_method_bacs": "on",
+                                                "lkn_wcip_fee_or_discount_type_bacs": "fee",
+                                                "lkn_wcip_fee_or_discount_percent_fixed_bacs": "percent",
+                                                "lkn_wcip_fee_or_discount_value_bacs": "1", */
+                                                $type = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id, 'fee');
+                                                $percentOrFixed = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id, 'percent');
+                                                $value = get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id, 0);
+                                                ?>
+                                                <div class="lkn_wcip_fee_or_discounts_method_div">
+                                                    <div class="lkn_wcip_fee_or_discounts_method_div_fields">
+                                                        <label class="lkn_wcip_fee_or_discounts_method_label" for="lkn_wcip_fee_or_discount_method_activated_<?php echo esc_attr($gateway_id); ?>">
+                                                            <input 
+                                                                name="lkn_wcip_fee_or_discount_method_activated_<?php echo esc_attr($gateway_id); ?>" 
+                                                                id="lkn_wcip_fee_or_discount_method_activated_<?php echo esc_attr($gateway_id); ?>" 
+                                                                type="checkbox" <?php echo esc_attr($checked); ?>>
+                                                            <p>
+                                                                <b>
+                                                                    <?php echo esc_html( $gateway->get_title() ); ?>
+                                                                </b>
+                                                            </p>
+                                                            <br>
+                                                        </label>
+                                                        <div class="tooltip">
+                                                            <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
+                                                            <span class="tooltiptext">
+                                                                <?php esc_html_e( 'Selecione taxa ou desconto para se aplicado quando o usuário usar esse método de pagamento.', 'wc-invoice-payment' ); ?>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="lkn_wcip_fee_or_discounts_method_fields_div">
+                                                        <p>
+                                                            <?php esc_html_e( 'Configurar taxa ou desconto para este método de pagamento', 'wc-invoice-payment' ); ?>
+                                                        </p>
+                                                        <div class="lkn_wcip_fee_or_discounts_method_fields_div">
+                                                            <div class="lkn_wcip_fee_or_discounts_method_div_fields">
+                                                                <select 
+                                                                    class="lkn_wcip_fee_or_discount_field" 
+                                                                    name="lkn_wcip_fee_or_discount_type_<?php echo esc_attr($gateway_id); ?>">
+                                                                    <option <?php echo esc_attr($type == 'fixed' ? 'fee' : ''); ?> value="fee">Taxa</option>
+                                                                    <option <?php echo esc_attr($type == 'fixed' ? 'discount' : ''); ?>  value="discount">Desconto</option>
+                                                                </select>
+                                                                <div class="flex items-center justify-center">
+                                                                    <div class="tooltip">
+                                                                        <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
+                                                                        <span class="tooltiptext">
+                                                                            <?php esc_html_e( 'Selecione Porcentagem ou Valor Fixo para usar no cálculo do checkout e pedido.', 'wc-invoice-payment' ); ?>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="lkn_wcip_fee_or_discounts_method_div_fields">
+                                                                <select 
+                                                                    class="lkn_wcip_fee_or_discount_field" 
+                                                                    name="lkn_wcip_fee_or_discount_percent_fixed_<?php echo esc_attr($gateway_id); ?>">
+                                                                    <option <?php echo esc_attr($percentOrFixed == 'fixed' ? 'percent' : ''); ?> value="percent">Porcentagem</option>
+                                                                    <option <?php echo esc_attr($percentOrFixed == 'fixed' ? 'selected' : ''); ?> value="fixed">Valor Fixo</option>
+                                                                </select>
+                                                                <div class="flex items-center justify-center">
+                                                                    <div class="tooltip">
+                                                                        <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
+                                                                        <span class="tooltiptext">
+                                                                            <?php esc_html_e( 'É permitido apenas números inteiros ou decimais. Exemplos de números permitidos: 10 ou 10.55. Porcentagem 30% use 30.', 'wc-invoice-payment' ); ?>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div> 
+                                                            <div class="lkn_wcip_fee_or_discounts_method_div_fields">
+
+                                                                <input 
+                                                                    type="number" 
+                                                                    min="0" 
+                                                                    value=<?php echo esc_attr($value); ?>
+                                                                    class="lkn_wcip_fee_or_discount_field" 
+                                                                    name="lkn_wcip_fee_or_discount_value_<?php echo esc_attr($gateway_id); ?>"
+                                                                >
+                                                                <div class="flex items-center justify-center">
+                                                                    <div class="tooltip">
+                                                                        <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
+                                                                        <span class="tooltiptext">
+                                                                            <?php esc_html_e( 'Selecione o status de pagamento confirmado nesse método. Assim o pagamento parcial será confirmado apenas quando o status for igual ao definido.', 'wc-invoice-payment' ); ?>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                    <?php
+                        }
+                    ?>
 
                             <div class="action-btn">
                                 <?php submit_button(__('Save', 'wc-invoice-payment'), 'primary', 'submit', true, $disabled == 'disabled' ? ['disabled' => ''] : ''); ?>
