@@ -766,6 +766,32 @@ final class WcPaymentInvoiceAdmin
                                 <b><?php esc_attr_e('Método de Pagamentos', 'wc-invoice-payment'); ?></b>
                             </h2>
                             <p>Configurar taxas ou descontos para cada método de pagamento</p>
+                            <div class="lkn_wcip_show_fee_or_discount_method_div_fields">
+                                <label class="lkn_wcip_show_fee_label" for="lkn_wcip_show_fee_activated">
+                                    <input 
+                                        name="lkn_wcip_show_fee_activated" 
+                                        id="lkn_wcip_show_fee_activated" 
+                                        type="checkbox" <?php echo esc_attr(2); ?>>
+                                    <p>
+                                        <b>
+                                            <?php echo esc_attr('Mostrar taxa no pagamento'); ?>
+                                        </b>
+                                    </p>
+                                    <br>
+                                </label>
+                                <label class="lkn_wcip_show_discount_label" for="lkn_wcip_show_discount_activated">
+                                    <input 
+                                        name="lkn_wcip_show_discount_activated" 
+                                        id="lkn_wcip_show_discount_activated" 
+                                        type="checkbox" <?php echo esc_attr(2); ?>>
+                                    <p>
+                                        <b>
+                                            <?php echo esc_attr('Mostrar desconto no pagamento'); ?>
+                                        </b>
+                                    </p>
+                                    <br>
+                                </label>
+                            </div>
                             <div class="input-row-wrap">
                                 <div id="lkn_wcip_partial_payments_fees_or_discounts">
                                     <div class="lkn_wcip_partial_payments_methods_div">
@@ -781,10 +807,6 @@ final class WcPaymentInvoiceAdmin
                                             }
                                             foreach ( $payment_gateways as $gateway_id => $gateway ) :
                                                 $checked = get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'off') === 'on' ? 'checked' : '';
-                                                /* "lkn_wcip_fee_or_discount_method_bacs": "on",
-                                                "lkn_wcip_fee_or_discount_type_bacs": "fee",
-                                                "lkn_wcip_fee_or_discount_percent_fixed_bacs": "percent",
-                                                "lkn_wcip_fee_or_discount_value_bacs": "1", */
                                                 $type = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id, 'fee');
                                                 $percentOrFixed = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id, 'percent');
                                                 $value = get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id, 0);

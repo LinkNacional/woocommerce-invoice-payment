@@ -233,6 +233,7 @@ final class WcPaymentInvoice {
     private function define_public_hooks(): void {
         $plugin_public = new WcPaymentInvoicePublic($this->get_plugin_name(), $this->get_version());
         $subscription_class = new WcPaymentInvoiceSubscription();
+        $feeOrDiscountClass = new WcPaymentInvoiceFeeOrDiscount();
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
@@ -243,6 +244,7 @@ final class WcPaymentInvoice {
 		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoicePartialClass, 'allowStatusCancel');
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
         $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
+        $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart');
         
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
     }

@@ -527,3 +527,34 @@ label[for="lkn_wcip_customer_input"] {
     justify-content: center;
     align-items: center;
 }
+
+.action-btn{
+	display: block !important;
+}
+
+.action-btn input{
+	padding: 1px 18px !important;
+}
+
+.invoice_settings .title b{
+	font-size: 1.2em !important; 
+}
+
+.lkn_wcip_show_fee_or_discount_method_div_fields{
+	display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10px;
+	padding-left: 21px;
+}
+
+.lkn_wcip_show_fee_or_discount_method_div_fields label{
+	display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.lkn_wcip_show_fee_or_discount_method_div_fields input{
+	margin: 0px !important;
+}
