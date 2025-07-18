@@ -245,6 +245,7 @@ final class WcPaymentInvoice {
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
         $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart');
+        $this->loader->add_action('enqueue_block_assets', $feeOrDiscountClass, 'loadScripts');
         
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
     }

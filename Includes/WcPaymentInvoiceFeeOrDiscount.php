@@ -30,5 +30,59 @@ final class WcPaymentInvoiceFeeOrDiscount
             }
         }
     }
-
+    
+    public function loadScripts(){
+        if (is_checkout() && WC()->payment_gateways() && ! empty(WC()->payment_gateways()->get_available_payment_gateways())) {
+    
+            // Obtem todos os métodos disponíveis no checkout
+            $gateways = WC()->payment_gateways()->get_available_payment_gateways();
+            $data = [];
+    
+            foreach ($gateways as $gateway_id => $gateway) {
+                $active = get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id);
+                $type = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id); // 'fee' ou 'discount'
+                $percentOrFixed = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id); // 'percent' ou 'fixed'
+                $value = (float) get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id);
+    
+                if ($active === 'on') {
+                    $data[$gateway_id] = [
+                        'type' => $type, // 'fee' ou 'discount'
+                        'mode' => $percentOrFixed, // 'percent' ou 'fixed'
+                        'value' => $value,
+                        //Testo para dizer se é uma taxa ou desconto formatodo com o woocomerce exemplo "Taxa de R$ 10,00" ou "Desconto de R$ 5,00"
+                        'label' => sprintf(
+                            __('%s of %s', 'wc-invoice-payment'),
+                            $type === 'fee' ? __('Fee', 'wc-invoice-payment') : __('Discount', 'wc-invoice-payment'),
+                            wc_price($value)
+                        ),
+                    ];
+                }
+            }
+    
+            wp_enqueue_script(
+                'wcInvoicePaymentFeeOrDiscountScript',
+                WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-fee-or-discount.js',
+                ['jquery', 'wp-api'],
+                WC_PAYMENT_INVOICE_VERSION,
+                false
+            );
+    
+            wp_enqueue_style(
+                'wcInvoicePaymentFeeOrDiscountStyle',
+                WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-fee-or-discount.css',
+                [],
+                WC_PAYMENT_INVOICE_VERSION,
+                'all'
+            );
+    
+            wp_localize_script('wcInvoicePaymentFeeOrDiscountScript', 'wcInvoicePaymentFeeOrDiscountVariables', [
+                'methods' => $data,
+                'translations' => [
+                    'fee' => __('Fee', 'wc-invoice-payment'),
+                    'discount' => __('Discount', 'wc-invoice-payment'),
+                ],
+            ]);
+        }
+    }
+    
 }
