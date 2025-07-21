@@ -6,36 +6,42 @@
             const method = methods[methodId];
             const labelHtml = method.label;
 
-            if(method.type == 'fee' && wcInvoicePaymentFeeOrDiscountVariables.showFeeOption != 'on') {
+            if (method.type === 'fee' && wcInvoicePaymentFeeOrDiscountVariables.showFeeOption !== 'on') {
                 return;
             }
-            if(method.type == 'discount' && wcInvoicePaymentFeeOrDiscountVariables.showDiscountOption != 'on') {
+            if (method.type === 'discount' && wcInvoicePaymentFeeOrDiscountVariables.showDiscountOption !== 'on') {
                 return;
             }
 
-            // Seleciona o label com base no atributo for
             const label = document.querySelector(`[for="radio-control-wc-payment-method-options-${methodId}"]`);
             if (!label) return;
 
             const spanLabel = label.querySelector('.wc-block-components-radio-control__label');
-            if (!spanLabel) return;
+            if (!spanLabel || spanLabel.dataset.modified === 'true') return;
 
-            // Evita adicionar duplicado
-            if (spanLabel.dataset.modified === 'true') return;
+            // Captura o nome do método, seja dentro de um span ou texto puro
+            let methodNameEl = spanLabel.querySelector('.wc-block-components-payment-method-label');
+            let methodName;
 
-            // Cria estrutura do novo conteúdo com flexbox
+            if (methodNameEl) {
+                methodName = methodNameEl.outerHTML;
+            } else {
+                methodName = spanLabel.innerHTML.trim();
+            }
+
+            // Monta o novo conteúdo com flexbox
             const wrapper = document.createElement('span');
             wrapper.style.display = 'flex';
             wrapper.style.justifyContent = 'space-between';
             wrapper.style.width = '100%';
 
-            const methodName = spanLabel.querySelector('.wc-block-components-payment-method-label');
-            if (!methodName) return;
+            const nameSpan = document.createElement('span');
+            nameSpan.innerHTML = methodName;
 
             const textSpan = document.createElement('span');
             textSpan.innerHTML = labelHtml;
 
-            wrapper.appendChild(methodName);
+            wrapper.appendChild(nameSpan);
             wrapper.appendChild(textSpan);
 
             spanLabel.innerHTML = '';
@@ -44,7 +50,6 @@
         });
     };
 
-    // Aguarda a renderização dos métodos do checkout
     const observer = new MutationObserver(() => {
         updatePaymentLabels();
     });
@@ -54,7 +59,5 @@
         subtree: true
     });
 
-    // Também força uma verificação inicial (caso já esteja renderizado)
     document.addEventListener('DOMContentLoaded', updatePaymentLabels);
-
 })(jQuery);
