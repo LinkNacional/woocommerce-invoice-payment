@@ -778,9 +778,11 @@ final class WcPaymentInvoiceAdmin
                         ?>
                         <div class="invoice_settings">
                             <h2 class="title">
-                                <b><?php esc_attr_e('Método de Pagamentos', 'wc-invoice-payment'); ?></b>
+                                <b><?php esc_attr_e('Payment Methods', 'wc-invoice-payment'); ?></b>
                             </h2>
-                            <p>Configurar taxas ou descontos para cada método de pagamento</p>
+                            <p>
+                                <?php esc_attr_e('Configure fees or discounts for each payment method', 'wc-invoice-payment'); ?>
+                            </p>
                             <div class="lkn_wcip_show_fee_or_discount_method_div_fields">
                                 <label class="lkn_wcip_show_fee_label" for="lkn_wcip_show_fee_activated">
                                     <input 
@@ -789,7 +791,7 @@ final class WcPaymentInvoiceAdmin
                                         type="checkbox" <?php echo esc_attr($show_fee_active); ?>>
                                     <p>
                                         <b>
-                                            <?php echo esc_attr('Mostrar taxa no pagamento'); ?>
+                                            <?php echo esc_attr_e('Show fee on payment', 'wc-invoice-payment'); ?>
                                         </b>
                                     </p>
                                     <br>
@@ -801,7 +803,7 @@ final class WcPaymentInvoiceAdmin
                                         type="checkbox" <?php echo esc_attr($show_discount_active); ?>>
                                     <p>
                                         <b>
-                                            <?php echo esc_attr('Mostrar desconto no pagamento'); ?>
+                                            <?php echo esc_attr_e('Show discount on payment', 'wc-invoice-payment'); ?>
                                         </b>
                                     </p>
                                     <br>
@@ -813,7 +815,7 @@ final class WcPaymentInvoiceAdmin
                                                 ?>
                                                 <div id="message" class="error">
                                                     <p>
-                                                        Nenhum método de pagamento disponível. Por favor, ative pelo menos um método de pagamento para utilizar o pagamento parcial.
+                                                        <?php echo esc_attr_e('No payment methods available. Please enable at least one payment method to use partial payment.', 'wc-invoice-payment'); ?>
                                                     </p>
                                                 </div>
                                                 <?php
@@ -843,27 +845,27 @@ final class WcPaymentInvoiceAdmin
                                                                 <div class="tooltip">
                                                                     <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
                                                                     <span class="tooltiptext">
-                                                                        <?php esc_html_e( 'Selecione taxa ou desconto para se aplicado quando o usuário usar esse método de pagamento.', 'wc-invoice-payment' ); ?>
+                                                                        <?php esc_html_e( 'Enables fee/discount payment for the payment method.', 'wc-invoice-payment' ); ?>
                                                                     </span>
                                                                 </div>
                                                             </div>
                                                             <div class="lkn_wcip_fee_or_discounts_method_fields_div">
                                                                 <p>
-                                                                    <?php esc_html_e( 'Configurar taxa ou desconto para este método de pagamento', 'wc-invoice-payment' ); ?>
+                                                                    <?php esc_html_e( 'Configure fee or discount for this payment method.', 'wc-invoice-payment' ); ?>
                                                                 </p>
                                                                 <div class="lkn_wcip_fee_or_discounts_method_fields_div">
                                                                     <div class="lkn_wcip_fee_or_discounts_method_div_fields">
                                                                         <select 
                                                                             class="lkn_wcip_fee_or_discount_field" 
                                                                             name="lkn_wcip_fee_or_discount_type_<?php echo esc_attr($gateway_id); ?>">
-                                                                            <option <?php echo esc_attr($type == 'fee' ? 'selected' : ''); ?> value="fee">Taxa</option>
-                                                                            <option <?php echo esc_attr($type == 'discount' ? 'selected' : ''); ?>  value="discount">Desconto</option>
+                                                                            <option <?php echo esc_attr($type == 'fee' ? 'selected' : ''); ?> value="fee"><?php esc_html_e('Fee', 'wc-invoice-payment') ?></option>
+                                                                            <option <?php echo esc_attr($type == 'discount' ? 'selected' : ''); ?>  value="discount"><?php esc_html_e('Discount', 'wc-invoice-payment') ?></option>
                                                                         </select>
                                                                         <div class="flex items-center justify-center">
                                                                             <div class="tooltip">
                                                                                 <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
                                                                                 <span class="tooltiptext">
-                                                                                    <?php esc_html_e( 'Selecione Porcentagem ou Valor Fixo para usar no cálculo do checkout e pedido.', 'wc-invoice-payment' ); ?>
+                                                                                    <?php esc_html_e( 'Select fee or discount to be applied when the user uses this payment method.', 'wc-invoice-payment' ); ?>
                                                                                 </span>
                                                                             </div>
                                                                         </div>
@@ -872,14 +874,14 @@ final class WcPaymentInvoiceAdmin
                                                                         <select 
                                                                             class="lkn_wcip_fee_or_discount_field" 
                                                                             name="lkn_wcip_fee_or_discount_percent_fixed_<?php echo esc_attr($gateway_id); ?>">
-                                                                            <option <?php echo esc_attr($percentOrFixed == 'percent' ? 'selected' : ''); ?> value="percent">Porcentagem</option>
-                                                                            <option <?php echo esc_attr($percentOrFixed == 'fixed' ? 'selected' : ''); ?> value="fixed">Valor Fixo</option>
+                                                                            <option <?php echo esc_attr($percentOrFixed == 'percent' ? 'selected' : ''); ?> value="percent"><?php esc_html_e('Percent', 'wc-invoice-payment') ?></option>
+                                                                            <option <?php echo esc_attr($percentOrFixed == 'fixed' ? 'selected' : ''); ?> value="fixed"><?php esc_html_e('Fixed Value', 'wc-invoice-payment') ?></option>
                                                                         </select>
                                                                         <div class="flex items-center justify-center">
                                                                             <div class="tooltip">
                                                                                 <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
                                                                                 <span class="tooltiptext">
-                                                                                    <?php esc_html_e( 'É permitido apenas números inteiros ou decimais. Exemplos de números permitidos: 10 ou 10.55. Porcentagem 30% use 30.', 'wc-invoice-payment' ); ?>
+                                                                                    <?php esc_html_e( 'Select Percentage or Fixed Value to be used in checkout and order calculation.', 'wc-invoice-payment' ); ?>
                                                                                 </span>
                                                                             </div>
                                                                         </div>
@@ -897,7 +899,7 @@ final class WcPaymentInvoiceAdmin
                                                                             <div class="tooltip">
                                                                                 <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
                                                                                 <span class="tooltiptext">
-                                                                                    <?php esc_html_e( 'Selecione o status de pagamento confirmado nesse método. Assim o pagamento parcial será confirmado apenas quando o status for igual ao definido.', 'wc-invoice-payment' ); ?>
+                                                                                    <?php esc_html_e( 'Only integer or decimal numbers are allowed. Examples of allowed numbers: 10 or 10.55. For percentage 30% use 30.', 'wc-invoice-payment' ); ?>
                                                                                 </span>
                                                                             </div>
                                                                         </div>

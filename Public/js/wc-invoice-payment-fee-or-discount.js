@@ -6,6 +6,13 @@
             const method = methods[methodId];
             const labelHtml = method.label;
 
+            if(method.type == 'fee' && wcInvoicePaymentFeeOrDiscountVariables.showFeeOption != 'on') {
+                return;
+            }
+            if(method.type == 'discount' && wcInvoicePaymentFeeOrDiscountVariables.showDiscountOption != 'on') {
+                return;
+            }
+
             // Seleciona o label com base no atributo for
             const label = document.querySelector(`[for="radio-control-wc-payment-method-options-${methodId}"]`);
             if (!label) return;

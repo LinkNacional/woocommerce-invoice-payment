@@ -23,9 +23,9 @@ final class WcPaymentInvoiceFeeOrDiscount
                 }
 
                 if ($type === 'fee') {
-                    $cart->add_fee('Taxa', $amount, true);
+                    $cart->add_fee(__('Fee', 'wc-invoice-payment'), $amount, true);
                 } elseif ($type === 'discount') {
-                    $cart->add_fee('Desconto', -$amount, true);
+                    $cart->add_fee(__('Discount', 'wc-invoice-payment'), -$amount, true);
                 }
             }
         }
@@ -81,6 +81,8 @@ final class WcPaymentInvoiceFeeOrDiscount
                     'fee' => __('Fee', 'wc-invoice-payment'),
                     'discount' => __('Discount', 'wc-invoice-payment'),
                 ],
+                'showFeeOption' => get_option('lkn_wcip_show_fee_activated'),
+                'showDiscountOption' => get_option('lkn_wcip_show_discount_activated'),
             ]);
         }
     }

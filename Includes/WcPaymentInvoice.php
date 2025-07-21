@@ -180,9 +180,9 @@ final class WcPaymentInvoice {
         $subscription_class = new WcPaymentInvoiceSubscription();
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');
+        $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
         $this->loader->add_action('woocommerce_checkout_order_processed', $subscription_class, 'validate_product');
         $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $subscription_class, 'validate_product');
-        $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
         $this->loader->add_action('woocommerce_init', $this, 'subscriptionNotice');
 		$this->loader->add_filter( 'wc_order_statuses', $this->WcPaymentInvoicePartialClass, 'createStatus' );
 		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoicePartialClass, 'registerStatus' );
