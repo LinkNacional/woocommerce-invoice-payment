@@ -45,7 +45,7 @@ final class WcPaymentInvoiceFeeOrDiscount
                 $value = (float) get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id);
 
                 if($percentOrFixed == 'percent'){
-                    $cartTotal = (float) WC()->cart->get_total( '' );
+                    $cartTotal = (float) WC()->cart->get_subtotal( '' );
                     $value = ($value / 100) * $cartTotal;
                 }
     
