@@ -43,13 +43,17 @@ final class WcPaymentInvoiceFeeOrDiscount
                 $type = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id); // 'fee' ou 'discount'
                 $percentOrFixed = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id); // 'percent' ou 'fixed'
                 $value = (float) get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id);
+
+                if($percentOrFixed == 'percent'){
+                    $cartTotal = (float) WC()->cart->get_total( '' );
+                    $value = ($value / 100) * $cartTotal;
+                }
     
                 if ($active === 'on') {
                     $data[$gateway_id] = [
                         'type' => $type, // 'fee' ou 'discount'
                         'mode' => $percentOrFixed, // 'percent' ou 'fixed'
                         'value' => $value,
-                        //Testo para dizer se é uma taxa ou desconto formatodo com o woocomerce exemplo "Taxa de R$ 10,00" ou "Desconto de R$ 5,00"
                         'label' => sprintf(
                             __('%s of %s', 'wc-invoice-payment'),
                             $type === 'fee' ? __('Fee', 'wc-invoice-payment') : __('Discount', 'wc-invoice-payment'),

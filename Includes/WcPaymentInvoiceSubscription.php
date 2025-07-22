@@ -46,7 +46,7 @@ final class WcPaymentInvoiceSubscription
 
             $products_type['subscriptionCheckbox'] = array(
                 'id' => '_lkn-wcip-subscription-product',
-                'wrapper_class' => 'show_if_simple',
+                'wrapper_class' => 'hide_if_external',
                 'label' => __('Subscription', 'wc-invoice-payment'),
                 'description' => __('This is a subscription product.', 'wc-invoice-payment'),
                 'default' => $subscription_product ? 'yes' : 'no',
