@@ -1,3 +1,6 @@
+# 2.5.0 - 21/07/2025
+* Adição de configuração para definir taxas ou desconto para os métodos de pagamento.
+
 # 2.4.3 - 11/07/2025
 * Correção em adição de produtos em pedidos criados com CartFlows.
 

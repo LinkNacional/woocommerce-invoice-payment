@@ -393,7 +393,7 @@
 	display: none;
 }
 
-#lkn_wcip_partial_field{
+#lkn_wcip_partial_field, .lkn_wcip_fee_or_discount_field{
 	min-width: 216px;
 }
 
@@ -434,7 +434,7 @@
 	margin-bottom: 10px;
 }
 
-#lkn_wcip_partial_payments_method_div{
+#lkn_wcip_partial_payments_method_div, #lkn_wcip_partial_payments_fees_or_discounts{
 	padding: 20px;
     margin-top: 40px;
     border: solid;
@@ -442,6 +442,10 @@
     border-width: 1px;
     background-color: #F0F0F1;
 	width: 405px;
+}
+
+#lkn_wcip_partial_payments_fees_or_discounts{
+	margin-top: 10px !important;
 }
 
 .lkn_wcip_partial_payments_method_div_empty{
@@ -487,4 +491,70 @@ label[for="lkn_wcip_customer_input"] {
 
 #wpfooter{
 	display: contents !important;
+}
+
+.lkn_wcip_fee_or_discounts_method_div_fields{
+	display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.lkn_wcip_fee_or_discounts_method_label{
+	display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.lkn_wcip_fee_or_discounts_method_div{
+	display: flex;
+    flex-direction: column;
+}
+
+.lkn_wcip_fee_or_discounts_method_fields_div{
+	display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.lkn_wcip_fee_or_discounts_method_fields_divs {
+	display: flex;
+    gap: 10px;
+}
+
+.lkn_wcip_fee_or_discounts_method_fields_flex_rows{
+	display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-btn{
+	display: block !important;
+}
+
+.action-btn input{
+	padding: 1px 18px !important;
+}
+
+.invoice_settings .title b{
+	font-size: 1.2em !important; 
+}
+
+.lkn_wcip_show_fee_or_discount_method_div_fields{
+	display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10px;
+	padding-left: 21px;
+}
+
+.lkn_wcip_show_fee_or_discount_method_div_fields label{
+	display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.lkn_wcip_show_fee_or_discount_method_div_fields input{
+	margin: 0px !important;
 }

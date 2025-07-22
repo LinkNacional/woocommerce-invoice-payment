@@ -396,7 +396,6 @@ jQuery(document).ready(function ($) {
   
   // Função para alternar a visibilidade com base no estado do checkbox
   function toggleFields() {
-    console.log(wcMethodsFields)
     if (checkboxPartial.is(':checked')) {
       wcFields.css('display', 'flex');
       wcMethodsFields.css('display', 'block');
