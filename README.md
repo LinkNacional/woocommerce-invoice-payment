@@ -17,6 +17,8 @@ Now enhanced with even more advanced features, **Link Invoice Payment** is the p
 - **Multiple or Specific Payment Methods** – Choose which payment gateways appear per invoice  
 - **Multi-language Support** – Display invoices in the language preferred by your customer  
 - **Partial Order Payments in WooCommerce** – Allow customers to pay part of an order upfront using multiple payment methods
+- **Payment Method Discount** – Set a percentage or fixed discount value for each payment type
+- **Payment Method Fee** – Set a percentage or fixed value to charge an additional amount for each payment type
 
 And much more!
 
