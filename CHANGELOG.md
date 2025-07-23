@@ -1,3 +1,6 @@
+# 2.5.1 - 21/07/2025
+* Alteração em readme.
+
 # 2.5.0 - 21/07/2025
 * Adição de configuração para definir taxas ou desconto para os métodos de pagamento.
 

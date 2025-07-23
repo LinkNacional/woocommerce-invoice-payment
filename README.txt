@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: subscription, invoice, payment, recorrente, faturas
 Requires at least: 5.7
 Tested up to: 6.8
-Stable tag: 2.5.0
+Stable tag: 2.5.1
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -27,6 +27,8 @@ Now enhanced with even more advanced features, **Link Invoice Payment** is the p
 - **Multiple or Specific Payment Methods** – Choose which payment gateways appear per invoice  
 - **Multi-language Support** – Display invoices in the language preferred by your customer  
 - **Partial Order Payments in WooCommerce** – Allow customers to pay part of an order upfront using multiple payment methods
+- **Payment Method Discount** – Set a percentage or fixed discount value for each payment type
+- **Payment Method Fee** – Set a percentage or fixed value to charge an additional amount for each payment type
 
 And much more!
 
@@ -110,39 +112,42 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
-= 2.5.0 = *07/21/2024*
+= 2.5.1 = *07/23/2025*
 * Add configuration to set fees or discounts for payment methods.
 
-= 2.4.3 = *07/11/2024*
+= 2.5.0 = *07/21/2025*
+* Add configuration to set fees or discounts for payment methods.
+
+= 2.4.3 = *07/11/2025*
 * Fix for adding products to orders created with CartFlows.
 
-= 2.4.2 = *07/03/2024*
+= 2.4.2 = *07/03/2025*
 * Fix script and CSS for partial payment.
 
-= 2.4.1 = *07/02/2024*
+= 2.4.1 = *07/02/2025*
 * Fix partial payment script.
 
-= 2.4.0 = *06/12/2024*
+= 2.4.0 = *06/12/2025*
 * Add partial payments for all payment methods.
 
-= 2.3.4 = *05/29/2024*
+= 2.3.4 = *05/29/2025*
 * Fix fatal error when editing page.
 
-= 2.3.3 = *05/27/2024*
+= 2.3.3 = *05/27/2025*
 * Update description.
 
-= 2.3.2 = *05/27/2024*
+= 2.3.2 = *05/27/2025*
 * Update description and fixed icons.
 
-= 2.3.1 = *05/27/2024*
+= 2.3.1 = *05/27/2025*
 * Add blueprint to the WordPress page.
 
-= 2.3.0 = *02/14/2024*
+= 2.3.0 = *02/14/2025*
 * Add field to search for user email;
 * Add hook to process subscription automatically;
 * Add function to force customer registration at checkout.
 
-= 2.2.1 = *31/01/2024*
+= 2.2.1 = *31/01/2025*
 * Compatibility fix with the "Payment Gateway Based Fees for WooCommerce" plugin;
 * Updating plugin description link.
 
