@@ -77,11 +77,6 @@ final class WcPaymentInvoicePublic {
          * between the defined hooks and the functions defined in this
          * class.
          */
-        $checkoutPage = get_option('woocommerce_checkout_page_id');
-
-        if (is_page($checkoutPage) === true) {
-            wp_enqueue_style($this->plugin_name . '-public-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-public.css', array(), $this->version, 'all');
-        }
     }
 
     /**

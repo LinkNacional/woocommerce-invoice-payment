@@ -349,3 +349,36 @@ msgstr "Taxas ou Descontos"
 
 msgid "%s of %s"
 msgstr "%s de %s"
+
+msgid "Add Product(s)"
+msgstr "Adicionar produto(s)"
+
+msgid "Search Products"
+msgstr "Pesquisar Produtos"
+
+msgid "Type to search for products..."
+msgstr "Digite para pesquisar produtos..."
+
+msgid "Selected Products"
+msgstr "Produtos Selecionados"
+
+msgid "Quantity"
+msgstr "Quantidade"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Add to Invoice"
+msgstr "Adicionar à Fatura"
+
+msgid "No products selected"
+msgstr "Nenhum produto selecionado"
+
+msgid "Security check failed"
+msgstr "Verificação de segurança falhou"
+
+msgid "Invalid product ID"
+msgstr "ID do produto inválido"
+
+msgid "Product not found"
+msgstr "Produto não encontrado"

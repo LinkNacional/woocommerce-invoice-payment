@@ -181,6 +181,45 @@ final class WcPaymentInvoiceAdmin
             );
             wp_enqueue_media();
             wp_enqueue_script('cpt-admin-script', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-public-input-file.js', array('jquery'), '1.0', true);
+            
+            // Add product search functionality for invoice creation/edit pages
+            if (
+                strtolower(__('Invoices', 'wc-invoice-payment')) . '_page_new-invoice' === $hook
+                || 'admin_page_edit-invoice' === $hook
+            ) {
+                // Enqueue WooCommerce admin scripts for product search
+                wp_enqueue_script('wc-enhanced-select');
+                wp_enqueue_script('select2');
+                wp_enqueue_style('woocommerce_admin_styles');
+                
+                // Enqueue our product search script
+                wp_enqueue_script(
+                    $this->plugin_name . '-product-search', 
+                    plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-product-search.js', 
+                    array('jquery', 'select2', 'wc-enhanced-select'), 
+                    $this->version, 
+                    true
+                );
+                
+                // Localize script for product search
+                wp_localize_script(
+                    $this->plugin_name . '-product-search',
+                    'wcipProductSearch',
+                    array(
+                        'ajaxUrl' => admin_url('admin-ajax.php'),
+                        'searchNonce' => wp_create_nonce('search-products'),
+                        'productNonce' => wp_create_nonce('lkn-wcip-product-data'),
+                        'addProducts' => __('Add Product(s)', 'wc-invoice-payment'),
+                        'searchProducts' => __('Search Products', 'wc-invoice-payment'),
+                        'searchProductsPlaceholder' => __('Type to search for products...', 'wc-invoice-payment'),
+                        'selectedProducts' => __('Selected Products', 'wc-invoice-payment'),
+                        'quantity' => __('Quantity', 'wc-invoice-payment'),
+                        'cancel' => __('Cancel', 'wc-invoice-payment'),
+                        'addToInvoice' => __('Add to Invoice', 'wc-invoice-payment'),
+                        'noProductsSelected' => __('No products selected', 'wc-invoice-payment')
+                    )
+                );
+            }
         }
     }
 
@@ -351,6 +390,9 @@ final class WcPaymentInvoiceAdmin
         $show_fee_active = get_option('lkn_wcip_show_fee_activated')  == 'on' ? 'checked' : '';
         $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
         $disabled =  !empty($payment_gateways) ? '' : 'disabled';
+        if($current_tab != 'Partial' && $current_tab != 'FeesOrDiscounts') {
+            $disabled = '';
+        }
 
 
         $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
@@ -2821,15 +2863,39 @@ final class WcPaymentInvoiceAdmin
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); ++$i) {
-                    $product = new WC_Product();
-                    $product->set_name($invoices[$i]['desc']);
-                    $product->set_regular_price($invoices[$i]['amount']);
-                    $product->save();
-                    $productId = wc_get_product($product->get_id());
-
-                    $order->add_product($productId);
-                    // Delete after adding to prevent residue
-                    $product->delete(true);
+                    // Check if this is a real WooCommerce product
+                    $isRealProduct = isset($_POST["lkn_wcip_is_real_product_$i"]) && $_POST["lkn_wcip_is_real_product_$i"] === '1';
+                    
+                    if ($isRealProduct) {
+                        // Handle real WooCommerce products
+                        $realProductId = intval($_POST["lkn_wcip_product_id_$i"]);
+                        $quantity = intval($_POST["lkn_wcip_product_qty_$i"]);
+                        
+                        $realProduct = wc_get_product($realProductId);
+                        if ($realProduct) {
+                            // Add the real product to the order with correct quantity
+                            $order->add_product($realProduct, $quantity);
+                        } else {
+                            // Fallback: create a simple product if the real product doesn't exist
+                            $product = new WC_Product();
+                            $product->set_name($invoices[$i]['desc']);
+                            $product->set_regular_price($invoices[$i]['amount']);
+                            $product->save();
+                            $productId = wc_get_product($product->get_id());
+                            $order->add_product($productId);
+                            $product->delete(true);
+                        }
+                    } else {
+                        // Handle custom/fantasy products (existing behavior)
+                        $product = new WC_Product();
+                        $product->set_name($invoices[$i]['desc']);
+                        $product->set_regular_price($invoices[$i]['amount']);
+                        $product->save();
+                        $productId = wc_get_product($product->get_id());
+                        $order->add_product($productId);
+                        // Delete after adding to prevent residue
+                        $product->delete(true);
+                    }
                 }
 
                 // Set all order attributes
@@ -2986,18 +3052,41 @@ final class WcPaymentInvoiceAdmin
                 $order->update_meta_data('wcip_select_invoice_template_id', $pdfTemplateId);
                 $order->update_meta_data('wcip_select_invoice_language', $pdfLanguage);
 
-                // Saves all charges as products inside the order object
+                // Saves all charges as products inside the order object (EDIT VERSION)
                 for ($i = 0; $i < count($invoices); ++$i) {
-                    $product = new WC_Product();
-                    $product->set_name($invoices[$i]['desc']);
-                    $product->set_regular_price($invoices[$i]['amount']);
-                    $product->save();
-                    $productId = wc_get_product($product->get_id());
-
-                    $order->add_product($productId);
-
-                    // Delete after adding to prevent residue
-                    $product->delete(true);
+                    // Check if this is a real WooCommerce product
+                    $isRealProduct = isset($_POST["lkn_wcip_is_real_product_$i"]) && $_POST["lkn_wcip_is_real_product_$i"] === '1';
+                    
+                    if ($isRealProduct) {
+                        // Handle real WooCommerce products
+                        $realProductId = intval($_POST["lkn_wcip_product_id_$i"]);
+                        $quantity = intval($_POST["lkn_wcip_product_qty_$i"]);
+                        
+                        $realProduct = wc_get_product($realProductId);
+                        if ($realProduct) {
+                            // Add the real product to the order with correct quantity
+                            $order->add_product($realProduct, $quantity);
+                        } else {
+                            // Fallback: create a simple product if the real product doesn't exist
+                            $product = new WC_Product();
+                            $product->set_name($invoices[$i]['desc']);
+                            $product->set_regular_price($invoices[$i]['amount']);
+                            $product->save();
+                            $productId = wc_get_product($product->get_id());
+                            $order->add_product($productId);
+                            $product->delete(true);
+                        }
+                    } else {
+                        // Handle custom/fantasy products (existing behavior)
+                        $product = new WC_Product();
+                        $product->set_name($invoices[$i]['desc']);
+                        $product->set_regular_price($invoices[$i]['amount']);
+                        $product->save();
+                        $productId = wc_get_product($product->get_id());
+                        $order->add_product($productId);
+                        // Delete after adding to prevent residue
+                        $product->delete(true);
+                    }
                 }
 
                 // Set all order attributes
@@ -3256,6 +3345,47 @@ final class WcPaymentInvoiceAdmin
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
         }
+    }
+
+    /**
+     * AJAX handler to get product data for the product search modal
+     * 
+     * @since 1.0.0
+     */
+    public function ajax_get_product_data(): void
+    {
+        // Verify nonce
+        if (!wp_verify_nonce($_POST['security'], 'lkn-wcip-product-data')) {
+            wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
+            return;
+        }
+
+        $product_id = intval($_POST['product_id']);
+        
+        if (!$product_id) {
+            wp_send_json_error(__('Invalid product ID', 'wc-invoice-payment'));
+            return;
+        }
+
+        $product = wc_get_product($product_id);
+        
+        if (!$product) {
+            wp_send_json_error(__('Product not found', 'wc-invoice-payment'));
+            return;
+        }
+
+        $response_data = array(
+            'id' => $product->get_id(),
+            'name' => $product->get_name(),
+            'price' => floatval($product->get_price()),
+            'formatted_price' => wc_price($product->get_price()),
+            'regular_price' => floatval($product->get_regular_price()),
+            'sale_price' => floatval($product->get_sale_price()),
+            'type' => $product->get_type(),
+            'status' => $product->get_status()
+        );
+
+        wp_send_json_success($response_data);
     }
 }
 ?>

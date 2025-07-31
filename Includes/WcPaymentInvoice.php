@@ -4,6 +4,7 @@ namespace LknWc\WcInvoicePayment\Includes;
 use LknWc\WcInvoicePayment\Admin\WcPaymentInvoiceAdmin;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoader;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoaderRest;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSettings;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
@@ -175,6 +176,10 @@ final class WcPaymentInvoice {
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
         $this->loader->add_action('lkn_wcip_cron_hook', $plugin_admin, 'check_invoice_exp_date', 10, 1);
 
+        // AJAX hooks for product search functionality
+        $this->loader->add_action('wp_ajax_lkn_wcip_get_product_data', $plugin_admin, 'ajax_get_product_data');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_wcip_get_product_data', $plugin_admin, 'ajax_get_product_data');
+
         $api_handler = new WcPaymentInvoiceLoaderRest();
         $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
         $subscription_class = new WcPaymentInvoiceSubscription();
@@ -194,9 +199,19 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_process_product_meta', $subscription_class, 'save_subscription_fields');
         $this->loader->add_action('wp_ajax_cancel_subscription', $subscription_class, 'cancel_subscription_callback');
         $this->loader->add_action('generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1);
-        
-        
+
+        // Compatibilidade com configurações antigas
+        if(get_option('lkn_wcip_after_save_button_email_check') == '1'){
+            update_option('lkn_wcip_after_save_button_email_check', 'yes');
+        }
+        if(get_option('lkn_wcip_subscription_active_product_invoices') == '1'){
+            update_option('lkn_wcip_subscription_active_product_invoices', 'yes');
+        }
+
+        new WcPaymentInvoiceSettings($this->loader);
     }
+
+   
 
     public function subscriptionNotice(): void {
         $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
