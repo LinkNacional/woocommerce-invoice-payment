@@ -200,13 +200,8 @@ final class WcPaymentInvoice {
         $this->loader->add_action('wp_ajax_cancel_subscription', $subscription_class, 'cancel_subscription_callback');
         $this->loader->add_action('generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1);
 
-        // Compatibilidade com configurações antigas
-        if(get_option('lkn_wcip_after_save_button_email_check') == '1'){
-            update_option('lkn_wcip_after_save_button_email_check', 'yes');
-        }
-        if(get_option('lkn_wcip_subscription_active_product_invoices') == '1'){
-            update_option('lkn_wcip_subscription_active_product_invoices', 'yes');
-        }
+        
+
 
         new WcPaymentInvoiceSettings($this->loader);
     }
@@ -225,6 +220,27 @@ final class WcPaymentInvoice {
             </div>";
         
             echo $message;
+        }
+
+        // Compatibilidade com configurações antigas
+        if(get_option('lkn_wcip_after_save_button_email_check') == '1'){
+            update_option('lkn_wcip_after_save_button_email_check', 'yes');
+        }
+        if(get_option('lkn_wcip_subscription_active_product_invoices') == '1'){
+            update_option('lkn_wcip_subscription_active_product_invoices', 'yes');
+        }
+        if(get_option('lkn_wcip_show_fee_activated') == 'on'){
+            update_option('lkn_wcip_show_fee_activated', 'yes');
+        }
+        if(get_option('lkn_wcip_show_discount_activated') == 'on'){
+            update_option('lkn_wcip_show_discount_activated', 'yes');
+        }
+        // agora preciso fazer o if "on" para get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'no') para cada metodo de pagamento ativado
+        $gateways = WC()->payment_gateways->get_available_payment_gateways();
+        foreach ($gateways as $gateway_id => $gateway) {
+            if(get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'no') == 'on'){
+                update_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'yes');
+            }
         }
     }
 

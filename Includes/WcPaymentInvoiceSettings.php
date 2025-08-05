@@ -14,19 +14,16 @@ final class WcPaymentInvoiceSettings
     {
         $this->loader = $loader;
         $this->handler_invoice_templates = new WcPaymentInvoicePdfTemplates('wc-invoice-payment', WC_PAYMENT_INVOICE_VERSION);
-        
+
         // Registra todas as abas de configuração
         $this->register_all_settings_tabs();
     }
 
     private function register_all_settings_tabs()
     {
-        wp_enqueue_style('cpt-admin-style', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-settings.css', array(), '1.0');
-
-
         // Registra o filtro uma única vez
         $this->loader->add_filter('woocommerce_settings_tabs_array', $this, 'add_settings_tab', 50);
-        
+
         // Aba Faturas
         $this->register_settings_tab(
             'wc_payment_invoice_settings',
@@ -90,16 +87,7 @@ final class WcPaymentInvoiceSettings
     {
         // Carrega os campos de configuração
         wp_enqueue_script('woocommerce_admin');
-        
-        // Carrega a biblioteca de mídia do WordPress
-        wp_enqueue_media();
-        
-        // Carrega o script para upload de arquivos
-        wp_enqueue_script('cpt-admin-script', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-public-input-file.js', array('jquery'), '1.0', true);
-        
-        // Adiciona suporte ao tipo customizado de editor
-        add_action('woocommerce_admin_field_lkn_wp_editor', array($this, 'render_wp_editor_field'));
-        
+        $this->loadScriptsAndStyles();
         woocommerce_admin_fields($this->getInvoiceSettings());
     }
 
@@ -116,8 +104,8 @@ final class WcPaymentInvoiceSettings
         $option_value = get_option($value['id'], $value['default']);
         $description = $value['desc'] ?? '';
         $desc_tip = $value['desc_tip'] ?? false;
-        
-        ?>
+
+?>
         <tr valign="top">
             <th scope="row" class="titledesc">
                 <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['name']); ?></label>
@@ -145,13 +133,77 @@ final class WcPaymentInvoiceSettings
                 <?php endif; ?>
             </td>
         </tr>
-        <?php
+<?php
+    }
+
+    /**
+     * Renderiza um campo customizado para configuração de gateway de pagamento
+     */
+    public function render_payment_gateway_config_field($value)
+    {
+        $gateway_id = $value['gateway_id'];
+        $gateway_title = $value['gateway_title'];
+        $slug = 'lkn_wcip_fee_or_discount_';
+        
+        // Valores das opções
+        $type_value = get_option($slug . 'type_' . $gateway_id, 'none');
+        $method_value = get_option($slug . 'percent_fixed_' . $gateway_id, 'percentage');
+        $amount_value = get_option($slug . 'value_' . $gateway_id, '0');
+        $active_value = get_option($slug . 'method_activated_' . $gateway_id, 'no');
+?>
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label for="<?php echo esc_attr($slug . 'type_' . $gateway_id); ?>"><?php echo esc_html($gateway_title); ?></label>
+            </th>
+            <td class="forminp">
+                <fieldset>
+                    <legend class="screen-reader-text">
+                        <span><?php echo esc_html(__('Configure fee or discount for this payment method', 'wc-invoice-payment')); ?></span>
+                    </legend>
+                    
+                    <div style="display: flex;gap: 15px;align-items: flex-start;flex-wrap: wrap;flex-direction: column;">
+                        <!-- Adicionando checkbox -->
+                        <div>
+                            <input type="checkbox" name="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" <?php checked($active_value, 'yes'); ?> />
+                            <label for="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>"><?php echo esc_html(__('Enable this option', 'wc-invoice-payment')); ?></label>
+                            <p class="description"><?php echo esc_html(__('Habilita o pagamento o taxa/desconto para o método de pagamento.', 'wc-invoice-payment')); ?></p>
+                        </div>
+
+                        <!-- Tipo: Taxa ou Desconto -->
+                        <div>
+                            <select name="<?php echo esc_attr($slug . 'type_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'type_' . $gateway_id); ?>" class="wc-enhanced-select">
+                                <option value="fee" <?php selected($type_value, 'fee'); ?>><?php echo esc_html(__('Fee', 'wc-invoice-payment')); ?></option>
+                                <option value="discount" <?php selected($type_value, 'discount'); ?>><?php echo esc_html(__('Discount', 'wc-invoice-payment')); ?></option>
+                            </select>
+                            <p class="description"><?php echo esc_html(__('Select fee or discount to be applied when user uses this payment method.', 'wc-invoice-payment')); ?></p>
+                        </div>
+                        
+                        <!-- Método: Porcentagem ou Valor Fixo -->
+                        <div>
+                            <select name="<?php echo esc_attr($slug . 'percent_fixed_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'percent_fixed_' . $gateway_id); ?>" class="wc-enhanced-select">
+                                <option value="percentage" <?php selected($method_value, 'percentage'); ?>><?php echo esc_html(__('Percentage', 'wc-invoice-payment')); ?></option>
+                                <option value="fixed" <?php selected($method_value, 'fixed'); ?>><?php echo esc_html(__('Fixed Value', 'wc-invoice-payment')); ?></option>
+                            </select>
+                            <p class="description"><?php echo esc_html(__('Select Percentage or Fixed Value to use in checkout and order calculation.', 'wc-invoice-payment')); ?></p>
+                        </div>
+                        
+                        <!-- Valor -->
+                        <div>
+                            <input name="<?php echo esc_attr($slug . 'value_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'value_' . $gateway_id); ?>" type="number" value="<?php echo esc_attr($amount_value); ?>" min="0" step="0.01" />
+                            <p class="description"><?php echo esc_html(__('Only integer or decimal numbers are allowed. Examples of allowed numbers: 10 or 10.55. For 30% percentage use 30.', 'wc-invoice-payment')); ?></p>
+                        </div>                        
+                    </div>
+                </fieldset>
+            </td>
+        </tr>
+<?php
     }
 
     // === MÉTODOS DA ABA ASSINATURAS ===
     public function showSubscriptionSettingTabContent()
     {
         wp_enqueue_script('woocommerce_admin');
+        $this->loadScriptsAndStyles();
         woocommerce_admin_fields($this->getSubscriptionSettings());
     }
 
@@ -164,6 +216,7 @@ final class WcPaymentInvoiceSettings
     public function showPartialPaymentSettingTabContent()
     {
         wp_enqueue_script('woocommerce_admin');
+        $this->loadScriptsAndStyles();
         woocommerce_admin_fields($this->getPartialPaymentSettings());
     }
 
@@ -176,6 +229,7 @@ final class WcPaymentInvoiceSettings
     public function showFeesDiscountsSettingTabContent()
     {
         wp_enqueue_script('woocommerce_admin');
+        $this->loadScriptsAndStyles();
         woocommerce_admin_fields($this->getFeesDiscountsSettings());
     }
 
@@ -187,12 +241,11 @@ final class WcPaymentInvoiceSettings
     private function getInvoiceSettings()
     {
         $slug = 'lkn_wcip_';
-        
+
         // Obtém a lista de templates disponíveis
         $templates_list = $this->handler_invoice_templates->get_templates_list();
         $template_options = array();
-        
-        
+
         // Converte a lista de templates para o formato esperado pelo WooCommerce
         foreach ($templates_list as $template) {
             $template_options[$template['id']] = $template['friendly_name'];
@@ -213,53 +266,52 @@ final class WcPaymentInvoiceSettings
                 'default'  => 'linknacional',
             ),
             $slug . 'template_logo_url' => array(
-				'name'     => __( 'Logo URL', 'wc-invoice-payment' ),
-				'type'     => 'text',
-				'desc'     => __( 'Maximum recommended width of 460 pixels', 'wc-invoice-payment' ),
-				'id'       => $slug . 'template_logo_url',
-                'desc_tip' => true,
+                'name'     => __('Logo URL', 'wc-invoice-payment'),
+                'type'     => 'text',
+                'desc'     => __('Maximum recommended width of 460 pixels', 'wc-invoice-payment'),
+                'id'       => $slug . 'template_logo_url',
                 'custom_attributes' => array(
                     'data-media-uploader-target' => '#' . $slug . 'template_logo_url',
                     'style' => 'display: none;'
                 )
-			),
+            ),
             $slug . 'default_footer' => array(
-                'name'     => __( 'Default footer', 'wc-invoice-payment' ),
+                'name'     => __('Default footer', 'wc-invoice-payment'),
                 'type'     => 'lkn_wp_editor',
-                'desc'     => __( 'Conteúdo HTML do rodapé padrão para as faturas', 'wc-invoice-payment' ),
+                'desc'     => __('Conteúdo HTML do rodapé padrão para as faturas', 'wc-invoice-payment'),
                 'id'       => $slug . 'default_footer',
-                'desc_tip' => true,
             ),
             $slug . 'sender_details' => array(
-                'name'     => __( 'Sender details', 'wc-invoice-payment' ),
+                'name'     => __('Sender details', 'wc-invoice-payment'),
                 'type'     => 'lkn_wp_editor',
-                'desc'     => __( 'Conteúdo HTML dos detalhes do remetente para as faturas', 'wc-invoice-payment' ),
+                'desc'     => __('Conteúdo HTML dos detalhes do remetente para as faturas', 'wc-invoice-payment'),
                 'id'       => $slug . 'sender_details',
-                'desc_tip' => true,
             ),
             $slug . 'text_before_payment_link' => array(
-                'name'     => __( 'Text before payment link', 'wc-invoice-payment' ),
+                'name'     => __('Text before payment link', 'wc-invoice-payment'),
                 'type'     => 'lkn_wp_editor',
-                'desc'     => __( 'Conteúdo HTML do texto antes do link de pagamento para as faturas', 'wc-invoice-payment' ),
+                'desc'     => __('Conteúdo HTML do texto antes do link de pagamento para as faturas', 'wc-invoice-payment'),
                 'id'       => $slug . 'text_before_payment_link',
-                'desc_tip' => true,
             ),
             $slug . 'after_save_button_email_check' => array(
-				'name'     => __( 'Email Verification', 'wc-invoice-payment' ),
-				'type'     => 'checkbox',
-				'desc'     => __( 'Enable email verification on the invoice.', 'wc-invoice-payment' ),
-				'desc_tip' => __( 'This feature will enable a text box for the user to enter their email address before displaying the invoice.', 'wc-invoice-payment' ),
-				'id'       => $slug . 'after_save_button_email_check',
-				'default'  => 'no',
-			),
+                'name'     => __('Email Verification', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc'     => __('Enable email verification on the invoice.', 'wc-invoice-payment'),
+                'desc_tip' => __('This feature will enable a text box for the user to enter their email address before displaying the invoice.', 'wc-invoice-payment'),
+                'id'       => $slug . 'after_save_button_email_check',
+                'default'  => 'no',
+            ),
             $slug . 'subscription_active_product_invoices' => array(
-				'name'     => __( 'Create invoices for products', 'wc-invoice-payment' ),
-				'type'     => 'checkbox',
-				'desc'     => __( 'Create invoices for products', 'wc-invoice-payment' ),
-				'desc_tip' => __( 'By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store.', 'wc-invoice-payment' ),
-				'id'       => $slug . 'subscription_active_product_invoices',
-				'default'  => 'no',
-			),
+                'name'     => __('Create invoices for products', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'description'     => __('Create invoices for products', 'wc-invoice-payment'),
+                'desc_tip' => __('By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store.', 'wc-invoice-payment'),
+                'id'       => $slug . 'subscription_active_product_invoices',
+                'default'  => 'no',
+                'custom_attributes' => array(
+                    'data-title-description' => __('Select "Development" to test transactions in sandbox mode. Use "Production" for real transactions.', 'wc-invoice-payment')
+                )
+            ),
             'sectionEnd' => array(
                 'type' => 'sectionend'
             )
@@ -271,12 +323,34 @@ final class WcPaymentInvoiceSettings
     private function getSubscriptionSettings()
     {
         $slug = 'lkn_wcip_';
-
+        
         $settingsFields = array(
             'sectionTitle' => array(
                 'type'     => 'title',
                 'name'     => __('Subscription Settings', 'wc-invoice-payment'),
                 'desc'     => __('Configure settings for subscription invoices.', 'wc-invoice-payment'),
+            ),
+            $slug . 'interval_number' => array(
+                'title' => __('Invoice issuance lead time', 'wc-invoice-payment'),
+                'type' => 'number',
+                'desc' => __('Set the lead time for invoice generation relative to the due date.', 'wc-invoice-payment'),
+                'default' => '0',
+                'custom_attributes' => array(
+                    'min' => '0',
+                    'step' => '1',
+                ),
+                'id'       => $slug . 'interval_number',
+            ),
+            $slug . 'interval_type' => array(
+                'type' => 'select',
+                'class' => 'wc-enhanced-select',
+                'options' => array(
+                    'day' => __('Days', 'wc-invoice-payment'),
+                    'week' => __('Weeks', 'wc-invoice-payment'),
+                    'month' => __('Months', 'wc-invoice-payment'),
+                ),
+                'id'       => $slug . 'interval_type',
+                'default' => 'interest'
             ),
             'sectionEnd' => array(
                 'type' => 'sectionend'
@@ -289,11 +363,11 @@ final class WcPaymentInvoiceSettings
     private function getPartialPaymentSettings()
     {
         $slug = 'lkn_wcip_';
-        
+
         // Obtém os gateways de pagamento disponíveis
         $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
         $gateway_options = array();
-        
+
         foreach ($payment_gateways as $gateway_id => $gateway) {
             $gateway_options[$gateway_id] = $gateway->get_title();
         }
@@ -319,17 +393,69 @@ final class WcPaymentInvoiceSettings
     {
         $slug = 'lkn_wcip_';
 
+        // Obtém os gateways de pagamento disponíveis
+        $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        
         $settingsFields = array(
             'sectionTitle' => array(
                 'type'     => 'title',
                 'name'     => __('Fees and Discounts Settings', 'wc-invoice-payment'),
-                'desc'     => __('Configure settings for fees and discounts.', 'wc-invoice-payment'),
+                'desc'     => __('Configure fees and discounts for each payment method.', 'wc-invoice-payment'),
             ),
-            'sectionEnd' => array(
-                'type' => 'sectionend'
-            )
+            $slug . 'show_fee_activated' => array(
+                'name'     => __('Show payment discount', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip'     => __('Enables the display of discounts for each payment method at checkout.', 'wc-invoice-payment'),
+                'id'       => $slug . 'show_fee_activated',
+                'default'  => 'no',
+            ),
+            $slug . 'show_discount_activated' => array(
+                'name'     => __('Show fee at payment', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip'     => __('Enables the display of fees for each payment method at checkout.', 'wc-invoice-payment'),
+                'id'       => $slug . 'show_discount_activated',
+                'default'  => 'no',
+            ),
+        );
+
+        // Adiciona configurações para cada gateway de pagamento
+        foreach ($payment_gateways as $gateway_id => $gateway) {
+            // Configuração principal para o gateway (tipo: taxa ou desconto)
+            $settingsFields[$slug . 'gateway_' . $gateway_id . '_type'] = array(
+                'name'     => $gateway->get_title(),
+                'type'     => 'lkn_payment_gateway_config',
+                'gateway_id' => $gateway_id,
+                'gateway_title' => $gateway->get_title(),
+                'id'       => $slug . 'gateway_' . $gateway_id . '_type',
+            );
+        }
+
+        $settingsFields['sectionEnd'] = array(
+            'type' => 'sectionend'
         );
 
         return $settingsFields;
+    }
+
+
+    public function loadScriptsAndStyles(){
+        // Carrega a biblioteca de mídia do WordPress
+        wp_enqueue_media();
+
+        // Carrega o script para upload de arquivos
+        wp_enqueue_script('cpt-admin-script', WC_PAYMENT_INVOICE_ROOT_URL . 'Admin/js/wc-invoice-payment-public-input-file.js', array('jquery'), WC_PAYMENT_INVOICE_VERSION, true);
+        wp_enqueue_style('cpt-admin-style', WC_PAYMENT_INVOICE_ROOT_URL . 'Admin/css/wc-invoice-payment-settings.css', array(), WC_PAYMENT_INVOICE_VERSION);
+        wp_enqueue_style('admin-layout-style', WC_PAYMENT_INVOICE_ROOT_URL . 'Admin/css/wc-invoice-payment-settings-layout.css', array(), WC_PAYMENT_INVOICE_VERSION);
+        wp_enqueue_script('admin-layout-script', WC_PAYMENT_INVOICE_ROOT_URL . 'Admin/js/wc-invoice-payment-settings-layout.js', array('jquery'), WC_PAYMENT_INVOICE_VERSION, true);
+        wp_localize_script('admin-layout-script', 'lknWcInvoicesTranslationsInput', array(
+            'modern' => __('Modern version', 'wc-invoice-payment'),
+            'standard' => __('Standard version', 'wc-invoice-payment'),
+            'enable' => __('Enable', 'wc-invoice-payment'),
+            'disable' => __('Disable', 'wc-invoice-payment'),
+        ));
+
+        // Adiciona suporte aos tipos customizados de campos
+        add_action('woocommerce_admin_field_lkn_wp_editor', array($this, 'render_wp_editor_field'));
+        add_action('woocommerce_admin_field_lkn_payment_gateway_config', array($this, 'render_payment_gateway_config_field'));
     }
 }

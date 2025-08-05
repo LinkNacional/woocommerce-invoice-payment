@@ -314,6 +314,10 @@
 	display: flex;
 }
 
+.select2.select2-container.select2-container--default.select2-container--below.select2-container--focus {
+	width: 250px !important;
+}
+
 #lkn_wcip_subscription_limit_checkbox_div {
 	margin-top: 25px;
 }

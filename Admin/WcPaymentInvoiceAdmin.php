@@ -180,7 +180,7 @@ final class WcPaymentInvoiceAdmin
                 )
             );
             wp_enqueue_media();
-            wp_enqueue_script('cpt-admin-script', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-public-input-file.js', array('jquery'), '1.0', true);
+            wp_enqueue_script('cpt-admin-script', WC_PAYMENT_INVOICE_ROOT_URL . 'Admin/js/wc-invoice-payment-public-input-file.js', array('jquery'), '1.0', true);
             
             // Add product search functionality for invoice creation/edit pages
             if (

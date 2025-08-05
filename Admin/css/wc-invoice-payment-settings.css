@@ -6,3 +6,7 @@
 #lkn_wcip_template_logo_url{
     display: none;
 }
+
+.wp-core-ui.wp-editor-wrap.tmce-active{
+    width: 100%;
+}
