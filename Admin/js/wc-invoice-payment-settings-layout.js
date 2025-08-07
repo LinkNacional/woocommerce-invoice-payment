@@ -26,7 +26,6 @@
               select2Container.style.setProperty('min-width', '200px', 'important')
               select2Container.style.setProperty('max-width', '200px', 'important')
               select2Container.style.setProperty('width', '200px', 'important')
-              console.log(select2Container.style)
             }
 
             // Cria um div para conter os campos em flex
@@ -94,8 +93,11 @@
 
         // Aplicar layout para todos os campos (com ou sem fieldset)
         if (forminp && label) {
-          const titleText = label.textContent.trim()
-
+          var titleText = label.textContent.trim()
+          inputElement = label.parentElement.querySelector('input')
+          if(inputElement && inputElement.title) {
+            titleText = inputElement.title.trim()
+          }
           // Se existe fieldset, usar a lógica existente
           if (legend && fieldset) {
             // Cria divs para header e body

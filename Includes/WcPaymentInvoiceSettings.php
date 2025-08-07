@@ -136,9 +136,6 @@ final class WcPaymentInvoiceSettings
 <?php
     }
 
-    /**
-     * Renderiza um campo customizado para configuração de gateway de pagamento
-     */
     public function render_payment_gateway_config_field($value)
     {
         $gateway_id = $value['gateway_id'];
@@ -150,7 +147,7 @@ final class WcPaymentInvoiceSettings
         $method_value = get_option($slug . 'percent_fixed_' . $gateway_id, 'percentage');
         $amount_value = get_option($slug . 'value_' . $gateway_id, '0');
         $active_value = get_option($slug . 'method_activated_' . $gateway_id, 'no');
-?>
+        ?>
         <tr valign="top">
             <th scope="row" class="titledesc">
                 <label for="<?php echo esc_attr($slug . 'type_' . $gateway_id); ?>"><?php echo esc_html($gateway_title); ?></label>
@@ -166,7 +163,7 @@ final class WcPaymentInvoiceSettings
                         <div>
                             <input type="checkbox" name="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" <?php checked($active_value, 'yes'); ?> />
                             <label for="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>"><?php echo esc_html(__('Enable this option', 'wc-invoice-payment')); ?></label>
-                            <p class="description"><?php echo esc_html(__('Habilita o pagamento o taxa/desconto para o método de pagamento.', 'wc-invoice-payment')); ?></p>
+                            <p class="description"><?php echo esc_html(__('Enables fee/discount payment for the payment method.', 'wc-invoice-payment')); ?></p>        
                         </div>
 
                         <!-- Tipo: Taxa ou Desconto -->
@@ -196,7 +193,97 @@ final class WcPaymentInvoiceSettings
                 </fieldset>
             </td>
         </tr>
-<?php
+        <?php
+    }
+
+    public function render_partial_payment_gateway_config_field($value)
+    {
+        $gateway_id = $value['gateway_id'];
+        $gateway_title = $value['gateway_title'];
+        
+        // Configurações para método habilitado
+        $method_slug = 'lkn_wcip_partial_payments_method_';
+        $method_enabled = get_option($method_slug . $gateway_id, 'no');
+        // Migração da configuração antiga para métodos habilitados (uma opção para todos) para a nova (uma por gateway)
+        $old_methods = get_option('lkn_wcip_partial_payment_methods_enabled', array());
+        if (!empty($old_methods) && isset($old_methods[$gateway_id])) {
+            // Se existe na configuração antiga e não existe na nova, migra o valor
+            if (get_option($method_slug . $gateway_id, false) === false) {
+                update_option($method_slug . $gateway_id, $old_methods[$gateway_id]);
+            }
+            $method_enabled = get_option($method_slug . $gateway_id, 'no');
+            
+            // Remove este gateway da configuração antiga
+            unset($old_methods[$gateway_id]);
+            
+            // Se não há mais gateways na configuração antiga, deleta ela completamente
+            if (empty($old_methods)) {
+                delete_option('lkn_wcip_partial_payment_methods_enabled');
+            } else {
+                update_option('lkn_wcip_partial_payment_methods_enabled', $old_methods);
+            }
+        }
+        
+        // Configurações para status
+        $status_slug = 'lkn_wcip_partial_complete_status_';
+        $selected_status = get_option($status_slug . $gateway_id, 'wc-processing');
+        
+        // Migração da configuração antiga para status (uma opção para todos) para a nova (uma por gateway)
+        $old_statuses = get_option('lkn_wcip_partial_payment_methods_statuses', array());
+        if (!empty($old_statuses) && isset($old_statuses[$gateway_id])) {
+            // Se existe na configuração antiga e não existe na nova, migra o valor
+            if (get_option($status_slug . $gateway_id, false) === false) {
+                update_option($status_slug . $gateway_id, $old_statuses[$gateway_id]);
+            }
+            $selected_status = get_option($status_slug . $gateway_id, 'wc-processing');
+            
+            // Remove este gateway da configuração antiga
+            unset($old_statuses[$gateway_id]);
+            
+            // Se não há mais gateways na configuração antiga, deleta ela completamente
+            if (empty($old_statuses)) {
+                delete_option('lkn_wcip_partial_payment_methods_statuses');
+            } else {
+                update_option('lkn_wcip_partial_payment_methods_statuses', $old_statuses);
+            }
+        }
+
+        ?>
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label for="<?php echo esc_attr($method_slug . $gateway_id); ?>"><?php echo esc_html($gateway_title); ?></label>
+            </th>
+            <td class="forminp">
+                <fieldset>
+                    <legend class="screen-reader-text">
+                        <span><?php echo esc_html(__('Configure partial payment settings for this payment method', 'wc-invoice-payment')); ?></span>
+                    </legend>
+                    
+                    <div style="display: flex;gap: 15px;align-items: flex-start;flex-wrap: wrap;flex-direction: column;">
+                        <!-- Checkbox para habilitar método -->
+                        <div>
+                            <input type="checkbox" name="<?php echo esc_attr($method_slug . $gateway_id); ?>" id="<?php echo esc_attr($method_slug . $gateway_id); ?>" value="yes" <?php checked($method_enabled, 'yes'); ?> />
+                            <label for="<?php echo esc_attr($method_slug . $gateway_id); ?>"><?php echo esc_html(__('Habilitar pagamento parcial', 'wc-invoice-payment')); ?></label>
+                            <p class="description"><?php echo esc_html(__('Habilita o pagamento parcial para o método de pagamento.', 'wc-invoice-payment')); ?></p>
+                        </div>
+                        
+                        <!-- Status de confirmação -->
+                        <div>
+                            <select name="<?php echo esc_attr($status_slug . $gateway_id); ?>" id="<?php echo esc_attr($status_slug . $gateway_id); ?>" class="wc-enhanced-select">
+                                <?php 
+                                    $status = wc_get_order_statuses();
+                                    foreach ( $status as $key => $value ) {
+                                        echo "<option value='" . esc_attr($key) . "' " . selected($selected_status, $key, false) . ">" . esc_html($value) . "</option>";
+                                    }
+                                ?>
+                            </select>
+                            <p class="description"><?php echo esc_html(__('Selecione o status de pagamento confirmado nesse método. Assim o pagamento parcial será confirmado apenas quando o status for igual ao definido.', 'wc-invoice-payment')); ?></p>
+                        </div>
+                    </div>
+                </fieldset>
+            </td>
+        </tr>
+        <?php
     }
 
     // === MÉTODOS DA ABA ASSINATURAS ===
@@ -372,8 +459,19 @@ final class WcPaymentInvoiceSettings
             $gateway_options[$gateway_id] = $gateway->get_title();
         }
 
-        // Obtém os status de pedido disponíveis
-        $order_statuses = wc_get_order_statuses();
+        // Get available order statuses
+        $status = wc_get_order_statuses();
+
+        // Statuses to be ignored
+        $excluded_statuses = array(
+            'wc-partial-pend',
+            'wc-partial'
+        );
+        
+        // Remove unwanted statuses
+        foreach ( $excluded_statuses as $excluded ) {
+            unset( $status[ $excluded ] );
+        }
 
         $settingsFields = array(
             'sectionTitle' => array(
@@ -381,9 +479,52 @@ final class WcPaymentInvoiceSettings
                 'name'     => __('Partial Payment Settings', 'wc-invoice-payment'),
                 'desc'     => __('Configure settings for partial payments.', 'wc-invoice-payment'),
             ),
-            'sectionEnd' => array(
-                'type' => 'sectionend'
+            $slug . 'partial_payments_enabled' => array(
+                'name'     => __('Partial payments', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip'     => __('Enables the partial payment option for the customer at checkout.', 'wc-invoice-payment'),
+                'id'       => $slug . 'partial_payments_enabled',
+                'default'  => 'no',
+                'custom_attributes' => array(
+                    'title' => __('Enable partial payments', 'wc-invoice-payment'),
+                )
+            ),
+            $slug . 'partial_complete_status' => array(
+                'name'     => __('Order status when partial payment is complete', 'wc-invoice-payment'),
+                'type' => 'select',
+                'class' => 'wc-enhanced-select',
+                'options' => $status,
+                'desc'     => __('Select the order status to be applied when partial payment is completed. WooCommerce default: Processing.', 'wc-invoice-payment'),
+                'id'       => $slug . 'partial_complete_status',
+                'default' => 'wc-processing'
+            ),
+            $slug . 'partial_interval_minimum' => array(
+                'name' => __('Enable partial payment for orders above', 'wc-invoice-payment'),
+                'type' => 'number',
+                'desc' => __('Define the minimum order value for the partial payment option to be displayed at checkout.', 'wc-invoice-payment'),
+                'default' => '0',
+                'custom_attributes' => array(
+                    'min' => '0',
+                    'step' => '0.01',
+                ),
+                'id'       => $slug . 'partial_interval_minimum',
             )
+        );
+
+        // Adiciona configurações para cada gateway de pagamento
+        foreach ($payment_gateways as $gateway_id => $gateway) {
+            // Configuração principal para o gateway (tipo: taxa ou desconto)
+            $settingsFields[$slug . 'gateway_' . $gateway_id . '_type'] = array(
+                'name'     => $gateway->get_title(),
+                'type'     => 'lkn_partial_payment_gateway_config',
+                'gateway_id' => $gateway_id,
+                'gateway_title' => $gateway->get_title(),
+                'id'       => $slug . 'gateway_' . $gateway_id . '_type',
+            );
+        }
+
+        $settingsFields['sectionEnd'] = array(
+            'type' => 'sectionend'
         );
 
         return $settingsFields;
@@ -457,5 +598,6 @@ final class WcPaymentInvoiceSettings
         // Adiciona suporte aos tipos customizados de campos
         add_action('woocommerce_admin_field_lkn_wp_editor', array($this, 'render_wp_editor_field'));
         add_action('woocommerce_admin_field_lkn_payment_gateway_config', array($this, 'render_payment_gateway_config_field'));
+        add_action('woocommerce_admin_field_lkn_partial_payment_gateway_config', array($this, 'render_partial_payment_gateway_config_field'));
     }
 }

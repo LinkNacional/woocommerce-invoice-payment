@@ -235,6 +235,9 @@ final class WcPaymentInvoice {
         if(get_option('lkn_wcip_show_discount_activated') == 'on'){
             update_option('lkn_wcip_show_discount_activated', 'yes');
         }
+        if(get_option('lkn_wcip_partial_payments_enabled') == 'on'){
+            update_option('lkn_wcip_partial_payments_enabled', 'yes');
+        }
         // agora preciso fazer o if "on" para get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'no') para cada metodo de pagamento ativado
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
         foreach ($gateways as $gateway_id => $gateway) {
