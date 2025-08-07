@@ -6,10 +6,10 @@
             const method = methods[methodId];
             const labelHtml = method.label;
 
-            if (method.type === 'fee' && wcInvoicePaymentFeeOrDiscountVariables.showFeeOption !== 'on') {
+            if (method.type === 'fee' && wcInvoicePaymentFeeOrDiscountVariables.showFeeOption !== 'yes') {
                 return;
             }
-            if (method.type === 'discount' && wcInvoicePaymentFeeOrDiscountVariables.showDiscountOption !== 'on') {
+            if (method.type === 'discount' && wcInvoicePaymentFeeOrDiscountVariables.showDiscountOption !== 'yes') {
                 return;
             }
 

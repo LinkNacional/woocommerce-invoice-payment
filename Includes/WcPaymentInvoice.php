@@ -249,10 +249,10 @@ final class WcPaymentInvoice {
 
     public function custom_email_verification_required($verification_required) {
         $email_verify = get_option("lkn_wcip_after_save_button_email_check");
-        if ( ! $email_verify) {
-            $verification_required = false; // Defina como false para não exigir verificação de e-mail
-        } else {
+        if ($email_verify == 'yes') {
             $verification_required = true;
+        } else {
+            $verification_required = false; // Defina como false para não exigir verificação de e-mail
         }
 
         return $verification_required;

@@ -183,7 +183,7 @@ final class WcPaymentInvoiceSubscription
             foreach ($items as $item) {
                 $product_id = $item->get_product_id();
                 $is_subscription_enabled = get_post_meta($product_id, '_lkn-wcip-subscription-product', true);
-                if (get_option("lkn_wcip_subscription_active_product_invoices") || 'on' == $is_subscription_enabled || $manualSubscription) {
+                if (get_option("lkn_wcip_subscription_active_product_invoices") == 'yes' || 'on' == $is_subscription_enabled || $manualSubscription) {
                     $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
                     $iniDate = new DateTime();
                     $iniDateFormatted = $iniDate->format('Y-m-d');

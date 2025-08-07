@@ -6,7 +6,7 @@ use WC_Order;
 final class WcPaymentInvoicePartial
 {
     public function enqueueCheckoutScripts(){
-        if ( is_checkout() && WC()->payment_gateways() && ! empty( WC()->payment_gateways()->get_available_payment_gateways() ) && get_option('lkn_wcip_partial_payments_enabled', '') == 'on'){
+        if ( is_checkout() && WC()->payment_gateways() && ! empty( WC()->payment_gateways()->get_available_payment_gateways() ) && get_option('lkn_wcip_partial_payments_enabled', '') == 'yes'){
             $currency_code =  get_woocommerce_currency();
             $currency_symbol = get_woocommerce_currency_symbol( $currency_code );
             wp_enqueue_script( 'wcInvoicePaymentPartialScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-partial.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
