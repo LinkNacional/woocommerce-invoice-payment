@@ -194,13 +194,13 @@ final class WcPaymentInvoiceAdmin
                 
                 // Enqueue our product search script
                 wp_enqueue_script(
-                    $this->plugin_name . '-product-search', 
-                    plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-product-search.js', 
-                    array('jquery', 'select2', 'wc-enhanced-select'), 
-                    $this->version, 
+                    $this->plugin_name . '-product-search',
+                    plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-product-search.js',
+                    array('jquery', 'select2', 'wc-enhanced-select'),
+                    $this->version,
                     true
                 );
-                
+
                 // Localize script for product search
                 wp_localize_script(
                     $this->plugin_name . '-product-search',
@@ -228,6 +228,7 @@ final class WcPaymentInvoiceAdmin
      */
     public function add_setting_session(): void
     {
+        // Menu principal - Faturas
         add_menu_page(
             __('List invoices', 'wc-invoice-payment'),
             __('Invoices', 'wc-invoice-payment'),
@@ -238,6 +239,7 @@ final class WcPaymentInvoiceAdmin
             50
         );
 
+        // Submenus de faturas
         add_submenu_page(
             'wc-invoice-payment',
             __('List invoices', 'wc-invoice-payment'),
@@ -250,728 +252,64 @@ final class WcPaymentInvoiceAdmin
 
         add_submenu_page(
             'wc-invoice-payment',
+            __('Settings', 'wc-invoice-payment'),
+            __('Settings', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'wc-invoice-payment-settings',
+            function () {
+                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_invoice_settings'));
+                exit;
+            },
+            3
+        );
+
+        // Menu principal - Assinaturas
+        add_menu_page(
             __('List Subscriptions', 'wc-invoice-payment'),
             __('Subscriptions', 'wc-invoice-payment'),
             'manage_woocommerce',
-            'wc-subscription-payment',
+            'wc-invoice-payment-subscriptions',
+            false,
+            'dashicons-money-alt',
+            51 // posição diferente
+        );
+
+        // Submenus de assinaturas
+        add_submenu_page(
+            'wc-invoice-payment-subscriptions',
+            __('List Subscriptions', 'wc-invoice-payment'),
+            __('Subscriptions', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'wc-invoice-payment-subscriptions',
             array($this, 'render_subscription_list_page'),
             1
         );
 
         add_submenu_page(
-            'wc-invoice-payment',
+            'wc-invoice-payment-subscriptions',
+            __('Add subscription', 'wc-invoice-payment'),
+            __('Add subscription', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'wc-invoice-payment-subscriptions-add',
+            function () {
+                wp_redirect(admin_url('admin.php?page=new-invoice'));
+                exit;
+            },
+            2
+        );
+
+        add_submenu_page(
+            'wc-invoice-payment-subscriptions',
             __('Settings', 'wc-invoice-payment'),
             __('Settings', 'wc-invoice-payment'),
             'manage_woocommerce',
-            'settings',
-            array($this, 'render_settings_page'),
-            2
+            'wc-invoice-payment-subscriptions-settings',
+            function () {
+                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_invoice_settings'));
+                exit;
+            },
+            3
         );
-    }
-
-    public function render_settings_page(): void
-    {
-        if (! current_user_can('manage_woocommerce') && isset($_POST['lkn_wcip_settings_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['lkn_wcip_settings_nonce'])), 'settings_nonce')) {
-            return;
-        }
-        wp_enqueue_style('my-tailwind-plugin-styles', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/style.css', array(), $this->version);
-        wp_enqueue_editor();
-
-        $current_tab = isset($_GET['settings']) ? sanitize_text_field(wp_unslash($_GET['settings'])) : 'Invoices';
-
-        if (! empty($_POST)) {
-            if ('Invoices' === $current_tab) {
-                $global_pdf_template = sanitize_text_field(wp_unslash($_POST['lkn_wcip_payment_global_template']));
-                $product_invoices = sanitize_text_field(wp_unslash($_POST["lkn_wcip_subscription_active_product_invoices"]));
-                $template_logo_url = sanitize_text_field(wp_unslash($_POST['lkn_wcip_template_logo_url']));
-
-                $default_footer = wp_kses_post(wp_unslash($_POST['lkn_wcip_default_footer']));
-                $sender_details = wp_kses_post(wp_unslash($_POST['lkn_wcip_sender_details']));
-                $text_before_payment_link = wp_kses_post(wp_unslash($_POST['lkn_wcip_text_before_payment_link']));
-                $email_verify = isset($_POST["lkn_wcip_after_save_button_email_check"]);
-                update_option('lkn_wcip_global_pdf_template_id', $global_pdf_template);
-                update_option('lkn_wcip_template_logo_url', $template_logo_url);
-                update_option('lkn_wcip_default_footer', $default_footer);
-                update_option('lkn_wcip_sender_details', $sender_details);
-                update_option('lkn_wcip_text_before_payment_link', $text_before_payment_link);
-                update_option('lkn_wcip_subscription_active_product_invoices', $product_invoices);
-                update_option("lkn_wcip_after_save_button_email_check", $email_verify);
-            } else if( 'Subscriptions' === $current_tab) {
-                $interval_number = sanitize_text_field(wp_unslash($_POST["lkn_wcip_subscription_interval_number"]));
-                $interval_type = sanitize_text_field(wp_unslash($_POST["lkn_wcip_subscription_interval_type"]));
-
-                update_option('lkn_wcip_interval_number', $interval_number);
-                update_option('lkn_wcip_interval_type', $interval_type);
-            }else if('Partial' === $current_tab) {
-                $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
-                $saved_methods = [];
-                $saved_statuses = [];
-
-                foreach ( $payment_gateways as $gateway_id => $gateway ) {
-                    $method_key = 'lkn_wcip_partial_payments_method_' . $gateway_id;
-                    $status_key = 'lkn_wcip_partial_complete_status_' . $gateway_id;
-
-                    // Salvar se está habilitado
-                    $enabled = isset($_POST[$method_key]) ? 'yes' : 'no';
-                    $saved_methods[$gateway_id] = $enabled;
-
-                    // Salvar status selecionado
-                    if (isset($_POST[$status_key])) {
-                        $saved_statuses[$gateway_id] = sanitize_text_field(wp_unslash($_POST[$status_key]));
-                    }
-                }
-
-                update_option('lkn_wcip_partial_payment_methods_enabled', $saved_methods);
-                update_option('lkn_wcip_partial_payment_methods_statuses', $saved_statuses);
-
-                $partial_complete_status = sanitize_text_field(wp_unslash($_POST['lkn_wcip_partial_complete_status'] ?? ''));
-                $partial_minimum_value = sanitize_text_field(wp_unslash($_POST['lkn_wcip_partial_interval_minimum'] ?? '0.00'));
-                $partial_payments_enabled = sanitize_text_field(wp_unslash($_POST['lkn_wcip_partial_payments_enabled'] ?? ''));
-
-                update_option('lkn_wcip_partial_complete_status', $partial_complete_status);
-                update_option('lkn_wcip_partial_interval_minimum', $partial_minimum_value);
-                update_option('lkn_wcip_partial_payments_enabled', $partial_payments_enabled);
-            }else if('FeesOrDiscounts' === $current_tab) {
-                $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
-
-                foreach ( $payment_gateways as $gateway_id => $gateway ) {
-                    if(isset($_POST['lkn_wcip_fee_or_discount_method_activated_' . $gateway_id])) {
-                        $isActive = sanitize_text_field(wp_unslash($_POST['lkn_wcip_fee_or_discount_method_activated_' . $gateway_id]));
-                        update_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, $isActive);
-                    }else{
-                        update_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'off');
-                    }
-                    if(isset($_POST['lkn_wcip_fee_or_discount_type_' . $gateway_id])) {
-                        $type = sanitize_text_field(wp_unslash($_POST['lkn_wcip_fee_or_discount_type_' . $gateway_id]));
-                        update_option('lkn_wcip_fee_or_discount_type_' . $gateway_id, $type);
-                    }
-                    if(isset($_POST['lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id])) {
-                        $percentOrFixed = sanitize_text_field(wp_unslash($_POST['lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id]));
-                        update_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id, $percentOrFixed);
-                    }
-                    if(isset($_POST['lkn_wcip_fee_or_discount_value_' . $gateway_id])) {
-                        $value = sanitize_text_field(wp_unslash($_POST['lkn_wcip_fee_or_discount_value_' . $gateway_id]));
-                        update_option('lkn_wcip_fee_or_discount_value_' . $gateway_id, $value);
-                    }
-                }
-                
-                if(isset($_POST['lkn_wcip_show_discount_activated'])) {
-                    $isDiscountActive = sanitize_text_field(wp_unslash($_POST['lkn_wcip_show_discount_activated']));
-                    update_option('lkn_wcip_show_discount_activated', $isDiscountActive);
-                }else{
-                    update_option('lkn_wcip_show_discount_activated', 'off');
-                }
-                if(isset($_POST['lkn_wcip_show_fee_activated'])) {
-                    $isFeeActive = sanitize_text_field(wp_unslash($_POST['lkn_wcip_show_fee_activated']));
-                    update_option('lkn_wcip_show_fee_activated', $isFeeActive);
-                }else{
-                    update_option('lkn_wcip_show_fee_activated', 'off');
-                }
-            }
-        }
-
-        $templates_list = $this->handler_invoice_templates->get_templates_list();
-        $global_template = get_option('lkn_wcip_global_pdf_template_id', 'linknacional');
-
-        $template_logo_url = get_option('lkn_wcip_template_logo_url');
-        $interval_number = get_option('lkn_wcip_interval_number');
-        $interval_type = get_option('lkn_wcip_interval_type');
-        $default_footer = get_option('lkn_wcip_default_footer');
-        $sender_details = get_option('lkn_wcip_sender_details');
-        $text_before_payment_link = get_option('lkn_wcip_text_before_payment_link');
-        $email_verify = get_option("lkn_wcip_after_save_button_email_check");
-        $product_invoices = get_option("lkn_wcip_subscription_active_product_invoices");
-        $saved_methods = get_option('lkn_wcip_partial_payment_methods_enabled', []);
-        $saved_statuses = get_option('lkn_wcip_partial_payment_methods_statuses', []);
-        $partial_complete_status = get_option('lkn_wcip_partial_complete_status', 'wc-processing');
-        $partial_minimum_value = get_option('lkn_wcip_partial_interval_minimum', '0.00');
-        $partial_payments_enabled = get_option('lkn_wcip_partial_payments_enabled', '')  == 'on' ? 'checked' : '';
-        $show_discount_active = get_option('lkn_wcip_show_discount_activated')  == 'on' ? 'checked' : '';
-        $show_fee_active = get_option('lkn_wcip_show_fee_activated')  == 'on' ? 'checked' : '';
-        $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
-        $disabled =  !empty($payment_gateways) ? '' : 'disabled';
-        if($current_tab != 'Partial' && $current_tab != 'FeesOrDiscounts') {
-            $disabled = '';
-        }
-
-
-        $html_templates_list = implode(array_map(function ($template) use ($global_template): string {
-            $template_id = esc_attr($template['id']);
-            $friendly_template_name = esc_html($template['friendly_name']);
-            $preview_url = esc_url(WC_PAYMENT_INVOICE_ROOT_URL . "Includes/templates/$template_id/preview.webp");
-
-            $selected = $global_template === $template_id ? 'selected' : '';
-
-            return "<option $selected data-preview-url='$preview_url' value='$template_id'>$friendly_template_name</option>";
-        }, $templates_list));
-
-        wp_create_nonce('wp_rest');
-
-        // Função para verificar qual aba está ativa
-        function is_active_tab($tab_name, $current_tab)
-        {
-            return $tab_name === $current_tab ? 'nav-tab-active' : '';
-        }
-
-?>
-        <div class="wrap">
-            <h1><?php esc_attr_e('Settings', 'wc-invoice-payment'); ?>
-            </h1>
-            <?php settings_errors(); ?>
-            <nav class="nav-tab-wrapper woo-nav-tab-wrapper">
-                <a
-                    href="admin.php?page=settings&settings=Invoices"
-                    class="nav-tab <?php echo esc_attr(is_active_tab('Invoices', $current_tab)); ?>">
-                    <?php esc_attr_e('Invoices', 'wc-invoice-payment') ?>
-                </a>
-                <a
-                    href="admin.php?page=settings&settings=Subscriptions"
-                    class="nav-tab <?php echo esc_attr(is_active_tab('Subscriptions', $current_tab)); ?>">
-                    <?php esc_attr_e('Subscriptions', 'wc-invoice-payment') ?>
-                </a>
-                <a
-                    href="admin.php?page=settings&settings=Partial"
-                    class="nav-tab <?php echo esc_attr(is_active_tab('Partial', $current_tab)); ?>">
-                    <?php esc_attr_e('Pagamento parcial', 'wc-invoice-payment') ?>
-                </a>
-                <a
-                    href="admin.php?page=settings&settings=FeesOrDiscounts"
-                    class="nav-tab <?php echo esc_attr(is_active_tab('FeesOrDiscounts', $current_tab)); ?>">
-                    <?php esc_attr_e('Fees or Discounts', 'wc-invoice-payment') ?>
-                </a>
-            </nav>
-            <form
-                action="<?php echo esc_attr(menu_page_url('settings', false)) . "&settings=" . esc_attr($current_tab); ?>"
-                method="post"
-                class="wcip-form-wrap">
-                <?php wp_nonce_field('lkn_wcip_edit_invoice', 'nonce'); ?>
-
-                <input
-                    name="lkn_wcip_settings_nonce"
-                    id="lkn_wcip_settings_nonce"
-                    type="hidden"
-                    value="<?php echo esc_attr(wp_create_nonce('settings_nonce')) ?>">
-
-                <div class="wcip-invoice-data">
-                    <?php
-                    if ('Invoices' == $current_tab) {
-                        ?>
-                        <div class="invoice_settings">
-                            <h2 class="title">
-                                <?php esc_attr_e('Invoice settings', 'wc-invoice-payment'); ?>
-                            </h2>
-                            <div class="invoice-row-wrap">
-                                <div class="invoice-column-wrap">
-                                    <div class="input-row-wrap input-row-wrap-global-settings">
-                                        <label for="lkn_wcip_payment_global_template">
-                                            <?php esc_attr_e('Default PDF template for invoices', 'wc-invoice-payment'); ?>
-                                        </label>
-                                        <select
-                                            name="lkn_wcip_payment_global_template"
-                                            id="lkn_wcip_payment_global_template"
-                                            class="regular-text">
-                                            <?php echo wp_kses($html_templates_list, array(
-                                                'option' => array(
-                                                    'data-preview-url' => true,
-                                                    'value' => true,
-                                                    'selected' => true,
-                                                ),
-                                            )); ?>
-                                        </select>
-                                    </div>
-                                    <div class="input-row-wrap">
-                                        <div style="position: relative;"><img id="lkn-wcip-preview-img" /></div>
-                                    </div>
-
-
-                                    <div class="input-row-wrap input-row-wrap-global-settings">
-                                        <label
-                                            class="lkn_wcip_payment_global_template_label"
-                                            for="lkn_wcip_payment_global_template">
-                                            <?php esc_attr_e('Logo URL', 'wc-invoice-payment'); ?>
-                                            <div class="lkn_wcip_payment_global_template_label_description">
-                                                <?php esc_attr_e('Maximum recommended width of 460 pixels', 'wc-invoice-payment'); ?>
-                                            </div>
-                                        </label>
-
-
-                                        <div class="flex gap-2 items-center">
-                                            <button
-                                                type="button"
-                                                value="<?php echo esc_attr($template_logo_url); ?>"
-                                                class="button button-primary"
-                                                id="lkn_wcip_template_logo_url_btn"
-                                                data-media-uploader-target="#lkn_wcip_template_logo_url">
-                                                <?php esc_attr_e('Upload image', 'wc-invoice-payment') ?>
-                                            </button>
-                                            <h3 id="lkn_wcip_template_logo_desc"></h3>
-                                        </div>
-                                        <div style="display: none;">
-                                            <input
-                                                type="text"
-                                                class="large-text"
-                                                value="<?php echo esc_attr($template_logo_url); ?>"
-                                                name="lkn_wcip_template_logo_url"
-                                                id="lkn_wcip_template_logo_url" />
-                                        </div>
-                                    </div>
-
-
-                                    <div class="input-row-wrap input-row-wrap-global-settings">
-                                        <label for="lkn_wcip_default_footer">
-                                            <?php esc_attr_e('Default footer', 'wc-invoice-payment'); ?>
-                                        </label>
-                                        <textarea
-                                            name="lkn_wcip_default_footer"
-                                            id="lkn_wcip_default_footer"><?php echo esc_html($default_footer); ?></textarea>
-                                    </div>
-
-                                    <div class="input-row-wrap input-row-wrap-global-settings">
-                                        <label for="lkn_wcip_sender_details">
-                                            <?php esc_attr_e('Sender details', 'wc-invoice-payment'); ?>
-                                        </label>
-                                        <textarea
-                                            name="lkn_wcip_sender_details"
-                                            id="lkn_wcip_sender_details"><?php echo esc_html($sender_details); ?></textarea>
-                                    </div>
-
-                                    <div class="input-row-wrap input-row-wrap-global-settings">
-                                        <label for="lkn_wcip_text_before_payment_link">
-                                            <?php esc_attr_e('Text before payment link', 'wc-invoice-payment'); ?>
-                                        </label>
-                                        <textarea
-                                            name="lkn_wcip_text_before_payment_link"
-                                            id="lkn_wcip_text_before_payment_link"><?php echo esc_html($text_before_payment_link); ?></textarea>
-
-                                    </div>
-                                    <div class="input-column-wrap input-row-wrap-global-settings">
-                                        <div class="input-column-wrap">
-                                            <label for="lkn_wcip_after_save_button_email_check">
-                                                <input
-                                                    type="checkbox"
-                                                    name="lkn_wcip_after_save_button_email_check"
-                                                    id="lkn_wcip_after_save_button_email_check"
-                                                    <?php if ($email_verify) {
-                                                        echo 'checked';
-                                                    } ?>
-                                                    <i></i>
-                                                <?php esc_attr_e('Enable email verification on the invoice.', 'wc-invoice-payment'); ?>
-
-                                                <div class="tooltip">
-                                                    <span
-                                                        class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                    <span class="tooltiptext">
-                                                        <?php esc_attr_e('This feature will enable a text box for the user to enter their email address before displaying the invoice.', 'wc-invoice-payment'); ?>
-                                                    </span>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="input-column-wrap input-row-wrap-global-settings">
-                                        <div
-                                            class="input-column-wrap"
-                                            id="lkn_wcip_subscription_active_product">
-                                            <label for="lkn_wcip_subscription_active_product_invoices">
-                                                <input
-                                                    name="lkn_wcip_subscription_active_product_invoices"
-                                                    id="lkn_wcip_subscription_active_product_invoices"
-                                                    type="checkbox"
-                                                    class=""
-                                                    value="1"
-                                                    <?php if ($product_invoices) {
-                                                        echo 'checked';
-                                                    } ?>>
-                                                <?php esc_attr_e('Create invoices for products', 'wc-invoice-payment') ?>
-
-                                                <div class="tooltip">
-                                                    <span
-                                                        class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                    <span class="tooltiptext">
-                                                        <?php esc_attr_e('By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store.', 'wc-invoice-payment'); ?>
-                                                    </span>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-                    if ('Subscriptions' == $current_tab) {
-                        ?>
-                        <div class="invoice_settings">
-                            <h2 class="title">
-                                <?php esc_attr_e('Subscription settings', 'wc-invoice-payment'); ?>
-                            </h2>
-                            <div
-                                class="input-row-wrap"
-                                id="lkn_wcip_subscription_interval">
-                                <label
-                                    for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Invoice issuance lead time', 'wc-invoice-payment'); ?></label>
-
-                                <div class="flex-row">
-
-                                    <div class="lkn_wcip_subscription_interval_div">
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            name="lkn_wcip_subscription_interval_number"
-                                            id="lkn_wcip_subscription_interval_number"
-                                            value="<?php echo esc_attr($interval_number); ?>">
-                                        <select name="lkn_wcip_subscription_interval_type">
-                                            <option
-                                                value="day"><?php echo esc_attr('day' == $interval_type ? esc_attr("selected") : '') ?>
-                                                <?php esc_attr_e('Days', 'wc-invoice-payment'); ?>
-                                            </option>
-                                            <option
-                                                value="week"><?php echo esc_attr('week' == $interval_type ? esc_attr("selected") : '') ?>
-                                                <?php esc_attr_e('Weeks', 'wc-invoice-payment'); ?>
-                                            </option>
-                                            <option
-                                                value="month"><?php echo esc_attr('month' == $interval_type ? esc_attr("selected") : '') ?>
-                                                <?php esc_attr_e('Months', 'wc-invoice-payment'); ?>
-                                            </option>
-                                        </select>
-                                        <div
-                                            class="flex items-center justify-center"
-                                            id="lkn_wcip_subscription_interval_div_tip">
-                                            <div class="tooltip">
-                                                <span
-                                                    class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                <span class="tooltiptext">
-                                                    <?php esc_attr_e('Set the lead time for invoice generation relative to the due date.', 'wc-invoice-payment'); ?>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php
-                    }
-                    ?>
-
-                    <?php
-                    if ('Partial' == $current_tab) {
-                        ?>
-                    <div class="invoice_settings">
-                        <h2 class="title">
-                            <?php esc_attr_e('Configuração de pagamento parcial', 'wc-invoice-payment'); ?>
-                        </h2>
-                        <div class="input-row-wrap">
-                            <div class="lkn_wcip_partial_payments_method_div_fields firstField">
-                                <label class="lkn_wcip_partial_payments_method_label" for="lkn_wcip_partial_payments_enabled">
-                                    <input 
-                                        name="lkn_wcip_partial_payments_enabled" 
-                                        id="lkn_wcip_partial_payments_enabled" 
-                                        type="checkbox" <?php echo esc_attr($partial_payments_enabled); ?> <?php echo esc_attr($disabled); ?>>
-                                    <p>
-                                        Habilitar pagamentos parciais
-                                    </p>
-                                </label>
-                                <div class="tooltip">
-                                    <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                    <span class="tooltiptext">
-                                        <?php esc_html_e( 'Habilita o pagamento parcial', 'wc-invoice-payment' ); ?>
-                                    </span>
-                                </div>
-                            </div>
-                            <div id="lkn_wcip_partial_interval_fields">
-                                <div>
-                                    <label for="lkn_wcip_partial_interval_number">
-                                        <?php esc_attr_e('Status de pedido com pagamento completo', 'wc-invoice-payment'); ?>
-                                    </label>
-        
-                                    <div class="flex-row">
-                                        <div class="lkn_wcip_partial_field_div">
-                                            <select class="lkn_wcip_partial_field" name="lkn_wcip_partial_complete_status">
-                                                <?php 
-                                                    $status = wc_get_order_statuses();
-
-                                                    // Status a serem ignorados
-                                                    $excluded_statuses = array(
-                                                        'wc-partial-pend',
-                                                        'wc-partial'
-                                                    );
-                                                    
-                                                    // Remove os status indesejados
-                                                    foreach ( $excluded_statuses as $excluded ) {
-                                                        unset( $status[ $excluded ] );
-                                                    }
-                                                    
-                                                    // Gera as opções
-                                                    foreach ($status as $key => $value) {
-                                                        $selected = ($key == $partial_complete_status) ? 'selected' : '';
-                                                        echo "<option value='" . esc_attr($key) . "' " . esc_attr($selected) . ">" . esc_html($value) . "</option>";
-                                                    }
-                                                ?>
-                                            </select>
-                                            <div
-                                                class="flex items-center justify-center"
-                                                id="lkn_wcip_partial_complete_status_tip">
-                                                <div class="tooltip">
-                                                    <span
-                                                        class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                    <span class="tooltiptext">
-                                                        <?php esc_attr_e('Selecione o status do pedido após confirmação pagamento total do pedido. Padrão WooCommerce: Processando.', 'wc-invoice-payment'); ?>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="lkn_wcip_partial_interval_number">
-                                        <?php esc_attr_e('Habilitar pagamento parcial para pedido superior', 'wc-invoice-payment'); ?>
-                                    </label>
-        
-                                    <div class="flex-row">
-                                        <div class="lkn_wcip_partial_field_div">
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                default="0.00"
-                                                step="0.01"
-                                                name="lkn_wcip_partial_interval_minimum"
-                                                placeholder=""
-                                                value="<?php echo esc_attr($partial_minimum_value); ?>"
-                                                class="lkn_wcip_partial_field">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="lkn_wcip_partial_payments_method_div">
-                                <h2 class="lkn_wcip_partial_title">
-                                    <?php esc_attr_e('Métodos de pagamentos', 'wc-invoice-payment'); ?>
-                                </h2>
-                                <div class="lkn_wcip_partial_payments_methods_div">
-                                    <?php
-                                        
-                                        if(empty($payment_gateways)){
-                                            ?>
-                                            <div id="message" class="error">
-                                                <p>
-                                                    Nenhum método de pagamento disponível. Por favor, ative pelo menos um método de pagamento para utilizar o pagamento parcial.
-                                                </p>
-                                            </div>
-                                            <?php
-                                        }
-                                        foreach ( $payment_gateways as $gateway_id => $gateway ) :
-                                            $checked = isset($saved_methods[$gateway_id]) ? checked($saved_methods[$gateway_id], 'yes', false) : 'checked'; // checked por padrão
-                                            $selected_status = $saved_statuses[$gateway_id] ?? 'wc-processing';
-                                            ?>
-                                            <div class="lkn_wcip_partial_payments_method_div">
-                                                <div class="lkn_wcip_partial_payments_method_div_fields">
-                                                    <label class="lkn_wcip_partial_payments_method_label" for="lkn_wcip_partial_payments_method_<?php echo esc_attr($gateway_id); ?>">
-                                                        <input 
-                                                            name="lkn_wcip_partial_payments_method_<?php echo esc_attr($gateway_id); ?>" 
-                                                            id="lkn_wcip_partial_payments_method_<?php echo esc_attr($gateway_id); ?>" 
-                                                            type="checkbox" <?php echo esc_attr($checked); ?>>
-                                                        <p>
-                                                            <?php echo esc_html( $gateway->get_title() ); ?>
-                                                        </p>
-                                                    </label>
-                                                    <div class="tooltip">
-                                                        <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                        <span class="tooltiptext">
-                                                            <?php esc_html_e( 'Habilita o pagamento parcial para o método de pagamento', 'wc-invoice-payment' ); ?>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <?php esc_html_e( 'Status de pagamento completo', 'wc-invoice-payment' ); ?>
-
-                                                    <div class="flex-row">
-                                                        <div class="lkn_wcip_partial_payments_method_div_fields">
-                                                            <select 
-                                                                class="lkn_wcip_partial_field" 
-                                                                name="lkn_wcip_partial_complete_status_<?php echo esc_attr($gateway_id); ?>">
-                                                                <?php 
-                                                                    $status = wc_get_order_statuses();
-                                                                    foreach ( $status as $key => $value ) {
-                                                                        $selected = $selected_status === $key ? 'selected' : '';
-                                                                        echo "<option value='" . esc_attr($key) . "' " . esc_attr($selected) . ">" . esc_html($value) . "</option>";
-                                                                    }
-                                                                ?>
-                                                            </select>
-                                                            <div class="flex items-center justify-center" id="lkn_wcip_partial_complete_status_tip_<?php echo esc_attr($gateway_id); ?>">
-                                                                <div class="tooltip">
-                                                                    <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                                    <span class="tooltiptext">
-                                                                        <?php esc_html_e( 'Selecione o status de pagamento confirmado nesse método. Assim o pagamento parcial será confirmado apenas quando o status for igual ao definido.', 'wc-invoice-payment' ); ?>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                            <?php
-                            }
-                            ?>
-
-                    <?php
-                    if ('FeesOrDiscounts' == $current_tab) {
-                        ?>
-                        <div class="invoice_settings">
-                            <h2 class="title">
-                                <b><?php esc_attr_e('Payment Methods', 'wc-invoice-payment'); ?></b>
-                            </h2>
-                            <p>
-                                <?php esc_attr_e('Configure fees or discounts for each payment method', 'wc-invoice-payment'); ?>
-                            </p>
-                            <div class="lkn_wcip_show_fee_or_discount_method_div_fields">
-                                <label class="lkn_wcip_show_fee_label" for="lkn_wcip_show_fee_activated">
-                                    <input 
-                                        name="lkn_wcip_show_fee_activated" 
-                                        id="lkn_wcip_show_fee_activated" 
-                                        type="checkbox" <?php echo esc_attr($show_fee_active); ?>>
-                                    <p>
-                                        <b>
-                                            <?php echo esc_attr_e('Show fee on payment', 'wc-invoice-payment'); ?>
-                                        </b>
-                                    </p>
-                                    <br>
-                                </label>
-                                <label class="lkn_wcip_show_discount_label" for="lkn_wcip_show_discount_activated">
-                                    <input 
-                                        name="lkn_wcip_show_discount_activated" 
-                                        id="lkn_wcip_show_discount_activated" 
-                                        type="checkbox" <?php echo esc_attr($show_discount_active); ?>>
-                                    <p>
-                                        <b>
-                                            <?php echo esc_attr_e('Show discount on payment', 'wc-invoice-payment'); ?>
-                                        </b>
-                                    </p>
-                                    <br>
-                                </label>
-                            </div>
-                            <div class="input-row-wrap">
-                                <?php
-                                            if(empty($payment_gateways)){
-                                                ?>
-                                                <div id="message" class="error">
-                                                    <p>
-                                                        <?php echo esc_attr_e('No payment methods available. Please enable at least one payment method to use partial payment.', 'wc-invoice-payment'); ?>
-                                                    </p>
-                                                </div>
-                                                <?php
-                                            }
-                                            foreach ( $payment_gateways as $gateway_id => $gateway ) :
-                                                $checked = get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'off') === 'on' ? 'checked' : '';
-                                                $type = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id, 'fee');
-                                                $percentOrFixed = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id, 'percent');
-                                                $value = get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id, 0);
-                                                ?>
-                                                <div id="lkn_wcip_partial_payments_fees_or_discounts">
-                                                    <div class="lkn_wcip_partial_payments_methods_div">
-                                                        <div class="lkn_wcip_fee_or_discounts_method_div">
-                                                            <div class="lkn_wcip_fee_or_discounts_method_div_fields">
-                                                                <label class="lkn_wcip_fee_or_discounts_method_label" for="lkn_wcip_fee_or_discount_method_activated_<?php echo esc_attr($gateway_id); ?>">
-                                                                    <input 
-                                                                        name="lkn_wcip_fee_or_discount_method_activated_<?php echo esc_attr($gateway_id); ?>" 
-                                                                        id="lkn_wcip_fee_or_discount_method_activated_<?php echo esc_attr($gateway_id); ?>" 
-                                                                        type="checkbox" <?php echo esc_attr($checked); ?>>
-                                                                    <p>
-                                                                        <b>
-                                                                            <?php echo esc_html( $gateway->get_title() ); ?>
-                                                                        </b>
-                                                                    </p>
-                                                                    <br>
-                                                                </label>
-                                                                <div class="tooltip">
-                                                                    <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                                    <span class="tooltiptext">
-                                                                        <?php esc_html_e( 'Enables fee/discount payment for the payment method.', 'wc-invoice-payment' ); ?>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="lkn_wcip_fee_or_discounts_method_fields_div">
-                                                                <p>
-                                                                    <?php esc_html_e( 'Configure fee or discount for this payment method.', 'wc-invoice-payment' ); ?>
-                                                                </p>
-                                                                <div class="lkn_wcip_fee_or_discounts_method_fields_div">
-                                                                    <div class="lkn_wcip_fee_or_discounts_method_div_fields">
-                                                                        <select 
-                                                                            class="lkn_wcip_fee_or_discount_field" 
-                                                                            name="lkn_wcip_fee_or_discount_type_<?php echo esc_attr($gateway_id); ?>">
-                                                                            <option <?php echo esc_attr($type == 'fee' ? 'selected' : ''); ?> value="fee"><?php esc_html_e('Fee', 'wc-invoice-payment') ?></option>
-                                                                            <option <?php echo esc_attr($type == 'discount' ? 'selected' : ''); ?>  value="discount"><?php esc_html_e('Discount', 'wc-invoice-payment') ?></option>
-                                                                        </select>
-                                                                        <div class="flex items-center justify-center">
-                                                                            <div class="tooltip">
-                                                                                <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                                                <span class="tooltiptext">
-                                                                                    <?php esc_html_e( 'Select fee or discount to be applied when the user uses this payment method.', 'wc-invoice-payment' ); ?>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="lkn_wcip_fee_or_discounts_method_div_fields">
-                                                                        <select 
-                                                                            class="lkn_wcip_fee_or_discount_field" 
-                                                                            name="lkn_wcip_fee_or_discount_percent_fixed_<?php echo esc_attr($gateway_id); ?>">
-                                                                            <option <?php echo esc_attr($percentOrFixed == 'percent' ? 'selected' : ''); ?> value="percent"><?php esc_html_e('Percent', 'wc-invoice-payment') ?></option>
-                                                                            <option <?php echo esc_attr($percentOrFixed == 'fixed' ? 'selected' : ''); ?> value="fixed"><?php esc_html_e('Fixed Value', 'wc-invoice-payment') ?></option>
-                                                                        </select>
-                                                                        <div class="flex items-center justify-center">
-                                                                            <div class="tooltip">
-                                                                                <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                                                <span class="tooltiptext">
-                                                                                    <?php esc_html_e( 'Select Percentage or Fixed Value to be used in checkout and order calculation.', 'wc-invoice-payment' ); ?>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div> 
-                                                                    <div class="lkn_wcip_fee_or_discounts_method_div_fields">
-
-                                                                        <input 
-                                                                            type="number" 
-                                                                            min="0" 
-                                                                            value=<?php echo esc_attr($value); ?>
-                                                                            class="lkn_wcip_fee_or_discount_field" 
-                                                                            name="lkn_wcip_fee_or_discount_value_<?php echo esc_attr($gateway_id); ?>"
-                                                                        >
-                                                                        <div class="flex items-center justify-center">
-                                                                            <div class="tooltip">
-                                                                                <span class="tootip w-5 h-5 flex items-center justify-center text-white rounded-full cursor-pointer">?</span>
-                                                                                <span class="tooltiptext">
-                                                                                    <?php esc_html_e( 'Only integer or decimal numbers are allowed. Examples of allowed numbers: 10 or 10.55. For percentage 30% use 30.', 'wc-invoice-payment' ); ?>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                        <?php endforeach; ?>
-                                    
-                    <?php
-                        }
-                    ?>
-
-                            <div class="action-btn">
-                                <?php submit_button(__('Save', 'wc-invoice-payment'), 'primary', 'submit', true, $disabled == 'disabled' ? ['disabled' => ''] : ''); ?>
-                            </div>
-                        </div>
-                    </div>
-            </form>
-        </div>
-        <script type="text/javascript">
-            document.addEventListener('DOMContentLoaded', () => {
-                startTinyMce('lkn_wcip_default_footer', 'submit')
-                startTinyMce('lkn_wcip_sender_details', 'submit')
-                startTinyMce('lkn_wcip_text_before_payment_link', 'submit')
-            })
-        </script>
-    <?php
     }
 
     public function settings_page_form_submit_handle(): void {}
@@ -1089,7 +427,7 @@ final class WcPaymentInvoiceAdmin
         sort($languages);
         // Adiciona o idioma atual no início da lista
         array_unshift($languages, $orderLanguage);
-    ?>
+?>
         <div class="wrap">
             <h1><?php esc_attr_e('Edit invoice', 'wc-invoice-payment'); ?>
             </h1>
@@ -1221,7 +559,7 @@ final class WcPaymentInvoiceAdmin
                                     // Gera as opções do select
                                     foreach ($languages as $language) {
                                         $language_name = locale_get_display_name($language, 'en');
-                                        if(!empty($language)){
+                                        if (!empty($language)) {
                                             $selected = ($language === $orderLanguage) ? 'selected' : '';
                                             echo '<option value="' . esc_attr($language) . '" ' . esc_attr($selected) . '>' . esc_html($language_name) . '</option>';
                                         }
@@ -1552,21 +890,21 @@ final class WcPaymentInvoiceAdmin
                             <?php
                             if ($parentOrder) {
                             ?>
-                            <h4>
-                                Pagamento parcial referente ao pedido
-                                <a href="<?php echo esc_attr(admin_url("admin.php?page=wc-orders&action=edit&id={$parentOrderId}")); ?>">#<?php echo esc_attr($parentOrderId); ?></a>
-                            </h4>
+                                <h4>
+                                    Pagamento parcial referente ao pedido
+                                    <a href="<?php echo esc_attr(admin_url("admin.php?page=wc-orders&action=edit&id={$parentOrderId}")); ?>">#<?php echo esc_attr($parentOrderId); ?></a>
+                                </h4>
                             <?php
                             }
                             ?>
 
-<?php
+                            <?php
                             if ($order->get_meta('_wc_lkn_is_partial_main_order') == 'yes') {
                             ?>
-                            <h4>
-                                Fatura referente ao pedido
-                                <a href="<?php echo esc_attr(admin_url("admin.php?page=wc-orders&action=edit&id={$invoiceId}")); ?>">#<?php echo esc_attr($invoiceId); ?></a>
-                            </h4>
+                                <h4>
+                                    Fatura referente ao pedido
+                                    <a href="<?php echo esc_attr(admin_url("admin.php?page=wc-orders&action=edit&id={$invoiceId}")); ?>">#<?php echo esc_attr($invoiceId); ?></a>
+                                </h4>
                             <?php
                             }
                             ?>
@@ -1598,7 +936,7 @@ final class WcPaymentInvoiceAdmin
                 startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit')
             })
         </script>
-    <?php
+        <?php
 
         if ($order->get_meta('_wc_lkn_is_partial_main_order') == 'yes') {
             wc_get_template(
@@ -1612,9 +950,9 @@ final class WcPaymentInvoiceAdmin
                     'invoicePage' => 'true',
                 ),
                 'woocommerce/pix/',
-                plugin_dir_path( __FILE__ ) . 'templates/'
+                plugin_dir_path(__FILE__) . 'templates/'
             );
-    
+
             wp_enqueue_style('wcInvoicePaymentPartialStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         }
     }
@@ -1766,7 +1104,7 @@ final class WcPaymentInvoiceAdmin
         sort($languages);
         // Adiciona o idioma atual no início da lista
         array_unshift($languages, $orderLanguage);
-    ?>
+        ?>
         <div class="wrap">
             <h1><?php esc_attr_e('Edit subscription', 'wc-invoice-payment'); ?>
             </h1>
@@ -2299,7 +1637,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'new-invoice',
             array($this, 'new_invoice_form'),
-            2
+            1
         );
 
         add_action('load-' . $hookname, array($this, 'add_invoice_form_submit_handle'));
@@ -2865,12 +2203,12 @@ final class WcPaymentInvoiceAdmin
                 for ($i = 0; $i < count($invoices); ++$i) {
                     // Check if this is a real WooCommerce product
                     $isRealProduct = isset($_POST["lkn_wcip_is_real_product_$i"]) && $_POST["lkn_wcip_is_real_product_$i"] === '1';
-                    
+
                     if ($isRealProduct) {
                         // Handle real WooCommerce products
                         $realProductId = intval($_POST["lkn_wcip_product_id_$i"]);
                         $quantity = intval($_POST["lkn_wcip_product_qty_$i"]);
-                        
+
                         $realProduct = wc_get_product($realProductId);
                         if ($realProduct) {
                             // Add the real product to the order with correct quantity
@@ -3056,12 +2394,12 @@ final class WcPaymentInvoiceAdmin
                 for ($i = 0; $i < count($invoices); ++$i) {
                     // Check if this is a real WooCommerce product
                     $isRealProduct = isset($_POST["lkn_wcip_is_real_product_$i"]) && $_POST["lkn_wcip_is_real_product_$i"] === '1';
-                    
+
                     if ($isRealProduct) {
                         // Handle real WooCommerce products
                         $realProductId = intval($_POST["lkn_wcip_product_id_$i"]);
                         $quantity = intval($_POST["lkn_wcip_product_qty_$i"]);
-                        
+
                         $realProduct = wc_get_product($realProductId);
                         if ($realProduct) {
                             // Add the real product to the order with correct quantity
@@ -3361,14 +2699,14 @@ final class WcPaymentInvoiceAdmin
         }
 
         $product_id = intval($_POST['product_id']);
-        
+
         if (!$product_id) {
             wp_send_json_error(__('Invalid product ID', 'wc-invoice-payment'));
             return;
         }
 
         $product = wc_get_product($product_id);
-        
+
         if (!$product) {
             wp_send_json_error(__('Product not found', 'wc-invoice-payment'));
             return;

@@ -55,6 +55,13 @@ final class WcPaymentInvoiceSettings
             'showFeesDiscountsSettingTabContent',
             'saveFeesDiscountsSettings'
         );
+
+        $this->register_settings_tab(
+            'wc_payment_quote_settings',
+            __('Orçamentos', 'wc-invoice-payment'),
+            'quoteSettingTabContent',
+            'quoteSettings'
+        );
     }
 
 
@@ -578,6 +585,84 @@ final class WcPaymentInvoiceSettings
         return $settingsFields;
     }
 
+    public function quoteSettingTabContent()
+    {
+        wp_enqueue_script('woocommerce_admin');
+        $this->loadScriptsAndStyles();
+        woocommerce_admin_fields($this->getQuoteSettings());
+    }
+
+    public function saveQuoteSettings()
+    {
+        woocommerce_update_options($this->getQuoteSettings());
+    }
+
+    private function getQuoteSettings()
+    {
+        $slug = 'lkn_wcip_';
+
+        // Obtém as páginas do WordPress
+        $wpPages = array();
+        $pages = get_pages();
+        foreach ($pages as $page) {
+            $wpPages[$page->ID] = $page->post_title;
+        }
+        //Por padrão selecionado a página de Finalização de compra
+        $checkout_page_id = get_option('woocommerce_checkout_page_id');
+
+        $settingsFields = array(
+            'sectionTitle' => array(
+                'type'     => 'title',
+                'name'     => __('Configuração de orçamento', 'wc-invoice-payment'),
+            ),
+            $slug . 'quote_mode' => array(
+                'name'     => __('Loja em modo orçamento', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip'     => __('Ativa o modo de orçamento global na loja virtual. Quando habilitado, nenhum pagamento poderá ser feito até que o orçamento seja aprovado pelo administrador. Somente após a aprovação, o cliente poderá finalizar o pagamento do orçamento normalmente.', 'wc-invoice-payment'),
+                'id'       => $slug . 'quote_mode',
+                'default'  => 'no',
+            ),
+            $slug . 'show_products_price' => array(
+                'name'     => __('Mostrar preço dos produtos', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip'     => __('Habilita a exibição dos produtos para o cliente mesmo que o orçamento ainda não tenha sido aprovado.', 'wc-invoice-payment'),
+                'id'       => $slug . 'show_products_price',
+                'default'  => 'no',
+            ),
+            $slug . 'quote_page' => array(
+                'name'     => __('Página de orçamento', 'wc-invoice-payment'),
+                'type' => 'select',
+                'class' => 'wc-enhanced-select',
+                'options' => $wpPages,
+                'desc'     => __('Selecione a página com detalhes do orçamento.', 'wc-invoice-payment'),
+                'id'       => $slug . 'quote_page',
+                'default' => $checkout_page_id
+            ),
+            $slug . 'create_invoice_automatically' => array(
+                'name'     => __('Criar fatura automaticamente', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip'     => __('Essa configuração irá gerar automaticamente uma fatura paga pagamento com detalhes do orçamento logo após o orçamento ser aprovado.', 'wc-invoice-payment'),
+                'id'       => $slug . 'create_invoice_automatically',
+                'default'  => 'no',
+            ),
+            $slug . 'quote_expiration' => array(
+                'name' => __('Vencimento Padrão de Orçamento', 'wc-invoice-payment'),
+                'type' => 'number',
+                'desc' => __('Informe a quantidade em dias que o orçamento deve ser definido como vencido.', 'wc-invoice-payment'),
+                'default' => '10',
+                'custom_attributes' => array(
+                    'min' => '1',
+                    'step' => '1',
+                ),
+                'id'       => $slug . 'quote_expiration',
+            )
+        );
+        $settingsFields['sectionEnd'] = array(
+            'type' => 'sectionend'
+        );
+
+        return $settingsFields;
+    }
 
     public function loadScriptsAndStyles(){
         // Carrega a biblioteca de mídia do WordPress
