@@ -17,6 +17,19 @@ final class WcPaymentInvoiceSettings
 
         // Registra todas as abas de configuração
         $this->register_all_settings_tabs();
+        $this->loader->add_action('admin_head', $this, 'fixSettingsTabs');
+    }
+
+    function fixSettingsTabs() {
+        global $plugin_page;
+
+        if (isset($_GET['subscription']) && $_GET['subscription'] === 'true') {
+            // Força o WordPress a marcar o submenu e o menu pai como ativos
+            $plugin_page = 'wc-invoice-payment-subscriptions-add';
+
+            add_filter('submenu_file', fn() => 'wc-invoice-payment-subscriptions-add');
+            add_filter('parent_file', fn() => 'wc-invoice-payment-subscriptions');
+        }
     }
 
     private function register_all_settings_tabs()
@@ -60,7 +73,7 @@ final class WcPaymentInvoiceSettings
             'wc_payment_quote_settings',
             __('Orçamentos', 'wc-invoice-payment'),
             'quoteSettingTabContent',
-            'quoteSettings'
+            'saveQuoteSettings'
         );
     }
 

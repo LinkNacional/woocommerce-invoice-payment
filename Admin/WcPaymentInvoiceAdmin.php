@@ -292,7 +292,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-subscriptions-add',
             function () {
-                wp_redirect(admin_url('admin.php?page=new-invoice'));
+                wp_redirect(admin_url('admin.php?page=new-invoice&subscription=true'));
                 exit;
             },
             2
@@ -305,10 +305,44 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-subscriptions-settings',
             function () {
-                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_invoice_settings'));
+                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_subscription_settings'));
                 exit;
             },
             3
+        );
+
+        //Menu de Orçamentos
+        add_submenu_page(
+            'wc-invoice-payment-quotes',
+            __('Add Quote', 'wc-invoice-payment'),
+            __('Add Quote', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'new-quote',
+            array($this, 'render_new_quote_page'),
+            2
+        );
+
+        add_submenu_page(
+            'wc-invoice-payment-quotes',
+            __('List Quotes', 'wc-invoice-payment'),
+            __('Quotes', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'wc-quotes',
+            array($this, 'render_quote_list_page'),
+            3
+        );
+
+        add_submenu_page(
+            'wc-invoice-payment-quotes',
+            __('Settings', 'wc-invoice-payment'),
+            __('Settings', 'wc-invoice-payment'),
+            'manage_woocommerce',
+            'wc-invoice-payment-quote-settings',
+            function () {
+                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_quote_settings'));
+                exit;
+            },
+            4
         );
     }
 

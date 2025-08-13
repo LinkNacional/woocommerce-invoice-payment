@@ -63,6 +63,7 @@ final class WcPaymentInvoice {
 
     public $WcPaymentInvoicePartialClass;
     public $WcPaymentInvoiceEndpointClass;
+    public $WcPaymentInvoiceQuoteClass;
 
     /**
      * Define the core functionality of the plugin.
@@ -148,6 +149,7 @@ final class WcPaymentInvoice {
         $this->loader = new WcPaymentInvoiceLoader();
         $this->WcPaymentInvoicePartialClass = new WcPaymentInvoicePartial();
         $this->WcPaymentInvoiceEndpointClass = new WcPaymentInvoiceEndpoint();
+        $this->WcPaymentInvoiceQuoteClass = new WcPaymentInvoiceQuote();
     }
 
     /**
@@ -199,8 +201,10 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_process_product_meta', $subscription_class, 'save_subscription_fields');
         $this->loader->add_action('wp_ajax_cancel_subscription', $subscription_class, 'cancel_subscription_callback');
         $this->loader->add_action('generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1);
-
-        
+        $this->loader->add_filter( 'woocommerce_get_price_html', $this->WcPaymentInvoiceQuoteClass, 'lknWcInvoiceHidePrice', 9999, 2 );
+        $this->loader->add_filter( 'woocommerce_cart_item_price', $this->WcPaymentInvoiceQuoteClass, 'lknWcInvoiceHidePrice', 9999, 2 );
+        $this->loader->add_filter( 'woocommerce_cart_item_subtotal', $this->WcPaymentInvoiceQuoteClass, 'lknWcInvoiceHidePrice', 9999, 2 );
+        $this->loader->add_filter( 'wp_enqueue_scripts', $this->WcPaymentInvoiceQuoteClass, 'lknWcInvoiceHidePriceFrontend' );
 
 
         new WcPaymentInvoiceSettings($this->loader);
@@ -280,6 +284,7 @@ final class WcPaymentInvoice {
         $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart', 999);
         $this->loader->add_action('enqueue_block_assets', $feeOrDiscountClass, 'loadScripts');
+		$this->loader->add_action( 'enqueue_block_assets', $this->WcPaymentInvoiceQuoteClass, 'enqueueCheckoutScripts');
         
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
     }

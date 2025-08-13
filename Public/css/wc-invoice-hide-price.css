@@ -1,0 +1,19 @@
+.wc-block-components-formatted-money-amount{
+    display: none !important;
+}
+
+.wc-block-cart-items__header-total{
+    display: none !important;
+}
+
+.wp-block-woocommerce-cart-order-summary-totals-block{
+    display: none !important;
+}
+
+.wc-block-components-totals-item__label{
+    display: none !important;
+}
+
+.woocommerce-Price-amount.amount{
+    display: none !important;
+}
