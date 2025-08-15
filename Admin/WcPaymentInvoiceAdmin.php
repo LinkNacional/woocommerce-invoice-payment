@@ -444,7 +444,7 @@ final class WcPaymentInvoiceAdmin
         // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
-                if ('yes' == $gateway->enabled) {
+                if ('yes' == $gateway->enabled && $gateway->id !== 'lkn_invoice_quote_gateway') {
                     $enabled_gateways[] = $gateway;
                 }
             }
@@ -1121,7 +1121,7 @@ final class WcPaymentInvoiceAdmin
         // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
-                if ('yes' == $gateway->enabled) {
+                if ('yes' == $gateway->enabled && $gateway->id !== 'lkn_invoice_quote_gateway') {
                     $enabled_gateways[] = $gateway;
                 }
             }
@@ -1753,7 +1753,7 @@ final class WcPaymentInvoiceAdmin
         // Get all WooCommerce enabled gateways
         if ($gateways) {
             foreach ($gateways as $gateway) {
-                if ('yes' == $gateway->enabled) {
+                if ('yes' == $gateway->enabled && $gateway->id !== 'lkn_invoice_quote_gateway') {
                     $enabled_gateways[] = $gateway;
                 }
             }

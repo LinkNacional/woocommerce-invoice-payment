@@ -26,14 +26,11 @@
                 newA.setAttribute('data-replaced', 'true');
                 
                 el.parentNode.replaceChild(newA, el);
-                
-                console.log(el)
             }
         });
         document.querySelectorAll(`
             .wp-block-woocommerce-checkout-order-summary-totals-block,
             .wc-block-checkout__shipping-option.wp-block-woocommerce-checkout-shipping-methods-block.wc-block-components-checkout-step,
-            .wp-block-woocommerce-checkout-order-summary-coupon-form-block.wc-block-components-totals-wrapper,
             .wc-block-components-totals-item.wc-block-components-totals-footer-item
         `).forEach((el) => {
           el.remove();
