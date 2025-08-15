@@ -488,9 +488,19 @@ label[for="lkn_wcip_customer_input"] {
 	justify-content: space-between;
 }
 
-.order-status.status-partial-comp {
+.order-status.status-partial-comp, .order-status.status-quote-approved {
 	background: #68cf68;
     color: #224522;
+}
+
+.order-status.status-quote-expired, .order-status.status-quote-cancelled {
+	background: #eba3a3;
+    color: #570000;
+}
+
+.order-status.status-quote-awaiting {
+	background: #f8dda7;
+    color: #573b00;
 }
 
 #wpfooter{
@@ -765,4 +775,8 @@ label[for="lkn_wcip_customer_input"] {
         align-self: stretch;
         justify-content: flex-end;
     }
+}
+
+#lkn_invoice_quote_gateway{
+	display: none !important;
 }

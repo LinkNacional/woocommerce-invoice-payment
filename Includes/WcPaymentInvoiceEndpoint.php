@@ -6,8 +6,6 @@ use WC_Customer;
 
 final class WcPaymentInvoiceEndpoint {
     public function registerEndpoints(): void {
-        $WcPaymentInvoiceQuoteClass = new WcPaymentInvoiceQuote();
-
         register_rest_route('invoice_payments', '/create_partial_payment', array(
             'methods' => 'POST',
             'callback' => array($this, 'createPartialPayment'),
@@ -15,10 +13,6 @@ final class WcPaymentInvoiceEndpoint {
         register_rest_route('invoice_payments', '/cancel_partial_payment', array(
             'methods'  => 'POST',
             'callback' => array($this, 'cancelPartialPayment'),
-        ));
-        register_rest_route('quotes', '/create_quote', array(
-            'methods'  => 'POST',
-            'callback' => array($WcPaymentInvoiceQuoteClass, 'createQuote'),
         ));
     }
     

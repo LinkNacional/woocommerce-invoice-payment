@@ -129,6 +129,7 @@ final class WcPaymentInvoiceAdmin
             || 'admin_page_edit-invoice' === $hook
             || 'admin_page_edit-subscription' === $hook
             || 'woocommerce_page_wc-orders' === $hook
+            || 'woocommerce_page_wc-settings' === $hook
         ) {
             wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', array(), $this->version, 'all');
         }

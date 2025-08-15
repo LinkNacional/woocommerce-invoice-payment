@@ -1,4 +1,5 @@
 .devcontainer/devcontainer.json
+/.vscode
 /vendor
 .phan/stubs
 node_modules

@@ -190,7 +190,10 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
         $this->loader->add_action('woocommerce_checkout_order_processed', $subscription_class, 'validate_product');
         $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $subscription_class, 'validate_product');
-        $this->loader->add_action('woocommerce_init', $this, 'subscriptionNotice');
+        $this->loader->add_action('woocommerce_init', $this, 'woocommerceInit');
+        $this->loader->add_filter('woocommerce_payment_gateways', $this, 'add_payment_gateways');
+        $this->loader->add_action('init', $this, 'manage_quote_gateway_status');
+        $this->loader->add_action('woocommerce_blocks_loaded', $this, 'register_blocks_integration');
 		$this->loader->add_filter( 'wc_order_statuses', $this->WcPaymentInvoicePartialClass, 'createStatus' );
 		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoicePartialClass, 'registerStatus' );
 		$this->loader->add_action( 'woocommerce_order_status_changed', $this->WcPaymentInvoicePartialClass, 'statusChanged', 10, 4);
@@ -198,6 +201,10 @@ final class WcPaymentInvoice {
         $this->loader->add_filter( 'woocommerce_shop_order_list_table_prepare_items_query_args', $this->WcPaymentInvoicePartialClass, 'hidePartialOrdersRequest');
         $this->loader->add_filter( 'woocommerce_shop_order_list_table_order_count', $this->WcPaymentInvoicePartialClass, 'fixTableCount', 10, 2);
         $this->loader->add_action('woocommerce_before_delete_order', $this->WcPaymentInvoicePartialClass, 'deletePartialOrders');
+		$this->loader->add_filter( 'wc_order_statuses', $this->WcPaymentInvoiceQuoteClass, 'createQuoteStatus' );
+		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoiceQuoteClass, 'registerQuoteStatus' );
+		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoiceQuoteClass, 'allowQuoteStatusCancel');
+		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoiceQuoteClass, 'allowQuoteStatusPayment');
         $this->loader->add_action('woocommerce_process_product_meta', $subscription_class, 'save_subscription_fields');
         $this->loader->add_action('wp_ajax_cancel_subscription', $subscription_class, 'cancel_subscription_callback');
         $this->loader->add_action('generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1);
@@ -212,7 +219,7 @@ final class WcPaymentInvoice {
 
    
 
-    public function subscriptionNotice(): void {
+    public function woocommerceInit(): void {
         $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
         $invoice = isset($_GET['invoice']) ? sanitize_text_field(wp_unslash($_GET['invoice'])) : 0;
         if($page == 'edit-subscription' && $invoice != 0){
@@ -249,6 +256,70 @@ final class WcPaymentInvoice {
                 update_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'yes');
             }
         }
+
+       
+    }
+
+    /**
+     * Add payment gateways to WooCommerce
+     */
+    public function add_payment_gateways($gateways)
+    {
+        $gateways[] = 'LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceQuoteGateway';
+        return $gateways;
+    }
+
+    /**
+     * Register WooCommerce Blocks integration
+     */
+    public function register_blocks_integration()
+    {
+        if (class_exists('Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry')) {
+            add_action(
+                'woocommerce_blocks_payment_method_type_registration',
+                array($this, 'add_blocks_payment_method')
+            );
+        }
+    }
+
+    /**
+     * Add blocks payment method
+     */
+    public function add_blocks_payment_method($payment_method_registry)
+    {
+        if (!class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
+            return;
+        }
+
+        $payment_method_registry->register(new WcPaymentInvoiceQuoteGatewayBlocks());
+    }
+
+    public function wcEditorBlocksAddPaymentMethod(\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry): void {
+        if ( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+            return;
+        }
+
+        $payment_method_registry->register( new WcPaymentInvoiceQuoteGatewayBlocks() );
+    }
+
+    /**
+     * Manage quote gateway status based on quote mode setting
+     */
+    public function manage_quote_gateway_status()
+    {
+        $quote_mode = get_option('lkn_wcip_quote_mode', 'no');
+        $gateway_id = 'lkn_invoice_quote_gateway';
+        $current_settings = get_option('woocommerce_' . $gateway_id . '_settings', array());
+        
+        if ($quote_mode === 'yes') {
+            // Enable the gateway
+            $current_settings['enabled'] = 'yes';
+        } else {
+            // Disable the gateway
+            $current_settings['enabled'] = 'no';
+        }
+        
+        update_option('woocommerce_' . $gateway_id . '_settings', $current_settings);
     }
 
     public function custom_email_verification_required($verification_required) {
@@ -283,8 +354,8 @@ final class WcPaymentInvoice {
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
         $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart', 999);
+        $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
         $this->loader->add_action('enqueue_block_assets', $feeOrDiscountClass, 'loadScripts');
-		$this->loader->add_action( 'enqueue_block_assets', $this->WcPaymentInvoiceQuoteClass, 'enqueueCheckoutScripts');
         
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
     }
