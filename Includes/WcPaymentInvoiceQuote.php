@@ -18,7 +18,9 @@ final class WcPaymentInvoiceQuote
     function lknWcInvoiceHidePriceFrontend() {
         $showPrice = get_option(  'lkn_wcip_show_products_price', 'no' );
         $quoteMode = get_option(  'lkn_wcip_quote_mode', 'no' );
-        wp_enqueue_style('wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-hide-price.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
+        if($showPrice == 'no'){
+            wp_enqueue_style('wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-hide-price.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
+        }
         wp_enqueue_script( 'wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-quote.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
         wp_localize_script( 'wcInvoiceHidePrice', 'wcInvoiceHidePrice', array(
             'quoteMode' => $quoteMode,
