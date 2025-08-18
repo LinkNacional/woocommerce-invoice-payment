@@ -97,7 +97,7 @@ final class WcPaymentInvoiceQuoteGateway extends WC_Payment_Gateway
 
         // Add order note
         $order->add_order_note(__('Quote request received. Awaiting approval...', 'wc-invoice-payment'));
-        $order->update_meta_data('lkn_is_quote', true);
+        $order->update_meta_data('lkn_is_quote', 'yes');
         $order->save();
 
         // Remove cart

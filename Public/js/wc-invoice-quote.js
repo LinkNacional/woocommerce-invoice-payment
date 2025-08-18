@@ -1,6 +1,6 @@
 (function() {
   // Função para remover elementos de preço
-  function removerPrecos() {
+  function removePrice() {
     if(wcInvoiceHidePrice.showPrice == 'no'){
         document.querySelectorAll(`
           .wc-block-components-formatted-money-amount,
@@ -52,13 +52,13 @@
   }
 
   // Executa imediatamente, caso já exista algum preço na página
-  removerPrecos();
+  removePrice();
 
   // Define o alvo a ser observado: todo o body para capturar inserções em qualquer lugar
   const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
       if (mutation.type === 'childList' || mutation.type === 'subtree') {
-        removerPrecos();
+        removePrice();
       }
     }
   });

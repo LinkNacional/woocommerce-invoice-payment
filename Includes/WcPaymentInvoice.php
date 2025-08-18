@@ -204,7 +204,6 @@ final class WcPaymentInvoice {
 		$this->loader->add_filter( 'wc_order_statuses', $this->WcPaymentInvoiceQuoteClass, 'createQuoteStatus' );
 		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoiceQuoteClass, 'registerQuoteStatus' );
 		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoiceQuoteClass, 'allowQuoteStatusCancel');
-		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoiceQuoteClass, 'allowQuoteStatusPayment');
         $this->loader->add_action('woocommerce_process_product_meta', $subscription_class, 'save_subscription_fields');
         $this->loader->add_action('wp_ajax_cancel_subscription', $subscription_class, 'cancel_subscription_callback');
         $this->loader->add_action('generate_invoice_event', $subscription_class, 'create_next_invoice', 10, 1);
@@ -356,6 +355,8 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart', 999);
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
         $this->loader->add_action('enqueue_block_assets', $feeOrDiscountClass, 'loadScripts');
+        $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoiceQuoteClass, "showQuoteFields");
+        $this->loader->add_action('template_redirect', $this->WcPaymentInvoiceQuoteClass, "handleQuoteApproval");
         
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
     }
