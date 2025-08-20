@@ -211,6 +211,7 @@ final class WcPaymentInvoice {
         $this->loader->add_filter( 'woocommerce_cart_item_price', $this->WcPaymentInvoiceQuoteClass, 'lknWcInvoiceHidePrice', 9999, 2 );
         $this->loader->add_filter( 'woocommerce_cart_item_subtotal', $this->WcPaymentInvoiceQuoteClass, 'lknWcInvoiceHidePrice', 9999, 2 );
         $this->loader->add_filter( 'wp_enqueue_scripts', $this->WcPaymentInvoiceQuoteClass, 'lknWcInvoiceHidePriceFrontend' );
+        $this->loader->add_filter( 'woocommerce_my_account_my_orders_query', $this->WcPaymentInvoiceQuoteClass, 'excludeQuotesFromOrdersQuery' );
 
 
         new WcPaymentInvoiceSettings($this->loader);
@@ -357,6 +358,16 @@ final class WcPaymentInvoice {
         $this->loader->add_action('enqueue_block_assets', $feeOrDiscountClass, 'loadScripts');
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoiceQuoteClass, "showQuoteFields");
         $this->loader->add_action('template_redirect', $this->WcPaymentInvoiceQuoteClass, "handleQuoteApproval");
+        $this->loader->add_action('woocommerce_init', $this->WcPaymentInvoiceQuoteClass, 'addQuotesEndpoint');
+        $this->loader->add_filter('query_vars', $this->WcPaymentInvoiceQuoteClass, 'addQuotesQueryVars');
+        $this->loader->add_filter('woocommerce_account_menu_items', $this->WcPaymentInvoiceQuoteClass, 'addQuotesMenuItem');
+        $this->loader->add_action('woocommerce_account_quotes_endpoint', $this->WcPaymentInvoiceQuoteClass, 'showQuotesEndpointContent');
+        $this->loader->add_filter('woocommerce_endpoint_quotes_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
+        $this->loader->add_filter('the_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
+        $this->loader->add_filter('wp_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
+        
+        // Hook temporário para registrar o endpoint - execute uma vez e comente
+        $this->loader->add_action('wp_loaded', $this->WcPaymentInvoiceQuoteClass, 'forceFlushRewriteRules');
         
         add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
     }

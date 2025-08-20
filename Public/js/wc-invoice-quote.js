@@ -37,7 +37,10 @@
         });
 
 
-        document.querySelectorAll(`.wc-block-checkout__payment-method.wp-block-woocommerce-checkout-payment-block.wc-block-components-checkout-step`)
+        document.querySelectorAll(`
+          .wc-block-checkout__payment-method.wp-block-woocommerce-checkout-payment-block.wc-block-components-checkout-step,
+          .wc_payment_method.payment_method_lkn_invoice_quote_gateway
+          `)
         .forEach((el) => {
             el.querySelectorAll('.wc-block-components-radio-control-accordion-option').forEach((option) => {
                 if(option.firstChild.getAttribute('for') !== 'radio-control-wc-payment-method-options-lkn_invoice_quote_gateway') {
@@ -48,6 +51,25 @@
             });
             el.style.display = 'none';
         });
+
+        summaryTitleElement = document.querySelector('.wc-block-components-checkout-order-summary__title-text')
+        orderNotesElement = document.querySelector('#order-notes')
+        finishButton = document.querySelector('.wc-block-components-checkout-place-order-button__text')
+        descriptionsElements = document.querySelectorAll('.wc-block-components-checkout-step__description')
+
+        if(summaryTitleElement && orderNotesElement){
+          //Modificar as descrições
+          descriptionsElements[0].innerHTML = 'Usaremos este e-mail para enviar informações e atualizações sobre seu orçamento.'
+          descriptionsElements[1].innerHTML = 'Digite o endereço em que deseja que seu orçamento seja entregue.'
+          summaryTitleElement.innerHTML = 'Resumo do Orçamento'
+          finishButton.innerHTML = 'Solicitar Orçamento'
+          orderNotesElement.remove()
+        }
+
+        /* addCartElement = document.querySelector('.wp-block-button__link.wp-element-button.add_to_cart_button.ajax_add_to_cart');
+        if(addCartElement){
+          addCartElement.innerHTML = 'Solicitar orçamento';
+        } */
     }
   }
 

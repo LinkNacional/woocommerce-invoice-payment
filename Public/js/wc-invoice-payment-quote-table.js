@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // Função para modificar a tabela de cotação
-  console.log(wcInvoicePaymentQuoteTableVariables)
 
   textsElements = document.querySelector('.wp-block-woocommerce-order-confirmation-status.wc-block-order-confirmation-status.alignwide.has-font-size.has-large-font-size')
   if(textsElements && textsElements.querySelector('h1') && textsElements.querySelector('p')){
@@ -12,6 +10,33 @@ document.addEventListener('DOMContentLoaded', function () {
   if (wcInvoicePaymentQuoteTableVariables && wcInvoicePaymentQuoteTableVariables.quoteStatus) {
     modifyQuoteTable();
     modifyWooCommerceOrderTable();
+    
+    // Verifica se o parâmetro displayQuoteNotice existe na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const displayQuoteNotice = urlParams.get('displayQuoteNotice');
+    
+    if(wcInvoicePaymentQuoteTableVariables.quoteStatus == 'quote-approved' && displayQuoteNotice === 'true'){
+      //Adicionar alerta de sucesso do woocomerce
+      const successNotice = document.createElement('div');
+      successNotice.className = 'wc-block-components-notice-banner is-success';
+      successNotice.style.setProperty('margin', '0px', 'important');
+      successNotice.setAttribute('role', 'alert');
+      successNotice.setAttribute('tabindex', '-1');
+      successNotice.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+          <path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z"></path>
+        </svg>
+        <div class="wc-block-components-notice-banner__content">
+          Orçamento aprovado com sucesso!
+        </div>
+      `;
+      
+      // Insere o aviso no início do body ou em um container apropriado
+      const targetContainer = document.querySelector('.woocommerce') || document.querySelector('main') || document.body;
+      if (targetContainer) {
+        targetContainer.insertBefore(successNotice, targetContainer.firstChild);
+      }
+    }
   }
 
   // Função para modificar a estrutura da tabela baseada no status da cotação
@@ -93,6 +118,14 @@ document.addEventListener('DOMContentLoaded', function () {
   function modifyWooCommerceOrderTable() {
     const table = document.querySelector('.woocommerce-table.woocommerce-table--order-details.shop_table.order_details');
     if (!table) return;
+    document.querySelector('.woocommerce-MyAccount-content p')?.remove()
+    quoteDetailsElement = document.querySelector('.woocommerce-order-details__title')
+    quoteTitleElement = document.querySelector('.has-text-align-center.wp-block-post-title')
+    if(quoteDetailsElement && quoteTitleElement){
+      quoteDetailsElement.innerHTML = 'Detalhes do orçamento'
+      quoteTitleElement.innerHTML = `Orçamento #${wcInvoicePaymentQuoteTableVariables.quoteOrderId}`
+    }
+
 
     // Procura pelos elementos tfoot da tabela
     const tfootElements = table.querySelectorAll('tfoot');

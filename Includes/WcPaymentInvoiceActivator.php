@@ -26,5 +26,10 @@ final class WcPaymentInvoiceActivator {
      * @since    1.0.0
      */
     public static function activate(): void {
+        // Adicionar endpoint para orçamentos
+        add_rewrite_endpoint('quotes', EP_ROOT | EP_PAGES);
+        
+        // Atualizar as regras de rewrite
+        flush_rewrite_rules();
     }
 }

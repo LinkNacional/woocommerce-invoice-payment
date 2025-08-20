@@ -268,8 +268,125 @@ final class WcPaymentInvoiceQuote
         if (!$redirect_url || strpos($redirect_url, 'lkn_wcip_approve_quote') !== false) {
             $redirect_url = wc_get_account_endpoint_url('orders');
         }
+
+        $invoiceList = get_option('lkn_wcip_invoices', array());
+        
+        if ( !in_array( $invoice->get_id(), $invoiceList ) ) {
+            $invoiceList[] = $invoice->get_id();
+        }
+        
+        update_option('lkn_wcip_invoices', $invoiceList);
+        
+        // Adicionar parâmetro displayQuoteNotice à URL de redirecionamento
+        $redirect_url = add_query_arg('displayQuoteNotice', 'true', $redirect_url);
         
         wp_redirect($redirect_url);
         exit;
+    }
+
+    /**
+     * Exclude quotes from WooCommerce My Orders query
+     * 
+     * @param array $args Query arguments
+     * @return array Modified query arguments
+     */
+    public function excludeQuotesFromOrdersQuery($args) {
+        // Adiciona meta_query para excluir pedidos que são orçamentos
+        if (!isset($args['meta_query'])) {
+            $args['meta_query'] = array();
+        }
+        
+        $args['meta_query'][] = array(
+            'relation' => 'OR',
+            array(
+                'key'     => 'lkn_is_quote',
+                'compare' => 'NOT EXISTS'
+            ),
+            array(
+                'key'     => 'lkn_is_quote',
+                'value'   => 'yes',
+                'compare' => '!='
+            )
+        );
+        
+        return $args;
+    }
+
+    /**
+     * Add quotes endpoint to WooCommerce
+     */
+    public function addQuotesEndpoint() {
+        add_rewrite_endpoint('quotes', EP_ROOT | EP_PAGES);
+    }
+
+    /**
+     * Force flush rewrite rules (call once to register endpoint)
+     */
+    public function forceFlushRewriteRules() {
+        add_rewrite_endpoint('quotes', EP_ROOT | EP_PAGES);
+        flush_rewrite_rules();
+    }
+
+    /**
+     * Add quotes query var
+     */
+    public function addQuotesQueryVars($vars) {
+        $vars[] = 'quotes';
+        return $vars;
+    }
+
+    /**
+     * Add quotes menu item to My Account
+     */
+    public function addQuotesMenuItem($items) {
+        // Adiciona o item "Orçamentos" após "Pedidos"
+        $new_items = array();
+        foreach ($items as $key => $item) {
+            $new_items[$key] = $item;
+            if ($key === 'orders') {
+                $new_items['quotes'] = __('Orçamentos', 'wc-invoice-payment');
+            }
+        }
+        return $new_items;
+    }
+
+    /**
+     * Show quotes endpoint content
+     */
+    public function showQuotesEndpointContent() {
+        $current_page = empty(get_query_var('quotes')) ? 1 : absint(get_query_var('quotes'));
+
+        // Query para buscar apenas orçamentos do cliente
+        $customer_quotes = wc_get_orders(array(
+            'customer' => get_current_user_id(),
+            'page'     => $current_page,
+            'paginate' => true,
+            'meta_key' => 'lkn_is_quote',
+            'meta_value' => 'yes',
+            'meta_compare' => '='
+        ));
+
+        wc_get_template(
+            'myaccount/quotes.php',
+            array(
+                'current_page'    => absint($current_page),
+                'customer_quotes' => $customer_quotes,
+                'has_quotes'      => 0 < $customer_quotes->total,
+            ),
+            '',
+            WC_PAYMENT_INVOICE_ROOT_DIR . 'templates/'
+        );
+    }
+
+    /**
+     * Change page title for quotes endpoint
+     */
+    public function changeQuotesPageTitle($title) {
+        // Verifica se estamos na página de orçamentos
+        if (isset($_GET['quotes']) || strpos($_SERVER['REQUEST_URI'], '/quotes') !== false) {
+            return 'Orçamentos';
+        }
+        
+        return $title;
     }
 }

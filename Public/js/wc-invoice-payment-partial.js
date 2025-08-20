@@ -14,7 +14,7 @@
             if(!checkoutForm && payForOrder != 'true'){
                 cartFlowDiv = document.querySelector('#payment');
             }
-            if (checkoutForm || cartFlowDiv) {z
+            if (checkoutForm || cartFlowDiv) {
                 symbol = wcInvoicePaymentPartialVariables.symbol
                 clearInterval(intervalId);
 
