@@ -658,6 +658,13 @@ final class WcPaymentInvoiceSettings
                 'id'       => $slug . 'create_invoice_automatically',
                 'default'  => 'no',
             ),
+            $slug . 'display_coupon' => array(
+                'name'     => __('Cupom de desconto', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip'     => __('Essa configuração exibe o campo para o cliente inserir um cupom de desconto ao solicitar um orçamento.', 'wc-invoice-payment'),
+                'id'       => $slug . 'display_coupon',
+                'default'  => 'no',
+            ),
             $slug . 'quote_expiration' => array(
                 'name' => __('Vencimento Padrão de Orçamento', 'wc-invoice-payment'),
                 'type' => 'number',

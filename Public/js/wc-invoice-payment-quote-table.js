@@ -53,6 +53,13 @@ document.addEventListener('DOMContentLoaded', function () {
       return label && label.textContent.trim() === 'Ações:';
     });
 
+    quoteDetailsAfterCheckoutElement = document.querySelector('.wp-block-heading')
+    quoteDetailsKeyElement = document.querySelector('.wc-block-order-confirmation-summary-list-item__key')
+    if(quoteDetailsAfterCheckoutElement){
+      quoteDetailsAfterCheckoutElement.innerHTML = 'Detalhes do orçamento'
+      quoteDetailsKeyElement.innerHTML = `Orçamento #:`;
+    }
+
     if (existingActionsRow) {
       // Remove a linha existente para recriá-la com os botões corretos
       existingActionsRow.remove();
@@ -92,7 +99,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (variables.cancelUrl) {
           buttons += `<a href="${variables.cancelUrl}" 
                          class="woocommerce-button wp-element-button button cancel order-actions-button" 
-                         aria-label="Cancelar pedido">Cancelar</a>`;
+                         aria-label="Cancelar pedido" 
+                         onclick="return confirm('Tem certeza que deseja cancelar este orçamento?.')">Cancelar</a>`;
         }
         break;
 
@@ -101,12 +109,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (variables.approvalQuoteUrl) {
           buttons += `<a href="${variables.approvalQuoteUrl}" 
                          class="woocommerce-button wp-element-button button accept order-actions-button" 
-                         aria-label="Aceitar cotação" style="margin-right: 10px;">Aprovar</a>`;
+                         aria-label="Aceitar cotação" style="margin-right: 10px;" 
+                         onclick="return confirm('Tem certeza que deseja aprovar este orçamento?')">Aprovar</a>`;
         }
         if (variables.cancelUrl) {
           buttons += `<a href="${variables.cancelUrl}" 
                          class="woocommerce-button wp-element-button button cancel order-actions-button" 
-                         aria-label="Cancelar pedido">Cancelar</a>`;
+                         aria-label="Cancelar pedido" 
+                         onclick="return confirm('Tem certeza que deseja cancelar este orçamento?')">Cancelar</a>`;
         }
         break;
     }
@@ -120,12 +130,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!table) return;
     document.querySelector('.woocommerce-MyAccount-content p')?.remove()
     quoteDetailsElement = document.querySelector('.woocommerce-order-details__title')
-    quoteTitleElement = document.querySelector('.has-text-align-center.wp-block-post-title')
-    if(quoteDetailsElement && quoteTitleElement){
+    quoteTitleElement = document.querySelector('.wp-block-post-title')
+    if(quoteDetailsElement){
       quoteDetailsElement.innerHTML = 'Detalhes do orçamento'
+    }
+    
+    if(quoteTitleElement){
       quoteTitleElement.innerHTML = `Orçamento #${wcInvoicePaymentQuoteTableVariables.quoteOrderId}`
     }
-
 
     // Procura pelos elementos tfoot da tabela
     const tfootElements = table.querySelectorAll('tfoot');

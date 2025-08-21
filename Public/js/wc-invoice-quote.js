@@ -2,13 +2,22 @@
   // Função para remover elementos de preço
   function removePrice() {
     if(wcInvoiceHidePrice.showPrice == 'no'){
-        document.querySelectorAll(`
-          .wc-block-components-formatted-money-amount,
-          .wc-block-cart-items__header-total,
-          .wp-block-woocommerce-cart-order-summary-totals-block,
-          .wc-block-components-totals-item__label,
-          .woocommerce-Price-amount.amount
-        `).forEach(el => el.remove());
+        if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quote-pending'){
+          document.querySelectorAll(`
+            .wc-block-components-formatted-money-amount,
+            .wc-block-cart-items__header-total,
+            .wp-block-woocommerce-cart-order-summary-totals-block,
+            .wc-block-components-totals-item__label,
+            .woocommerce-Price-amount.amount
+          `).forEach(el => {
+            if(el.innerHTML !== 'Em revisão'){
+              console.log(wcInvoiceHidePrice)
+              
+              el.innerHTML = 'Em revisão';
+              el.style.setProperty('display', 'block', 'important');
+            }
+          });
+        }
     }
 
     if(wcInvoiceHidePrice.quoteMode == 'yes'){
@@ -66,12 +75,24 @@
           orderNotesElement.remove()
         }
 
-        /* addCartElement = document.querySelector('.wp-block-button__link.wp-element-button.add_to_cart_button.ajax_add_to_cart');
-        if(addCartElement){
+        addCartElement = document.querySelector('.wp-block-button__link.wp-element-button.add_to_cart_button.ajax_add_to_cart');
+        if(addCartElement && addCartElement.innerHTML !== 'Solicitar orçamento') {
           addCartElement.innerHTML = 'Solicitar orçamento';
-        } */
+        }
+
+        cuponElement = document.querySelector(`
+          .wp-block-woocommerce-checkout-order-summary-coupon-form-block.wc-block-components-totals-wrapper,
+          .wp-block-woocommerce-cart-order-summary-coupon-form-block.wc-block-components-totals-wrapper
+          `);
+        if(cuponElement && wcInvoiceHidePrice.showCupon != 'yes') {
+          cuponElement.remove();
+        }
     }
-  }
+      tableQuotesThElement = document.querySelector('.quotesAccount')?.parentElement?.parentElement?.querySelector('.nobr');
+      if(tableQuotesThElement && tableQuotesThElement.innerHTML !== 'Orçamentos') {
+        tableQuotesThElement.innerHTML = 'Orçamentos';
+      }
+    }
 
   // Executa imediatamente, caso já exista algum preço na página
   removePrice();

@@ -18,15 +18,32 @@ final class WcPaymentInvoiceQuote
     function lknWcInvoiceHidePriceFrontend() {
         $showPrice = get_option(  'lkn_wcip_show_products_price', 'no' );
         $quoteMode = get_option(  'lkn_wcip_quote_mode', 'no' );
-        if($showPrice == 'no'){
+        
+        // Tenta capturar o order_id de diferentes formas
+        $orderId = $this->getOrderIdFromContext();
+        $quoteStatus = null;
+        
+        if($orderId && function_exists('wc_get_order')){
+            $quoteOrder = \wc_get_order( $orderId );
+            if($quoteOrder && is_object($quoteOrder)){
+                //status do orçamento
+                $quoteStatus = $quoteOrder->get_status();
+            }
+        }
+        //if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quoteStatus'){
+        if($showPrice == 'no' && ($quoteStatus == null || $quoteStatus == 'quote-pending')){
             wp_enqueue_style('wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-hide-price.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         }
         wp_enqueue_script( 'wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-quote.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
         wp_localize_script( 'wcInvoiceHidePrice', 'wcInvoiceHidePrice', array(
             'quoteMode' => $quoteMode,
             'showPrice' => $showPrice,
+            'showCupon' => get_option( 'lkn_wcip_display_coupon', 'no' ),
             'cart' => WC()->cart,
-            'userId' => get_current_user_id()
+            'wc' => WC(),
+            'userId' => get_current_user_id(),
+            'orderId' => $orderId,
+            'quoteStatus' => $quoteStatus
         ));
     }
 
@@ -174,8 +191,20 @@ final class WcPaymentInvoiceQuote
         // Aprovar o orçamento
         $quote_order->update_status('quote-approved', __('Orçamento aprovado pelo cliente.', 'wc-invoice-payment'));
 
+        // Obter informações do cliente para a nota
+        $current_user = wp_get_current_user();
+        $user_email = $current_user->user_email;
+        $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '';
+        
+        // Criar nota detalhada com email e IP
+        $note = __('Orçamento aprovado pelo cliente ', 'wc-invoice-payment') . $user_email;
+        if (!empty($user_ip)) {
+            $note .= ' (IP: ' . $user_ip . ')';
+        }
+        $note .= __(' na data: ', 'wc-invoice-payment') . current_time('d/m/Y H:i:s');
+        
         // Adicionar nota ao pedido
-        $quote_order->add_order_note(__('Orçamento aprovado pelo cliente na data: ', 'wc-invoice-payment') . current_time('d/m/Y H:i:s'));
+        $quote_order->add_order_note($note);
 
         // Criar ordem clonada do orçamento
         $invoice = wc_create_order();
@@ -388,5 +417,54 @@ final class WcPaymentInvoiceQuote
         }
         
         return $title;
+    }
+
+    /**
+     * Tenta capturar o order_id de diferentes contextos
+     * @return int|null
+     */
+    private function getOrderIdFromContext() {
+        global $wp;
+        
+        // Caso 1: order_id via GET parameter
+        if (isset($_GET['order_id'])) {
+            return intval($_GET['order_id']);
+        }
+        
+        // Caso 2: Verifica query vars do WordPress
+        if (isset($wp->query_vars['order-received']) && !empty($wp->query_vars['order-received'])) {
+            return intval($wp->query_vars['order-received']);
+        }
+        
+        if (isset($wp->query_vars['view-order']) && !empty($wp->query_vars['view-order'])) {
+            return intval($wp->query_vars['view-order']);
+        }
+        
+        // Caso 3: Verifica URL atual diretamente para capturar IDs
+        $current_url = $_SERVER['REQUEST_URI'];
+        
+        // Para URLs do tipo /finalizar-compra/order-received/284/
+        if (preg_match('/order-received\/(\d+)/', $current_url, $matches)) {
+            return intval($matches[1]);
+        }
+        
+        // Para URLs do tipo /minha-conta/view-order/284/
+        if (preg_match('/view-order\/(\d+)/', $current_url, $matches)) {
+            return intval($matches[1]);
+        }
+        
+        // Caso 4: Verifica se há um order ID nos parâmetros da URL
+        if (preg_match('/[\/=](\d+)[\/\?\#]?/', $current_url, $matches)) {
+            // Valida se é um ID válido verificando se é um pedido existente
+            $potential_order_id = intval($matches[1]);
+            if ($potential_order_id > 0 && function_exists('wc_get_order')) {
+                $order = \wc_get_order($potential_order_id);
+                if ($order && is_object($order)) {
+                    return $potential_order_id;
+                }
+            }
+        }
+        
+        return null;
     }
 }
