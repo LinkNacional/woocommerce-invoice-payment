@@ -11,8 +11,6 @@
             .woocommerce-Price-amount.amount
           `).forEach(el => {
             if(el.innerHTML !== 'Em revisão'){
-              console.log(wcInvoiceHidePrice)
-              
               el.innerHTML = 'Em revisão';
               el.style.setProperty('display', 'block', 'important');
             }

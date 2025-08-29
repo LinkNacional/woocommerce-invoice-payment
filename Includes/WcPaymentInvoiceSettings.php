@@ -23,7 +23,7 @@ final class WcPaymentInvoiceSettings
     function fixSettingsTabs() {
         global $plugin_page;
 
-        if (isset($_GET['subscription']) && $_GET['subscription'] === 'true') {
+        if (isset($_GET['subscription']) && $_GET['subscription'] === 'true' || isset($_GET['invoiceChecked'])){
             // Força o WordPress a marcar o submenu e o menu pai como ativos
             $plugin_page = 'wc-invoice-payment-subscriptions-add';
 

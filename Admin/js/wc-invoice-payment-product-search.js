@@ -332,7 +332,6 @@ jQuery(document).ready(function($) {
                 </button>
             `;
             addLineButton.after(productButton);
-
             // Bind click event
             $('#lkn-wcip-add-products-btn').on('click', function(e) {
                 e.preventDefault();
@@ -344,7 +343,10 @@ jQuery(document).ready(function($) {
     // Initialize when DOM is ready
     $(document).ready(function() {
         // Only add button on invoice creation/edit pages
-        if (window.location.href.includes('new-invoice') || window.location.href.includes('edit-invoice')) {
+        if (window.location.href.includes('new-invoice') 
+            || window.location.href.includes('edit-invoice') 
+            || window.location.href.includes('new-quote')
+            || window.location.href.includes('edit-quote')) {
             addProductButton();
         }
     });

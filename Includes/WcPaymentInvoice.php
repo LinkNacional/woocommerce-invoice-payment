@@ -182,6 +182,12 @@ final class WcPaymentInvoice {
         $this->loader->add_action('wp_ajax_lkn_wcip_get_product_data', $plugin_admin, 'ajax_get_product_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_wcip_get_product_data', $plugin_admin, 'ajax_get_product_data');
 
+        // AJAX hooks for frontend quote actions
+        $this->loader->add_action('wp_ajax_lkn_wcip_approve_quote_frontend', $plugin_admin, 'ajax_approve_quote_frontend');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_wcip_approve_quote_frontend', $plugin_admin, 'ajax_approve_quote_frontend');
+        $this->loader->add_action('wp_ajax_lkn_wcip_cancel_quote_frontend', $plugin_admin, 'ajax_cancel_quote_frontend');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_wcip_cancel_quote_frontend', $plugin_admin, 'ajax_cancel_quote_frontend');
+
         $api_handler = new WcPaymentInvoiceLoaderRest();
         $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
         $subscription_class = new WcPaymentInvoiceSubscription();
@@ -357,6 +363,8 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
         $this->loader->add_action('enqueue_block_assets', $feeOrDiscountClass, 'loadScripts');
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoiceQuoteClass, "showQuoteFields");
+        $this->loader->add_action('woocommerce_before_pay_action', $this->WcPaymentInvoiceQuoteClass, "showQuoteFields");
+        $this->loader->add_action('template_redirect', $this->WcPaymentInvoiceQuoteClass, "interceptOrderPayPage");
         $this->loader->add_action('template_redirect', $this->WcPaymentInvoiceQuoteClass, "handleQuoteApproval");
         $this->loader->add_action('woocommerce_init', $this->WcPaymentInvoiceQuoteClass, 'addQuotesEndpoint');
         $this->loader->add_filter('query_vars', $this->WcPaymentInvoiceQuoteClass, 'addQuotesQueryVars');
@@ -365,6 +373,7 @@ final class WcPaymentInvoice {
         $this->loader->add_filter('woocommerce_endpoint_quotes_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
         $this->loader->add_filter('the_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
         $this->loader->add_filter('wp_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
+        $this->loader->add_action('wp_enqueue_scripts', $this->WcPaymentInvoiceQuoteClass, 'enqueueQuoteConfirmationScript');
         
         // Hook temporário para registrar o endpoint - execute uma vez e comente
         $this->loader->add_action('wp_loaded', $this->WcPaymentInvoiceQuoteClass, 'forceFlushRewriteRules');

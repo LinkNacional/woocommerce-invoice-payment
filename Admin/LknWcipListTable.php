@@ -1363,13 +1363,17 @@ final class LknWcipListTable {
      *
      * @return void
      */
-    public function prepare_items($validate_nonce, $showSubscriptions = false): void {
+    public function prepare_items($validate_nonce, $showSubscriptions = false, $showType = 'invoice'): void {
         if(wp_verify_nonce($validate_nonce, 'validate_nonce')) {
             $this->_nonce = $validate_nonce;
             $order_by = isset($_GET['orderby']) ? sanitize_text_field(wp_unslash($_GET['orderby'])) : '';
             $order = isset($_GET['order']) ? sanitize_text_field(wp_unslash($_GET['order'])) : '';
             $search_term = isset($_POST['s']) ? sanitize_text_field(wp_unslash($_POST['s'])) : '';
             $invoiceList = get_option('lkn_wcip_invoices', array());
+
+            if($showType == 'quote'){
+                $invoiceList = get_option('lkn_wcip_quotes', array());
+            }
             // Deletes invoices that have no order.
             $invoicesWithExistingOrder = array_filter(
                 $invoiceList,
@@ -1382,7 +1386,13 @@ final class LknWcipListTable {
     
             if (count($invoiceList) !== count($invoicesWithExistingOrder)) {
                 $invoiceList = $invoicesWithExistingOrder;
-                update_option('lkn_wcip_invoices', $invoiceList);
+                if($showType == 'quote'){
+                    update_option('lkn_wcip_quotes', $invoiceList);
+                }
+                else {
+                    update_option('lkn_wcip_invoices', $invoiceList);
+                }
+
             }
     
             $per_page = 10;
@@ -1390,7 +1400,7 @@ final class LknWcipListTable {
             $total_items = count($invoiceList);
     
             // only ncessary because we have sample data
-            $found_data = $this->lkn_wcip_list_table_data($order_by, $order, $search_term, $invoiceList, $showSubscriptions);
+            $found_data = $this->lkn_wcip_list_table_data($order_by, $order, $search_term, $invoiceList, $showSubscriptions, $showType);
             $this->items = array_slice($found_data, (($current_page - 1) * $per_page), $per_page);
     
             $this->set_pagination_args(array(
@@ -1399,6 +1409,13 @@ final class LknWcipListTable {
             ));
     
             $lkn_wcip_columns = $this->get_columns();
+            if($showType === 'quote') {
+                $lkn_wcip_columns = array_merge($lkn_wcip_columns, array(
+                    'lkn_wcip_status' => __('Status', 'wc-invoice-payment'),
+                    'lkn_wcip_id' => __('Quote', 'wc-invoice-payment'),
+                ));
+                unset($lkn_wcip_columns['lkn_wcip_from_subscription']);
+            }
             $lkn_wcip_hidden = $this->get_hidden_columns();
             $ldul_sortable = $this->get_sortable_columns();
     
@@ -1450,11 +1467,17 @@ final class LknWcipListTable {
                 $orderId = $invoiceId;
             }
         }
+
+        if($order->get_meta('lkn_is_quote')) {
+            $editUrl = home_url('wp-admin/admin.php?page=edit-quote&quote=' . $orderId);
+        }
         
         $action = array();
         $action['edit'] = '<a href="' . esc_url($editUrl) . '">' . __('Edit', 'wc-invoice-payment') . '</a>';
-        $action['payment'] = '<a href="' . esc_url($paymentUrl) . '" target="_blank">' . esc_html__('Payment link', 'wc-invoice-payment') . '</a>';
-        $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$orderId' href='#'>" . esc_html__('Download invoice', 'wc-invoice-payment') . '</a>';
+        if(!$order->get_meta('lkn_is_quote')) {
+            $action['payment'] = '<a href="' . esc_url($paymentUrl) . '" target="_blank">' . esc_html__('Payment link', 'wc-invoice-payment') . '</a>';
+            $action['generate_pdf'] = "<a class='lkn_wcip_generate_pdf_btn' data-invoice-id='$orderId' href='#'>" . esc_html__('Download invoice', 'wc-invoice-payment') . '</a>';
+        }
 
         return $this->row_actions($action);
     }
@@ -1469,11 +1492,21 @@ final class LknWcipListTable {
      *
      * @return array
      */
-    public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '', $invoiceList, $showSubscriptions) {
+    public function lkn_wcip_list_table_data($order_by = '', $order = '', $search_term = '', $invoiceList, $showSubscriptions, $showType = 'invoice') {
         ?>
 <section style="margin: 20px 0 0 0; ">
     <?php
-        if ( ! $showSubscriptions) {
+        if ($showType === 'quote') {
+            $editUrl = home_url('wp-admin/admin.php?page=new-quote');
+            ?>
+    <div>
+        <a
+            href="<?php echo esc_url($editUrl); ?>"
+            class="button button-primary"
+        ><?php esc_html_e('Add quote', 'wc-invoice-payment'); ?></a>
+    </div>
+    <?php
+        } else if ( ! $showSubscriptions) {
             $editUrl = home_url('wp-admin/admin.php?page=new-invoice');
             ?>
     <div>
@@ -1498,14 +1531,22 @@ final class LknWcipListTable {
 
     <?php
             $data_array = array();
-
         if ($invoiceList) {
             $dateFormat = get_option('date_format');
 
             foreach ($invoiceList as $invoiceId) {
                 $invoice = wc_get_order($invoiceId);
-                //Verifica se a opção desejada é igual ao valor que define se é uma assinatura
-                if($invoice->get_meta('lkn_is_subscription') == $showSubscriptions) {
+                $shouldInclude = false;
+                
+                if ($showType === 'quote') {
+                    // Show only quotes
+                    $shouldInclude = $invoice->get_meta('lkn_is_quote') === 'yes';
+                } else {
+                    // Show invoices and subscriptions (existing logic)
+                    $shouldInclude = $invoice->get_meta('lkn_is_subscription') == $showSubscriptions && $invoice->get_meta('lkn_is_quote') !== 'yes';
+                }
+                
+                if($shouldInclude) {
                     $dueDate = $invoice->get_meta('lkn_exp_date');
                     $dueDate = empty($dueDate) ? '-' : gmdate($dateFormat, strtotime($dueDate));
                     $iniDate = $invoice->get_meta('lkn_ini_date');
@@ -1513,11 +1554,13 @@ final class LknWcipListTable {
                     
                     if($invoice->get_meta('lkn_subscription_id') != "") {
                         $subscription = wc_get_order($invoice->get_meta('lkn_subscription_id'));
-                        $subscriptionInitialLimit = $invoice->get_meta('lkn_current_limit');
-                        $subscriptionLimit = $subscription->get_meta('lkn_wcip_subscription_limit');
-                        $fromSubscription = $subscriptionInitialLimit . '/' . $subscriptionLimit;
-                        if( ! $subscriptionLimit) {
-                            $fromSubscription = __('Subscription', 'wc-invoice-payment');
+                        if($subscription){
+                            $subscriptionInitialLimit = $invoice->get_meta('lkn_current_limit');
+                            $subscriptionLimit = $subscription->get_meta('lkn_wcip_subscription_limit');
+                            $fromSubscription = $subscriptionInitialLimit . '/' . $subscriptionLimit;
+                            if( ! $subscriptionLimit) {
+                                $fromSubscription = __('Subscription', 'wc-invoice-payment');
+                            }
                         }
                     }
 
@@ -1537,7 +1580,7 @@ final class LknWcipListTable {
                         'lkn_wcip_client' => $invoice->get_billing_first_name(),
                         'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
                         'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
-                        'lkn_wcip_from_subscription' => $fromSubscription,
+                        'lkn_wcip_from_subscription' => $fromSubscription ?? '-',
                         'lkn_wcip_exp_date' => $dueDate,
                         'lkn_wcip_ini_date' => $iniDate
                     );
@@ -1653,7 +1696,7 @@ final class LknWcipListTable {
 
             for ($c = 0; $c < count($invoicesDelete); $c++) {
                 $order = wc_get_order($invoicesDelete[$c]);
-                $order->delete();
+                $order->delete(true);
 
                 // Excluindo evento cron
                 $invoice_id = $invoicesDelete[$c];

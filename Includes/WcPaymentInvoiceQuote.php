@@ -109,36 +109,114 @@ final class WcPaymentInvoiceQuote
         return $statuses;
     }
 
+    /**
+     * Intercepta páginas order-pay para exibir interface de aprovação de orçamento
+     */
+    public function interceptOrderPayPage(): void {
+        global $wp;
+        
+        // Verificar se estamos na página order-pay
+        if (!isset($_GET['pay_for_order']) || $_GET['pay_for_order'] !== 'true') {
+            return;
+        }
+        
+        // Tentar obter o ID do pedido
+        $order_id = null;
+        if (isset($_GET['key'])) {
+            // Buscar pedido pela order_key
+            $orders = wc_get_orders(array(
+                'limit' => 1,
+                'order_key' => wc_clean($_GET['key'])
+            ));
+            if (!empty($orders)) {
+                $order_id = $orders[0]->get_id();
+                $order = $orders[0];
+                
+                // Verificar se é um orçamento que precisa de aprovação
+                if ($order->get_meta('lkn_is_quote') === 'yes' && 
+                    in_array($order->get_status(), ['quote-awaiting'])) {
+                    
+                    error_log("interceptOrderPayPage - Redirecionando para aprovação: Order ID $order_id");
+                    
+                    // Limpar output buffer e renderizar nossa página
+                    if (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    
+                    // Carregar cabeçalho do WordPress
+                    get_header();
+                    
+                    // Renderizar nossa interface
+                    $this->renderQuoteApprovalPageFull($order);
+                    
+                    // Carregar rodapé do WordPress  
+                    get_footer();
+                    
+                    exit;
+                }
+            }
+        }
+    }
+
     public function showQuoteFields($orderId): void {
         $quoteOrder = wc_get_order( $orderId );
-        if($quoteOrder->get_meta('lkn_is_quote') == 'yes'){
-            $invoiceOrder = wc_get_order( $quoteOrder->get_meta('_wc_lkn_invoice_id') );
-            
-            $wcInvoicePaymentQuoteTableVariables = array(
-                'quoteOrderId' => $quoteOrder->get_id(),
-                'quoteStatus' => $quoteOrder->get_status(),
-                'approvalQuoteUrl' => wp_nonce_url(
-                    add_query_arg(
-                        array(
-                            'action' => 'lkn_wcip_approve_quote',
-                            'quote_id' => $quoteOrder->get_id(),
-                        ),
-                        wc_get_account_endpoint_url( 'orders' )
-                    ),
-                    'lkn_wcip_approve_quote'
-                ),
-                'cancelUrl' => $quoteOrder->get_cancel_order_url(wc_get_page_permalink('myaccount')),
-            );
-
-            if($invoiceOrder){
-                $wcInvoicePaymentQuoteTableVariables['paymentPaymentUrl'] = $invoiceOrder->get_checkout_payment_url();
-                $wcInvoicePaymentQuoteTableVariables['invoiceOrder'] = $invoiceOrder;
-            }
-            //noticia para o cliente que foi aprovado o orçamento
-            wp_enqueue_script( 'wcInvoicePaymentQuoteScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-quote-table.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
-            wp_enqueue_style('wcInvoicePaymentQuoteStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-quote-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
-            wp_localize_script('wcInvoicePaymentQuoteScript', 'wcInvoicePaymentQuoteTableVariables', $wcInvoicePaymentQuoteTableVariables);
+        
+        // Verificar se é um orçamento
+        if($quoteOrder->get_meta('lkn_is_quote') != 'yes'){
+            return;
         }
+        
+        // Verificar se estamos na página order-pay e o orçamento precisa de aprovação
+        $is_order_pay_page = isset($_GET['pay_for_order']) && $_GET['pay_for_order'] === 'true';
+        $needs_approval = in_array($quoteOrder->get_status(), ['quote-awaiting', 'quote-pending']);
+        
+        // Debug - adicionar log para verificar condições
+        error_log("showQuoteFields Debug - Order ID: $orderId, Status: " . $quoteOrder->get_status() . ", is_order_pay_page: " . ($is_order_pay_page ? 'true' : 'false') . ", needs_approval: " . ($needs_approval ? 'true' : 'false'));
+        
+        if ($is_order_pay_page && $needs_approval) {
+            // Substituir todo o conteúdo da página com a interface de aprovação
+            echo '<style>
+                .woocommerce-checkout, 
+                .woocommerce-order-pay,
+                .woocommerce-info,
+                .woocommerce-error,
+                .woocommerce-message {
+                    display: none !important;
+                }
+            </style>';
+            
+            error_log("showQuoteFields - Renderizando página de aprovação para ordem $orderId");
+            $this->renderQuoteApprovalPage($quoteOrder);
+            return;
+        }
+        
+        // Código existente para outras páginas
+        $invoiceOrder = wc_get_order( $quoteOrder->get_meta('_wc_lkn_invoice_id') );
+        
+        $wcInvoicePaymentQuoteTableVariables = array(
+            'quoteOrderId' => $quoteOrder->get_id(),
+            'quoteStatus' => $quoteOrder->get_status(),
+            'approvalQuoteUrl' => wp_nonce_url(
+                add_query_arg(
+                    array(
+                        'action' => 'lkn_wcip_approve_quote',
+                        'quote_id' => $quoteOrder->get_id(),
+                    ),
+                    wc_get_account_endpoint_url( 'orders' )
+                ),
+                'lkn_wcip_approve_quote'
+            ),
+            'cancelUrl' => $quoteOrder->get_cancel_order_url(wc_get_page_permalink('myaccount')),
+        );
+
+        if($invoiceOrder){
+            $wcInvoicePaymentQuoteTableVariables['paymentPaymentUrl'] = $invoiceOrder->get_checkout_payment_url();
+            $wcInvoicePaymentQuoteTableVariables['invoiceOrder'] = $invoiceOrder;
+        }
+        //noticia para o cliente que foi aprovado o orçamento
+        wp_enqueue_script( 'wcInvoicePaymentQuoteScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-quote-table.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
+        wp_enqueue_style('wcInvoicePaymentQuoteStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-quote-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
+        wp_localize_script('wcInvoicePaymentQuoteScript', 'wcInvoicePaymentQuoteTableVariables', $wcInvoicePaymentQuoteTableVariables);
     }
 
     /**
@@ -179,15 +257,6 @@ final class WcPaymentInvoiceQuote
             wp_die(__('Este orçamento não pode ser aprovado no status atual.', 'wc-invoice-payment'));
         }
 
-        // Configurar data de vencimento do orçamento
-        $quote_expiration_days = get_option('lkn_wcip_quote_expiration', 10);
-        $iniDate = new \DateTime();
-        $iniDateFormatted = $iniDate->format('Y-m-d');
-        $expiration_date = gmdate("Y-m-d", strtotime($iniDateFormatted . ' +' . $quote_expiration_days . ' days'));
-        
-        // Adicionar meta data de data de vencimento ao orçamento
-        $quote_order->add_meta_data('lkn_exp_date', $expiration_date);
-
         // Aprovar o orçamento
         $quote_order->update_status('quote-approved', __('Orçamento aprovado pelo cliente.', 'wc-invoice-payment'));
 
@@ -206,9 +275,35 @@ final class WcPaymentInvoiceQuote
         // Adicionar nota ao pedido
         $quote_order->add_order_note($note);
 
+        
+        //lkn_wcip_create_invoice_automatically
+        if(get_option('lkn_wcip_create_invoice_automatically', 'yes') == 'yes') {
+            // Criar fatura automaticamente
+            $this->create_invoice($quote_order);
+        }
+        
+        // Redirecionar de volta para a página anterior ou página de pedidos como fallback
+        $redirect_url = wp_get_referer();
+        if (!$redirect_url || strpos($redirect_url, 'lkn_wcip_approve_quote') !== false) {
+            $redirect_url = $quote_order->get_checkout_order_received_url();
+        }
+
+        // Adicionar parâmetro displayQuoteNotice à URL de redirecionamento
+        $redirect_url = add_query_arg('displayQuoteNotice', 'true', $redirect_url);
+        
+        wp_redirect($redirect_url);
+        exit;
+    }
+
+    public function create_invoice($quote_order) {
+        $quote_expiration_days = get_option('lkn_wcip_quote_expiration', 10);
+        $iniDate = new \DateTime();
+        $iniDateFormatted = $iniDate->format('Y-m-d');
+        $expiration_date = gmdate("Y-m-d", strtotime($iniDateFormatted . ' +' . $quote_expiration_days . ' days'));
+        
         // Criar ordem clonada do orçamento
         $invoice = wc_create_order();
-        
+
         // Copiar dados básicos do orçamento para a ordem clonada
         $invoice->set_customer_id($quote_order->get_customer_id());
         
@@ -275,6 +370,8 @@ final class WcPaymentInvoiceQuote
         
         // Adicionar meta data de data de vencimento à ordem clonada
         $invoice->add_meta_data('lkn_exp_date', $expiration_date);
+        $invoice->update_meta_data('lkn_ini_date', $iniDateFormatted);
+
         $invoice->add_meta_data('lkn_quote_id', $quote_order->get_id());
 
         // Calcular totais da ordem clonada
@@ -292,12 +389,7 @@ final class WcPaymentInvoiceQuote
         // Adicionar mensagem de sucesso
         wc_add_notice(__('Orçamento aprovado com sucesso!', 'wc-invoice-payment'), 'success');
 
-        // Redirecionar de volta para a página anterior ou página de pedidos como fallback
-        $redirect_url = wp_get_referer();
-        if (!$redirect_url || strpos($redirect_url, 'lkn_wcip_approve_quote') !== false) {
-            $redirect_url = wc_get_account_endpoint_url('orders');
-        }
-
+        
         $invoiceList = get_option('lkn_wcip_invoices', array());
         
         if ( !in_array( $invoice->get_id(), $invoiceList ) ) {
@@ -305,12 +397,6 @@ final class WcPaymentInvoiceQuote
         }
         
         update_option('lkn_wcip_invoices', $invoiceList);
-        
-        // Adicionar parâmetro displayQuoteNotice à URL de redirecionamento
-        $redirect_url = add_query_arg('displayQuoteNotice', 'true', $redirect_url);
-        
-        wp_redirect($redirect_url);
-        exit;
     }
 
     /**
@@ -466,5 +552,249 @@ final class WcPaymentInvoiceQuote
         }
         
         return null;
+    }
+
+    /**
+     * Carrega script para atualizar título na página de confirmação de orçamento
+     */
+    public function enqueueQuoteConfirmationScript(): void {
+        global $wp;
+        
+        // Verificar se estamos na página order-received
+        $is_order_received = isset($wp->query_vars['order-received']) && !empty($wp->query_vars['order-received']);
+        $is_order_received_url = false;
+        
+        // Verificar URL atual para capturar pages order-received
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $current_url = $_SERVER['REQUEST_URI'];
+            $is_order_received_url = preg_match('/order-received\/\d+/', $current_url);
+        }
+        
+        if ($is_order_received || $is_order_received_url) {
+            $orderId = $this->getOrderIdFromContext();
+            
+            if ($orderId && function_exists('wc_get_order')) {
+                $order = \wc_get_order($orderId);
+                
+                if ($order && is_object($order) && $order->get_meta('lkn_is_quote') === 'yes') {
+                    wp_enqueue_script( 'wcInvoiceQuoteConfirmation', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-quote-confirmation.js', array( 'jquery' ), WC_PAYMENT_INVOICE_VERSION, true );
+                    wp_localize_script( 'wcInvoiceQuoteConfirmation', 'wcInvoiceQuoteConfirmation', array(
+                        'orderId' => $orderId,
+                        'quoteStatus' => $order->get_status(),
+                        'isQuote' => 'yes'
+                    ));
+                }
+            }
+        }
+    }
+
+    /**
+     * Renderiza a página completa de aprovação do orçamento
+     */
+    public function renderQuoteApprovalPageFull($order) {
+        // Incluir CSS e JS
+        wp_enqueue_style('wc-invoice-quote-approval', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-quote-approval.css', array(), WC_PAYMENT_INVOICE_VERSION);
+        wp_enqueue_script('wc-invoice-quote-approval', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-quote-approval.js', array('jquery'), WC_PAYMENT_INVOICE_VERSION, true);
+        
+        // Localizar dados para JavaScript
+        wp_localize_script('wc-invoice-quote-approval', 'wcInvoiceQuoteApproval', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('lkn_wcip_quote_action'),
+            'quoteId' => $order->get_id(),
+            'texts' => array(
+                'confirmApprove' => __('Tem certeza que deseja aprovar este orçamento?', 'wc-invoice-payment'),
+                'confirmCancel' => __('Tem certeza que deseja cancelar este orçamento?', 'wc-invoice-payment'),
+                'processing' => __('Processando...', 'wc-invoice-payment')
+            )
+        ));
+        
+        // Carregar CSS/JS
+        wp_head();
+        
+        $order_id = $order->get_id();
+        ?>
+        <div class="woocommerce">
+            <div class="wc-invoice-quote-approval-container">
+                <h2><?php _e('Detalhes do Orçamento', 'wc-invoice-payment'); ?></h2>
+                
+                <div class="quote-details-summary">
+                    <p><strong><?php _e('Orçamento #', 'wc-invoice-payment'); ?><?php echo $order->get_order_number(); ?></strong></p>
+                    <p><?php printf(__('Criado em %s', 'wc-invoice-payment'), $order->get_date_created()->date_i18n(get_option('date_format'))); ?></p>
+                    <p><?php printf(__('Status: %s', 'wc-invoice-payment'), '<span class="quote-status">' . wc_get_order_status_name($order->get_status()) . '</span>'); ?></p>
+                    <?php 
+                    $exp_date = $order->get_meta('lkn_exp_date');
+                    if ($exp_date) {
+                        $exp_date_formatted = date_i18n(get_option('date_format'), strtotime($exp_date));
+                        printf(__('Válido até %s', 'wc-invoice-payment'), $exp_date_formatted);
+                    }
+                    ?>
+                </div>
+
+                <table class="shop_table shop_table_responsive quote-details-table">
+                    <thead>
+                        <tr>
+                            <th class="product-name"><?php _e('Produto', 'wc-invoice-payment'); ?></th>
+                            <th class="product-total"><?php _e('Total', 'wc-invoice-payment'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        foreach ($order->get_items() as $item_id => $item) {
+                            ?>
+                            <tr class="quote-item">
+                                <td class="product-name">
+                                    <?php echo esc_html($item->get_name()); ?>
+                                    <?php if ($item->get_quantity() > 1): ?>
+                                        <strong class="product-quantity"> × <?php echo $item->get_quantity(); ?></strong>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="product-total">
+                                    <?php echo $order->get_formatted_line_subtotal($item); ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                        
+                        <?php if ($order->get_shipping_total() > 0): ?>
+                        <tr class="shipping-row">
+                            <td class="product-name"><?php _e('Entrega:', 'wc-invoice-payment'); ?></td>
+                            <td class="product-total"><?php echo wc_price($order->get_shipping_total()); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        
+                        <?php if ($order->get_total_tax() > 0): ?>
+                        <tr class="tax-row">
+                            <td class="product-name"><?php _e('Impostos:', 'wc-invoice-payment'); ?></td>
+                            <td class="product-total"><?php echo wc_price($order->get_total_tax()); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        
+                        <tr class="order-total">
+                            <td class="product-name"><strong><?php _e('Total:', 'wc-invoice-payment'); ?></strong></td>
+                            <td class="product-total"><strong><?php echo $order->get_formatted_order_total(); ?></strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="quote-actions">
+                    <h3><?php _e('Ações:', 'wc-invoice-payment'); ?></h3>
+                    <div class="quote-action-buttons">
+                        <button type="button" id="approve-quote-btn" class="button button-primary approve-quote" data-quote-id="<?php echo $order_id; ?>">
+                            <?php _e('Aprovar', 'wc-invoice-payment'); ?>
+                        </button>
+                        <button type="button" id="cancel-quote-btn" class="button button-secondary cancel-quote" data-quote-id="<?php echo $order_id; ?>">
+                            <?php _e('Cancelar', 'wc-invoice-payment'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+        
+        // Carregar CSS/JS no rodapé
+        wp_footer();
+    }
+
+    /**
+     * Renderiza a página de aprovação do orçamento
+     */
+    public function renderQuoteApprovalPage($order) {
+        // Incluir CSS e JS
+        wp_enqueue_style('wc-invoice-quote-approval', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-quote-approval.css', array(), WC_PAYMENT_INVOICE_VERSION);
+        wp_enqueue_script('wc-invoice-quote-approval', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-quote-approval.js', array('jquery'), WC_PAYMENT_INVOICE_VERSION, true);
+        
+        // Localizar dados para JavaScript
+        wp_localize_script('wc-invoice-quote-approval', 'wcInvoiceQuoteApproval', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('lkn_wcip_quote_action'),
+            'quoteId' => $order->get_id(),
+            'texts' => array(
+                'confirmApprove' => __('Tem certeza que deseja aprovar este orçamento?', 'wc-invoice-payment'),
+                'confirmCancel' => __('Tem certeza que deseja cancelar este orçamento?', 'wc-invoice-payment'),
+                'processing' => __('Processando...', 'wc-invoice-payment')
+            )
+        ));
+        
+        $order_id = $order->get_id();
+        ?>
+        <div class="woocommerce">
+            <div class="wc-invoice-quote-approval-container">
+                <h2><?php _e('Detalhes do Orçamento', 'wc-invoice-payment'); ?></h2>
+                
+                <div class="quote-details-summary">
+                    <p><strong><?php _e('Orçamento #', 'wc-invoice-payment'); ?><?php echo $order->get_order_number(); ?></strong></p>
+                    <p><?php printf(__('Criado em %s', 'wc-invoice-payment'), $order->get_date_created()->date_i18n(get_option('date_format'))); ?></p>
+                    <p><?php printf(__('Status: %s', 'wc-invoice-payment'), '<span class="quote-status">' . wc_get_order_status_name($order->get_status()) . '</span>'); ?></p>
+                    <?php 
+                    $exp_date = $order->get_meta('lkn_exp_date');
+                    if ($exp_date) {
+                        $exp_date_formatted = date_i18n(get_option('date_format'), strtotime($exp_date));
+                        printf(__('Válido até %s', 'wc-invoice-payment'), $exp_date_formatted);
+                    }
+                    ?>
+                </div>
+
+                <table class="shop_table shop_table_responsive quote-details-table">
+                    <thead>
+                        <tr>
+                            <th class="product-name"><?php _e('Produto', 'wc-invoice-payment'); ?></th>
+                            <th class="product-total"><?php _e('Total', 'wc-invoice-payment'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        foreach ($order->get_items() as $item_id => $item) {
+                            ?>
+                            <tr class="quote-item">
+                                <td class="product-name">
+                                    <?php echo esc_html($item->get_name()); ?>
+                                    <?php if ($item->get_quantity() > 1): ?>
+                                        <strong class="product-quantity"> × <?php echo $item->get_quantity(); ?></strong>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="product-total">
+                                    <?php echo $order->get_formatted_line_subtotal($item); ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                        
+                        <?php if ($order->get_shipping_total() > 0): ?>
+                        <tr class="shipping-row">
+                            <td class="product-name"><?php _e('Entrega:', 'wc-invoice-payment'); ?></td>
+                            <td class="product-total"><?php echo wc_price($order->get_shipping_total()); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        
+                        <?php if ($order->get_total_tax() > 0): ?>
+                        <tr class="tax-row">
+                            <td class="product-name"><?php _e('Impostos:', 'wc-invoice-payment'); ?></td>
+                            <td class="product-total"><?php echo wc_price($order->get_total_tax()); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        
+                        <tr class="order-total">
+                            <td class="product-name"><strong><?php _e('Total:', 'wc-invoice-payment'); ?></strong></td>
+                            <td class="product-total"><strong><?php echo $order->get_formatted_order_total(); ?></strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="quote-actions">
+                    <h3><?php _e('Ações:', 'wc-invoice-payment'); ?></h3>
+                    <div class="quote-action-buttons">
+                        <button type="button" id="approve-quote-btn" class="button button-primary approve-quote" data-quote-id="<?php echo $order_id; ?>">
+                            <?php _e('Aprovar', 'wc-invoice-payment'); ?>
+                        </button>
+                        <button type="button" id="cancel-quote-btn" class="button button-secondary cancel-quote" data-quote-id="<?php echo $order_id; ?>">
+                            <?php _e('Cancelar', 'wc-invoice-payment'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
     }
 }

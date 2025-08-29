@@ -91,6 +91,14 @@ final class WcPaymentInvoiceQuoteGateway extends WC_Payment_Gateway
     public function process_payment($order_id)
     {
         $order = wc_get_order($order_id);
+        $quoteList = get_option('lkn_wcip_quotes', array());
+
+        if (false !== $quoteList) {
+            $quoteList[] = $order_id;
+            update_option('lkn_wcip_quotes', $quoteList);
+        } else {
+            update_option('lkn_wcip_quotes', array($order_id));
+        }
 
         // Mark as on-hold (we're awaiting the payment)
         $order->update_status('wc-quote-pending', __('Awaiting quote approval', 'wc-invoice-payment'));
@@ -98,6 +106,14 @@ final class WcPaymentInvoiceQuoteGateway extends WC_Payment_Gateway
         // Add order note
         $order->add_order_note(__('Quote request received. Awaiting approval...', 'wc-invoice-payment'));
         $order->update_meta_data('lkn_is_quote', 'yes');
+
+        
+        $iniDate = new \DateTime();
+        $iniDateFormatted = $iniDate->format('Y-m-d');
+        $quote_expiration_days = get_option('lkn_wcip_quote_expiration', 10);
+        $expiration_date = gmdate("Y-m-d", strtotime($iniDateFormatted . ' +' . $quote_expiration_days . ' days'));
+        $order->update_meta_data('lkn_ini_date', $iniDateFormatted);
+        $order->update_meta_data('lkn_exp_date', $expiration_date);
         $order->save();
 
         // Remove cart

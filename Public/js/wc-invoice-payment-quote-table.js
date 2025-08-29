@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
     quoteDetailsElement = document.querySelector('.woocommerce-order-details__title')
     quoteTitleElement = document.querySelector('.wp-block-post-title')
     if(quoteDetailsElement){
-      quoteDetailsElement.innerHTML = 'Detalhes do orçamento'
+      quoteDetailsElement.innerHTML = 'Detalhes do orç2amento'
     }
     
     if(quoteTitleElement){

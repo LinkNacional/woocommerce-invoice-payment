@@ -780,3 +780,68 @@ label[for="lkn_wcip_customer_input"] {
 #lkn_invoice_quote_gateway{
 	display: none !important;
 }
+
+.lkn-quote-actions{
+	display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.lkn-quote-actions button{
+	margin: 0px !important;
+}
+
+.lkn-quote-actions p{
+	margin: 0px !important;
+	padding: 0px !important;
+}
+
+.quote-actions-buttons{
+	display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+	margin: 10px 0px !important;
+}
+
+.quote-actions-buttons .submit{
+	margin: 0px !important;
+    padding: 0px !important;
+}
+
+.quote-actions-buttons input{
+	padding-left: 15px !important;
+    padding-right: 15px !important
+}
+
+.quote-actions-buttons input.createInvoiceButton{
+	padding-left: 40px !important;
+	padding-right: 40px !important;
+}
+
+.quote-links-wrap{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.lknLinkQuotes{
+	margin: 0px !important;
+	margin-top: 5px !important;
+	padding: 0px !important;
+}
+
+.lknLinkQuotes.invoice{
+    margin-bottom: 10px !important;
+    margin-top: 12px !important;
+}
+
+.lknLinkQuotes {
+	color: #2271b1 !important;
+	text-decoration: underline !important;
+	cursor: default !important;
+}
+
+.lknLinkQuotes *:hover {
+	color: #135e96 !important;
+	text-decoration: none !important;
+}
