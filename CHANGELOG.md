@@ -1,3 +1,6 @@
+# 2.6.0 - 29/08/2025
+* Adição de funcionalidade de orçamentos.
+
 # 2.5.1 - 21/07/2025
 * Alteração em readme.
 

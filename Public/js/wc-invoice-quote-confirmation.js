@@ -1,6 +1,6 @@
 /**
- * Script para atualizar o título da página de confirmação de orçamento
- * baseado no status do orçamento
+ * Script to update the quote confirmation page title
+ * based on quote status
  */
 (function($) {
     'use strict';
@@ -11,38 +11,38 @@
 
         const statusMessages = {
             'quote-draft': {
-                title: 'Orçamento em Rascunho',
-                message: 'Seu orçamento está sendo preparado.'
+                title: wcInvoiceQuoteConfirmation.draftTitle,
+                message: wcInvoiceQuoteConfirmation.draftMessage
             },
             'quote-pending': {
-                title: 'Orçamento Recebido',
-                message: 'Seu orçamento foi recebido e está sendo analisado.'
+                title: wcInvoiceQuoteConfirmation.pendingTitle,
+                message: wcInvoiceQuoteConfirmation.pendingMessage
             },
             'quote-awaiting': {
-                title: 'Orçamento Aguardando Aprovação',
-                message: 'Seu orçamento está pronto e aguarda sua aprovação.'
+                title: wcInvoiceQuoteConfirmation.awaitingTitle,
+                message: wcInvoiceQuoteConfirmation.awaitingMessage
             },
             'quote-approved': {
-                title: 'Orçamento Aprovado',
-                message: 'Seu orçamento foi aprovado com sucesso.'
+                title: wcInvoiceQuoteConfirmation.approvedTitle,
+                message: wcInvoiceQuoteConfirmation.approvedMessage
             },
             'quote-cancelled': {
-                title: 'Orçamento Cancelado',
-                message: 'Seu orçamento foi cancelado.'
+                title: wcInvoiceQuoteConfirmation.cancelledTitle,
+                message: wcInvoiceQuoteConfirmation.cancelledMessage
             },
             'quote-expired': {
-                title: 'Orçamento Expirado',
-                message: 'Seu orçamento expirou.'
+                title: wcInvoiceQuoteConfirmation.expiredTitle,
+                message: wcInvoiceQuoteConfirmation.expiredMessage
             }
         };
 
-        // Função para atualizar o título e mensagem
+        // Function to update title and message
         function updateQuoteConfirmationStatus() {
 
-            // Adicionar classes CSS ao body para estilização
+            // Add CSS classes to body for styling
             document.body.classList.add('wc-quote-confirmation-custom', 'wc-quote-status-' + status.replace('quote-', ''));
 
-            // Procurar pelo bloco de status do WooCommerce
+            // Look for WooCommerce status block
             const statusBlock = document.querySelector('.wp-block-woocommerce-order-confirmation-status, .wc-block-order-confirmation-status');
             
             if (statusBlock) {
@@ -57,17 +57,17 @@
                     messageElement.textContent = statusMessages[status].message;
                 }
                 
-                return true; // Indica que atualizou com sucesso
+                return true; // Indicates successful update
             }
             
-            // Fallback: procurar por outros elementos de título comuns
+            // Fallback: look for other common title elements
             const fallbackSelectors = [
                 '.entry-title',
                 '.page-title', 
                 'h1.woocommerce-order-received-title',
                 '.woocommerce-thankyou-order-received h1',
                 '.woocommerce-order h1',
-                'h1', // Último recurso - primeiro h1 da página
+                'h1', // Last resort - first h1 on the page
             ];
             
             
@@ -75,7 +75,7 @@
                 const element = document.querySelector(selector);
                 
                 if (element) {
-                    // Verificar se o texto atual parece ser relacionado a orçamento/pedido
+                    // Check if current text seems to be quote/order related
                     const currentText = element.textContent.toLowerCase();
                     if (currentText.includes('orçamento') || 
                         currentText.includes('pedido') || 
@@ -92,22 +92,22 @@
             return false;
         }
 
-        // Executar a atualização quando a página carregar
+        // Execute update when page loads
         const success = updateQuoteConfirmationStatus();
         
         if (!success) {
-            // Usar MutationObserver para capturar mudanças dinâmicas no DOM
+            // Use MutationObserver to capture dynamic DOM changes
             const observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.type === 'childList') {
-                        // Verificar se novos elementos foram adicionados
+                        // Check if new elements were added
                         mutation.addedNodes.forEach(function(node) {
                             if (node.nodeType === 1) { // Element node
                                 if (node.matches && 
                                     (node.matches('.wp-block-woocommerce-order-confirmation-status') || 
                                      node.matches('.wc-block-order-confirmation-status'))) {
                                     if (updateQuoteConfirmationStatus()) {
-                                        observer.disconnect(); // Para de observar se conseguiu atualizar
+                                        observer.disconnect(); // Stop observing if update succeeded
                                     }
                                 }
                             }
@@ -116,7 +116,7 @@
                 });
             });
 
-            // Observar mudanças no body
+            // Observe changes in body
             observer.observe(document.body, {
                 childList: true,
                 subtree: true

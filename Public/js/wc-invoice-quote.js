@@ -1,5 +1,5 @@
 (function() {
-  // Função para remover elementos de preço
+  // Function to remove price elements
   function removePrice() {
     if(wcInvoiceHidePrice.showPrice == 'no'){
         if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quote-pending'){
@@ -10,8 +10,8 @@
             .wc-block-components-totals-item__label,
             .woocommerce-Price-amount.amount
           `).forEach(el => {
-            if(el.innerHTML !== 'Em revisão'){
-              el.innerHTML = 'Em revisão';
+            if(el.innerHTML !== wcInvoiceHidePrice.reviewText){
+              el.innerHTML = wcInvoiceHidePrice.reviewText;
               el.style.setProperty('display', 'block', 'important');
             }
           });
@@ -23,13 +23,13 @@
             .wc-block-components-button.wp-element-button.wp-block-woocommerce-mini-cart-checkout-button-block.wc-block-mini-cart__footer-checkout.contained,
             .wc-block-components-button.wp-element-button.wc-block-cart__submit-button.contained
         `).forEach((el) => {
-            // Verifica se o botão já foi substituído para evitar duplicatas
+            // Check if button has already been replaced to avoid duplicates
             if (!el.hasAttribute('data-replaced')) {
-                // Cria o novo botão
+                // Create new button
                 const newA = document.createElement('a');
                 newA.href = el.href;
                 newA.className = 'wc-block-components-button wp-element-button wc-block-cart__submit-button contained';
-                newA.innerHTML = '<div class="wc-block-components-button__text">Solicitar orçamento</div>';
+                newA.innerHTML = '<div class="wc-block-components-button__text">' + wcInvoiceHidePrice.requestQuoteText + '</div>';
                 newA.setAttribute('data-replaced', 'true');
                 
                 el.parentNode.replaceChild(newA, el);
@@ -65,17 +65,17 @@
         descriptionsElements = document.querySelectorAll('.wc-block-components-checkout-step__description')
 
         if(summaryTitleElement && orderNotesElement){
-          //Modificar as descrições
-          descriptionsElements[0].innerHTML = 'Usaremos este e-mail para enviar informações e atualizações sobre seu orçamento.'
-          descriptionsElements[1].innerHTML = 'Digite o endereço em que deseja que seu orçamento seja entregue.'
-          summaryTitleElement.innerHTML = 'Resumo do Orçamento'
-          finishButton.innerHTML = 'Solicitar Orçamento'
+          //Modify descriptions
+          descriptionsElements[0].innerHTML = wcInvoiceHidePrice.emailDescription || 'We will use this email to send information and updates about your quote.'
+          descriptionsElements[1].innerHTML = wcInvoiceHidePrice.addressDescription || 'Enter the address where you want your quote to be delivered.'
+          summaryTitleElement.innerHTML = wcInvoiceHidePrice.quoteSummaryText
+          finishButton.innerHTML = wcInvoiceHidePrice.requestQuoteText
           orderNotesElement.remove()
         }
 
         addCartElement = document.querySelector('.wp-block-button__link.wp-element-button.add_to_cart_button.ajax_add_to_cart');
-        if(addCartElement && addCartElement.innerHTML !== 'Solicitar orçamento') {
-          addCartElement.innerHTML = 'Solicitar orçamento';
+        if(addCartElement && addCartElement.innerHTML !== wcInvoiceHidePrice.requestQuoteText) {
+          addCartElement.innerHTML = wcInvoiceHidePrice.requestQuoteText;
         }
 
         cuponElement = document.querySelector(`
@@ -87,15 +87,15 @@
         }
     }
       tableQuotesThElement = document.querySelector('.quotesAccount')?.parentElement?.parentElement?.querySelector('.nobr');
-      if(tableQuotesThElement && tableQuotesThElement.innerHTML !== 'Orçamentos') {
-        tableQuotesThElement.innerHTML = 'Orçamentos';
+      if(tableQuotesThElement && tableQuotesThElement.innerHTML !== wcInvoiceHidePrice.quotesText) {
+        tableQuotesThElement.innerHTML = wcInvoiceHidePrice.quotesText;
       }
     }
 
-  // Executa imediatamente, caso já exista algum preço na página
+  // Execute immediately, in case there are already prices on the page
   removePrice();
 
-  // Define o alvo a ser observado: todo o body para capturar inserções em qualquer lugar
+  // Define the target to be observed: the entire body to capture insertions anywhere
   const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
       if (mutation.type === 'childList' || mutation.type === 'subtree') {
@@ -104,7 +104,7 @@
     }
   });
 
-  // Inicia o observador
+  // Start the observer
   observer.observe(document, {
     childList: true,
     subtree: true

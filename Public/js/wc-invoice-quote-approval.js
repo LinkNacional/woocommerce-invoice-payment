@@ -100,8 +100,8 @@
         });
         
         function resetButtons() {
-            $('.approve-quote').prop('disabled', false).text('Aprovar');
-            $('.cancel-quote').prop('disabled', false).text('Cancelar');
+            $('.approve-quote').prop('disabled', false).text(wcInvoiceQuoteApproval.texts.approveText || 'Approve');
+            $('.cancel-quote').prop('disabled', false).text(wcInvoiceQuoteApproval.texts.cancelText || 'Cancel');
             $('.quote-action-buttons').removeClass('quote-loading');
         }
     });

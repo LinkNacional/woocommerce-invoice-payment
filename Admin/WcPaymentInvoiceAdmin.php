@@ -186,6 +186,10 @@ final class WcPaymentInvoiceAdmin
                     'amount' => __('Amount', 'wc-invoice-payment'),
                     'deleteConfirm' => __('Are you sure you want to delete the invoice?', 'wc-invoice-payment'),
                     'deleteConfirmQuote' => __('Are you sure you want to delete the quote?', 'wc-invoice-payment'),
+                    'confirmApproveQuote' => __('Are you sure you want to approve this quote?', 'wc-invoice-payment'),
+                    'confirmCreateInvoice' => __('Are you sure you want to create an invoice for this quote?', 'wc-invoice-payment'),
+                    'confirmSendQuoteEmail' => __('Are you sure you want to send the quote to the customer\'s email?', 'wc-invoice-payment'),
+                    'creatingInvoice' => __('Creating Invoice...', 'wc-invoice-payment'),
                     'invoice' => __('Invoice', 'wc-invoice-payment'),
                     'pdfError' => __('Unable to generate the PDF. Please, contact support.', 'wc-invoice-payment'),
                     'cancelConfirm' => __('Are you sure you want to cancel the invoice?', 'wc-invoice-payment')
@@ -3460,7 +3464,7 @@ final class WcPaymentInvoiceAdmin
                     <p style="font-size: 18px; margin-bottom: 20px;">' . sprintf(__('Olá %s!', 'wc-invoice-payment'), '<strong>' . esc_html($customer_name) . '</strong>') . '</p>
                     
                     <div class="quote-info">
-                        <h2>📋 ' . __('Detalhes do Orçamento', 'wc-invoice-payment') . '</h2>
+                        <h2>📋 ' . __('Quote Details', 'wc-invoice-payment') . '</h2>
                         <div class="quote-details">
                             <p><strong>' . __('Número:', 'wc-invoice-payment') . '</strong> <span class="highlight">#' . esc_html($quote_number) . '</span></p>
                             <p><strong>' . __('Data de criação:', 'wc-invoice-payment') . '</strong> ' . $order->get_date_created()->date_i18n(get_option('date_format')) . '</p>';
@@ -3873,12 +3877,12 @@ final class WcPaymentInvoiceAdmin
 
         // Get all translated quote status
         $statusWc = array();
-        $statusWc[] = array('status' => 'wc-quote-draft', 'label' => __('Orçamento Rascunho', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-quote-pending', 'label' => __('Orçamento Pendente', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-quote-awaiting', 'label' => __('Orçamento Aguardando Aprovação', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-quote-approved', 'label' => __('Orçamento Aprovado', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-quote-cancelled', 'label' => __('Orçamento Cancelado', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-quote-expired', 'label' => __('Orçamento Vencido', 'wc-invoice-payment'));
+        $statusWc[] = array('status' => 'wc-quote-draft', 'label' => __('Quote Draft', 'wc-invoice-payment'));
+        $statusWc[] = array('status' => 'wc-quote-pending', 'label' => __('Quote Pending', 'wc-invoice-payment'));
+        $statusWc[] = array('status' => 'wc-quote-awaiting', 'label' => __('Quote Awaiting Approval', 'wc-invoice-payment'));
+        $statusWc[] = array('status' => 'wc-quote-approved', 'label' => __('Quote Approved', 'wc-invoice-payment'));
+        $statusWc[] = array('status' => 'wc-quote-cancelled', 'label' => __('Quote Cancelled', 'wc-invoice-payment'));
+        $statusWc[] = array('status' => 'wc-quote-expired', 'label' => __('Quote Expired', 'wc-invoice-payment'));
 
         $c = 0;
         $order = wc_get_order($invoiceId);
@@ -4226,16 +4230,16 @@ final class WcPaymentInvoiceAdmin
                         <?php
                             if('wc-quote-pending' === $orderStatus) {
                                 ?>
-                                <input type="button" class="button button-primary" value="Aprovar Orçamento" onclick="lkn_wcip_approve_quote(<?php echo esc_attr($invoiceId); ?>)">
+                                <input type="button" class="button button-primary" value="<?php esc_attr_e('Approve Quote', 'wc-invoice-payment'); ?>" onclick="lkn_wcip_approve_quote(<?php echo esc_attr($invoiceId); ?>)">
                                 <?php
                             }elseif(empty($order->get_meta('_wc_lkn_invoice_id')) && 'wc-quote-approved' === $orderStatus) {
                                 ?>
-                                <input type="button" class="button button-primary createInvoiceButton" value="Gerar Fatura" onclick="lkn_wcip_create_invoice(<?php echo esc_attr($invoiceId); ?>)">
+                                <input type="button" class="button button-primary createInvoiceButton" value="<?php esc_attr_e('Generate Invoice', 'wc-invoice-payment'); ?>" onclick="lkn_wcip_create_invoice(<?php echo esc_attr($invoiceId); ?>)">
                                 <?php
                             }
                             if('wc-quote-awaiting' == $orderStatus || 'wc-quote-approved' == $orderStatus) {
                                 ?>
-                                <input type="button" class="button button-primary" value="Enviar" onclick="lkn_wcip_send_quote_email(<?php echo esc_attr($invoiceId); ?>)">
+                                <input type="button" class="button button-primary" value="<?php esc_attr_e('Send', 'wc-invoice-payment'); ?>" onclick="lkn_wcip_send_quote_email(<?php echo esc_attr($invoiceId); ?>)">
                                 <?php
                             }
                         ?>

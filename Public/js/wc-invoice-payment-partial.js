@@ -51,12 +51,12 @@
                                         <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
                                     </div>
                                     <span class="wcPaymentInvoiceCheckboxTitleCartFlowSmall">
-                                        Digite o valor que deseja pagar agora, o restante pode ser pago depois com outros métodos de pagamento.
+                                        ${lknWcipPartialVariables.partialPaymentDescription || 'Enter the amount you want to pay now, the rest can be paid later with other payment methods.'}
                                     </span>
                                     <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
                                         <span class="wc-block-components-button__text">
                                             <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
-                                                Pagar parcial
+                                                ${lknWcipPartialVariables.payPartialText || 'Pay Partial'}
                                             </div>
                                         </span>
                                     </button>
@@ -67,7 +67,7 @@
                     }else{
                         partialPaymentHTML = `
                         <div class="wcPaymentInvoiceContainer">
-                            <h1 class="wcf-shipping-methods-title wcPaymentInvoiceTitleCartFlow">Pagamento Parcial</h1>
+                            <h1 class="wcf-shipping-methods-title wcPaymentInvoiceTitleCartFlow">${lknWcipPartialVariables.partialPaymentTitle || 'Partial Payment'}</h1>
                             <div class="wcPaymentInvoiceInner">
                                 <div class="woocommerce-shipping-fields">
                                 <label for="wcPaymentInvoiceContainerCheckboxPartial" class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox wcPaymentInvoiceCheckboxLabelCartFlow">
@@ -84,13 +84,13 @@
                                         <input type="text" class="input-text " id="wcPaymentInvoicePartialAmountFormatted" placeholder="${symbol} 0,00" aria-required="true">
                                         <input id="wcPaymentInvoicePartialAmount" type="number" max="1" step="0.01" min="0.01" style="display: none;">
                                     </div>
-                                    <span class="wcPaymentInvoiceCheckboxTitleCartFlow wcPaymentInvoiceCheckboxTitleCartFlowSmall">
-                                        Digite o valor que deseja pagar agora, o restante pode ser pago depois com outros métodos de pagamento.
-                                    </span>
+                                                                        <div class="woocommerce-info partial-payment-description">
+                                        ${lknWcipPartialVariables.partialPaymentDescription || 'Enter the amount you want to pay now, the rest can be paid later with other payment methods.'}
+                                    </div>
                                     <button class="wc-block-components-button wp-element-button wc-block-components-checkout-place-order-button contained wcPaymentInvoiceButton" type="button">
                                         <span class="wc-block-components-button__text">
                                             <div aria-hidden="false" class="wc-block-components-checkout-place-order-button__text">
-                                                Pagar parcial
+                                                ${lknWcipPartialVariables.payPartialText || 'Pay Partial'}
                                             </div>
                                         </span>
                                     </button>

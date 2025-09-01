@@ -43,48 +43,54 @@ final class WcPaymentInvoiceQuote
             'wc' => WC(),
             'userId' => get_current_user_id(),
             'orderId' => $orderId,
-            'quoteStatus' => $quoteStatus
+            'quoteStatus' => $quoteStatus,
+            'emailDescription' => __('We will use this email to send information and updates about your quote.', 'wc-invoice-payment'),
+            'addressDescription' => __('Enter the address where you want your quote to be delivered.', 'wc-invoice-payment'),
+            'reviewText' => __('Under Review', 'wc-invoice-payment'),
+            'requestQuoteText' => __('Request Quote', 'wc-invoice-payment'),
+            'quoteSummaryText' => __('Quote Summary', 'wc-invoice-payment'),
+            'quotesText' => __('Quotes', 'wc-invoice-payment')
         ));
     }
 
     public function registerQuoteStatus( $order_statuses ) {
         $order_statuses['wc-quote-draft'] = array(
-            'label' => __('Orçamento Rascunho', 'wc-invoice-payment'),
+            'label' => __('Quote Draft', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
         );
         $order_statuses['wc-quote-pending'] = array(
-            'label' => __('Orçamento Pendente', 'wc-invoice-payment'),
+            'label' => __('Quote Pending', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
         );
         $order_statuses['wc-quote-awaiting'] = array(
-            'label' => __('Orçamento Aguardando Aprovação', 'wc-invoice-payment'),
+            'label' => __('Quote Awaiting Approval', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
         );
         $order_statuses['wc-quote-approved'] = array(
-            'label' => __('Orçamento Aprovado', 'wc-invoice-payment'),
+            'label' => __('Quote Approved', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
         );
         $order_statuses['wc-quote-cancelled'] = array(
-            'label' => __('Orçamento Cancelado', 'wc-invoice-payment'),
+            'label' => __('Quote Cancelled', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
         );
         $order_statuses['wc-quote-expired'] = array(
-            'label' => __('Orçamento Vencido', 'wc-invoice-payment'),
+            'label' => __('Quote Expired', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
@@ -94,12 +100,12 @@ final class WcPaymentInvoiceQuote
     }
 
     public function createQuoteStatus($order_statuses){
-        $order_statuses['wc-quote-draft'] = __('Orçamento Rascunho', 'wc-invoice-payment');
-        $order_statuses['wc-quote-pending'] = __('Orçamento Pendente', 'wc-invoice-payment');
-        $order_statuses['wc-quote-awaiting'] = __('Orçamento Aguardando Aprovação', 'wc-invoice-payment');
-        $order_statuses['wc-quote-approved'] = __('Orçamento Aprovado', 'wc-invoice-payment');
-        $order_statuses['wc-quote-cancelled'] = __('Orçamento Cancelado', 'wc-invoice-payment');
-        $order_statuses['wc-quote-expired'] = __('Orçamento Vencido', 'wc-invoice-payment');
+        $order_statuses['wc-quote-draft'] = __('Quote Draft', 'wc-invoice-payment');
+        $order_statuses['wc-quote-pending'] = __('Quote Pending', 'wc-invoice-payment');
+        $order_statuses['wc-quote-awaiting'] = __('Quote Awaiting Approval', 'wc-invoice-payment');
+        $order_statuses['wc-quote-approved'] = __('Quote Approved', 'wc-invoice-payment');
+        $order_statuses['wc-quote-cancelled'] = __('Quote Cancelled', 'wc-invoice-payment');
+        $order_statuses['wc-quote-expired'] = __('Quote Expired', 'wc-invoice-payment');
         return $order_statuses;
     }
 
@@ -207,6 +213,11 @@ final class WcPaymentInvoiceQuote
                 'lkn_wcip_approve_quote'
             ),
             'cancelUrl' => $quoteOrder->get_cancel_order_url(wc_get_page_permalink('myaccount')),
+            'confirmApprove' => __('Are you sure you want to approve this quote?', 'wc-invoice-payment'),
+            'confirmCancel' => __('Are you sure you want to cancel this quote?', 'wc-invoice-payment'),
+            'approveText' => __('Approve', 'wc-invoice-payment'),
+            'cancelText' => __('Cancel', 'wc-invoice-payment'),
+            'quoteDetailsText' => __('Quote Details', 'wc-invoice-payment'),
         );
 
         if($invoiceOrder){
@@ -230,12 +241,12 @@ final class WcPaymentInvoiceQuote
 
         // Verificar nonce de segurança
         if (!wp_verify_nonce($_GET['_wpnonce'], 'lkn_wcip_approve_quote')) {
-            wp_die(__('Ação de segurança inválida.', 'wc-invoice-payment'));
+            wp_die(__('Invalid security action.', 'wc-invoice-payment'));
         }
 
         // Verificar se o quote_id foi fornecido
         if (!isset($_GET['quote_id']) || empty($_GET['quote_id'])) {
-            wp_die(__('ID do orçamento não fornecido.', 'wc-invoice-payment'));
+            wp_die(__('Quote ID not provided.', 'wc-invoice-payment'));
         }
 
         $quote_id = intval($_GET['quote_id']);
@@ -243,22 +254,22 @@ final class WcPaymentInvoiceQuote
 
         // Verificar se o pedido existe
         if (!$quote_order) {
-            wp_die(__('Orçamento não encontrado.', 'wc-invoice-payment'));
+            wp_die(__('Quote not found.', 'wc-invoice-payment'));
         }
 
         // Verificar se é realmente um orçamento
         if ($quote_order->get_meta('lkn_is_quote') !== 'yes') {
-            wp_die(__('Este pedido não é um orçamento.', 'wc-invoice-payment'));
+            wp_die(__('This order is not a quote.', 'wc-invoice-payment'));
         }
 
         // Verificar se o status permite aprovação
         $current_status = $quote_order->get_status();
         if (!in_array($current_status, ['quote-awaiting', 'quote-pending'])) {
-            wp_die(__('Este orçamento não pode ser aprovado no status atual.', 'wc-invoice-payment'));
+            wp_die(__('This quote cannot be approved in its current status.', 'wc-invoice-payment'));
         }
 
         // Aprovar o orçamento
-        $quote_order->update_status('quote-approved', __('Orçamento aprovado pelo cliente.', 'wc-invoice-payment'));
+        $quote_order->update_status('quote-approved', __('Quote approved by customer.', 'wc-invoice-payment'));
 
         // Obter informações do cliente para a nota
         $current_user = wp_get_current_user();
@@ -266,11 +277,11 @@ final class WcPaymentInvoiceQuote
         $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '';
         
         // Criar nota detalhada com email e IP
-        $note = __('Orçamento aprovado pelo cliente ', 'wc-invoice-payment') . $user_email;
+        $note = __('Quote approved by customer ', 'wc-invoice-payment') . $user_email;
         if (!empty($user_ip)) {
             $note .= ' (IP: ' . $user_ip . ')';
         }
-        $note .= __(' na data: ', 'wc-invoice-payment') . current_time('d/m/Y H:i:s');
+        $note .= __(' on date: ', 'wc-invoice-payment') . current_time('d/m/Y H:i:s');
         
         // Adicionar nota ao pedido
         $quote_order->add_order_note($note);
@@ -387,7 +398,7 @@ final class WcPaymentInvoiceQuote
         $quote_order->save();
 
         // Adicionar mensagem de sucesso
-        wc_add_notice(__('Orçamento aprovado com sucesso!', 'wc-invoice-payment'), 'success');
+        wc_add_notice(__('Quote approved successfully!', 'wc-invoice-payment'), 'success');
 
         
         $invoiceList = get_option('lkn_wcip_invoices', array());
@@ -459,7 +470,7 @@ final class WcPaymentInvoiceQuote
         foreach ($items as $key => $item) {
             $new_items[$key] = $item;
             if ($key === 'orders') {
-                $new_items['quotes'] = __('Orçamentos', 'wc-invoice-payment');
+                $new_items['quotes'] = __('Quotes', 'wc-invoice-payment');
             }
         }
         return $new_items;
@@ -489,7 +500,7 @@ final class WcPaymentInvoiceQuote
                 'has_quotes'      => 0 < $customer_quotes->total,
             ),
             '',
-            WC_PAYMENT_INVOICE_ROOT_DIR . 'templates/'
+            WC_PAYMENT_INVOICE_ROOT_DIR . 'Includes/templates/'
         );
     }
 
@@ -499,7 +510,7 @@ final class WcPaymentInvoiceQuote
     public function changeQuotesPageTitle($title) {
         // Verifica se estamos na página de orçamentos
         if (isset($_GET['quotes']) || strpos($_SERVER['REQUEST_URI'], '/quotes') !== false) {
-            return 'Orçamentos';
+            return __('Quotes', 'wc-invoice-payment');
         }
         
         return $title;
@@ -581,7 +592,19 @@ final class WcPaymentInvoiceQuote
                     wp_localize_script( 'wcInvoiceQuoteConfirmation', 'wcInvoiceQuoteConfirmation', array(
                         'orderId' => $orderId,
                         'quoteStatus' => $order->get_status(),
-                        'isQuote' => 'yes'
+                        'isQuote' => 'yes',
+                        'draftTitle' => __('Quote Draft', 'wc-invoice-payment'),
+                        'draftMessage' => __('Your quote is being prepared.', 'wc-invoice-payment'),
+                        'pendingTitle' => __('Quote Received', 'wc-invoice-payment'),
+                        'pendingMessage' => __('Your quote has been received and is being analyzed.', 'wc-invoice-payment'),
+                        'awaitingTitle' => __('Quote Awaiting Approval', 'wc-invoice-payment'),
+                        'awaitingMessage' => __('Your quote is ready and awaits your approval.', 'wc-invoice-payment'),
+                        'approvedTitle' => __('Quote Approved', 'wc-invoice-payment'),
+                        'approvedMessage' => __('Your quote has been successfully approved.', 'wc-invoice-payment'),
+                        'cancelledTitle' => __('Quote Cancelled', 'wc-invoice-payment'),
+                        'cancelledMessage' => __('Your quote has been cancelled.', 'wc-invoice-payment'),
+                        'expiredTitle' => __('Quote Expired', 'wc-invoice-payment'),
+                        'expiredMessage' => __('Your quote has expired.', 'wc-invoice-payment')
                     ));
                 }
             }

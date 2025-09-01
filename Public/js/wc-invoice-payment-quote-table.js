@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
     quoteDetailsAfterCheckoutElement = document.querySelector('.wp-block-heading')
     quoteDetailsKeyElement = document.querySelector('.wc-block-order-confirmation-summary-list-item__key')
     if(quoteDetailsAfterCheckoutElement){
-      quoteDetailsAfterCheckoutElement.innerHTML = 'Detalhes do orçamento'
+      quoteDetailsAfterCheckoutElement.innerHTML = wcInvoicePaymentQuoteTableVariables.quoteDetailsText || 'Quote Details'
       quoteDetailsKeyElement.innerHTML = `Orçamento #:`;
     }
 
@@ -100,7 +100,8 @@ document.addEventListener('DOMContentLoaded', function () {
           buttons += `<a href="${variables.cancelUrl}" 
                          class="woocommerce-button wp-element-button button cancel order-actions-button" 
                          aria-label="Cancelar pedido" 
-                         onclick="return confirm('Tem certeza que deseja cancelar este orçamento?.')">Cancelar</a>`;
+                         onclick="return confirm(wcInvoicePaymentQuoteTableVariables.confirmCancel || 'Are you sure you want to cancel this quote?')">
+                         ${wcInvoicePaymentQuoteTableVariables.cancelText || 'Cancel'}</a>`;
         }
         break;
 
@@ -110,13 +111,15 @@ document.addEventListener('DOMContentLoaded', function () {
           buttons += `<a href="${variables.approvalQuoteUrl}" 
                          class="woocommerce-button wp-element-button button accept order-actions-button" 
                          aria-label="Aceitar cotação" style="margin-right: 10px;" 
-                         onclick="return confirm('Tem certeza que deseja aprovar este orçamento?')">Aprovar</a>`;
+                         onclick="return confirm(wcInvoicePaymentQuoteTableVariables.confirmApprove || 'Are you sure you want to approve this quote?')">
+                         ${wcInvoicePaymentQuoteTableVariables.approveText || 'Approve'}</a>`;
         }
         if (variables.cancelUrl) {
           buttons += `<a href="${variables.cancelUrl}" 
                          class="woocommerce-button wp-element-button button cancel order-actions-button" 
                          aria-label="Cancelar pedido" 
-                         onclick="return confirm('Tem certeza que deseja cancelar este orçamento?')">Cancelar</a>`;
+                         onclick="return confirm(wcInvoicePaymentQuoteTableVariables.confirmCancel || 'Are you sure you want to cancel this quote?')">
+                         ${wcInvoicePaymentQuoteTableVariables.cancelText || 'Cancel'}</a>`;
         }
         break;
     }

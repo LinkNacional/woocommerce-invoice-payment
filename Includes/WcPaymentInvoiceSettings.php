@@ -642,15 +642,6 @@ final class WcPaymentInvoiceSettings
                 'id'       => $slug . 'show_products_price',
                 'default'  => 'no',
             ),
-            $slug . 'quote_page' => array(
-                'name'     => __('Página de orçamento', 'wc-invoice-payment'),
-                'type' => 'select',
-                'class' => 'wc-enhanced-select',
-                'options' => $wpPages,
-                'desc'     => __('Selecione a página com detalhes do orçamento.', 'wc-invoice-payment'),
-                'id'       => $slug . 'quote_page',
-                'default' => $checkout_page_id
-            ),
             $slug . 'create_invoice_automatically' => array(
                 'name'     => __('Criar fatura automaticamente', 'wc-invoice-payment'),
                 'type'     => 'checkbox',

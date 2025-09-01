@@ -54,7 +54,7 @@
                 return;
             }
 
-            if (!confirm('Tem certeza que deseja pagar ' + formattedInput.val() + '?')) {
+            if (!confirm(lknWcipPartialTableVariables.confirmPayment || ('Are you sure you want to pay ' + formattedInput.val() + '?'))) {
                 return;
             }
 
@@ -128,7 +128,7 @@
         });
 
         $(document).on('click', '.wcPaymentInvoiceTableInputs .cancel', function (e) {
-            if (!confirm('Tem certeza que deseja cancelar este pagamento parcial?')) {
+            if (!confirm(lknWcipPartialTableVariables.confirmCancel || 'Are you sure you want to cancel this partial payment?')) {
                 e.preventDefault();
             }
         });

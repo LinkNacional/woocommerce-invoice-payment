@@ -1,8 +1,8 @@
 <?php
 /**
- * Orçamentos
+ * Quotes
  *
- * Mostra os orçamentos do cliente na área "Minha Conta".
+ * Shows customer quotes in "My Account" area.
  *
  * @see     https://docs.woocommerce.com/document/template-structure/
  * @package WooCommerce\Templates

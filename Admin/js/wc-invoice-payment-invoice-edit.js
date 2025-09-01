@@ -84,7 +84,7 @@ jQuery(document).ready(function ($) {
  * @param {number} quoteId - The ID of the quote to approve
  */
 function lkn_wcip_approve_quote(quoteId) {
-  if (!confirm('Tem certeza que deseja aprovar este orçamento?')) {
+  if (!confirm(phpattributes.confirmApproveQuote || 'Are you sure you want to approve this quote?')) {
     return;
   }
 
@@ -128,15 +128,16 @@ function lkn_wcip_approve_quote(quoteId) {
  * @param {number} quoteId - The ID of the quote to create invoice from
  */
 function lkn_wcip_create_invoice(quoteId) {
-  if (!confirm('Tem certeza que deseja gerar uma fatura para este orçamento?')) {
+  if (!confirm(phpattributes.confirmCreateInvoice || 'Are you sure you want to create an invoice for this quote?')) {
     return;
   }
 
-  // Show loading state
-  const button = event.target;
-  const originalText = button.value;
-  button.value = 'Gerando Fatura...';
-  button.disabled = true;
+  // Find the button that was clicked and update its state
+  const button = document.querySelector(`input[onclick="lkn_wcip_create_invoice(${quoteId})"]`);
+  if (button) {
+    button.disabled = true;
+    button.value = phpattributes.creatingInvoice || 'Creating Invoice...';
+  }
 
   // Get nonce from the page
   const nonce = document.getElementById('wcip_rest_nonce').value;
@@ -155,14 +156,18 @@ function lkn_wcip_create_invoice(quoteId) {
         location.reload();
       } else {
         alert('Erro: ' + response.data);
-        button.value = originalText;
-        button.disabled = false;
+        if (button) {
+          button.disabled = false;
+          button.value = phpattributes.createInvoice || 'Create Invoice';
+        }
       }
     },
     error: function() {
       alert('Erro na comunicação com o servidor');
-      button.value = originalText;
-      button.disabled = false;
+      if (button) {
+        button.disabled = false;
+        button.value = phpattributes.createInvoice || 'Create Invoice';
+      }
     }
   });
 }
@@ -172,7 +177,7 @@ function lkn_wcip_create_invoice(quoteId) {
  * @param {number} quoteId - The ID of the quote to send email for
  */
 function lkn_wcip_send_quote_email(quoteId) {
-  if (!confirm('Tem certeza que deseja enviar o orçamento para o email do cliente?')) {
+  if (!confirm(phpattributes.confirmSendQuoteEmail || 'Are you sure you want to send the quote to the customer\'s email?')) {
     return;
   }
 

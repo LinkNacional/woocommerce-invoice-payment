@@ -382,3 +382,171 @@ msgstr "ID do produto inválido"
 
 msgid "Product not found"
 msgstr "Produto não encontrado"
+
+msgid "Quote Draft"
+msgstr "Orçamento Rascunho"
+
+msgid "Quote Pending"
+msgstr "Orçamento Pendente"
+
+msgid "Quote Awaiting Approval"
+msgstr "Orçamento Aguardando Aprovação"
+
+msgid "Quote Approved"
+msgstr "Orçamento Aprovado"
+
+msgid "Quote Cancelled"
+msgstr "Orçamento Cancelado"
+
+msgid "Quote Expired"
+msgstr "Orçamento Vencido"
+
+msgid "Quote Details"
+msgstr "Detalhes do Orçamento"
+
+msgid "Quote #"
+msgstr "Orçamento #"
+
+msgid "Created on %s"
+msgstr "Criado em %s"
+
+msgid "Valid until %s"
+msgstr "Válido até %s"
+
+msgid "Product"
+msgstr "Produto"
+
+msgid "Shipping:"
+msgstr "Entrega:"
+
+msgid "Taxes:"
+msgstr "Impostos:"
+
+msgid "Actions:"
+msgstr "Ações:"
+
+msgid "Approve"
+msgstr "Aprovar"
+
+msgid "Quotes"
+msgstr "Orçamentos"
+
+msgid "Are you sure you want to approve this quote?"
+msgstr "Tem certeza que deseja aprovar este orçamento?"
+
+msgid "Are you sure you want to create an invoice for this quote?"
+msgstr "Tem certeza que deseja gerar uma fatura para este orçamento?"
+
+msgid "Are you sure you want to send the quote to the customer's email?"
+msgstr "Tem certeza que deseja enviar o orçamento para o email do cliente?"
+
+msgid "Creating Invoice..."
+msgstr "Gerando Fatura..."
+
+msgid "Processing..."
+msgstr "Processando..."
+
+msgid "Invalid security action."
+msgstr "Ação de segurança inválida."
+
+msgid "Quote ID not provided."
+msgstr "ID do orçamento não fornecido."
+
+msgid "Quote not found."
+msgstr "Orçamento não encontrado."
+
+msgid "This order is not a quote."
+msgstr "Este pedido não é um orçamento."
+
+msgid "This quote cannot be approved in its current status."
+msgstr "Este orçamento não pode ser aprovado no status atual."
+
+msgid "Quote approved by customer."
+msgstr "Orçamento aprovado pelo cliente."
+
+msgid "Quote approved by customer "
+msgstr "Orçamento aprovado pelo cliente "
+
+msgid " on date: "
+msgstr " na data: "
+
+msgid "Quote approved successfully!"
+msgstr "Orçamento aprovado com sucesso!"
+
+msgid "Pay Partial"
+msgstr "Pagar Parcial"
+
+msgid "Partial Payment"
+msgstr "Pagamento Parcial"
+
+msgid "Enter the amount you want to pay now, the rest can be paid later with other payment methods."
+msgstr "Digite o valor que deseja pagar agora, o restante pode ser pago depois com outros métodos de pagamento."
+
+msgid "We will use this email to send information and updates about your quote."
+msgstr "Usaremos este e-mail para enviar informações e atualizações sobre seu orçamento."
+
+msgid "Enter the address where you want your quote to be delivered."
+msgstr "Digite o endereço em que deseja que seu orçamento seja entregue."
+
+msgid "Are you sure you want to pay "
+msgstr "Tem certeza que deseja pagar "
+
+msgid "Are you sure you want to cancel this partial payment?"
+msgstr "Tem certeza que deseja cancelar este pagamento parcial?"
+
+msgid "Quote Details"
+msgstr "Detalhes do orçamento"
+
+msgid "Approve Quote"
+msgstr "Aprovar Orçamento"
+
+msgid "Quote Draft"
+msgstr "Orçamento em Rascunho"
+
+msgid "Your quote is being prepared."
+msgstr "Seu orçamento está sendo preparado."
+
+msgid "Quote Received"
+msgstr "Orçamento Recebido"
+
+msgid "Your quote has been received and is being analyzed."
+msgstr "Seu orçamento foi recebido e está sendo analisado."
+
+msgid "Quote Awaiting Approval"
+msgstr "Orçamento Aguardando Aprovação"
+
+msgid "Your quote is ready and awaits your approval."
+msgstr "Seu orçamento está pronto e aguarda sua aprovação."
+
+msgid "Quote Approved"
+msgstr "Orçamento Aprovado"
+
+msgid "Your quote has been successfully approved."
+msgstr "Seu orçamento foi aprovado com sucesso."
+
+msgid "Quote Cancelled"
+msgstr "Orçamento Cancelado"
+
+msgid "Your quote has been cancelled."
+msgstr "Seu orçamento foi cancelado."
+
+msgid "Quote Expired"
+msgstr "Orçamento Expirado"
+
+msgid "Your quote has expired."
+msgstr "Seu orçamento expirou."
+
+msgid "Under Review"
+msgstr "Em revisão"
+
+msgid "Request Quote"
+msgstr "Solicitar orçamento"
+
+msgid "Quote Summary"
+msgstr "Resumo do Orçamento"
+
+msgid "Generate Invoice"
+msgstr "Gerar Fatura"
+
+msgid "Send"
+msgstr "Enviar"
