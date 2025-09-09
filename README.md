@@ -22,7 +22,7 @@ Now enhanced with even more advanced features, **Link Invoice Payment** is the p
 
 And much more!
 
-Plugin at WordPress marketplace: [https://wordpress.org/plugins/lkn-wc-gateway-cielo/](https://wordpress.org/plugins/invoice-payment-for-woocommerce/)
+Plugin at WordPress marketplace: [https://wordpress.org/plugins/invoice-payment-for-woocommerce/](https://wordpress.org/plugins/invoice-payment-for-woocommerce/)
 
 ## Dependencies
 
