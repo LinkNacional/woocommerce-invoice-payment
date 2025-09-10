@@ -314,6 +314,10 @@
 	display: flex;
 }
 
+.select2.select2-container.select2-container--default.select2-container--below.select2-container--focus {
+	width: 250px !important;
+}
+
 #lkn_wcip_subscription_limit_checkbox_div {
 	margin-top: 25px;
 }
@@ -484,9 +488,19 @@ label[for="lkn_wcip_customer_input"] {
 	justify-content: space-between;
 }
 
-.order-status.status-partial-comp {
+.order-status.status-partial-comp, .order-status.status-quote-approved {
 	background: #68cf68;
     color: #224522;
+}
+
+.order-status.status-quote-expired, .order-status.status-quote-cancelled {
+	background: #eba3a3;
+    color: #570000;
+}
+
+.order-status.status-quote-awaiting {
+	background: #f8dda7;
+    color: #573b00;
 }
 
 #wpfooter{
@@ -557,4 +571,277 @@ label[for="lkn_wcip_customer_input"] {
 
 .lkn_wcip_show_fee_or_discount_method_div_fields input{
 	margin: 0px !important;
+}
+
+/* Product Search Modal Styles */
+.lkn-wcip-modal {
+    display: none;
+    position: fixed;
+    z-index: 160000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.lkn-wcip-modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 80%;
+    max-width: 800px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.lkn-wcip-modal-header {
+    padding: 20px 24px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lkn-wcip-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.lkn-wcip-modal-close {
+    color: #666;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.lkn-wcip-modal-close:hover,
+.lkn-wcip-modal-close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+.lkn-wcip-modal-body {
+    padding: 24px;
+}
+
+.lkn-wcip-modal-footer {
+    padding: 20px 24px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+    text-align: right;
+}
+
+.lkn-wcip-modal-footer .button {
+    margin-left: 10px;
+}
+
+.lkn-wcip-product-search-container {
+    margin-bottom: 30px;
+}
+
+.lkn-wcip-product-search-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.lkn-wcip-selected-products {
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+.lkn-wcip-selected-products h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.lkn-wcip-selected-product {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.lkn-wcip-product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.lkn-wcip-product-info strong {
+    font-weight: 600;
+}
+
+.lkn-wcip-product-price {
+    color: #666;
+    font-size: 14px;
+}
+
+.lkn-wcip-product-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lkn-wcip-product-controls label {
+    margin: 0;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.lkn-wcip-product-quantity {
+    width: 60px;
+    text-align: center;
+}
+
+.lkn-wcip-remove-product {
+    padding: 4px 8px;
+    min-height: auto;
+    line-height: 1;
+}
+
+.lkn-wcip-remove-product .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.lkn-wcip-no-products {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Add Product Button */
+.add-order-item {
+    margin-left: 10px;
+    background-color: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+}
+
+.add-order-item:hover {
+    background-color: #135e96;
+    border-color: #135e96;
+}
+
+/* Select2 customizations for the modal */
+.lkn-wcip-modal .select2-container {
+    width: 100% !important;
+}
+
+.lkn-wcip-modal .select2-selection {
+    min-height: 32px;
+    border-color: #ddd;
+}
+
+.lkn-wcip-modal .select2-selection__rendered {
+    padding-left: 8px;
+    padding-right: 20px;
+}
+
+.lkn-wcip-modal .select2-selection__arrow {
+    height: 30px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .lkn-wcip-modal-content {
+        width: 95%;
+        margin: 2% auto;
+    }
+    
+    .lkn-wcip-selected-product {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .lkn-wcip-product-controls {
+        align-self: stretch;
+        justify-content: flex-end;
+    }
+}
+
+#lkn_invoice_quote_gateway{
+	display: none !important;
+}
+
+.lkn-quote-actions{
+	display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.lkn-quote-actions button{
+	margin: 0px !important;
+}
+
+.lkn-quote-actions p{
+	margin: 0px !important;
+	padding: 0px !important;
+}
+
+.quote-actions-buttons{
+	display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+	margin: 10px 0px !important;
+}
+
+.quote-actions-buttons .submit{
+	margin: 0px !important;
+    padding: 0px !important;
+}
+
+.quote-actions-buttons input{
+	padding-left: 15px !important;
+    padding-right: 15px !important
+}
+
+.quote-actions-buttons input.createInvoiceButton{
+	padding-left: 40px !important;
+	padding-right: 40px !important;
+}
+
+.quote-links-wrap{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.lknLinkQuotes{
+	margin: 0px !important;
+	margin-top: 5px !important;
+	padding: 0px !important;
+}
+
+.lknLinkQuotes.invoice{
+    margin-bottom: 10px !important;
+    margin-top: 12px !important;
+}
+
+.lknLinkQuotes {
+	color: #2271b1 !important;
+	text-decoration: underline !important;
+	cursor: default !important;
+}
+
+.lknLinkQuotes *:hover {
+	color: #135e96 !important;
+	text-decoration: none !important;
 }

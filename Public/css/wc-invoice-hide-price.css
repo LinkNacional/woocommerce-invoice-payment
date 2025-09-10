@@ -1,0 +1,9 @@
+.wc-block-components-formatted-money-amount,
+.wc-block-cart-items__header-total,
+.wp-block-woocommerce-cart-order-summary-totals-block,
+.wc-block-components-totals-item__label,
+.woocommerce-Price-amount.amount,
+.wc-block-components-product-badge.wc-block-components-sale-badge,
+.price.wc-block-components-product-price {
+    display: none !important;
+}

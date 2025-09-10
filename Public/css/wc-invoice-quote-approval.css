@@ -1,0 +1,165 @@
+/* CSS para página de aprovação de orçamento */
+.wc-invoice-quote-approval-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+}
+
+.quote-details-summary {
+    margin-bottom: 30px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-left: 4px solid #2271b1;
+}
+
+.quote-details-summary p {
+    margin: 5px 0;
+}
+
+.quote-status {
+    font-weight: bold;
+}
+
+.quote-details-table {
+    width: 100%;
+    margin-bottom: 30px;
+    border-collapse: collapse;
+}
+
+.quote-details-table th,
+.quote-details-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.quote-details-table th {
+    background: #f9f9f9;
+    font-weight: bold;
+}
+
+.quote-details-table .product-quantity {
+    color: #666;
+}
+
+.quote-details-table .shipping-row td,
+.quote-details-table .tax-row td {
+    font-style: italic;
+}
+
+.quote-details-table .order-total {
+    border-top: 2px solid #2271b1;
+    font-size: 1.1em;
+}
+
+.quote-actions {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #e1e1e1;
+    background: #f9f9f9;
+}
+
+.quote-actions h3 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.quote-action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.quote-action-buttons .button {
+    min-width: 150px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quote-action-buttons .approve-quote {
+    background: #00a32a;
+    color: white;
+    border: 1px solid #00a32a;
+}
+
+.quote-action-buttons .approve-quote:hover {
+    background: #008a20;
+    border-color: #008a20;
+}
+
+.quote-action-buttons .cancel-quote {
+    background: #d63638;
+    color: white;
+    border: 1px solid #d63638;
+}
+
+.quote-action-buttons .cancel-quote:hover {
+    background: #b32d2e;
+    border-color: #b32d2e;
+}
+
+.quote-action-buttons .button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+    .wc-invoice-quote-approval-container {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .quote-action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .quote-action-buttons .button {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .quote-details-table {
+        font-size: 14px;
+    }
+    
+    .quote-details-table th,
+    .quote-details-table td {
+        padding: 8px;
+    }
+}
+
+/* Loading state */
+.quote-loading {
+    position: relative;
+    opacity: 0.7;
+}
+
+.quote-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #2271b1;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

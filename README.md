@@ -22,11 +22,11 @@ Now enhanced with even more advanced features, **Link Invoice Payment** is the p
 
 And much more!
 
-Plugin at WordPress marketplace: https://wordpress.org/plugins/lkn-wc-gateway-cielo/
+Plugin at WordPress marketplace: [https://wordpress.org/plugins/invoice-payment-for-woocommerce/](https://wordpress.org/plugins/invoice-payment-for-woocommerce/)
 
 ## Dependencies
 
-Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Invoice Payment for WooCommerce installation.
+[Invoice Payment for WooCommerce](https://wordpress.org/plugins/invoice-payment-for-woocommerce/) plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Invoice Payment for WooCommerce installation.
 
 
 ## Installation

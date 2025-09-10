@@ -55,16 +55,9 @@ final class WcPaymentInvoicePdfTemplates {
     public function get_templates_list(): array {
         $templates_json_paths = glob("{$this->templates_root_dir}/*/template.json");
 
-        WP_Filesystem();
-    
-        // Verifica se o sistema de arquivos foi inicializado corretamente
-        global $wp_filesystem;
-        if ( ! $wp_filesystem) {
-            return array(); // Retorna um array vazio se não foi possível inicializar o sistema de arquivos
-        }   
-
-        return array_map(function (string $template_json_path) use ($wp_filesystem): array {
-            $template_info = json_decode($wp_filesystem->get_contents($template_json_path));
+        return array_map(function (string $template_json_path): array {
+            $template_content = file_get_contents($template_json_path);
+            $template_info = json_decode($template_content);
             $template_id = basename(dirname($template_json_path));
             $template_preview_url = WC_PAYMENT_INVOICE_ROOT_URL . "Includes/templates/$template_id/preview.webp";
 

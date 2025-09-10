@@ -71,7 +71,15 @@ function lkn_wcip_filter_amount_input(val, row) {
  * @return void
  */
 function lkn_wcip_delete_invoice() {
-  if (confirm(phpattributes.deleteConfirm) === true) {
+  textConfirm = phpattributes.deleteConfirm
+  //se for a pagina de ?page=edit-quote
+  const queryString = window.location.search
+  const urlParams = new URLSearchParams(queryString)
+  const isQuote = urlParams.get('page')
+  if (isQuote == 'edit-quote') {
+    textConfirm = phpattributes.deleteConfirmQuote
+  }
+  if (confirm(textConfirm) === true) {
     lkn_wcip_cancel_subscription(true)
     window.location.href += '&lkn_wcip_delete=true'
   }
@@ -323,15 +331,18 @@ function lkn_wcip_display_subscription_inputs() {
     limitCheckboxElementSubscription.style.display = ''
   }
 
-  subscription.addEventListener('change', function () {
-    if (subscription.checked) {
-      intervalElementSubscription.style.display = ''
-      limitCheckboxElementSubscription.style.display = ''
-    } else {
-      intervalElementSubscription.style.display = 'none'
-      limitCheckboxElementSubscription.style.display = 'none'
-    }
-  })
+  if(subscription){
+    subscription.addEventListener('change', function () {
+      if (subscription.checked) {
+        intervalElementSubscription.style.display = ''
+        limitCheckboxElementSubscription.style.display = ''
+      } else {
+        intervalElementSubscription.style.display = 'none'
+        limitCheckboxElementSubscription.style.display = 'none'
+      }
+    })
+  }
+
 
   subscriptionLimit.addEventListener('change', function () {
     if (subscriptionLimit.checked) {

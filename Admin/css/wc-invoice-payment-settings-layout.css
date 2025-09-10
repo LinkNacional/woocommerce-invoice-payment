@@ -1,0 +1,33 @@
+#lknWcInvoicesSettingsLayoutDiv {
+    padding: 10px 24px;
+    background-color: transparent;
+    border-radius: 10px;
+    flex: 1;
+}
+
+.description-title {
+    padding-left: 4px;
+}
+
+@media (max-width: 1300px) {
+    #lknWcInvoicesSettingsLayoutDiv {
+        padding: 0px;
+    }
+
+    #lknInvoicesSettingsLogo {
+        width: 100%;
+        padding: 0px !important;
+        align-items: start !important;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 782px) {
+    .titledesc {
+        padding-top: 40px !important;
+    }
+
+    .lkn-wc-invoices-hr {
+        margin: 2px 0px 0px !important;
+    }
+}

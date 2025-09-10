@@ -49,7 +49,7 @@ final class WcPaymentInvoiceFeeOrDiscount
                     $value = ($value / 100) * $cartTotal;
                 }
     
-                if ($active === 'on') {
+                if ($active === 'yes') {
                     $data[$gateway_id] = [
                         'type' => $type, // 'fee' ou 'discount'
                         'mode' => $percentOrFixed, // 'percent' ou 'fixed'

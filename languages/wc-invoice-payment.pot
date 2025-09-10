@@ -302,3 +302,35 @@ msgstr ""
 
 msgid "Type"
 msgstr ""
+msgid "Add Product(s)"
+msgstr ""
+
+msgid "Search Products"
+msgstr ""
+
+msgid "Type to search for products..."
+msgstr ""
+
+msgid "Selected Products"
+msgstr ""
+
+msgid "Quantity"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Add to Invoice"
+msgstr ""
+
+msgid "No products selected"
+msgstr ""
+
+msgid "Security check failed"
+msgstr ""
+
+msgid "Invalid product ID"
+msgstr ""
+
+msgid "Product not found"
+msgstr ""

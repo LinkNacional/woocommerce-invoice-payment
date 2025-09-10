@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Caso padrão (não é pagamento parcial)
-    if (defaultPaymethod === 'multiplePayment') return;
+    if (defaultPaymethod == 'multiplePayment' || !defaultPaymethod) return;
 
     const inputPaymethod = document.getElementById('payment_method_' + defaultPaymethod);
 
