@@ -31,7 +31,7 @@ final class WcPaymentInvoiceQuote
             }
         }
         //if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quoteStatus'){
-        if($showPrice == 'no' && ($quoteStatus == null || $quoteStatus == 'quote-pending')){
+        if($showPrice == 'no' && ($quoteStatus == null || $quoteStatus == 'wc-quote-request')){
             wp_enqueue_style('wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-hide-price.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         }
         wp_enqueue_script( 'wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-quote.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
@@ -75,6 +75,13 @@ final class WcPaymentInvoiceQuote
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
         );
+        $order_statuses['wc-quote-request'] = array(
+            'label' => __('Quote Customer Request', 'wc-invoice-payment'),
+            'public' => true,
+            'exclude_from_search' => false,
+            'show_in_admin_all_list' => true,
+            'show_in_admin_status_list' => true
+        );
         $order_statuses['wc-quote-approved'] = array(
             'label' => __('Quote Approved', 'wc-invoice-payment'),
             'public' => true,
@@ -103,6 +110,7 @@ final class WcPaymentInvoiceQuote
         $order_statuses['wc-quote-draft'] = __('Quote Draft', 'wc-invoice-payment');
         $order_statuses['wc-quote-pending'] = __('Quote Pending', 'wc-invoice-payment');
         $order_statuses['wc-quote-awaiting'] = __('Quote Awaiting Approval', 'wc-invoice-payment');
+        $order_statuses['wc-quote-request'] = __('Quote Customer Request', 'wc-invoice-payment');
         $order_statuses['wc-quote-approved'] = __('Quote Approved', 'wc-invoice-payment');
         $order_statuses['wc-quote-cancelled'] = __('Quote Cancelled', 'wc-invoice-payment');
         $order_statuses['wc-quote-expired'] = __('Quote Expired', 'wc-invoice-payment');
@@ -174,7 +182,7 @@ final class WcPaymentInvoiceQuote
         
         // Verificar se estamos na página order-pay e o orçamento precisa de aprovação
         $is_order_pay_page = isset($_GET['pay_for_order']) && $_GET['pay_for_order'] === 'true';
-        $needs_approval = in_array($quoteOrder->get_status(), ['quote-awaiting', 'quote-pending']);
+        $needs_approval = in_array($quoteOrder->get_status(), ['quote-awaiting', 'wc-quote-request']);
         
         // Debug - adicionar log para verificar condições
         error_log("showQuoteFields Debug - Order ID: $orderId, Status: " . $quoteOrder->get_status() . ", is_order_pay_page: " . ($is_order_pay_page ? 'true' : 'false') . ", needs_approval: " . ($needs_approval ? 'true' : 'false'));
@@ -264,7 +272,7 @@ final class WcPaymentInvoiceQuote
 
         // Verificar se o status permite aprovação
         $current_status = $quote_order->get_status();
-        if (!in_array($current_status, ['quote-awaiting', 'quote-pending'])) {
+        if (!in_array($current_status, ['quote-awaiting', 'wc-quote-request'])) {
             wp_die(__('This quote cannot be approved in its current status.', 'wc-invoice-payment'));
         }
 
@@ -595,8 +603,8 @@ final class WcPaymentInvoiceQuote
                         'isQuote' => 'yes',
                         'draftTitle' => __('Quote Draft', 'wc-invoice-payment'),
                         'draftMessage' => __('Your quote is being prepared.', 'wc-invoice-payment'),
-                        'pendingTitle' => __('Quote Received', 'wc-invoice-payment'),
-                        'pendingMessage' => __('Your quote has been received and is being analyzed.', 'wc-invoice-payment'),
+                        'requestTitle' => __('Quote Received', 'wc-invoice-payment'),
+                        'requestMessage' => __('Your quote has been received and is being analyzed.', 'wc-invoice-payment'),
                         'awaitingTitle' => __('Quote Awaiting Approval', 'wc-invoice-payment'),
                         'awaitingMessage' => __('Your quote is ready and awaits your approval.', 'wc-invoice-payment'),
                         'approvedTitle' => __('Quote Approved', 'wc-invoice-payment'),

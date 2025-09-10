@@ -101,7 +101,7 @@ final class WcPaymentInvoiceQuoteGateway extends WC_Payment_Gateway
         }
 
         // Mark as on-hold (we're awaiting the payment)
-        $order->update_status('wc-quote-pending', __('Awaiting quote approval', 'wc-invoice-payment'));
+        $order->update_status('wc-quote-request', __('Awaiting quote approval', 'wc-invoice-payment'));
 
         // Add order note
         $order->add_order_note(__('Quote request received. Awaiting approval...', 'wc-invoice-payment'));
