@@ -108,7 +108,9 @@ function lkn_wcip_approve_quote(quoteId) {
     },
     success: function(response) {
       if (response.success) {
-        location.reload();
+        lkn_wcip_send_quote_email(quoteId, true, function() {
+          location.reload();
+        });
       } else {
         alert('Erro: ' + response.data);
         button.value = originalText;
@@ -176,16 +178,18 @@ function lkn_wcip_create_invoice(quoteId) {
  * Function to send quote email to customer via AJAX
  * @param {number} quoteId - The ID of the quote to send email for
  */
-function lkn_wcip_send_quote_email(quoteId) {
-  if (!confirm(phpattributes.confirmSendQuoteEmail || 'Are you sure you want to send the quote to the customer\'s email?')) {
+function lkn_wcip_send_quote_email(quoteId, skipConfirm = false, callback = null) {
+  if (!skipConfirm && !confirm(phpattributes.confirmSendQuoteEmail || 'Are you sure you want to send the quote to the customer\'s email?')) {
     return;
   }
 
   // Show loading state
   const button = event.target;
-  const originalText = button.value;
-  button.value = 'Enviando...';
-  button.disabled = true;
+  const originalText = button ? button.value : '';
+  if (button) {
+    button.value = 'Enviando...';
+    button.disabled = true;
+  }
 
   // Get nonce from the page
   const nonce = document.getElementById('wcip_rest_nonce').value;
@@ -202,8 +206,62 @@ function lkn_wcip_send_quote_email(quoteId) {
     success: function(response) {
       if (response.success) {
         // Show detailed success message
+        if (button) {
+          button.value = originalText;
+          button.disabled = false;
+        }
+        // Execute callback if provided
+        if (callback && typeof callback === 'function') {
+          callback();
+        }
+      } else {
+        alert('Erro: ' + response.data);
+        if (button) {
+          button.value = originalText;
+          button.disabled = false;
+        }
+      }
+    },
+    error: function() {
+      alert('Erro na comunicação com o servidor');
+      if (button) {
         button.value = originalText;
         button.disabled = false;
+      }
+    }
+  });
+}
+
+/**
+ * Function to approve quote without sending email via AJAX
+ * @param {number} quoteId - The ID of the quote to approve
+ */
+function lkn_wcip_approve_quote_only(quoteId) {
+  if (!confirm('Tem certeza que deseja aprovar este orçamento?')) {
+    return;
+  }
+
+  // Show loading state
+  const button = event.target;
+  const originalText = button.value;
+  button.value = 'Aprovando...';
+  button.disabled = true;
+
+  // Get nonce from the page
+  const nonce = document.getElementById('wcip_rest_nonce').value;
+
+  // Make AJAX request
+  jQuery.ajax({
+    url: wcip_ajax.ajax_url,
+    type: 'POST',
+    data: {
+      action: 'lkn_wcip_approve_quote_only',
+      quote_id: quoteId,
+      security: nonce
+    },
+    success: function(response) {
+      if (response.success) {
+        location.reload();
       } else {
         alert('Erro: ' + response.data);
         button.value = originalText;

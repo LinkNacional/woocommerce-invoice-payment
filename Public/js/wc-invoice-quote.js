@@ -2,7 +2,7 @@
   // Function to remove price elements
   function removePrice() {
     if(wcInvoiceHidePrice.showPrice == 'no'){
-        if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quote-pending'){
+        if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quote-request'){
           document.querySelectorAll(`
             .wc-block-components-formatted-money-amount,
             .wc-block-cart-items__header-total,

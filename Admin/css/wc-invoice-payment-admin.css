@@ -813,11 +813,6 @@ label[for="lkn_wcip_customer_input"] {
     padding-right: 15px !important
 }
 
-.quote-actions-buttons input.createInvoiceButton{
-	padding-left: 40px !important;
-	padding-right: 40px !important;
-}
-
 .quote-links-wrap{
     display: flex;
     gap: 10px;
@@ -828,6 +823,8 @@ label[for="lkn_wcip_customer_input"] {
 	margin: 0px !important;
 	margin-top: 5px !important;
 	padding: 0px !important;
+	display: flex;
+    gap: 6px;
 }
 
 .lknLinkQuotes.invoice{
@@ -844,4 +841,9 @@ label[for="lkn_wcip_customer_input"] {
 .lknLinkQuotes *:hover {
 	color: #135e96 !important;
 	text-decoration: none !important;
+}
+
+.lknButtonsActionsEdit{
+	display: flex;
+	gap: 10px;
 }

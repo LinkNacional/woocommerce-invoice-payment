@@ -160,6 +160,9 @@ jQuery(document).ready(function($) {
         }
 
         // Get product price via AJAX
+        let buttonAddProduct = document.getElementById('lkn-wcip-add-products');
+        let noProductsSelected = document.querySelector('.lkn-wcip-no-products');
+        let noProductsSelectedInnerHTML = noProductsSelected.innerHTML;
         $.ajax({
             url: wcipProductSearch.ajaxUrl,
             type: 'POST',
@@ -180,9 +183,15 @@ jQuery(document).ready(function($) {
 
                     selectedProducts.push(product);
                     renderSelectedProducts();
+                    buttonAddProduct.removeAttribute('disabled');
+                    noProductsSelected.innerHTML = noProductsSelectedInnerHTML;
                 } else {
                     console.error('Error fetching product data:', response.data);
                 }
+            },
+            beforeSend: function() {
+                buttonAddProduct.setAttribute('disabled', 'disabled');
+                noProductsSelected.innerHTML = 'Carregando...'
             },
             error: function() {
                 console.error('AJAX error fetching product data');
@@ -295,6 +304,10 @@ jQuery(document).ready(function($) {
         selectedProducts = [];
         renderSelectedProducts();
         $('#lkn-wcip-product-search').val(null).trigger('change');
+        let deleteButton = document.querySelector(".btn.btn-delete");
+        if (deleteButton) {
+            deleteButton.click()
+        }
     }
 
     /**

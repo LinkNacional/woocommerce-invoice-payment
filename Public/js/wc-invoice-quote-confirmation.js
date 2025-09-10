@@ -14,9 +14,9 @@
                 title: wcInvoiceQuoteConfirmation.draftTitle,
                 message: wcInvoiceQuoteConfirmation.draftMessage
             },
-            'quote-pending': {
-                title: wcInvoiceQuoteConfirmation.pendingTitle,
-                message: wcInvoiceQuoteConfirmation.pendingMessage
+            'quote-request': {
+                title: wcInvoiceQuoteConfirmation.requestTitle,
+                message: wcInvoiceQuoteConfirmation.requestMessage
             },
             'quote-awaiting': {
                 title: wcInvoiceQuoteConfirmation.awaitingTitle,
