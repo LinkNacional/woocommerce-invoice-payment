@@ -288,7 +288,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-subscriptions',
             false,
-            'dashicons-money-alt',
+            'dashicons-update',
             51 // posição diferente
         );
 
@@ -336,7 +336,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-quotes',
             false,
-            'dashicons-money-alt',
+            'dashicons-media-text',
             52 // posição diferente
         );
 
@@ -504,14 +504,14 @@ final class WcPaymentInvoiceAdmin
                                         name="lkn_wcip_payment_status"
                                         id="lkn_wcip_payment_status_input"
                                         class="regular-text">
-                                        <option value="wc-quote-request">
-                                            <?php echo esc_html(__('Orçamento Solicitado Pelo Cliente', 'wc-invoice-payment')); ?>
+                                        <option value="wc-quote-draft">
+                                            <?php echo esc_html(__('Orçamento Rascunho', 'wc-invoice-payment')); ?>
                                         </option>
                                         <option value="wc-quote-pending">
                                             <?php echo esc_html(__('Orçamento Pendente', 'wc-invoice-payment')); ?>
                                         </option>
-                                        <option value="wc-quote-draft">
-                                            <?php echo esc_html(__('Orçamento Rascunho', 'wc-invoice-payment')); ?>
+                                        <option value="wc-quote-request">
+                                            <?php echo esc_html(__('Orçamento Solicitado Pelo Cliente', 'wc-invoice-payment')); ?>
                                         </option>
                                         <option value="wc-quote-awaiting">
                                             <?php echo esc_html(__('Orçamento Aguardando Aprovação', 'wc-invoice-payment')); ?>
@@ -4330,7 +4330,9 @@ final class WcPaymentInvoiceAdmin
                     </div>
                     <div class="quote-actions-buttons">
                         <?php
-                            if('wc-quote-request' === $orderStatus) {
+                            if ('wc-quote-request' === $orderStatus
+                                || 'wc-quote-pending' === $orderStatus
+                                || 'wc-quote-draft' === $orderStatus) {
                                 ?>
                                 <input type="button" class="button button-primary" value="<?php esc_attr_e('Send Customer Approval', 'wc-invoice-payment'); ?>" onclick="lkn_wcip_approve_quote(<?php echo esc_attr($invoiceId); ?>)">
                                 <?php
@@ -4360,6 +4362,19 @@ final class WcPaymentInvoiceAdmin
                     <h2 class="title">
                         <?php esc_attr_e('Price', 'wc-invoice-payment'); ?>
                     </h2>
+                     <?php
+                    if ('wc-quote-request' != $orderStatus
+                        && 'wc-quote-pending' != $orderStatus
+                        && 'wc-quote-draft' != $orderStatus) {
+                    ?>
+                    <div class="lknNoticeQuote notice-warning">
+                        <p>
+                            <?php esc_attr_e('Quote locked for editing. To edit, update the quote status to Pending.', 'wc-invoice-payment'); ?>
+                        </p>
+                    </div>
+                    <?php
+                    }
+                    ?>
                     <div
                         id="wcip-invoice-price-row"
                         class="invoice-column-wrap">

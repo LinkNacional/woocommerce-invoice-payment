@@ -4,6 +4,60 @@ namespace LknWc\WcInvoicePayment\Includes;
 use WC_Shortcode_My_Account;
 final class WcPaymentInvoiceQuote
 {
+    /**
+     * Verifica orçamentos expirados e atualiza status para expired
+     * Apenas orçamentos com status 'quote-awaiting' podem ser expirados
+     */
+    public function check_expired_quotes() {
+
+        // Buscar todos os orçamentos com status 'quote-awaiting'
+        $quotes = wc_get_orders(array(
+            'limit' => -1,
+            'status' => array('quote-awaiting'),
+            'meta_query' => array(
+                array(
+                    'key' => 'lkn_is_quote',
+                    'value' => 'yes',
+                    'compare' => '='
+                ),
+                array(
+                    'key' => 'lkn_exp_date',
+                    'value' => '',
+                    'compare' => '!='
+                )
+            )
+        ));
+
+        $expired_count = 0;
+        $current_date = current_time('Y-m-d');
+
+        foreach ($quotes as $quote) {
+            $exp_date = $quote->get_meta('lkn_exp_date');
+            
+            if ($exp_date && $exp_date < $current_date) {
+                // Verificar novamente se o status ainda é 'quote-awaiting' antes de alterar
+                if ($quote->get_status() === 'quote-awaiting') {
+                    $quote->update_status('quote-expired');
+                    $quote->save();
+                    $expired_count++;
+                }
+            }
+        }
+
+        
+        return $expired_count;
+    }
+
+    /**
+     * Remove o cron job quando necessário (usado na desativação do plugin)
+     */
+    public static function unschedule_cron() {
+        $timestamp = wp_next_scheduled('lkn_wcip_check_expired_quotes');
+        if ($timestamp) {
+            wp_unschedule_event($timestamp, 'lkn_wcip_check_expired_quotes');
+        }
+    }
+
     function lknWcInvoiceHidePrice( $price, $product ) {
         $showPrice = get_option(  'lkn_wcip_show_products_price', 'no' );
 

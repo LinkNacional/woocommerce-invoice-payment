@@ -1,5 +1,7 @@
 // eslint-disable-next-line no-undef
 jQuery(document).ready(function ($) {
+  $('.lknNoticeQuote').addClass('notice')
+
   if (window.location.search.includes("page=edit-quote")) {
     const $quotesTopLevelMenu = $('#toplevel_page_wc-invoice-payment-quotes')
     $quotesTopLevelMenu.addClass('wp-has-submenu wp-has-current-submenu wp-menu-open menu-top toplevel_page_wc-invoice-payment-quotes')
@@ -254,7 +256,7 @@ function lkn_wcip_approve_quote_only(quoteId) {
     url: wcip_ajax.ajax_url,
     type: 'POST',
     data: {
-      action: 'lkn_wcip_approve_quote',
+      action: 'lkn_wcip_approve_quote_only',
       quote_id: quoteId,
       security: nonce
     },

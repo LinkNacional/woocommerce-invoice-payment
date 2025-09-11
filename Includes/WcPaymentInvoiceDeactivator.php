@@ -26,5 +26,10 @@ final class WcPaymentInvoiceDeactivator {
      * @since    1.0.0
      */
     public static function deactivate(): void {
+        // Remover cron job dos orçamentos expirados
+        $timestamp = wp_next_scheduled('lkn_wcip_check_expired_quotes');
+        if ($timestamp) {
+            wp_unschedule_event($timestamp, 'lkn_wcip_check_expired_quotes');
+        }
     }
 }
