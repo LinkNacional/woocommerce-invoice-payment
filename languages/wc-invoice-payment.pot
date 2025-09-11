@@ -334,3 +334,21 @@ msgstr ""
 
 msgid "Product not found"
 msgstr ""
+
+msgid "Approving..."
+msgstr ""
+
+msgid "Creating Invoice..."
+msgstr ""
+
+msgid "Create Invoice"
+msgstr ""
+
+msgid "Sending..."
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Server communication error"
+msgstr ""

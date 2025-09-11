@@ -305,7 +305,8 @@ jQuery(document).ready(function($) {
         renderSelectedProducts();
         $('#lkn-wcip-product-search').val(null).trigger('change');
         let deleteButton = document.querySelector(".btn.btn-delete");
-        if (deleteButton) {
+        let parentInput = deleteButton.parentElement.parentElement.querySelector('input')
+        if (deleteButton && parentInput && parentInput.value === '') {
             deleteButton.click()
         }
     }

@@ -844,7 +844,25 @@ final class WcPaymentInvoiceAdmin
     public function render_edit_invoice_page(): void
     {
         wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', array(), $this->version, 'all');
-        wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array(), $this->version, 'all');
+        wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array('jquery'), $this->version, 'all');
+        
+        // Localize script for AJAX and translations
+        wp_localize_script($this->plugin_name . '-edit', 'wcip_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('wp_rest')
+        ));
+        wp_localize_script($this->plugin_name . '-edit', 'wcip_i18n', array(
+            'confirmApproveQuote' => __('Are you sure you want to approve this quote?', 'wc-invoice-payment'),
+            'confirmApproveQuoteOnly' => __('Are you sure you want to approve this quote?', 'wc-invoice-payment'),
+            'confirmCreateInvoice' => __('Are you sure you want to create an invoice for this quote?', 'wc-invoice-payment'),
+            'confirmSendQuoteEmail' => __('Are you sure you want to send the quote to the customer\'s email?', 'wc-invoice-payment'),
+            'approving' => __('Approving...', 'wc-invoice-payment'),
+            'creatingInvoice' => __('Creating Invoice...', 'wc-invoice-payment'),
+            'createInvoice' => __('Create Invoice', 'wc-invoice-payment'),
+            'sending' => __('Sending...', 'wc-invoice-payment'),
+            'error' => __('Error', 'wc-invoice-payment'),
+            'serverError' => __('Server communication error', 'wc-invoice-payment')
+        ));
 
         if (! current_user_can('manage_woocommerce')) {
             return;
@@ -1525,8 +1543,26 @@ final class WcPaymentInvoiceAdmin
         wp_enqueue_script('wc-enhanced-select');
         wp_enqueue_style('woocommerce_admin_styles');
 
-        wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array(), $this->version, 'all');
+        wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array('jquery'), $this->version, 'all');
         wp_enqueue_style($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-invoice-edit.css', array(), $this->version, 'all');
+        
+        // Localize script for AJAX and translations
+        wp_localize_script($this->plugin_name . '-edit', 'wcip_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('wp_rest')
+        ));
+        wp_localize_script($this->plugin_name . '-edit', 'wcip_i18n', array(
+            'confirmApproveQuote' => __('Are you sure you want to approve this quote?', 'wc-invoice-payment'),
+            'confirmApproveQuoteOnly' => __('Are you sure you want to approve this quote?', 'wc-invoice-payment'),
+            'confirmCreateInvoice' => __('Are you sure you want to create an invoice for this quote?', 'wc-invoice-payment'),
+            'confirmSendQuoteEmail' => __('Are you sure you want to send the quote to the customer\'s email?', 'wc-invoice-payment'),
+            'approving' => __('Approving...', 'wc-invoice-payment'),
+            'creatingInvoice' => __('Creating Invoice...', 'wc-invoice-payment'),
+            'createInvoice' => __('Create Invoice', 'wc-invoice-payment'),
+            'sending' => __('Sending...', 'wc-invoice-payment'),
+            'error' => __('Error', 'wc-invoice-payment'),
+            'serverError' => __('Server communication error', 'wc-invoice-payment')
+        ));
 
         if (! current_user_can('manage_woocommerce')) {
             return;
@@ -3903,6 +3939,20 @@ final class WcPaymentInvoiceAdmin
         wp_localize_script($this->plugin_name . '-edit', 'wcip_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wp_rest')
+        ));
+
+        // Localize script for translations
+        wp_localize_script($this->plugin_name . '-edit', 'wcip_i18n', array(
+            'confirmApproveQuote' => __('Are you sure you want to approve this quote?', 'wc-invoice-payment'),
+            'confirmApproveQuoteOnly' => __('Are you sure you want to approve this quote?', 'wc-invoice-payment'),
+            'confirmCreateInvoice' => __('Are you sure you want to create an invoice for this quote?', 'wc-invoice-payment'),
+            'confirmSendQuoteEmail' => __('Are you sure you want to send the quote to the customer\'s email?', 'wc-invoice-payment'),
+            'approving' => __('Approving...', 'wc-invoice-payment'),
+            'creatingInvoice' => __('Creating Invoice...', 'wc-invoice-payment'),
+            'createInvoice' => __('Create Invoice', 'wc-invoice-payment'),
+            'sending' => __('Sending...', 'wc-invoice-payment'),
+            'error' => __('Error', 'wc-invoice-payment'),
+            'serverError' => __('Server communication error', 'wc-invoice-payment')
         ));
 
         if (! current_user_can('manage_woocommerce')) {
