@@ -527,10 +527,6 @@ msgstr "Enviar"
 msgid "Approving..."
 msgstr "Aprovando..."
 
-msgid "Creating Invoice..."
-msgstr "Criando Fatura..."
-
-msgid "Create Invoice"
 msgstr "Criar Fatura"
 
 msgid "Sending..."

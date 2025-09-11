@@ -84,14 +84,14 @@ jQuery(document).ready(function ($) {
  * @param {number} quoteId - The ID of the quote to approve
  */
 function lkn_wcip_approve_quote(quoteId) {
-  if (!confirm(phpattributes.confirmApproveQuote || 'Are you sure you want to approve this quote?')) {
+  if (!confirm(wcip_i18n.confirmApproveQuote || 'Are you sure you want to approve this quote?')) {
     return;
   }
 
   // Show loading state
   const button = event.target;
   const originalText = button.value;
-  button.value = 'Aprovando...';
+  button.value = wcip_i18n.approving || 'Approving...';
   button.disabled = true;
 
   // Get nonce from the page
@@ -112,13 +112,13 @@ function lkn_wcip_approve_quote(quoteId) {
           location.reload();
         });
       } else {
-        alert('Erro: ' + response.data);
+        alert(wcip_i18n.error + ': ' + response.data);
         button.value = originalText;
         button.disabled = false;
       }
     },
     error: function() {
-      alert('Erro na comunicação com o servidor');
+      alert(wcip_i18n.serverError || 'Server communication error');
       button.value = originalText;
       button.disabled = false;
     }
@@ -130,7 +130,7 @@ function lkn_wcip_approve_quote(quoteId) {
  * @param {number} quoteId - The ID of the quote to create invoice from
  */
 function lkn_wcip_create_invoice(quoteId) {
-  if (!confirm(phpattributes.confirmCreateInvoice || 'Are you sure you want to create an invoice for this quote?')) {
+  if (!confirm(wcip_i18n.confirmCreateInvoice || 'Are you sure you want to create an invoice for this quote?')) {
     return;
   }
 
@@ -138,7 +138,7 @@ function lkn_wcip_create_invoice(quoteId) {
   const button = document.querySelector(`input[onclick="lkn_wcip_create_invoice(${quoteId})"]`);
   if (button) {
     button.disabled = true;
-    button.value = phpattributes.creatingInvoice || 'Creating Invoice...';
+    button.value = wcip_i18n.creatingInvoice || 'Creating Invoice...';
   }
 
   // Get nonce from the page
@@ -157,18 +157,18 @@ function lkn_wcip_create_invoice(quoteId) {
       if (response.success) {
         location.reload();
       } else {
-        alert('Erro: ' + response.data);
+        alert(wcip_i18n.error + ': ' + response.data);
         if (button) {
           button.disabled = false;
-          button.value = phpattributes.createInvoice || 'Create Invoice';
+          button.value = wcip_i18n.createInvoice || 'Create Invoice';
         }
       }
     },
     error: function() {
-      alert('Erro na comunicação com o servidor');
+      alert(wcip_i18n.serverError || 'Server communication error');
       if (button) {
         button.disabled = false;
-        button.value = phpattributes.createInvoice || 'Create Invoice';
+        button.value = wcip_i18n.createInvoice || 'Create Invoice';
       }
     }
   });
@@ -179,7 +179,7 @@ function lkn_wcip_create_invoice(quoteId) {
  * @param {number} quoteId - The ID of the quote to send email for
  */
 function lkn_wcip_send_quote_email(quoteId, skipConfirm = false, callback = null) {
-  if (!skipConfirm && !confirm(phpattributes.confirmSendQuoteEmail || 'Are you sure you want to send the quote to the customer\'s email?')) {
+  if (!skipConfirm && !confirm(wcip_i18n.confirmSendQuoteEmail || 'Are you sure you want to send the quote to the customer\'s email?')) {
     return;
   }
 
@@ -187,7 +187,7 @@ function lkn_wcip_send_quote_email(quoteId, skipConfirm = false, callback = null
   const button = event.target;
   const originalText = button ? button.value : '';
   if (button) {
-    button.value = 'Enviando...';
+    button.value = wcip_i18n.sending || 'Sending...';
     button.disabled = true;
   }
 
@@ -205,7 +205,6 @@ function lkn_wcip_send_quote_email(quoteId, skipConfirm = false, callback = null
     },
     success: function(response) {
       if (response.success) {
-        // Show detailed success message
         if (button) {
           button.value = originalText;
           button.disabled = false;
@@ -215,7 +214,7 @@ function lkn_wcip_send_quote_email(quoteId, skipConfirm = false, callback = null
           callback();
         }
       } else {
-        alert('Erro: ' + response.data);
+        alert(wcip_i18n.error + ': ' + response.data);
         if (button) {
           button.value = originalText;
           button.disabled = false;
@@ -223,7 +222,7 @@ function lkn_wcip_send_quote_email(quoteId, skipConfirm = false, callback = null
       }
     },
     error: function() {
-      alert('Erro na comunicação com o servidor');
+      alert(wcip_i18n.serverError || 'Server communication error');
       if (button) {
         button.value = originalText;
         button.disabled = false;
@@ -237,14 +236,14 @@ function lkn_wcip_send_quote_email(quoteId, skipConfirm = false, callback = null
  * @param {number} quoteId - The ID of the quote to approve
  */
 function lkn_wcip_approve_quote_only(quoteId) {
-  if (!confirm('Tem certeza que deseja aprovar este orçamento?')) {
+  if (!confirm(wcip_i18n.confirmApproveQuoteOnly || 'Are you sure you want to approve this quote?')) {
     return;
   }
 
   // Show loading state
   const button = event.target;
   const originalText = button.value;
-  button.value = 'Aprovando...';
+  button.value = wcip_i18n.approving || 'Approving...';
   button.disabled = true;
 
   // Get nonce from the page
@@ -255,7 +254,7 @@ function lkn_wcip_approve_quote_only(quoteId) {
     url: wcip_ajax.ajax_url,
     type: 'POST',
     data: {
-      action: 'lkn_wcip_approve_quote_only',
+      action: 'lkn_wcip_approve_quote',
       quote_id: quoteId,
       security: nonce
     },
@@ -263,13 +262,13 @@ function lkn_wcip_approve_quote_only(quoteId) {
       if (response.success) {
         location.reload();
       } else {
-        alert('Erro: ' + response.data);
+        alert(wcip_i18n.error + ': ' + response.data);
         button.value = originalText;
         button.disabled = false;
       }
     },
     error: function() {
-      alert('Erro na comunicação com o servidor');
+      alert(wcip_i18n.serverError || 'Server communication error');
       button.value = originalText;
       button.disabled = false;
     }
