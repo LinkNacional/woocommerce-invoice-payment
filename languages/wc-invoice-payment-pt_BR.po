@@ -541,3 +541,6 @@ msgstr "Erro"
 
 msgid "Server communication error"
 msgstr "Erro na comunicação com o servidor"
+
+msgid "Quote locked for editing. To edit, update the quote status to Pending."
+msgstr "Orçamento bloqueado para edição, para editar, atualize o orçamento para status Pendente."

@@ -352,3 +352,6 @@ msgstr ""
 
 msgid "Server communication error"
 msgstr ""
+
+msgid "Quote locked for editing. To edit, update the quote status to Pending."
+msgstr ""

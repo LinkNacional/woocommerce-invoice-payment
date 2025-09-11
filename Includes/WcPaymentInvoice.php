@@ -219,6 +219,7 @@ final class WcPaymentInvoice {
         $this->loader->add_filter( 'wp_enqueue_scripts', $this->WcPaymentInvoiceQuoteClass, 'lknWcInvoiceHidePriceFrontend' );
         $this->loader->add_filter( 'woocommerce_my_account_my_orders_query', $this->WcPaymentInvoiceQuoteClass, 'excludeQuotesFromOrdersQuery' );
 
+        $this->loader->add_action('lkn_wcip_check_expired_quotes', $this->WcPaymentInvoiceQuoteClass, 'check_expired_quotes');
 
         new WcPaymentInvoiceSettings($this->loader);
     }

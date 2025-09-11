@@ -31,5 +31,10 @@ final class WcPaymentInvoiceActivator {
         
         // Atualizar as regras de rewrite
         flush_rewrite_rules();
+        
+        // Agendar cron job para verificar orçamentos expirados diariamente
+        if (!wp_next_scheduled('lkn_wcip_check_expired_quotes')) {
+            wp_schedule_event(time(), 'daily', 'lkn_wcip_check_expired_quotes');
+        }
     }
 }
