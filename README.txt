@@ -29,7 +29,7 @@ Now enhanced with even more advanced features, **Link Invoice Payment** is the p
 - **Partial Order Payments in WooCommerce** – Allow customers to pay part of an order upfront using multiple payment methods
 - **Payment Method Discount** – Set a percentage or fixed discount value for each payment type
 - **Payment Method Fee** – Set a percentage or fixed value to charge an additional amount for each payment type
-- **Quotes** – Your customers can request quotes directly in the store, while the administrator can also create and send personalized proposals.
+- **Quotes** – Create custom quotes or allow your customers to request a proposal directly on your site, fully integrated with your store's products.
 
 And much more!
 
