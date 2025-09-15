@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: subscription, invoice, payment, recorrente, faturas
 Requires at least: 5.7
 Tested up to: 6.8
-Stable tag: 2.6.0
+Stable tag: 2.6.1
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -29,6 +29,7 @@ Now enhanced with even more advanced features, **Link Invoice Payment** is the p
 - **Partial Order Payments in WooCommerce** – Allow customers to pay part of an order upfront using multiple payment methods
 - **Payment Method Discount** – Set a percentage or fixed discount value for each payment type
 - **Payment Method Fee** – Set a percentage or fixed value to charge an additional amount for each payment type
+- **Quotes** – Create custom quotes or allow your customers to request a proposal directly on your site, fully integrated with your store's products.
 
 And much more!
 
@@ -112,6 +113,9 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
+= 2.6.1 = *09/15/2025*
+* README changes.
+
 = 2.6.0 = *08/29/2025*
 * Add quotes functionality.
 
