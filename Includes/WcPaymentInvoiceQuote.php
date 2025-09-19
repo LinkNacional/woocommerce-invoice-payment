@@ -60,8 +60,9 @@ final class WcPaymentInvoiceQuote
 
     function lknWcInvoiceHidePrice( $price, $product ) {
         $showPrice = get_option(  'lkn_wcip_show_products_price', 'no' );
+        $quoteMode = get_option(  'lkn_wcip_quote_mode', 'no' );
 
-        if ( $showPrice === 'no' && !is_admin() ) {
+        if ( $showPrice === 'no' && !is_admin()  && $quoteMode === 'yes' ) {
             $this->lknWcInvoiceHidePriceFrontend();
             return ''; // esconde completamente o preço
         }
@@ -85,26 +86,28 @@ final class WcPaymentInvoiceQuote
             }
         }
         //if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quoteStatus'){
-        if($showPrice == 'no' && ($quoteStatus == null || $quoteStatus == 'wc-quote-request')){
+        if($showPrice == 'no' && $quoteMode === 'yes' && ($quoteStatus == null || $quoteStatus == 'wc-quote-request')){
             wp_enqueue_style('wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-hide-price.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         }
-        wp_enqueue_script( 'wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-quote.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
-        wp_localize_script( 'wcInvoiceHidePrice', 'wcInvoiceHidePrice', array(
-            'quoteMode' => $quoteMode,
-            'showPrice' => $showPrice,
-            'showCupon' => get_option( 'lkn_wcip_display_coupon', 'no' ),
-            'cart' => WC()->cart,
-            'wc' => WC(),
-            'userId' => get_current_user_id(),
-            'orderId' => $orderId,
-            'quoteStatus' => $quoteStatus,
-            'emailDescription' => __('We will use this email to send information and updates about your quote.', 'wc-invoice-payment'),
-            'addressDescription' => __('Enter the address where you want your quote to be delivered.', 'wc-invoice-payment'),
-            'reviewText' => __('Under Review', 'wc-invoice-payment'),
-            'requestQuoteText' => __('Request Quote', 'wc-invoice-payment'),
-            'quoteSummaryText' => __('Quote Summary', 'wc-invoice-payment'),
-            'quotesText' => __('Quotes', 'wc-invoice-payment')
-        ));
+        if($quoteMode === 'yes'){
+            wp_enqueue_script( 'wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-quote.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
+            wp_localize_script( 'wcInvoiceHidePrice', 'wcInvoiceHidePrice', array(
+                'quoteMode' => $quoteMode,
+                'showPrice' => $showPrice,
+                'showCupon' => get_option( 'lkn_wcip_display_coupon', 'no' ),
+                'cart' => WC()->cart,
+                'wc' => WC(),
+                'userId' => get_current_user_id(),
+                'orderId' => $orderId,
+                'quoteStatus' => $quoteStatus,
+                'emailDescription' => __('We will use this email to send information and updates about your quote.', 'wc-invoice-payment'),
+                'addressDescription' => __('Enter the address where you want your quote to be delivered.', 'wc-invoice-payment'),
+                'reviewText' => __('Under Review', 'wc-invoice-payment'),
+                'requestQuoteText' => __('Request Quote', 'wc-invoice-payment'),
+                'quoteSummaryText' => __('Quote Summary', 'wc-invoice-payment'),
+                'quotesText' => __('Quotes', 'wc-invoice-payment')
+            ));
+        }
     }
 
     public function registerQuoteStatus( $order_statuses ) {
@@ -350,7 +353,9 @@ final class WcPaymentInvoiceQuote
 
         
         //lkn_wcip_create_invoice_automatically
-        if(get_option('lkn_wcip_create_invoice_automatically', 'yes') == 'yes') {
+        $quoteMode = get_option(  'lkn_wcip_quote_mode', 'no' );
+
+        if(get_option('lkn_wcip_create_invoice_automatically', 'yes') == 'yes' && $quoteMode === 'yes') {
             // Criar fatura automaticamente
             $this->create_invoice($quote_order);
         }

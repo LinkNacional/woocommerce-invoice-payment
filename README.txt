@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: subscription, invoice, payment, recorrente, faturas
 Requires at least: 5.7
 Tested up to: 6.8
-Stable tag: 2.6.1
+Stable tag: 2.6.2
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -113,6 +113,9 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
+= 2.6.2 = *09/19/2025*
+* Fix quote logic.
+
 = 2.6.1 = *09/15/2025*
 * README changes.
 

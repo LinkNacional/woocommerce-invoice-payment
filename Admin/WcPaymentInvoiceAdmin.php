@@ -3391,8 +3391,9 @@ final class WcPaymentInvoiceAdmin
         $order->update_status('quote-approved', __('Orçamento aprovado pelo administrador.', 'wc-invoice-payment'));
         $order->add_order_note(__('Quote approved by admin', 'wc-invoice-payment'));
         $order->save();
+        $quoteMode = get_option(  'lkn_wcip_quote_mode', 'no' );
 
-        if (get_option('lkn_wcip_create_invoice_automatically', 'yes') == 'yes') {
+        if (get_option('lkn_wcip_create_invoice_automatically', 'yes') == 'yes' && $quoteMode === 'yes') {
             $quote_handler = new \LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceQuote();
             $quote_handler->create_invoice($order);
         }
@@ -4571,7 +4572,9 @@ final class WcPaymentInvoiceAdmin
             $quote_order->add_order_note($note);
 
             // Criar invoice automaticamente se a opção estiver ativada
-            if (get_option('lkn_wcip_create_invoice_automatically', 'yes') == 'yes') {
+            $quoteMode = get_option(  'lkn_wcip_quote_mode', 'no' );
+
+            if (get_option('lkn_wcip_create_invoice_automatically', 'yes') == 'yes' && $quoteMode === 'yes') {
                 $quote_handler = new \LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceQuote();
                 $quote_handler->create_invoice($quote_order);
                 

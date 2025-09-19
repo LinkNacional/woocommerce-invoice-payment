@@ -1,3 +1,6 @@
+# 2.6.2 - 19/09/2025
+* Correção em lógica de orçamento.
+
 # 2.6.1 - 15/09/2025
 * Alteração em readme.
 
