@@ -85,10 +85,12 @@
         if(cuponElement && wcInvoiceHidePrice.showCupon != 'yes') {
           cuponElement.remove();
         }
-    }
-      tableQuotesThElement = document.querySelector('.quotesAccount')?.parentElement?.parentElement?.querySelector('.nobr');
-      if(tableQuotesThElement && tableQuotesThElement.innerHTML !== wcInvoiceHidePrice.quotesText) {
-        tableQuotesThElement.innerHTML = wcInvoiceHidePrice.quotesText;
+        if(document.querySelector('.quotesAccount')){
+          tableQuotesThElement = document.querySelector('.quotesAccount')?.parentElement?.parentElement?.querySelector('.nobr');
+          if(tableQuotesThElement && tableQuotesThElement.innerHTML !== wcInvoiceHidePrice.quotesText) {
+            tableQuotesThElement.innerHTML = wcInvoiceHidePrice.quotesText;
+          }
+        }
       }
     }
 
