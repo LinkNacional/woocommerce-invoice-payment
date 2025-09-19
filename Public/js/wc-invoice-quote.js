@@ -1,7 +1,7 @@
 (function() {
   // Function to remove price elements
   function removePrice() {
-    if(wcInvoiceHidePrice.showPrice == 'no'){
+    if(wcInvoiceHidePrice.showPrice == 'no' && wcInvoiceHidePrice.quoteMode == 'yes'){
         if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quote-request'){
           document.querySelectorAll(`
             .wc-block-components-formatted-money-amount,

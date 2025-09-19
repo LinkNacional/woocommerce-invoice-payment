@@ -60,8 +60,9 @@ final class WcPaymentInvoiceQuote
 
     function lknWcInvoiceHidePrice( $price, $product ) {
         $showPrice = get_option(  'lkn_wcip_show_products_price', 'no' );
+        $quoteMode = get_option(  'lkn_wcip_quote_mode', 'no' );
 
-        if ( $showPrice === 'no' && !is_admin() ) {
+        if ( $showPrice === 'no' && !is_admin()  && $quoteMode === 'yes' ) {
             $this->lknWcInvoiceHidePriceFrontend();
             return ''; // esconde completamente o preço
         }
@@ -85,7 +86,7 @@ final class WcPaymentInvoiceQuote
             }
         }
         //if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quoteStatus'){
-        if($showPrice == 'no' && ($quoteStatus == null || $quoteStatus == 'wc-quote-request')){
+        if($showPrice == 'no' && $quoteMode === 'yes' && ($quoteStatus == null || $quoteStatus == 'wc-quote-request')){
             wp_enqueue_style('wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-hide-price.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         }
         wp_enqueue_script( 'wcInvoiceHidePrice', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-quote.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
@@ -350,7 +351,9 @@ final class WcPaymentInvoiceQuote
 
         
         //lkn_wcip_create_invoice_automatically
-        if(get_option('lkn_wcip_create_invoice_automatically', 'yes') == 'yes') {
+        $quoteMode = get_option(  'lkn_wcip_quote_mode', 'no' );
+
+        if(get_option('lkn_wcip_create_invoice_automatically', 'yes') == 'yes' && $quoteMode === 'yes') {
             // Criar fatura automaticamente
             $this->create_invoice($quote_order);
         }
