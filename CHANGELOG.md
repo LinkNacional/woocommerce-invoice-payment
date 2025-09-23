@@ -1,3 +1,6 @@
+# 2.6.3 - 23/09/2025
+* Correção em configurações de desconto.
+
 # 2.6.2 - 19/09/2025
 * Correção em lógica de orçamento.
 

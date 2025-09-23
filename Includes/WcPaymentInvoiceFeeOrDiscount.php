@@ -13,7 +13,7 @@ final class WcPaymentInvoiceFeeOrDiscount
             $percentOrFixed = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $chosenMethod);
             $value = get_option('lkn_wcip_fee_or_discount_value_' . $chosenMethod);
 
-            if($active == 'on'){
+            if($active == 'yes'){
                 $total = $cart->get_subtotal(); 
 
                 if ($percentOrFixed === 'percent') {
