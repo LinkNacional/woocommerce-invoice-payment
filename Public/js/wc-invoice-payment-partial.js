@@ -15,7 +15,7 @@
                 cartFlowDiv = document.querySelector('#payment');
             }
             if (checkoutForm || cartFlowDiv) {
-                symbol = wcInvoicePaymentPartialVariables.symbol
+                symbol = lknWcipPartialVariables.symbol
                 clearInterval(intervalId);
 
                 if(checkoutForm){
@@ -26,7 +26,7 @@
                 const totalText = totalElement.text();
                 const numericText = totalText.replace(/[^\d,]/g, '').replace(',', '.');
                 const cartTotal = parseFloat(numericText);
-                if(cartTotal > parseFloat(wcInvoicePaymentPartialVariables.minPartialAmount)){
+                if(cartTotal > parseFloat(lknWcipPartialVariables.minPartialAmount)){
                     if(checkoutForm){
                         partialPaymentHTML = `
                         <div class="wcPaymentInvoiceContainer">
@@ -243,8 +243,8 @@
                         const data = {
                             partialAmount: partialValue,
                             orderId: orderId,
-                            cart: wcInvoicePaymentPartialVariables.cart,
-                            userId: wcInvoicePaymentPartialVariables.userId,
+                            cart: lknWcipPartialVariables.cart,
+                            userId: lknWcipPartialVariables.userId,
                         };
                     
                         // Envia a requisição POST para a REST API
@@ -290,8 +290,8 @@
                         const data = {
                             partialAmount: partialValue,
                             orderId: orderId,
-                            cart: wcInvoicePaymentPartialVariables.cart,
-                            userId: wcInvoicePaymentPartialVariables.userId,
+                            cart: lknWcipPartialVariables.cart,
+                            userId: lknWcipPartialVariables.userId,
                         };
                     
                         // Envia a requisição POST para a REST API

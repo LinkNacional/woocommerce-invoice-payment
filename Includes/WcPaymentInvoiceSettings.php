@@ -181,7 +181,7 @@ final class WcPaymentInvoiceSettings
                     <div style="display: flex;gap: 15px;align-items: flex-start;flex-wrap: wrap;flex-direction: column;">
                         <!-- Adicionando checkbox -->
                         <div>
-                            <input type="checkbox" name="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" <?php checked($active_value, 'yes'); ?> />
+                            <input type="checkbox" name="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" value="yes" <?php checked($active_value, 'yes'); ?> />
                             <label for="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>"><?php echo esc_html(__('Enable this option', 'wc-invoice-payment')); ?></label>
                             <p class="description"><?php echo esc_html(__('Enables fee/discount payment for the payment method.', 'wc-invoice-payment')); ?></p>        
                         </div>
@@ -330,6 +330,27 @@ final class WcPaymentInvoiceSettings
     public function savePartialPaymentSettings()
     {
         woocommerce_update_options($this->getPartialPaymentSettings());
+        
+        // Processar campos customizados dos gateways de pagamento para pagamento parcial
+        $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        $method_slug = 'lkn_wcip_partial_payments_method_';
+        $status_slug = 'lkn_wcip_partial_complete_status_';
+        
+        foreach ($payment_gateways as $gateway_id => $gateway) {
+            // Processar checkbox de método habilitado
+            $method_field = $method_slug . $gateway_id;
+            if (isset($_POST[$method_field])) {
+                update_option($method_field, sanitize_text_field($_POST[$method_field]));
+            } else {
+                update_option($method_field, 'no');
+            }
+            
+            // Processar campo de status
+            $status_field = $status_slug . $gateway_id;
+            if (isset($_POST[$status_field])) {
+                update_option($status_field, sanitize_text_field($_POST[$status_field]));
+            }
+        }
     }
 
     // === MÉTODOS DA ABA TAXA OU DESCONTOS ===
@@ -343,6 +364,34 @@ final class WcPaymentInvoiceSettings
     public function saveFeesDiscountsSettings()
     {
         woocommerce_update_options($this->getFeesDiscountsSettings());
+        
+        // Processar campos customizados dos gateways de pagamento
+        $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        $slug = 'lkn_wcip_fee_or_discount_';
+        
+        foreach ($payment_gateways as $gateway_id => $gateway) {
+            // Processar checkbox de ativação
+            $method_activated_field = $slug . 'method_activated_' . $gateway_id;
+            if (isset($_POST[$method_activated_field])) {
+                update_option($method_activated_field, sanitize_text_field($_POST[$method_activated_field]));
+            } else {
+                update_option($method_activated_field, 'no');
+            }
+            
+            // Processar outros campos
+            $fields_to_process = array(
+                'type_' . $gateway_id,
+                'percent_fixed_' . $gateway_id,
+                'value_' . $gateway_id
+            );
+            
+            foreach ($fields_to_process as $field) {
+                $full_field_name = $slug . $field;
+                if (isset($_POST[$full_field_name])) {
+                    update_option($full_field_name, sanitize_text_field($_POST[$full_field_name]));
+                }
+            }
+        }
     }
 
     private function getInvoiceSettings()
