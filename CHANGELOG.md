@@ -1,3 +1,6 @@
+# 2.6.4 - 30/09/2025
+* Correção em verificação de gateways de pagamento.
+
 # 2.6.3 - 23/09/2025
 * Correção em configurações de desconto.
 
