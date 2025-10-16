@@ -6,6 +6,7 @@ use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoader;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoaderRest;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSettings;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceDonation;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
 
@@ -190,6 +191,27 @@ final class WcPaymentInvoice {
 
         $api_handler = new WcPaymentInvoiceLoaderRest();
         $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
+        
+        // Inicializa a classe de doação
+        $donation_class = new WcPaymentInvoiceDonation();
+        $this->loader->add_filter('product_type_selector', $donation_class, 'add_donation_product_type');
+        $this->loader->add_filter('product_type_options', $donation_class, 'add_donation_type_options');
+        $this->loader->add_filter('woocommerce_product_data_tabs', $donation_class, 'add_donation_product_tab');
+        $this->loader->add_filter('woocommerce_product_data_tabs', $donation_class, 'add_donation_product_data_tabs', 98);
+        $this->loader->add_action('woocommerce_product_data_panels', $donation_class, 'add_donation_product_panel');
+        $this->loader->add_action('woocommerce_process_product_meta', $donation_class, 'save_donation_product_data');
+        $this->loader->add_action('admin_enqueue_scripts', $donation_class, 'enqueue_donation_assets');
+        $this->loader->add_filter('woocommerce_product_supports', $donation_class, 'add_donation_product_supports', 10, 2);
+        
+        // Hooks para o frontend - garantir que produtos de doação funcionem corretamente
+        $this->loader->add_filter('woocommerce_product_add_to_cart_text', $donation_class, 'donation_add_to_cart_text', 10, 2);
+        $this->loader->add_filter('woocommerce_product_single_add_to_cart_text', $donation_class, 'donation_single_add_to_cart_text', 10, 2);
+        $this->loader->add_action('woocommerce_donation_add_to_cart', $donation_class, 'donation_add_to_cart_template');
+        $this->loader->add_filter('woocommerce_add_to_cart_validation', $donation_class, 'validate_donation_add_to_cart', 10, 3);
+        $this->loader->add_filter('woocommerce_add_cart_item_data', $donation_class, 'add_donation_cart_item_data', 10, 3);
+        $this->loader->add_filter('woocommerce_before_calculate_totals', $donation_class, 'set_donation_cart_item_price', 10, 1);
+        $this->loader->add_filter('woocommerce_get_item_data', $donation_class, 'display_donation_cart_item_data', 10, 2);
+        
         $subscription_class = new WcPaymentInvoiceSubscription();
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');
@@ -264,6 +286,11 @@ final class WcPaymentInvoice {
                     update_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'yes');
                 }
             }
+        }
+        
+        // Carrega a classe de produto doação (necessário para o WooCommerce reconhecer o tipo)
+        if (!class_exists('WC_Product_Donation')) {
+            require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'Includes/WC_Product_Donation.php';
         }
     }
 
