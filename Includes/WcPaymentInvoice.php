@@ -201,16 +201,17 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_product_data_panels', $donation_class, 'add_donation_product_panel');
         $this->loader->add_action('woocommerce_process_product_meta', $donation_class, 'save_donation_product_data');
         $this->loader->add_action('admin_enqueue_scripts', $donation_class, 'enqueue_donation_assets');
+        $this->loader->add_action('wp_enqueue_scripts', $donation_class, 'enqueue_donation_frontend_assets');
         $this->loader->add_filter('woocommerce_product_supports', $donation_class, 'add_donation_product_supports', 10, 2);
         
         // Hooks para o frontend - garantir que produtos de doação funcionem corretamente
         $this->loader->add_filter('woocommerce_product_add_to_cart_text', $donation_class, 'donation_add_to_cart_text', 10, 2);
         $this->loader->add_filter('woocommerce_product_single_add_to_cart_text', $donation_class, 'donation_single_add_to_cart_text', 10, 2);
+        $this->loader->add_filter('woocommerce_get_price_html', $donation_class, 'customize_donation_price_html', 10, 2);
         $this->loader->add_action('woocommerce_donation_add_to_cart', $donation_class, 'donation_add_to_cart_template');
         $this->loader->add_filter('woocommerce_add_to_cart_validation', $donation_class, 'validate_donation_add_to_cart', 10, 3);
         $this->loader->add_filter('woocommerce_add_cart_item_data', $donation_class, 'add_donation_cart_item_data', 10, 3);
         $this->loader->add_filter('woocommerce_before_calculate_totals', $donation_class, 'set_donation_cart_item_price', 10, 1);
-        $this->loader->add_filter('woocommerce_get_item_data', $donation_class, 'display_donation_cart_item_data', 10, 2);
         
         $subscription_class = new WcPaymentInvoiceSubscription();
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');

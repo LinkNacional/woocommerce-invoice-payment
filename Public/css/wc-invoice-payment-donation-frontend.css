@@ -1,0 +1,157 @@
+/**
+ * Estilos para produtos de doação - Frontend
+ * 
+ * @since 1.0.0
+ */
+
+/* Oculta preço quando existe campos de doação variável */
+.donation-fields ~ * .woocommerce-Price-amount,
+.donation-fields + * .woocommerce-Price-amount,
+body:has(.donation-fields) .woocommerce-Price-amount {
+    display: none !important;
+}
+
+/* Container principal dos campos de doação */
+.donation-fields {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+}
+
+/* Botões de valores pré-definidos */
+.donation-preset-btn {
+    padding: 8px 0px !important;
+    width: 95px !important;
+    height: 50px !important;
+}
+
+.donation-preset-btn.selected {
+    background-color: #007cba !important;
+    color: #fff !important;
+}
+
+/* Container dos botões pré-definidos */
+.preset-buttons {
+    display: flex !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+}
+
+.donation-margin-left{
+    margin-left: 35px !important;
+}
+
+/* Campo de valor customizado */
+#donation_amount {
+    width: 55px !important;
+    margin: 0px !important;
+    height: 24px !important;
+    font-size: var(--wp--preset--font-size--medium) !important;
+    font-family: inherit !important;
+}
+
+/* Label do campo de valor */
+[for="donation_amount"] {
+    margin: 0px !important;
+}
+
+/* Container do campo customizado */
+.custom-amount-field {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+/* Container interno da moeda e input */
+.custom-amount-field > div:first-of-type {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+
+/* Garantir que a div quantity não quebre linha */
+.custom-amount-field .quantity {
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+}
+
+/* Responsividade para tablets */
+@media (max-width: 1024px) {
+    .single_add_to_cart_button {
+        flex: 1 1 auto !important;
+        min-width: 200px !important;
+    }
+}
+
+/* Responsividade para celular */
+@media (max-width: 768px) {
+    .preset-buttons {
+        margin-left: 0 !important;
+    }
+    
+    .donation-preset-btn {
+        padding: 8px 15px !important;
+        font-size: 14px !important;
+    }
+    
+    .donation-fields {
+        gap: 15px !important;
+    }
+    
+    .custom-amount-field {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 15px !important;
+    }
+    
+    .custom-amount-field > div:first-of-type {
+        display: flex !important;
+        justify-content: flex-start;
+        gap: 10px !important;
+        white-space: nowrap !important;
+        flex-direction: row !important;
+    }
+    
+    .custom-amount-field .quantity {
+        display: inline-flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+    }
+    
+    #donation_amount {
+        width: 100% !important;
+        height: 20px !important;
+        text-align: center !important;
+        font-size: 16px !important;
+    }
+    
+    [for="donation_amount"] {
+        text-align: left !important;
+        font-size: 18px !important;
+        margin: 0 !important;
+    }
+    
+    .single_add_to_cart_button {
+        width: 100% !important;
+        height: 50px !important;
+    }
+}
+
+/* Estilos para estados de erro */
+#donation_amount.error {
+    border-color: #dc3232 !important;
+    box-shadow: 0 0 2px rgba(220, 50, 50, 0.8) !important;
+    background-color: #ffeaea !important;
+}
+
+.preset-buttons.error {
+    outline: 2px solid #dc3232 !important;
+    outline-offset: 2px !important;
+    border-radius: 4px !important;
+    background-color: #ffeaea !important;
+    padding: 5px !important;
+}

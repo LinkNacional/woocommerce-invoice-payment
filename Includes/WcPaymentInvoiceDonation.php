@@ -17,7 +17,10 @@ final class WcPaymentInvoiceDonation
      */
     public function add_donation_product_type($types)
     {
-        $types['donation'] = __('Doação', 'wc-invoice-payment');
+        // Verifica se o tipo de produto de doação está habilitado nas configurações
+        if (get_option('lkn_wcip_donation_product_enabled', 'no') === 'yes') {
+            $types['donation'] = __('Doação', 'wc-invoice-payment');
+        }
         return $types;
     }
 
@@ -47,8 +50,11 @@ final class WcPaymentInvoiceDonation
      */
     public function add_donation_type_options($options)
     {
-        $options['virtual']['wrapper_class'] .= ' show_if_donation';
-        $options['downloadable']['wrapper_class'] .= ' show_if_donation';
+        // Verifica se o tipo de produto de doação está habilitado nas configurações
+        if (get_option('lkn_wcip_donation_product_enabled', 'no') === 'yes') {
+            $options['virtual']['wrapper_class'] .= ' show_if_donation';
+            $options['downloadable']['wrapper_class'] .= ' show_if_donation';
+        }
         
         return $options;
     }
@@ -89,12 +95,15 @@ final class WcPaymentInvoiceDonation
      */
     public function add_donation_product_tab($tabs)
     {
-        $tabs['donation'] = array(
-            'label'    => __('Doação', 'wc-invoice-payment'),
-            'target'   => 'donation_product_data',
-            'class'    => array('show_if_donation'),
-            'priority' => 21,
-        );
+        // Verifica se o tipo de produto de doação está habilitado nas configurações
+        if (get_option('lkn_wcip_donation_product_enabled', 'no') === 'yes') {
+            $tabs['donation'] = array(
+                'label'    => __('Doação', 'wc-invoice-payment'),
+                'target'   => 'donation_product_data',
+                'class'    => array('show_if_donation'),
+                'priority' => 21,
+            );
+        }
         
         return $tabs;
     }
@@ -117,12 +126,19 @@ final class WcPaymentInvoiceDonation
             'options'     => array(
                 'fixed'    => __('Valor Fixo', 'wc-invoice-payment'),
                 'variable' => __('Valor Variável (Doe o Quanto Quiser)', 'wc-invoice-payment'),
+                'free'     => __('Grátis', 'wc-invoice-payment'),
             ),
             'desc_tip'    => true,
             'description' => __('Selecione o tipo de doação.', 'wc-invoice-payment'),
         ));
         
         // Campo de preço para valor fixo (reutiliza o campo padrão do WooCommerce)
+        $regular_price = get_post_meta(get_the_ID(), '_regular_price', true);
+        // Se nunca foi salvo antes, usa valor padrão
+        if (!metadata_exists('post', get_the_ID(), '_regular_price')) {
+            $regular_price = 0;
+        }
+        
         woocommerce_wp_text_input(array(
             'id'                => '_regular_price',
             'label'             => __('Valor da doação (' . get_woocommerce_currency_symbol() . ')', 'wc-invoice-payment'),
@@ -131,16 +147,57 @@ final class WcPaymentInvoiceDonation
             'type'              => 'text',
             'desc_tip'          => true,
             'data_type'         => 'price',
-            'wrapper_class'     => 'show_if_donation_fixed',
+            'wrapper_class'     => 'show_if_donation_fixed lkn_value_input',
+            'value'             => $regular_price,
         ));
         
         // Valores em botões para valor variável
+        $button_values = get_post_meta(get_the_ID(), '_donation_button_values', true);
+        // Se nunca foi salvo antes, usa valor padrão
+        if (!metadata_exists('post', get_the_ID(), '_donation_button_values')) {
+            $button_values = '10, 20, 25';
+        }
+        
         woocommerce_wp_textarea_input(array(
             'id'            => '_donation_button_values',
             'label'         => __('Valores em botões', 'wc-invoice-payment'),
             'description'   => __('Digite o valor dos botões de valores definidos separado por vírgula. Ex: 10, 20, 25', 'wc-invoice-payment'),
             'desc_tip'      => true,
             'wrapper_class' => 'show_if_donation_variable',
+            'value'         => $button_values,
+        ));
+        
+        // Checkbox para ocultar campo de valor personalizado
+        $hide_custom_amount = get_post_meta(get_the_ID(), '_donation_hide_custom_amount', true);
+        // Se nunca foi salvo antes, usa valor padrão
+        if (!metadata_exists('post', get_the_ID(), '_donation_hide_custom_amount')) {
+            $hide_custom_amount = 'no';
+        }
+        
+        woocommerce_wp_checkbox(array(
+            'id'            => '_donation_hide_custom_amount',
+            'label'         => __('Ocultar campo de valor personalizado', 'wc-invoice-payment'),
+            'description'   => __('Marque esta opção para ocultar o campo de valor personalizado e mostrar apenas os botões pré-definidos.', 'wc-invoice-payment'),
+            'desc_tip'      => true,
+            'wrapper_class' => 'show_if_donation_variable',
+            'value'         => $hide_custom_amount,
+        ));
+        
+        // Campo de texto para doação grátis
+        $free_text = get_post_meta(get_the_ID(), '_donation_free_text', true);
+        // Se nunca foi salvo antes, usa valor padrão
+        if (!metadata_exists('post', get_the_ID(), '_donation_free_text')) {
+            $free_text = 'Grátis';
+        }
+        
+        woocommerce_wp_text_input(array(
+            'id'            => '_donation_free_text',
+            'label'         => __('Texto', 'wc-invoice-payment'),
+            'placeholder'   => __('Grátis', 'wc-invoice-payment'),
+            'description'   => __('Texto que será exibido para doação gratuita.', 'wc-invoice-payment'),
+            'desc_tip'      => true,
+            'wrapper_class' => 'show_if_donation_free',
+            'value'         => $free_text,
         ));
         
         echo '</div>';
@@ -171,26 +228,38 @@ final class WcPaymentInvoiceDonation
             update_post_meta($post_id, '_donation_button_values', wc_clean($_POST['_donation_button_values']));
         }
         
+        // Salva o texto para doação grátis
+        if (isset($_POST['_donation_free_text'])) {
+            update_post_meta($post_id, '_donation_free_text', wc_clean($_POST['_donation_free_text']));
+        }
+        
+        // Salva a configuração de ocultar campo personalizado
+        if (isset($_POST['_donation_hide_custom_amount'])) {
+            update_post_meta($post_id, '_donation_hide_custom_amount', 'yes');
+        } else {
+            update_post_meta($post_id, '_donation_hide_custom_amount', 'no');
+        }
+        
         // Para doação de valor fixo, o preço é salvo automaticamente pelo WooCommerce
-        // Para doação variável, definimos o preço como 0
+        // Para doação variável e grátis, definimos o preço como 0
         $donation_type = isset($_POST['_donation_type']) ? wc_clean($_POST['_donation_type']) : 'fixed';
         
-        if ($donation_type === 'variable') {
+        if ($donation_type === 'variable' || $donation_type === 'free') {
             update_post_meta($post_id, '_regular_price', 0);
             update_post_meta($post_id, '_price', 0);
         }
     }
 
     /**
-     * Carrega estilos e scripts para a página de produto.
+     * Carrega estilos e scripts para a página de produto no admin.
      */
     public function enqueue_donation_assets()
     {
         global $typenow;
         
-        // Carrega apenas na página de produtos
+        // Carrega apenas na página de produtos no admin
         if ($typenow === 'product') {
-            // Carrega o CSS
+            // Carrega o CSS do admin
             wp_enqueue_style(
                 'wc-invoice-payment-donation',
                 plugin_dir_url(__DIR__) . 'Admin/css/wc-invoice-payment-donation.css',
@@ -199,13 +268,47 @@ final class WcPaymentInvoiceDonation
                 'all'
             );
             
-            // Carrega o JavaScript
+            // Carrega o JavaScript do admin
             wp_enqueue_script(
                 'wc-invoice-payment-donation-js',
                 plugin_dir_url(__DIR__) . 'Admin/js/wc-invoice-payment-donation.js',
                 array('jquery'),
                 WC_PAYMENT_INVOICE_VERSION,
                 true
+            );
+        }
+    }
+
+    /**
+     * Carrega estilos e scripts para o frontend.
+     */
+    public function enqueue_donation_frontend_assets()
+    {
+        // Carrega apenas em páginas de produto ou onde seja necessário
+        if (is_product() || is_shop() || is_product_category() || is_woocommerce()) {
+            // Carrega o CSS do frontend
+            wp_enqueue_style(
+                'wc-invoice-payment-donation-frontend',
+                plugin_dir_url(__DIR__) . 'Public/css/wc-invoice-payment-donation-frontend.css',
+                array(),
+                WC_PAYMENT_INVOICE_VERSION,
+                'all'
+            );
+            
+            // Carrega o JavaScript do frontend
+            wp_enqueue_script(
+                'wc-invoice-payment-donation-frontend-js',
+                plugin_dir_url(__DIR__) . 'Public/js/wc-invoice-payment-donation-frontend.js',
+                array('jquery'),
+                WC_PAYMENT_INVOICE_VERSION,
+                true
+            );
+            wp_localize_script(
+                'wc-invoice-payment-donation-frontend-js',
+                'phpAttributes',
+                array(
+                    'makeDonation' => __('Fazer uma doação', 'wc-invoice-payment'),
+                )
             );
         }
     }
@@ -229,7 +332,7 @@ final class WcPaymentInvoiceDonation
      */
     public function donation_single_add_to_cart_text($text, $product)
     {
-        //Se a configuração _donation_type for variable
+        //Se a configuração _donation_type for variable ou free
         if ($product->get_type() === 'donation') {
             $donation_type = $product->get_meta('_donation_type', true);
             if ($donation_type === 'variable') {
@@ -297,6 +400,28 @@ final class WcPaymentInvoiceDonation
     }
 
     /**
+     * Personaliza o HTML do preço para produtos de doação grátis.
+     * Usa a função wc_price do WooCommerce mas substitui o conteúdo para doações grátis.
+     */
+    public function customize_donation_price_html($price_html, $product)
+    {
+        if ($product->get_type() === 'donation') {
+            $donation_type = $product->get_meta('_donation_type', true);
+            
+            if ($donation_type === 'free') {
+                $free_text = $product->get_meta('_donation_free_text', true);
+                $display_text = $free_text ?: __('Grátis', 'wc-invoice-payment');
+                
+                // Usa a estrutura padrão do wc_price mas com o texto personalizado
+                return '<span class="woocommerce-Price-amount amount"><bdi>' . esc_html($display_text) . '</bdi></span>';
+            }
+        }
+        
+        return $price_html;
+    }
+
+
+    /**
      * Define o preço do produto de doação no carrinho.
      */
     public function set_donation_cart_item_price($cart)
@@ -312,18 +437,4 @@ final class WcPaymentInvoiceDonation
         }
     }
 
-    /**
-     * Exibe os dados customizados no carrinho.
-     */
-    public function display_donation_cart_item_data($item_data, $cart_item)
-    {
-        if (isset($cart_item['donation_amount'])) {
-            $item_data[] = array(
-                'key'   => __('Valor da doação', 'wc-invoice-payment'),
-                'value' => wc_price($cart_item['donation_amount']),
-            );
-        }
-
-        return $item_data;
-    }
 }

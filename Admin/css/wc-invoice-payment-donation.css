@@ -2,7 +2,13 @@
 
 /* Esconder campos por padrão */
 .show_if_donation_fixed,
-.show_if_donation_variable {
+.show_if_donation_variable,
+.show_if_donation_free {
+    display: none;
+}
+
+/* A checkbox só aparece quando há valores nos botões */
+#_donation_hide_custom_amount_field {
     display: none;
 }
 

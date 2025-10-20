@@ -13,16 +13,20 @@
             var donationType = $('#_donation_type').val();
             var $fixedFields = $('.show_if_donation_fixed');
             var $variableFields = $('.show_if_donation_variable');
+            var $freeFields = $('.show_if_donation_free');
             
             // Esconde todos os campos primeiro
             $fixedFields.hide();
             $variableFields.hide();
+            $freeFields.hide();
             
             // Mostra campos baseado no tipo
             if (donationType === 'fixed') {
                 $fixedFields.show();
             } else if (donationType === 'variable') {
                 $variableFields.show();
+            } else if (donationType === 'free') {
+                $freeFields.show();
             }
         }
         
@@ -64,32 +68,44 @@
             setTimeout(toggleDonationFields, 100);
         });
         
-        // Validação dos valores dos botões
-        $('#_donation_button_values').on('blur', function() {
-            var values = $(this).val();
-            if (values) {
-                // Remove espaços extras e vírgulas duplas
+        // Função para mostrar/ocultar checkbox baseado nos valores
+        function toggleCustomAmountCheckbox() {
+            var values = $('#_donation_button_values').val();
+            var checkboxField = $('#_donation_hide_custom_amount_field');
+            
+            if (values && values.trim()) {
+                // Valida se há valores válidos
                 var cleanedValues = values.replace(/\s*,\s*/g, ',').replace(/,+/g, ',').replace(/^,|,$/g, '');
-                
-                // Valida se os valores são números
                 var valuesArray = cleanedValues.split(',');
-                var validValues = [];
+                var hasValidValues = false;
                 
                 valuesArray.forEach(function(value) {
                     var numValue = parseFloat(value.trim());
                     if (!isNaN(numValue) && numValue > 0) {
-                        validValues.push(numValue);
+                        hasValidValues = true;
                     }
                 });
                 
-                // Atualiza o campo com valores limpos
-                if (validValues.length > 0) {
-                    $(this).val(validValues.join(', '));
+                if (hasValidValues) {
+                    checkboxField.show();
                 } else {
-                    $(this).val('');
+                    checkboxField.hide();
+                    $('#_donation_hide_custom_amount').prop('checked', false);
                 }
+            } else {
+                checkboxField.hide();
+                $('#_donation_hide_custom_amount').prop('checked', false);
             }
+        }
+        
+        // Validação dos valores dos botões
+        $('#_donation_button_values').on('blur input', function() {
+            // Atualiza visibilidade da checkbox
+            toggleCustomAmountCheckbox();
         });
+        
+        // Executa ao carregar
+        toggleCustomAmountCheckbox();
     }
 
     // Inicializar quando o documento estiver pronto
