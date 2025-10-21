@@ -9,6 +9,45 @@ namespace LknWc\WcInvoicePayment\Includes;
  */
 final class WcPaymentInvoiceDonation
 {
+    public function enqueueCheckoutScripts(){
+        if (function_exists('WC')) {
+            $only_free_or_variable_donations = true;
+            if (isset(WC()->cart)) {
+                foreach (WC()->cart->get_cart() as $cart_item) {
+                    $product = $cart_item['data'];
+                    // Verifica se todos os produtos são doações do tipo free ou variable
+                    if ($product->get_type() === 'donation') {
+                        $donation_type = get_post_meta($product->get_id(), '_donation_type', true);
+                        if ($donation_type !== 'free' && $donation_type !== 'variable') {
+                            $only_free_or_variable_donations = false;
+                        }
+                    } else {
+                        $only_free_or_variable_donations = false;
+                    }
+                }
+            }
+        }
+        if ( is_checkout() && 
+            WC()->payment_gateways() && 
+            ! empty( WC()->payment_gateways()->get_available_payment_gateways() ) && 
+            get_option('lkn_wcip_anonymous_donation_checkout', '') == 'yes' && 
+            $only_free_or_variable_donations){
+            $currency_code =  get_woocommerce_currency();
+            $currency_symbol = get_woocommerce_currency_symbol( $currency_code );
+            wp_enqueue_script( 'wcInvoicePaymentDonationScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-donation-checkout.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
+            wp_enqueue_style('wcInvoicePaymentDonationStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-donation-checkout.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
+            wp_localize_script('wcInvoicePaymentDonationScript', 'lknWcipDonationVariables', array(
+                'minPartialAmount' => get_option('lkn_wcip_partial_interval_minimum', 0),
+                'cart' => WC()->cart,
+                'userId' => get_current_user_id(),
+                'symbol' => $currency_symbol,
+                'partialPaymentTitle' => __('Partial Payment', 'wc-invoice-payment'),
+                'partialPaymentDescription' => __('Enter the amount you want to pay now, the rest can be paid later with other payment methods.', 'wc-invoice-payment'),
+                'payPartialText' => __('Pay Partial', 'wc-invoice-payment'),
+            ));
+        }
+    }
+
     /**
      * Adiciona o tipo de produto "Doação" ao WooCommerce.
      *

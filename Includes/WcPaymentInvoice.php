@@ -9,6 +9,7 @@ use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceDonation;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
+use WC_Countries;
 
 /**
  * The file that defines the core plugin class.
@@ -244,7 +245,65 @@ final class WcPaymentInvoice {
 
         $this->loader->add_action('lkn_wcip_check_expired_quotes', $this->WcPaymentInvoiceQuoteClass, 'check_expired_quotes');
 
+        $this->loader->add_action('woocommerce_get_country_locale', $this, 'lkn_woo_better_shipping_calculator_locale', 10, 1);
+
+
         new WcPaymentInvoiceSettings($this->loader);
+    }
+
+    public function lkn_woo_better_shipping_calculator_locale($locale){
+
+        if(get_option('lkn_wcip_anonymous_donation_checkout', '') != 'yes'){
+            return $locale;
+        }
+        
+        $only_free_or_variable_donations = true;
+        
+        if (function_exists('WC')) {
+            if (isset(WC()->cart)) {
+                foreach (WC()->cart->get_cart() as $cart_item) {
+                    $product = $cart_item['data'];
+                    // Verifica se todos os produtos são doações do tipo free ou variable
+                    if ($product->get_type() === 'donation') {
+                        $donation_type = get_post_meta($product->get_id(), '_donation_type', true);
+                        if ($donation_type !== 'free' && $donation_type !== 'variable') {
+                            $only_free_or_variable_donations = false;
+                        }
+                    } else {
+                        $only_free_or_variable_donations = false;
+                    }
+                }
+            }
+        }
+
+        // Só torna os campos opcionais se houver apenas produtos de doação do tipo free ou variable
+        if ($only_free_or_variable_donations) {
+            $countries_obj = new WC_Countries();
+            $countries = $countries_obj->get_countries();
+
+            // Itera por todos os países e ajusta campos
+            foreach ($countries as $code => $country_name) {
+                if (!isset($locale[$code])) {
+                    $locale[$code] = [];
+                }
+
+                // Campos de nome
+                $locale[$code]['first_name']['required'] = false;
+                $locale[$code]['last_name']['required'] = false;
+
+                // Se quiser também desativar todos os outros campos:
+                $locale[$code]['postcode']['required'] = false;
+                $locale[$code]['city']['required'] = false;
+                $locale[$code]['state']['required'] = false;
+                $locale[$code]['address_1']['required'] = false;
+                $locale[$code]['address_2']['required'] = false;
+                $locale[$code]['phone']['required'] = false;
+                $locale[$code]['first_name']['required'] = false;
+                $locale[$code]['last_name']['required'] = false;
+            }
+        }
+
+        return $locale;
     }
 
    
@@ -378,12 +437,14 @@ final class WcPaymentInvoice {
         $plugin_public = new WcPaymentInvoicePublic($this->get_plugin_name(), $this->get_version());
         $subscription_class = new WcPaymentInvoiceSubscription();
         $feeOrDiscountClass = new WcPaymentInvoiceFeeOrDiscount();
+        $donation_class = new WcPaymentInvoiceDonation();
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
         $this->loader->add_filter( 'woocommerce_checkout_registration_enabled', $subscription_class, 'forceUserRegistration' );
         $this->loader->add_filter( 'woocommerce_checkout_registration_required', $subscription_class, 'forceUserRegistration' );
 		$this->loader->add_action( 'enqueue_block_assets', $this->WcPaymentInvoicePartialClass, 'enqueueCheckoutScripts');
+		$this->loader->add_action( 'enqueue_block_assets', $donation_class, 'enqueueCheckoutScripts');
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoicePartialClass, "showPartialFields");
 		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoicePartialClass, 'allowStatusCancel');
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
