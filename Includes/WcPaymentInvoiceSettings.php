@@ -79,7 +79,7 @@ final class WcPaymentInvoiceSettings
         // Aba Doações
         $this->register_settings_tab(
             'wc_payment_donation_settings',
-            __('Doações', 'wc-invoice-payment'),
+            __('Donations', 'wc-invoice-payment'),
             'showDonationSettingTabContent',
             'saveDonationSettings'
         );
@@ -752,21 +752,28 @@ final class WcPaymentInvoiceSettings
         $settingsFields = array(
             'sectionTitle' => array(
                 'type'     => 'title',
-                'name'     => __('Configuração de Doações', 'wc-invoice-payment'),
-                'desc'     => __('Configure as opções para o tipo de produto de doação.', 'wc-invoice-payment'),
+                'name'     => __('Donation Settings', 'wc-invoice-payment'),
+                'desc'     => __('Configure options for the donation product type.', 'wc-invoice-payment'),
             ),
             $slug . 'donation_product_enabled' => array(
-                'name'     => __('Ativar tipo de produto "Doação"', 'wc-invoice-payment'),
+                'name'     => __('Enable "Donation" product type', 'wc-invoice-payment'),
                 'type'     => 'checkbox',
-                'desc_tip' => __('Quando habilitado, o tipo de produto "Doação" ficará disponível no seletor de tipos de produto do WooCommerce.', 'wc-invoice-payment'),
+                'desc_tip' => __('When enabled, the "Donation" product type will be available in the WooCommerce product type selector.', 'wc-invoice-payment'),
                 'id'       => $slug . 'donation_product_enabled',
                 'default'  => 'no',
             ),
             $slug . 'anonymous_donation_checkout' => array(
-                'name'     => __('Ativar doação anônima no checkout', 'wc-invoice-payment'),
+                'name'     => __('Enable anonymous donation at checkout', 'wc-invoice-payment'),
                 'type'     => 'checkbox',
-                'desc_tip' => __('Quando habilitado, uma checkbox aparecerá no checkout permitindo que o cliente faça uma doação anônima junto com sua compra.', 'wc-invoice-payment'),
+                'desc_tip' => __('When enabled, a checkbox will appear at checkout allowing the customer to make an anonymous donation with their purchase.', 'wc-invoice-payment'),
                 'id'       => $slug . 'anonymous_donation_checkout',
+                'default'  => 'no',
+            ),
+            $slug . 'donation_dokan_compatibility' => array(
+                'name'     => __('Enable Dokan compatibility', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip' => __('When enabled, activates Dokan compatibility features for donation products.', 'wc-invoice-payment'),
+                'id'       => $slug . 'donation_dokan_compatibility',
                 'default'  => 'no',
             ),
             'sectionEnd' => array(
@@ -792,7 +799,7 @@ final class WcPaymentInvoiceSettings
             'enable' => __('Enable', 'wc-invoice-payment'),
             'disable' => __('Disable', 'wc-invoice-payment'),
             'alert' => __('Alert', 'wc-invoice-payment'),
-            'donation_disable_warning' => __('Atenção: Ao desabilitar o tipo de produto "Doação", todos os produtos existentes do tipo doação serão convertidos automaticamente para produtos simples. Deseja continuar?', 'wc-invoice-payment'),
+            'donation_disable_warning' => __('Warning: Disabling the "Donation" product type will automatically convert all existing donation products to simple products. Do you want to continue?', 'wc-invoice-payment'),
         ));
 
         // Adiciona suporte aos tipos customizados de campos

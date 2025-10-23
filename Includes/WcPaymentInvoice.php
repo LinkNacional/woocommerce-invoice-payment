@@ -445,6 +445,12 @@ final class WcPaymentInvoice {
         $this->loader->add_filter( 'woocommerce_checkout_registration_required', $subscription_class, 'forceUserRegistration' );
 		$this->loader->add_action( 'enqueue_block_assets', $this->WcPaymentInvoicePartialClass, 'enqueueCheckoutScripts');
 		$this->loader->add_action( 'enqueue_block_assets', $donation_class, 'enqueueCheckoutScripts');
+        if(get_option('lkn_wcip_donation_dokan_compatibility', '') == 'yes'){
+            $this->loader->add_action( 'enqueue_block_assets', $donation_class, 'enqueueDokanScripts');
+            $this->loader->add_action( 'dokan_product_edit_after_title', $donation_class, 'loadDokanSettingsTemplate', 10, 2);
+            $this->loader->add_action( 'woocommerce_process_product_meta_donation', $donation_class, 'saveDokanSettings', 10, 1);
+            $this->loader->add_filter( 'dokan_product_types', $donation_class, 'addDonationType', 11 );
+        }
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoicePartialClass, "showPartialFields");
 		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoicePartialClass, 'allowStatusCancel');
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');

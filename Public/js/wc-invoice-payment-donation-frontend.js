@@ -105,29 +105,4 @@ jQuery(document).ready(function($) {
         // Remove campo hidden se existir
         $('input[name="donation_amount"][type="hidden"]').remove();
     });
-    
-    /**
-     * Validação do formulário antes do envio
-     */
-    $('form.cart').on('submit', function(e) {
-        var donationAmount = $('#donation_amount');
-        
-        // Verifica se existe campo de doação e se tem valor
-        if (donationAmount.length && (!donationAmount.val() || parseFloat(donationAmount.val()) <= 0)) {
-            e.preventDefault();
-            
-            // Foca no campo de valor
-            donationAmount.focus();
-            
-            // Adiciona classe de erro visual (se existir no tema)
-            donationAmount.addClass('error');
-            
-            // Remove classe de erro após 3 segundos
-            setTimeout(function() {
-                donationAmount.removeClass('error');
-            }, 3000);
-            
-            return false;
-        }
-    });
 });
