@@ -103,7 +103,7 @@ final class WcPaymentInvoiceDonation
                     // Verifica se todos os produtos são doações do tipo free ou variable
                     if ($product->get_type() === 'donation') {
                         $donation_type = get_post_meta($product->get_id(), '_donation_type', true);
-                        if ($donation_type !== 'free' && $donation_type !== 'variable') {
+                        if ($donation_type !== 'variable') {
                             $only_free_or_variable_donations = false;
                         }
                     } else {
