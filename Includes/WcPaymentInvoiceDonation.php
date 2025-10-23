@@ -314,21 +314,21 @@ final class WcPaymentInvoiceDonation
     public function save_donation_product_data($post_id)
     {
         // Verifica se é um produto do tipo doação
-        $product_type = isset($_POST['product-type']) ? sanitize_text_field($_POST['product-type']) : '';
+        $product_type = isset($_POST['product-type']) ? $_POST['product-type'] : '';
         if ($product_type !== 'donation') {
             return;
         }
         // Salva o tipo de doação
         if (isset($_POST['_donation_type'])) {
-            update_post_meta($post_id, '_donation_type', sanitize_text_field($_POST['_donation_type']));
+            update_post_meta($post_id, '_donation_type', $_POST['_donation_type']);
         }
         // Salva os valores dos botões para doação variável
         if (isset($_POST['_donation_button_values'])) {
-            update_post_meta($post_id, '_donation_button_values', sanitize_text_field($_POST['_donation_button_values']));
+            update_post_meta($post_id, '_donation_button_values', $_POST['_donation_button_values']);
         }
         // Salva o texto para doação grátis
         if (isset($_POST['_donation_free_text'])) {
-            update_post_meta($post_id, '_donation_free_text', sanitize_text_field($_POST['_donation_free_text']));
+            update_post_meta($post_id, '_donation_free_text', $_POST['_donation_free_text']);
         }
         // Salva a configuração de ocultar campo personalizado
         if (isset($_POST['_donation_hide_custom_amount'])) {
@@ -338,7 +338,7 @@ final class WcPaymentInvoiceDonation
         }
         // Para doação de valor fixo, o preço é salvo automaticamente pelo WooCommerce
         // Para doação variável e grátis, definimos o preço como 0
-        $donation_type = isset($_POST['_donation_type']) ? sanitize_text_field($_POST['_donation_type']) : 'fixed';
+        $donation_type = isset($_POST['_donation_type']) ? $_POST['_donation_type'] : 'fixed';
         if ($donation_type === 'variable' || $donation_type === 'free') {
             update_post_meta($post_id, '_regular_price', 0);
             update_post_meta($post_id, '_price', 0);
