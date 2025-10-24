@@ -8,6 +8,23 @@
      * Gerencia a exibição dos campos baseado no tipo de doação
      */
     function initDonationFields() {
+        const donationRegularInput = $('#_regular_donation_price');
+        const regularPrice = $('#_regular_price');
+        const productType = $('#product-type');
+
+        if (donationRegularInput.length || regularPrice.length || productType.length) {
+            // Executa quando o tipo de produto muda
+            productType.on('change', function() {
+                console.log($(this).val())
+                console.log(regularPrice.val())
+                console.log(donationRegularInput.val())
+                if ($(this).val() === 'donation' && regularPrice.val() === '') {
+                    regularPrice.val(donationRegularInput.val());
+                }
+            });
+        }
+
+        
         document.querySelectorAll('.show_if_simple').forEach(item => {
             //Se o item não tiver a classe options_group
             if (!item.classList.contains('options_group')) {
