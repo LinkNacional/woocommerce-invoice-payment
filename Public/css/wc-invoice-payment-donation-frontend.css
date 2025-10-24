@@ -41,15 +41,6 @@ body:has(.donation-fields) .woocommerce-Price-amount {
     margin-left: 35px;
 }
 
-/* Campo de valor customizado */
-#donation_amount {
-    width: 55px;
-    margin: 0px;
-    height: 24px;
-    font-size: var(--wp--preset--font-size--medium);
-    font-family: inherit;
-}
-
 /* Label do campo de valor */
 [for="donation_amount"] {
     margin: 0px;
