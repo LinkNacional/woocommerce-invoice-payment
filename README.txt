@@ -30,6 +30,10 @@ Now enhanced with even more advanced features, **Link Invoice Payment** is the p
 - **Payment Method Discount** – Set a percentage or fixed discount value for each payment type
 - **Payment Method Fee** – Set a percentage or fixed value to charge an additional amount for each payment type
 - **Quotes** – Create custom quotes or allow your customers to request a proposal directly on your site, fully integrated with your store's products.
+- **WooCommerce Donation Product Type** – Allows you to create a special "Donation" product type for receiving open-value monetary donations, where the donor defines the amount they wish to contribute.
+- **Item Donation Marketplace for WooCommerce** – This feature allows your users (donors) to list items they wish to donate (e.g., a sofa, clothes, food). Other users (beneficiaries) can then browse the site and request to receive these items.
+- **Dokan Integration** – Enables donations products and invoice issuing by sellers directly from the Dokan dashboard.
+
 
 And much more!
 
