@@ -13,145 +13,145 @@ body:has(.donation-fields) .woocommerce-Price-amount {
 
 /* Container principal dos campos de doação */
 .donation-fields {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 20px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 /* Botões de valores pré-definidos */
 .donation-preset-btn {
-    padding: 8px 0px !important;
-    width: 95px !important;
-    height: 50px !important;
+    padding: 8px 0px;
+    width: 95px;
+    height: 50px;
 }
 
 .donation-preset-btn.selected {
-    background-color: #007cba !important;
-    color: #fff !important;
+    background-color: #007cba;
+    color: #fff;
 }
 
 /* Container dos botões pré-definidos */
 .preset-buttons {
-    display: flex !important;
-    gap: 10px !important;
-    flex-wrap: wrap !important;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .donation-margin-left{
-    margin-left: 35px !important;
+    margin-left: 35px;
 }
 
 /* Campo de valor customizado */
 #donation_amount {
-    width: 55px !important;
-    margin: 0px !important;
-    height: 24px !important;
-    font-size: var(--wp--preset--font-size--medium) !important;
-    font-family: inherit !important;
+    width: 55px;
+    margin: 0px;
+    height: 24px;
+    font-size: var(--wp--preset--font-size--medium);
+    font-family: inherit;
 }
 
 /* Label do campo de valor */
 [for="donation_amount"] {
-    margin: 0px !important;
+    margin: 0px;
 }
 
 /* Container do campo customizado */
 .custom-amount-field {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    gap: 10px !important;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
 }
 
 /* Container interno da moeda e input */
 .custom-amount-field > div:first-of-type {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+    white-space: nowrap;
 }
 
 /* Garantir que a div quantity não quebre linha */
 .custom-amount-field .quantity {
-    display: inline-flex !important;
-    align-items: center !important;
-    margin: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
 }
 
 /* Responsividade para tablets */
 @media (max-width: 1024px) {
     .single_add_to_cart_button {
-        flex: 1 1 auto !important;
-        min-width: 200px !important;
+        flex: 1 1 auto;
+        min-width: 200px;
     }
 }
 
 /* Responsividade para celular */
 @media (max-width: 768px) {
     .preset-buttons {
-        margin-left: 0 !important;
+        margin-left: 0;
     }
     
     .donation-preset-btn {
-        padding: 8px 15px !important;
-        font-size: 14px !important;
+        padding: 8px 15px;
+        font-size: 14px;
     }
     
     .donation-fields {
-        gap: 15px !important;
+        gap: 15px;
     }
     
     .custom-amount-field {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 15px !important;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
     }
     
     .custom-amount-field > div:first-of-type {
-        display: flex !important;
+        display: flex;
         justify-content: flex-start;
-        gap: 10px !important;
-        white-space: nowrap !important;
-        flex-direction: row !important;
+        gap: 10px;
+        white-space: nowrap;
+        flex-direction: row;
     }
     
     .custom-amount-field .quantity {
-        display: inline-flex !important;
-        align-items: center !important;
-        margin: 0 !important;
+        display: inline-flex;
+        align-items: center;
+        margin: 0;
     }
     
     #donation_amount {
-        width: 100% !important;
-        height: 20px !important;
-        text-align: center !important;
-        font-size: 16px !important;
+        width: 100%;
+        height: 20px;
+        text-align: center;
+        font-size: 16px;
     }
     
     [for="donation_amount"] {
-        text-align: left !important;
-        font-size: 18px !important;
-        margin: 0 !important;
+        text-align: left;
+        font-size: 18px;
+        margin: 0;
     }
     
     .single_add_to_cart_button {
-        width: 100% !important;
-        height: 50px !important;
+        width: 100%;
+        height: 50px;
     }
 }
 
 /* Estilos para estados de erro */
 #donation_amount.error {
-    border-color: #dc3232 !important;
-    box-shadow: 0 0 2px rgba(220, 50, 50, 0.8) !important;
-    background-color: #ffeaea !important;
+    border-color: #dc3232;
+    box-shadow: 0 0 2px rgba(220, 50, 50, 0.8);
+    background-color: #ffeaea;
 }
 
 .preset-buttons.error {
-    outline: 2px solid #dc3232 !important;
-    outline-offset: 2px !important;
-    border-radius: 4px !important;
-    background-color: #ffeaea !important;
-    padding: 5px !important;
+    outline: 2px solid #dc3232;
+    outline-offset: 2px;
+    border-radius: 4px;
+    background-color: #ffeaea;
+    padding: 5px;
 }
