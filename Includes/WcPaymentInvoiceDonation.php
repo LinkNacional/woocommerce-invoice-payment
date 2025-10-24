@@ -255,7 +255,7 @@ final class WcPaymentInvoiceDonation
             $regular_price = 0;
         }
         woocommerce_wp_text_input(array(
-            'id'                => '_regular_price',
+            'id'                => '_regular_donation_price',
             'label'             => __('Donation amount (' . get_woocommerce_currency_symbol() . ')', 'wc-invoice-payment'),
             'placeholder'       => wc_format_localized_price(0),
             'description'       => __('Set the fixed donation amount.', 'wc-invoice-payment'),

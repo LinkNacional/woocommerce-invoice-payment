@@ -106,6 +106,16 @@
         
         // Executa ao carregar
         toggleCustomAmountCheckbox();
+        
+        // Sincroniza valor do campo de doação para o campo original do WooCommerce
+        $('#_regular_donation_price').on('input', function() {
+            var donationType = $('#_donation_type').val();
+            if (donationType === 'fixed') {
+                var value = $(this).val();
+                // Atualiza o campo original do WooCommerce
+                $('#_regular_price').val(value);
+            }
+        });
     }
 
     // Inicializar quando o documento estiver pronto
