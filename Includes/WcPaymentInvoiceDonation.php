@@ -84,8 +84,6 @@ final class WcPaymentInvoiceDonation
         if (get_option('lkn_wcip_anonymous_donation_checkout', '') == 'yes' && function_exists('dokan_is_seller_dashboard') && dokan_is_seller_dashboard()){
             wp_enqueue_script( 'wcInvoicePaymentDonationDokanScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-donation-dokan.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
             wp_enqueue_style('wcInvoicePaymentDonationStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-donation-dokan.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
-            wp_localize_script('wcInvoicePaymentDonationDokanScript', 'lknWcipDonationVariables', array(
-            ));
         }
     }
 
@@ -243,7 +241,7 @@ final class WcPaymentInvoiceDonation
             'id'          => '_donation_type',
             'label'       => __('Donation type', 'wc-invoice-payment'),
             'options'     => array(
-                'fixed'    => __('Fixed Amount (Donate a fixed value item)', 'wc-invoice-payment'),
+                'fixed'    => __('Fixed Amount (Donate item with fixed value item)', 'wc-invoice-payment'),
                 'variable' => __('Variable Amount (Receive monetary donations)', 'wc-invoice-payment'),
                 'free'     => __('Free (Donate an item)', 'wc-invoice-payment'),
             ),

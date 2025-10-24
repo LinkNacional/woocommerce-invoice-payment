@@ -1,3 +1,6 @@
-.dokan-dashboard .dokan-dashboard-wrap{
-    max-width: 100% !important;
+.dokan_donation_settings{
+    display: flex;
+    gap: 15px;
+    flex-direction: column;
+    margin-bottom: 15px;
 }

@@ -35,4 +35,41 @@ document.addEventListener('DOMContentLoaded', function () {
             item.classList.add('show_if_donation')
         }
     })
+
+    // Lógica para esconder/mostrar abas e manipular estoque no Dokan
+    const $donationType = jQuery('#_donation_type');
+    const $inventoryTab = jQuery('.dokan-product-inventory-options, .dokan-product-inventory');
+    const $shippingTab = jQuery('.dokan-product-shipping-tax');
+    const $manageStock = jQuery('#_manage_stock');
+    const $donationTab = jQuery('.donation_options, .dokan-product-donation-options');
+    const $stock = jQuery('[name=_stock]');
+
+    function handleDonationTypeChangeDokan(isOnChange = false) {
+        const value = $donationType.val();
+
+        if (value === 'variable') {
+            $inventoryTab.hide();
+            $shippingTab.hide();
+            $manageStock.prop('checked', false).trigger('change');
+            $donationTab.find('a').trigger('click');
+        } else {
+            $inventoryTab.show();
+            $shippingTab.show();
+            $manageStock.prop('checked', true).trigger('change');
+            if (isOnChange) {
+                const currentStock = parseInt($stock.val(), 10);
+                if (isNaN(currentStock) || currentStock <= 0) {
+                    $stock.val(1).trigger('change');
+                }
+            }
+        }
+    }
+
+    // Executa no carregar da tela
+    handleDonationTypeChangeDokan(false);
+
+    // Executa no change
+    $donationType.on('change', function () {
+        handleDonationTypeChangeDokan(true);
+    });
 })
