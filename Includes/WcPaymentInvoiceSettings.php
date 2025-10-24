@@ -75,6 +75,14 @@ final class WcPaymentInvoiceSettings
             'quoteSettingTabContent',
             'saveQuoteSettings'
         );
+
+        // Aba Doações
+        $this->register_settings_tab(
+            'wc_payment_donation_settings',
+            __('Donations', 'wc-invoice-payment'),
+            'showDonationSettingTabContent',
+            'saveDonationSettings'
+        );
     }
 
 
@@ -659,6 +667,19 @@ final class WcPaymentInvoiceSettings
         woocommerce_update_options($this->getQuoteSettings());
     }
 
+    // === MÉTODOS DA ABA DOAÇÕES ===
+    public function showDonationSettingTabContent()
+    {
+        wp_enqueue_script('woocommerce_admin');
+        $this->loadScriptsAndStyles();
+        woocommerce_admin_fields($this->getDonationSettings());
+    }
+
+    public function saveDonationSettings()
+    {
+        woocommerce_update_options($this->getDonationSettings());
+    }
+
     private function getQuoteSettings()
     {
         $slug = 'lkn_wcip_';
@@ -724,6 +745,45 @@ final class WcPaymentInvoiceSettings
         return $settingsFields;
     }
 
+    private function getDonationSettings()
+    {
+        $slug = 'lkn_wcip_';
+
+        $settingsFields = array(
+            'sectionTitle' => array(
+                'type'     => 'title',
+                'name'     => __('Donation Settings', 'wc-invoice-payment'),
+                'desc'     => __('Configure options for the donation product type.', 'wc-invoice-payment'),
+            ),
+            $slug . 'donation_product_enabled' => array(
+                'name'     => __('Enable "Donation" product type', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip' => __('When enabled, the "Donation" product type will be available in the WooCommerce product type selector.', 'wc-invoice-payment'),
+                'id'       => $slug . 'donation_product_enabled',
+                'default'  => 'no',
+            ),
+            $slug . 'anonymous_donation_checkout' => array(
+                'name'     => __('Enable anonymous donation at checkout', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip' => __('When enabled, a checkbox will appear at checkout allowing the customer to make an anonymous donation with their purchase.', 'wc-invoice-payment'),
+                'id'       => $slug . 'anonymous_donation_checkout',
+                'default'  => 'no',
+            ),
+            $slug . 'donation_dokan_compatibility' => array(
+                'name'     => __('Enable Dokan compatibility', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip' => __('When enabled, activates Dokan compatibility features for donation products.', 'wc-invoice-payment'),
+                'id'       => $slug . 'donation_dokan_compatibility',
+                'default'  => 'no',
+            ),
+            'sectionEnd' => array(
+                'type' => 'sectionend'
+            )
+        );
+
+        return $settingsFields;
+    }
+
     public function loadScriptsAndStyles(){
         // Carrega a biblioteca de mídia do WordPress
         wp_enqueue_media();
@@ -738,6 +798,8 @@ final class WcPaymentInvoiceSettings
             'standard' => __('Standard version', 'wc-invoice-payment'),
             'enable' => __('Enable', 'wc-invoice-payment'),
             'disable' => __('Disable', 'wc-invoice-payment'),
+            'alert' => __('Alert', 'wc-invoice-payment'),
+            'donation_disable_warning' => __('Warning: Disabling the "Donation" product type will automatically convert all existing donation products to simple products. Do you want to continue?', 'wc-invoice-payment'),
         ));
 
         // Adiciona suporte aos tipos customizados de campos

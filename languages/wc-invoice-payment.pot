@@ -355,3 +355,102 @@ msgstr ""
 
 msgid "Quote locked for editing. To edit, update the quote status to Pending."
 msgstr ""
+
+msgid "Donation type"
+msgstr ""
+
+msgid "Select the donation type."
+msgstr ""
+
+msgid "Fixed Amount (Donate a fixed value item)"
+msgstr ""
+
+msgid "Variable Amount (Receive monetary donations)"
+msgstr ""
+
+msgid "Free (Donate an item)"
+msgstr ""
+
+msgid "Donation amount (%s)"
+msgstr ""
+
+msgid "Set the fixed donation amount."
+msgstr ""
+
+msgid "Preset button values"
+msgstr ""
+
+msgid "Enter the preset button values separated by comma. E.g.: 10, 20, 25"
+msgstr ""
+
+msgid "Hide custom amount field"
+msgstr ""
+
+msgid "Check this option to hide the custom amount field and show only the preset buttons."
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+msgid "Text to be displayed for free donation."
+msgstr ""
+
+msgid "Free"
+msgstr ""
+
+msgid "Anonymous donation."
+msgstr ""
+
+msgid "Add to cart"
+msgstr ""
+
+msgid "Donation"
+msgstr ""
+
+msgid "Make a donation"
+msgstr ""
+
+msgid "Please enter a donation amount."
+msgstr ""
+
+msgid "The donation amount must be greater than zero."
+msgstr ""
+
+msgid "Partial Payment"
+msgstr ""
+
+msgid "Enter the amount you want to pay now, the rest can be paid later with other payment methods."
+msgstr ""
+
+msgid "Pay Partial"
+msgstr ""
+
+msgid "Donations"
+msgstr ""
+
+msgid "Donation Settings"
+msgstr ""
+
+msgid "Configure options for the donation product type."
+msgstr ""
+
+msgid "Enable \"Donation\" product type"
+msgstr ""
+
+msgid "When enabled, the \"Donation\" product type will be available in the WooCommerce product type selector."
+msgstr ""
+
+msgid "Enable anonymous donation at checkout"
+msgstr ""
+
+msgid "When enabled, a checkbox will appear at checkout allowing the customer to make an anonymous donation with their purchase."
+msgstr ""
+
+msgid "Enable Dokan compatibility"
+msgstr ""
+
+msgid "When enabled, activates Dokan compatibility features for donation products."
+msgstr ""
+
+msgid "Warning: Disabling the \"Donation\" product type will automatically convert all existing donation products to simple products. Do you want to continue?"
+msgstr ""

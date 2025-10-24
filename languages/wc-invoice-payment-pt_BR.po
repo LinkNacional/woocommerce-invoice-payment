@@ -544,3 +544,93 @@ msgstr "Erro na comunicação com o servidor"
 
 msgid "Quote locked for editing. To edit, update the quote status to Pending."
 msgstr "Orçamento bloqueado para edição, para editar, atualize o orçamento para status Pendente."
+
+msgid "Donation type"
+msgstr "Tipo de doação"
+
+msgid "Donations"
+msgstr "Doações"
+
+msgid "Fixed Amount (Donate a fixed value item)"
+msgstr "Valor Fixo (Doar um item com valor fixo)"
+
+msgid "Variable Amount (Receive monetary donations)"
+msgstr "Valor Variável (Receba doações monetárias)"
+
+msgid "Free (Donate an item)"
+msgstr "Grátis (Doar um item)"
+
+msgid "Select the donation type."
+msgstr "Selecione o tipo de doação."
+
+msgid "Donation amount (%s)"
+msgstr "Valor da doação (%s)"
+
+msgid "Set the fixed donation amount."
+msgstr "Defina o valor fixo da doação."
+
+msgid "Preset button values"
+msgstr "Valores em botões"
+
+msgid "Enter the preset button values separated by comma. E.g.: 10, 20, 25"
+msgstr "Digite o valor dos botões de valores definidos separado por vírgula. Ex: 10, 20, 25"
+
+msgid "Hide custom amount field"
+msgstr "Ocultar campo de valor personalizado"
+
+msgid "Check this option to hide the custom amount field and show only the preset buttons."
+msgstr "Marque esta opção para ocultar o campo de valor personalizado e mostrar apenas os botões pré-definidos."
+
+msgid "Text"
+msgstr "Texto"
+
+msgid "Text to be displayed for free donation."
+msgstr "Texto que será exibido para doação gratuita."
+
+msgid "Free"
+msgstr "Grátis"
+
+msgid "Anonymous donation."
+msgstr "Doação anônima."
+
+msgid "Add to cart"
+msgstr "Adicionar ao carrinho"
+
+msgid "Donation"
+msgstr "Doação"
+
+msgid "Make a donation"
+msgstr "Fazer uma doação"
+
+msgid "Please enter a donation amount."
+msgstr "Por favor, digite um valor para a doação."
+
+msgid "The donation amount must be greater than zero."
+msgstr "O valor da doação deve ser maior que zero."
+
+msgid "Donation Settings"
+msgstr "Configuração de Doações"
+
+msgid "Configure options for the donation product type."
+msgstr "Configure as opções para o tipo de produto de doação."
+
+msgid "Enable \"Donation\" product type"
+msgstr "Ativar tipo de produto \"Doação\""
+
+msgid "When enabled, the \"Donation\" product type will be available in the WooCommerce product type selector."
+msgstr "Quando habilitado, o tipo de produto \"Doação\" ficará disponível no seletor de tipos de produto do WooCommerce."
+
+msgid "Enable anonymous donation at checkout"
+msgstr "Ativar doação anônima no checkout"
+
+msgid "When enabled, a checkbox will appear at checkout allowing the customer to make an anonymous donation with their purchase."
+msgstr "Quando habilitado, uma checkbox aparecerá no checkout permitindo que o cliente faça uma doação anônima junto com sua compra."
+
+msgid "Enable Dokan compatibility"
+msgstr "Habilitar compatibilidade com Dokan"
+
+msgid "When enabled, activates Dokan compatibility features for donation products."
+msgstr "Quando habilitado, ativa recursos de compatibilidade com o Dokan para habilitar produtos do tipo doação."
+
+msgid "Warning: Disabling the \"Donation\" product type will automatically convert all existing donation products to simple products. Do you want to continue?"
+msgstr "Atenção: Ao desabilitar o tipo de produto \"Doação\", todos os produtos existentes do tipo doação serão convertidos automaticamente para produtos simples. Deseja continuar?"

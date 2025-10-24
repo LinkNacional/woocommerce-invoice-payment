@@ -1,0 +1,69 @@
+/* Estilos para configurações de doação */
+
+/* Esconder campos por padrão */
+.show_if_donation_fixed,
+.show_if_donation_variable,
+.show_if_donation_free {
+    display: none;
+}
+
+/* A checkbox só aparece quando há valores nos botões */
+#_donation_hide_custom_amount_field {
+    display: none;
+}
+
+/* Estilos da aba de doação */
+#donation_product_data {
+    padding: 12px;
+}
+
+#donation_product_data .options_group {
+    border: none;
+    padding: 0;
+}
+
+/* Estilos para os campos de configuração */
+#donation_product_data .form-field {
+    padding: 5px 12px;
+}
+
+#donation_product_data .form-field label {
+    width: 150px;
+    float: left;
+    line-height: 1.4em;
+}
+
+#donation_product_data .form-field .woocommerce-help-tip {
+    margin: 0 0 0 9px;
+}
+
+/* Estilo específico para o textarea dos valores dos botões */
+#_donation_button_values {
+    width: 50%;
+    height: 80px;
+    resize: vertical;
+}
+
+/* Melhor espaçamento para os campos */
+#donation_product_data .form-field {
+    margin-bottom: 12px;
+}
+
+/* Estilo para o select de tipo de doação */
+#_donation_type {
+    width: 50%;
+}
+
+/* Responsividade básica */
+@media (max-width: 768px) {
+    #donation_product_data .form-field label {
+        width: 100%;
+        float: none;
+        margin-bottom: 5px;
+    }
+    
+    #_donation_button_values,
+    #_donation_type {
+        width: 100%;
+    }
+}

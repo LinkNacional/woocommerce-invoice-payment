@@ -393,6 +393,15 @@
     $('#lknWcInvoicesSettingsLayoutDiv').append(message).css('display', 'table')
     document.dispatchEvent(new Event('lknWcInvoicesFinishedAdminLayout'))
 
+    selectsElement = document.querySelectorAll('[name="lkn_wcip_donation_product_enabled-control"]');
+
+    if(selectsElement[1]){
+      selectsElement[1].onclick = (e) => {
+        if (!confirm(lknWcInvoicesTranslationsInput.donation_disable_warning)) {
+          e.preventDefault();
+        }
+      }
+    }
     
   })
 })(jQuery)

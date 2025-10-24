@@ -6,8 +6,10 @@ use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoader;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoaderRest;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSettings;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceDonation;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
+use WC_Countries;
 
 /**
  * The file that defines the core plugin class.
@@ -190,6 +192,28 @@ final class WcPaymentInvoice {
 
         $api_handler = new WcPaymentInvoiceLoaderRest();
         $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
+        
+        // Inicializa a classe de doação
+        $donation_class = new WcPaymentInvoiceDonation();
+        $this->loader->add_filter('product_type_selector', $donation_class, 'add_donation_product_type');
+        $this->loader->add_filter('product_type_options', $donation_class, 'add_donation_type_options');
+        $this->loader->add_filter('woocommerce_product_data_tabs', $donation_class, 'add_donation_product_tab');
+        $this->loader->add_filter('woocommerce_product_data_tabs', $donation_class, 'add_donation_product_data_tabs', 98);
+        $this->loader->add_action('woocommerce_product_data_panels', $donation_class, 'add_donation_product_panel');
+        $this->loader->add_action('woocommerce_process_product_meta', $donation_class, 'save_donation_product_data');
+        $this->loader->add_action('admin_enqueue_scripts', $donation_class, 'enqueue_donation_assets');
+        $this->loader->add_action('wp_enqueue_scripts', $donation_class, 'enqueue_donation_frontend_assets');
+        $this->loader->add_filter('woocommerce_product_supports', $donation_class, 'add_donation_product_supports', 10, 2);
+        
+        // Hooks para o frontend - garantir que produtos de doação funcionem corretamente
+        $this->loader->add_filter('woocommerce_product_add_to_cart_text', $donation_class, 'donation_add_to_cart_text', 10, 2);
+        $this->loader->add_filter('woocommerce_product_single_add_to_cart_text', $donation_class, 'donation_single_add_to_cart_text', 10, 2);
+        $this->loader->add_filter('woocommerce_get_price_html', $donation_class, 'customize_donation_price_html', 10, 2);
+        $this->loader->add_action('woocommerce_donation_add_to_cart', $donation_class, 'donation_add_to_cart_template');
+        $this->loader->add_filter('woocommerce_add_to_cart_validation', $donation_class, 'validate_donation_add_to_cart', 10, 3);
+        $this->loader->add_filter('woocommerce_add_cart_item_data', $donation_class, 'add_donation_cart_item_data', 10, 3);
+        $this->loader->add_filter('woocommerce_before_calculate_totals', $donation_class, 'set_donation_cart_item_price', 10, 1);
+        
         $subscription_class = new WcPaymentInvoiceSubscription();
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');
@@ -221,7 +245,65 @@ final class WcPaymentInvoice {
 
         $this->loader->add_action('lkn_wcip_check_expired_quotes', $this->WcPaymentInvoiceQuoteClass, 'check_expired_quotes');
 
+        $this->loader->add_action('woocommerce_get_country_locale', $this, 'lkn_woo_better_shipping_calculator_locale', 10, 1);
+
+
         new WcPaymentInvoiceSettings($this->loader);
+    }
+
+    public function lkn_woo_better_shipping_calculator_locale($locale){
+
+        if(get_option('lkn_wcip_anonymous_donation_checkout', '') != 'yes'){
+            return $locale;
+        }
+        
+        $only_free_or_variable_donations = true;
+        
+        if (function_exists('WC')) {
+            if (isset(WC()->cart)) {
+                foreach (WC()->cart->get_cart() as $cart_item) {
+                    $product = $cart_item['data'];
+                    // Verifica se todos os produtos são doações do tipo free ou variable
+                    if ($product->get_type() === 'donation') {
+                        $donation_type = get_post_meta($product->get_id(), '_donation_type', true);
+                        if ($donation_type !== 'free' && $donation_type !== 'variable') {
+                            $only_free_or_variable_donations = false;
+                        }
+                    } else {
+                        $only_free_or_variable_donations = false;
+                    }
+                }
+            }
+        }
+
+        // Só torna os campos opcionais se houver apenas produtos de doação do tipo free ou variable
+        if ($only_free_or_variable_donations) {
+            $countries_obj = new WC_Countries();
+            $countries = $countries_obj->get_countries();
+
+            // Itera por todos os países e ajusta campos
+            foreach ($countries as $code => $country_name) {
+                if (!isset($locale[$code])) {
+                    $locale[$code] = [];
+                }
+
+                // Campos de nome
+                $locale[$code]['first_name']['required'] = false;
+                $locale[$code]['last_name']['required'] = false;
+
+                // Se quiser também desativar todos os outros campos:
+                $locale[$code]['postcode']['required'] = false;
+                $locale[$code]['city']['required'] = false;
+                $locale[$code]['state']['required'] = false;
+                $locale[$code]['address_1']['required'] = false;
+                $locale[$code]['address_2']['required'] = false;
+                $locale[$code]['phone']['required'] = false;
+                $locale[$code]['first_name']['required'] = false;
+                $locale[$code]['last_name']['required'] = false;
+            }
+        }
+
+        return $locale;
     }
 
    
@@ -264,6 +346,11 @@ final class WcPaymentInvoice {
                     update_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id, 'yes');
                 }
             }
+        }
+        
+        // Carrega a classe de produto doação (necessário para o WooCommerce reconhecer o tipo)
+        if (!class_exists('WC_Product_Donation')) {
+            require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'Includes/WC_Product_Donation.php';
         }
     }
 
@@ -350,12 +437,20 @@ final class WcPaymentInvoice {
         $plugin_public = new WcPaymentInvoicePublic($this->get_plugin_name(), $this->get_version());
         $subscription_class = new WcPaymentInvoiceSubscription();
         $feeOrDiscountClass = new WcPaymentInvoiceFeeOrDiscount();
+        $donation_class = new WcPaymentInvoiceDonation();
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
         $this->loader->add_filter( 'woocommerce_checkout_registration_enabled', $subscription_class, 'forceUserRegistration' );
         $this->loader->add_filter( 'woocommerce_checkout_registration_required', $subscription_class, 'forceUserRegistration' );
 		$this->loader->add_action( 'enqueue_block_assets', $this->WcPaymentInvoicePartialClass, 'enqueueCheckoutScripts');
+		$this->loader->add_action( 'enqueue_block_assets', $donation_class, 'enqueueCheckoutScripts');
+        if(get_option('lkn_wcip_donation_dokan_compatibility', '') == 'yes'){
+            $this->loader->add_action( 'enqueue_block_assets', $donation_class, 'enqueueDokanScripts');
+            $this->loader->add_action( 'dokan_product_edit_after_title', $donation_class, 'loadDokanSettingsTemplate', 10, 2);
+            $this->loader->add_action( 'woocommerce_process_product_meta_donation', $donation_class, 'saveDokanSettings', 10, 1);
+            $this->loader->add_filter( 'dokan_product_types', $donation_class, 'addDonationType', 11 );
+        }
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoicePartialClass, "showPartialFields");
 		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoicePartialClass, 'allowStatusCancel');
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
