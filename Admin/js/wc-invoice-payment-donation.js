@@ -8,6 +8,64 @@
      * Gerencia a exibição dos campos baseado no tipo de doação
      */
     function initDonationFields() {
+        document.querySelectorAll('.show_if_simple').forEach(item => {
+            //Se o item não tiver a classe options_group
+            if (!item.classList.contains('options_group')) {
+                item.classList.add('show_if_donation');
+            }
+        })
+        
+        const $selectType = $('#product-type');
+
+        if ($selectType.length) {
+            // Se o tipo atual for "donation", troca para "simple" e volta depois de 1s
+            if ($selectType.val() === 'donation') {
+                $selectType.trigger('change');
+            }
+        }
+
+        const $donationType = $('#_donation_type');
+        const $inventoryTab = $('.inventory_options.inventory_tab');
+        const $shippingTab = $('.shipping_options.shipping_tab');
+        const $manageStock = $('#_manage_stock');
+        const $donationTab = $('.donation_options');
+        const $stock = $('#_stock');
+
+        function handleDonationTypeChange(isOnChange = false) {
+            const value = $donationType.val();
+
+            if (value === 'variable' && $selectType.val() === 'donation') {
+                // Esconde abas e desmarca estoque
+                $inventoryTab.hide();
+                $shippingTab.hide();
+                $manageStock.prop('checked', false).trigger('change');
+                //click em donationTab
+                $donationTab.find('a').trigger('click');
+            } else {
+                // Mostra abas e marca estoque
+                $inventoryTab.show();
+                $shippingTab.show();
+                $manageStock.prop('checked', true).trigger('change');
+
+                // Só altera o valor do estoque no onchange
+                if (isOnChange) {
+                    const currentStock = parseInt($stock.val(), 10);
+                    if (isNaN(currentStock) || currentStock <= 0) {
+                        $stock.val(1).trigger('change');
+                    }
+                }
+            }
+        }
+
+        // Executa no carregar da tela
+        handleDonationTypeChange(false);
+
+        // Executa no change
+        $donationType.on('change', function () {
+            handleDonationTypeChange(true);
+        });
+
+
         // Função para mostrar/ocultar campos baseado no tipo de doação
         function toggleDonationFields() {
             var donationType = $('#_donation_type').val();
@@ -124,3 +182,5 @@
     });
 
 })(jQuery);
+
+

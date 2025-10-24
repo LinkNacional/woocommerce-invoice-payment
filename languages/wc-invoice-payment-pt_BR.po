@@ -551,7 +551,7 @@ msgstr "Tipo de doação"
 msgid "Donations"
 msgstr "Doações"
 
-msgid "Fixed Amount (Donate a fixed value item)"
+msgid "Fixed Amount (Donate item with fixed value item)"
 msgstr "Valor Fixo (Doar um item com valor fixo)"
 
 msgid "Variable Amount (Receive monetary donations)"

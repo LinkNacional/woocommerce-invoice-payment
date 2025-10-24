@@ -2,7 +2,7 @@
 	<p>
 		<label for="_donation_type"><?php esc_html_e(__('Donation type', 'wc-invoice-payment')); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Select the donation type.', 'wc-invoice-payment')); ?>"></i></label>
 		<select class="dokan-form-control" id="_donation_type" name="_donation_type">
-			<option value="fixed" <?php selected($_donation_type, 'fixed'); ?>><?php esc_html_e(__('Fixed Amount (Donate a fixed value item)', 'wc-invoice-payment')); ?></option>
+			<option value="fixed" <?php selected($_donation_type, 'fixed'); ?>><?php esc_html_e(__('Fixed Amount (Donate item with fixed value item)', 'wc-invoice-payment')); ?></option>
 			<option value="variable" <?php selected($_donation_type, 'variable'); ?>><?php esc_html_e(__('Variable Amount (Receive monetary donations)', 'wc-invoice-payment')); ?></option>
 			<option value="free" <?php selected($_donation_type, 'free'); ?>><?php esc_html_e(__('Free (Donate an item)', 'wc-invoice-payment')); ?></option>
 		</select>
