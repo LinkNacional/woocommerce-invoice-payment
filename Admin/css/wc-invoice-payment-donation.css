@@ -67,3 +67,58 @@
         width: 100%;
     }
 }
+
+/* === ESTILOS PARA META DE DOAÇÃO === */
+
+/* Seção de meta de doação */
+.donation-goal-section {
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.donation-goal-section h4 {
+    margin: 0 0 15px 0;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+}
+
+/* Campos de meta de doação ocultos por padrão */
+.show_if_donation_goal {
+    display: none;
+}
+
+/* Estilo específico para o campo de valor da meta */
+#_donation_goal_amount {
+    width: 150px;
+}
+
+/* Checkbox da meta */
+#_donation_enable_goal_field {
+    margin-bottom: 15px;
+}
+
+/* === ESTILOS PARA CONFIGURAÇÕES DE DATA LIMITE === */
+/* Campos de data limite ocultos por padrão */
+.show_if_donation_deadline {
+    display: none;
+}
+
+/* Estilo específico para o campo de data limite */
+#_donation_deadline_date {
+    width: 150px;
+}
+
+/* Checkbox da data limite */
+#_donation_enable_deadline_field {
+    margin-bottom: 15px;
+}
+
+/* Textarea da mensagem de prazo expirado */
+#_donation_deadline_message {
+    width: 70%;
+    height: 80px;
+    resize: vertical;
+}

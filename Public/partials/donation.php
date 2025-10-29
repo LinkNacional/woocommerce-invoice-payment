@@ -17,9 +17,27 @@ if (!$product->is_purchasable()) {
     return;
 }
 
-echo wc_get_stock_html($product);
+echo wp_kses_post(wc_get_stock_html($product));
 
-if ($product->is_in_stock()) : ?>
+// Instanciar classe de doação
+$donation_class = new LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceDonation();
+
+// Verificar se a doação está dentro do prazo
+$within_deadline = $donation_class->is_donation_within_deadline($product->get_id());
+
+// Verificar se a meta de doação foi atingida
+$progress = $donation_class->get_donation_progress($product->get_id());
+$goal_reached = $progress['goal_reached'];
+
+// Exibir barra de progresso da doação se habilitada e se for doação variável
+$donation_type = $product->get_meta('_donation_type', true);
+if ($donation_type === 'variable') {
+    // Exibir contador regressivo se habilitado
+    echo wp_kses_post($donation_class->render_donation_countdown($product->get_id()));
+    echo wp_kses_post($donation_class->render_donation_progress_bar($product->get_id()));
+}
+
+if ($product->is_in_stock() && $within_deadline && !$goal_reached) : ?>
 
     <?php do_action('woocommerce_before_add_to_cart_form'); ?>
 
@@ -50,7 +68,7 @@ if ($product->is_in_stock()) : ?>
                             if (is_numeric($value) && $value > 0) { 
                                 $formatted_price = number_format($value, wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator());
                             ?>
-                        <button type="button" class="button alt wp-element-button donation-preset-btn" data-amount="<?php echo esc_attr($value); ?>"><?php echo $formatted_price; ?></button>
+                        <button type="button" class="button alt wp-element-button donation-preset-btn" data-amount="<?php echo esc_attr($value); ?>"><?php echo esc_html($formatted_price); ?></button>
                         <?php }
                         } ?>
                     </div>
@@ -63,7 +81,7 @@ if ($product->is_in_stock()) : ?>
                             "
                             <?php } ?>    
                         >
-                            <label for="donation_amount"><?php echo get_woocommerce_currency_symbol(); ?></label>
+                            <label for="donation_amount"><?php echo esc_html(get_woocommerce_currency_symbol()); ?></label>
                             <div class="quantity">
                                 <input type="number" id="donation_amount" class="input-text qty text" name="donation_amount" step="0.01" min="0.01" placeholder="0.00" inputmode="numeric">
                             </div>
@@ -83,6 +101,18 @@ if ($product->is_in_stock()) : ?>
 
     <?php do_action('woocommerce_after_add_to_cart_form'); ?>
 
-
-
+<?php elseif ($goal_reached && $donation_type === 'variable') : ?>
+    <div class="donation-goal-reached-message">
+        <p><?php esc_html_e('This donation goal has been reached! Thank you to everyone who contributed.', 'wc-invoice-payment'); ?></p>
+    </div>
+<?php elseif (!$within_deadline && $donation_type === 'variable') : ?>
+    <div class="donation-deadline-expired-message">
+        <?php 
+        $deadline_message = get_post_meta($product->get_id(), '_donation_deadline_message', true);
+        if (!$deadline_message) {
+            $deadline_message = __('The donation period has ended. Thank you for your interest!', 'wc-invoice-payment');
+        }
+        ?>
+        <p><?php echo esc_html($deadline_message); ?></p>
+    </div>
 <?php endif; ?>

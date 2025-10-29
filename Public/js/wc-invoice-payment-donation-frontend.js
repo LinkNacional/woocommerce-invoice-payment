@@ -82,6 +82,20 @@ jQuery(document).ready(function($) {
     });
 
     /**
+     * Função para controlar estado do botão baseado no valor do input
+     */
+    function toggleButtonVisibility() {
+        var donationAmount = $('#donation_amount').val();
+        var button = $('.custom-amount-field button');
+        
+        if (!donationAmount || donationAmount.trim() === '') {
+            button.prop('disabled', true);
+        } else {
+            button.prop('disabled', false);
+        }
+    }
+    
+    /**
      * Manipula cliques nos botões de valores pré-definidos
      */
     $('.donation-preset-btn').on('click', function(e) {
@@ -95,14 +109,97 @@ jQuery(document).ready(function($) {
         // Remove seleção de outros botões e seleciona o atual
         $('.donation-preset-btn').removeClass('selected');
         $(this).addClass('selected');
+        
+        // Controla visibilidade do botão
+        toggleButtonVisibility();
     });
     
     /**
      * Remove seleção dos botões quando usuário digita valor customizado
      */
-    $('#donation_amount').on('input', function() {
+    $('#donation_amount').on('input change keyup blur', function() {
         $('.donation-preset-btn').removeClass('selected');
         // Remove campo hidden se existir
         $('input[name="donation_amount"][type="hidden"]').remove();
+        
+        // Controla visibilidade do botão
+        toggleButtonVisibility();
     });
+    
+    // Executa a verificação inicial quando a página carrega
+    toggleButtonVisibility();
+    
+    /**
+     * Funcionalidade da barra de progresso da doação
+     */
+    function initDonationProgressBar() {
+        const progressBar = document.querySelector('.donation-progress-fill');
+        if (progressBar) {
+            // Animação inicial da barra de progresso
+            const targetWidth = progressBar.style.width;
+            progressBar.style.width = '0%';
+            setTimeout(() => {
+                progressBar.style.width = targetWidth;
+            }, 300);
+        }
+    }
+    
+    // Inicializa a barra de progresso
+    initDonationProgressBar();
+    
+    /**
+     * Funcionalidade do contador regressivo
+     */
+    function initDonationCountdown() {
+        const countdownTimer = document.querySelector('.donation-countdown-timer');
+        if (!countdownTimer) return;
+        
+        const deadline = countdownTimer.getAttribute('data-deadline');
+        if (!deadline) return;
+        
+        // Verifica se já inclui horário (formato datetime-local com 'T')
+        // Se não, adiciona horário de fim do dia (23:59:59) para compatibilidade
+        let deadlineDate;
+        if (deadline.includes('T')) {
+            // Formato datetime-local (ex: 2025-12-31T23:59)
+            deadlineDate = new Date(deadline);
+        } else {
+            // Formato apenas data (ex: 2025-12-31) - adiciona fim do dia
+            deadlineDate = new Date(deadline + ' 23:59:59');
+        }
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const timeLeft = deadlineDate.getTime() - now;
+            
+            if (timeLeft <= 0) {
+                // Prazo expirado - recarregar página para mostrar mensagem de expirado
+                location.reload();
+                return;
+            }
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            // Atualizar os elementos do DOM
+            const daysElement = document.getElementById('countdown-days');
+            const hoursElement = document.getElementById('countdown-hours');
+            const minutesElement = document.getElementById('countdown-minutes');
+            const secondsElement = document.getElementById('countdown-seconds');
+            
+            if (daysElement) daysElement.textContent = days;
+            if (hoursElement) hoursElement.textContent = hours;
+            if (minutesElement) minutesElement.textContent = minutes;
+            if (secondsElement) secondsElement.textContent = seconds;
+        }
+        
+        // Atualizar a cada segundo
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    }
+    
+    // Inicializa o contador regressivo
+    initDonationCountdown();
 });

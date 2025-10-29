@@ -24,4 +24,61 @@
 		<label for="_donation_free_text"><?php esc_html_e(__('Text', 'wc-invoice-payment')); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Text to be displayed for free donation.', 'wc-invoice-payment')); ?>"></i></label>
 		<input type="text" class="short dokan-form-control" name="_donation_free_text" id="_donation_free_text" value="<?php echo esc_attr($_donation_free_text); ?>" placeholder="<?php esc_attr_e(__('Free', 'wc-invoice-payment')); ?>">
 	</p>
+	
+	<!-- === CAMPOS DE META DE DOAÇÃO === -->
+	<div class="donation-goal-section">
+		<h4><?php esc_html_e(__('Donation Goal Settings', 'wc-invoice-payment')); ?></h4>
+		
+		<p class="show_if_donation">
+			<label for="_donation_enable_goal">
+				<input type="checkbox" id="_donation_enable_goal" name="_donation_enable_goal" value="yes" <?php checked($_donation_enable_goal, 'yes'); ?>>
+				<?php esc_html_e(__('Enable donation goal', 'wc-invoice-payment')); ?>
+				<i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Enable a donation goal for this product. When reached, donations will no longer be accepted.', 'wc-invoice-payment')); ?>"></i>
+			</label>
+		</p>
+		
+		<p class="show_if_donation_goal">
+			<label for="_donation_goal_amount"><?php echo sprintf(esc_html__('Goal amount (%s)', 'wc-invoice-payment'), get_woocommerce_currency_symbol()); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Set the donation goal amount. When this amount is reached with completed orders, no more donations will be accepted.', 'wc-invoice-payment')); ?>"></i></label>
+			<input type="text" class="dokan-form-control wc_input_price" id="_donation_goal_amount" name="_donation_goal_amount" value="<?php echo esc_attr($_donation_goal_amount); ?>" placeholder="0">
+		</p>
+		
+		<p class="show_if_donation_goal">
+			<label for="_donation_show_progress">
+				<input type="checkbox" id="_donation_show_progress" name="_donation_show_progress" value="yes" <?php checked($_donation_show_progress, 'yes'); ?>>
+				<?php esc_html_e(__('Show progress bar', 'wc-invoice-payment')); ?>
+				<i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Display the donation progress bar on the product page.', 'wc-invoice-payment')); ?>"></i>
+			</label>
+		</p>
+	</div>
+	
+	<!-- === CAMPOS DE DATA LIMITE === -->
+	<div class="donation-deadline-section">
+		<h4><?php esc_html_e(__('Donation Deadline Settings', 'wc-invoice-payment')); ?></h4>
+		
+		<p class="show_if_donation">
+			<label for="_donation_enable_deadline">
+				<input type="checkbox" id="_donation_enable_deadline" name="_donation_enable_deadline" value="yes" <?php checked($_donation_enable_deadline, 'yes'); ?>>
+				<?php esc_html_e(__('Enable donation deadline', 'wc-invoice-payment')); ?>
+				<i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Set a deadline for donations. After this date, no more donations will be accepted.', 'wc-invoice-payment')); ?>"></i>
+			</label>
+		</p>
+		
+		<p class="show_if_donation_deadline">
+			<label for="_donation_deadline_date"><?php esc_html_e(__('Deadline date', 'wc-invoice-payment')); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Set the deadline date for donations (YYYY-MM-DD format).', 'wc-invoice-payment')); ?>"></i></label>
+			<input type="date" class="dokan-form-control" id="_donation_deadline_date" name="_donation_deadline_date" value="<?php echo esc_attr($_donation_deadline_date); ?>">
+		</p>
+		
+		<p class="show_if_donation_deadline">
+			<label for="_donation_show_countdown">
+				<input type="checkbox" id="_donation_show_countdown" name="_donation_show_countdown" value="yes" <?php checked($_donation_show_countdown, 'yes'); ?>>
+				<?php esc_html_e(__('Show countdown timer', 'wc-invoice-payment')); ?>
+				<i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Display a countdown timer on the product page showing time remaining until deadline.', 'wc-invoice-payment')); ?>"></i>
+			</label>
+		</p>
+		
+		<p class="show_if_donation_deadline">
+			<label for="_donation_deadline_message"><?php esc_html_e(__('Deadline expired message', 'wc-invoice-payment')); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Message to display when the donation deadline has passed.', 'wc-invoice-payment')); ?>"></i></label>
+			<textarea class="dokan-form-control" id="_donation_deadline_message" name="_donation_deadline_message" rows="3"><?php echo esc_textarea($_donation_deadline_message); ?></textarea>
+		</p>
+	</div>
 </div>

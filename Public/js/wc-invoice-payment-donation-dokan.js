@@ -72,4 +72,50 @@ document.addEventListener('DOMContentLoaded', function () {
     $donationType.on('change', function () {
         handleDonationTypeChangeDokan(true);
     });
+    
+    // === CONTROLE DE VISIBILIDADE DOS CAMPOS DE META NO DOKAN ===
+    initDokanGoalFields();
+    
+    function initDokanGoalFields() {
+        const $enableGoal = jQuery('#_donation_enable_goal');
+        const $goalFields = jQuery('.show_if_donation_goal');
+        
+        // Função para mostrar/ocultar campos de meta
+        function toggleGoalFields() {
+            if ($enableGoal.is(':checked')) {
+                $goalFields.show();
+            } else {
+                $goalFields.hide();
+            }
+        }
+        
+        // Executa ao carregar
+        toggleGoalFields();
+        
+        // Event listener para mudança no checkbox
+        $enableGoal.on('change', toggleGoalFields);
+    }
+    
+    // === CONTROLE DE VISIBILIDADE DOS CAMPOS DE DATA LIMITE NO DOKAN ===
+    initDokanDeadlineFields();
+    
+    function initDokanDeadlineFields() {
+        const $enableDeadline = jQuery('#_donation_enable_deadline');
+        const $deadlineFields = jQuery('.show_if_donation_deadline');
+        
+        // Função para mostrar/ocultar campos de data limite
+        function toggleDeadlineFields() {
+            if ($enableDeadline.is(':checked')) {
+                $deadlineFields.show();
+            } else {
+                $deadlineFields.hide();
+            }
+        }
+        
+        // Executa ao carregar
+        toggleDeadlineFields();
+        
+        // Event listener para mudança no checkbox
+        $enableDeadline.on('change', toggleDeadlineFields);
+    }
 })
