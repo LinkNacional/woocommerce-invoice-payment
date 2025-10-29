@@ -634,3 +634,102 @@ msgstr "Quando habilitado, ativa recursos de compatibilidade com o Dokan para ha
 
 msgid "Warning: Disabling the \"Donation\" product type will automatically convert all existing donation products to simple products. Do you want to continue?"
 msgstr "Atenção: Ao desabilitar o tipo de produto \"Doação\", todos os produtos existentes do tipo doação serão convertidos automaticamente para produtos simples. Deseja continuar?"
+
+msgid "Donation Goal Settings"
+msgstr "Configurações de Meta de Doação"
+
+msgid "Enable donation goal"
+msgstr "Habilitar meta de doação"
+
+msgid "Enable a donation goal for this product. When reached, donations will no longer be accepted."
+msgstr "Habilita uma meta de doação para este produto. Quando atingida, não serão mais aceitas doações."
+
+msgid "Goal amount (%s)"
+msgstr "Valor da meta (%s)"
+
+msgid "Set the donation goal amount. When this amount is reached with completed orders, no more donations will be accepted."
+msgstr "Define o valor da meta de doação. Quando este valor for atingido com pedidos concluídos, não serão mais aceitas doações."
+
+msgid "Show progress bar"
+msgstr "Mostrar barra de progresso"
+
+msgid "Display the donation progress bar on the product page."
+msgstr "Exibe a barra de progresso da doação na página do produto."
+
+msgid "Goal reached message"
+msgstr "Mensagem quando meta atingida"
+
+msgid "Message to display when the donation goal is reached."
+msgstr "Mensagem a ser exibida quando a meta de doação for atingida."
+
+msgid "of %s goal"
+msgstr "de %s meta"
+
+msgid "%s%% funded"
+msgstr "%s%% financiado"
+
+msgid "Goal reached! Thank you for your support."
+msgstr "Meta atingida! Obrigado pelo seu apoio."
+
+msgid "This donation goal has already been reached. Thank you for your interest!"
+msgstr "Esta meta de doação já foi atingida. Obrigado pelo seu interesse!"
+
+msgid "Donation Deadline Settings"
+msgstr "Configurações de Prazo de Doação"
+
+msgid "Enable donation deadline"
+msgstr "Habilitar prazo limite para doação"
+
+msgid "Set a deadline for donations. After this date, no more donations will be accepted."
+msgstr "Define um prazo limite para doações. Após esta data, não serão mais aceitas doações."
+
+msgid "Deadline date"
+msgstr "Data limite"
+
+msgid "Set the deadline date for donations (YYYY-MM-DD format)."
+msgstr "Define a data limite para doações (formato AAAA-MM-DD)."
+
+msgid "Show countdown timer"
+msgstr "Mostrar contador regressivo"
+
+msgid "Display a countdown timer on the product page showing time remaining until deadline."
+msgstr "Exibe um contador regressivo na página do produto mostrando o tempo restante até o prazo limite."
+
+msgid "Deadline expired message"
+msgstr "Mensagem de prazo expirado"
+
+msgid "Message to display when the donation deadline has passed."
+msgstr "Mensagem a ser exibida quando o prazo limite da doação tiver passado."
+
+msgid "The donation period has ended. Thank you for your interest!"
+msgstr "O período de doações terminou. Obrigado pelo seu interesse!"
+
+msgid "Time remaining:"
+msgstr "Tempo restante:"
+
+msgid "Days"
+msgstr "Dias"
+
+msgid "Hours"
+msgstr "Horas"
+
+msgid "Minutes"
+msgstr "Minutos"
+
+msgid "Seconds"
+msgstr "Segundos"
+
+msgid "Donation Progress"
+msgstr "Progresso da Doação"
+
+msgid "Raised:"
+msgstr "Arrecadado:"
+
+msgid "Goal:"
+msgstr "Meta:"
+
+msgid "Remaining:"
+msgstr "Restante:"
+
+msgid "This donation goal has been reached! Thank you to everyone who contributed."
+msgstr "Esta meta de doação foi atingida! Obrigado a todos que contribuíram."

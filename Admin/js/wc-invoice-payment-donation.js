@@ -15,9 +15,6 @@
         if (donationRegularInput.length || regularPrice.length || productType.length) {
             // Executa quando o tipo de produto muda
             productType.on('change', function() {
-                console.log($(this).val())
-                console.log(regularPrice.val())
-                console.log(donationRegularInput.val())
                 if ($(this).val() === 'donation' && regularPrice.val() === '') {
                     regularPrice.val(donationRegularInput.val());
                 }
@@ -89,17 +86,20 @@
             var $fixedFields = $('.show_if_donation_fixed');
             var $variableFields = $('.show_if_donation_variable');
             var $freeFields = $('.show_if_donation_free');
+            var $goalSection = $('.donation-goal-section');
             
             // Esconde todos os campos primeiro
             $fixedFields.hide();
             $variableFields.hide();
             $freeFields.hide();
+            $goalSection.hide();
             
             // Mostra campos baseado no tipo
             if (donationType === 'fixed') {
                 $fixedFields.show();
             } else if (donationType === 'variable') {
                 $variableFields.show();
+                $goalSection.show();
             } else if (donationType === 'free') {
                 $freeFields.show();
             }
@@ -190,6 +190,64 @@
                 // Atualiza o campo original do WooCommerce
                 $('#_regular_price').val(value);
             }
+        });
+        
+        // === CONTROLE DE VISIBILIDADE DOS CAMPOS DE META ===
+        initDonationGoalFields();
+    }
+    
+    /**
+     * Controla a visibilidade dos campos de meta de doação
+     */
+    function initDonationGoalFields() {
+        const $enableGoal = $('#_donation_enable_goal');
+        const $goalFields = $('.show_if_donation_goal');
+        
+        // Função para mostrar/ocultar campos de meta
+        function toggleGoalFields() {
+            if ($enableGoal.is(':checked')) {
+                $goalFields.show();
+            } else {
+                $goalFields.hide();
+            }
+        }
+        
+        // Executa ao carregar
+        toggleGoalFields();
+        
+        // Event listener para mudança no checkbox
+        $enableGoal.on('change', toggleGoalFields);
+        
+        // Também executa quando a aba de doação for clicada
+        $(document).on('click', '.donation_tab a', function() {
+            setTimeout(toggleGoalFields, 100);
+        });
+        
+        // === CONTROLES PARA CAMPOS DE DATA LIMITE ===
+        const $enableDeadline = $('#_donation_enable_deadline');
+        const $deadlineFields = $('.show_if_donation_deadline');
+        
+        // Função para mostrar/ocultar campos de data limite
+        function toggleDeadlineFields() {
+            if ($enableDeadline.is(':checked')) {
+                $deadlineFields.show();
+            } else {
+                $deadlineFields.hide();
+            }
+        }
+        
+        // Executa ao carregar
+        toggleDeadlineFields();
+        
+        // Event listener para mudança no checkbox
+        $enableDeadline.on('change', toggleDeadlineFields);
+        
+        // Também executa quando a aba de doação for clicada
+        $(document).on('click', '.donation_tab a', function() {
+            setTimeout(function() {
+                toggleGoalFields();
+                toggleDeadlineFields();
+            }, 100);
         });
     }
 

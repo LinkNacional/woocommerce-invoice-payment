@@ -4,3 +4,86 @@
     flex-direction: column;
     margin-bottom: 15px;
 }
+
+/* === ESTILOS PARA META DE DOAÇÃO NO DOKAN === */
+
+/* Seção de meta de doação */
+.donation-goal-section {
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.donation-goal-section h4 {
+    margin: 0 0 15px 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Campos de meta ocultos por padrão */
+.show_if_donation_goal {
+    display: none;
+}
+
+/* Estilo dos campos de checkbox */
+.donation-goal-section input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.donation-goal-section label {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+/* Textarea para mensagem */
+.donation-goal-section textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* === ESTILOS PARA DATA LIMITE NO DOKAN === */
+
+/* Seção de data limite */
+.donation-deadline-section {
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.donation-deadline-section h4 {
+    margin: 0 0 15px 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Campos de data limite ocultos por padrão */
+.show_if_donation_deadline {
+    display: none;
+}
+
+/* Estilo dos campos de checkbox */
+.donation-deadline-section input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.donation-deadline-section label {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+/* Campo de data */
+.donation-deadline-section input[type="date"] {
+    width: 200px;
+}
+
+/* Textarea para mensagem de prazo expirado */
+.donation-deadline-section textarea {
+    resize: vertical;
+    min-height: 80px;
+}

@@ -214,6 +214,14 @@ final class WcPaymentInvoice {
         $this->loader->add_filter('woocommerce_add_cart_item_data', $donation_class, 'add_donation_cart_item_data', 10, 3);
         $this->loader->add_filter('woocommerce_before_calculate_totals', $donation_class, 'set_donation_cart_item_price', 10, 1);
         
+        // Hook para atualizar progresso da doação quando pedido for concluído
+        $this->loader->add_action('woocommerce_order_status_completed', $donation_class, 'update_donation_progress_on_order_complete', 10, 1);
+        
+        // Hooks para processar doação anônima
+        $this->loader->add_action('woocommerce_checkout_order_processed', $donation_class, 'process_anonymous_donation', 10, 3);
+        $this->loader->add_action('woocommerce_rest_checkout_process_payment_with_context', $donation_class, 'process_anonymous_donation_rest', 10, 2);
+        $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $donation_class, 'process_anonymous_donation_blocks', 10, 1);
+        
         $subscription_class = new WcPaymentInvoiceSubscription();
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');

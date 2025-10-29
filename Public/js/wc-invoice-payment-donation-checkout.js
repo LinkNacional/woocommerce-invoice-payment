@@ -101,7 +101,166 @@
 
                 // Escuta mudanças no checkbox
                 checkboxAnonymousDonate.on('change', toggleFields);
+
+                // Intercepta as requisições AJAX/REST API do checkout
+                interceptCheckoutRequests();
+                
+                // Adiciona campo hidden para checkout tradicional
+                addHiddenFieldToForm();
             }
         }, 500);
     });
+
+    // Função para interceptar requisições do checkout
+    function interceptCheckoutRequests() {
+        // Intercepta XMLHttpRequest (AJAX tradicional)
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        const originalXHRSend = XMLHttpRequest.prototype.send;
+
+        XMLHttpRequest.prototype.open = function(method, url, ...args) {
+            this._method = method;
+            this._url = url;
+            return originalXHROpen.apply(this, [method, url, ...args]);
+        };
+
+        XMLHttpRequest.prototype.send = function(data) {
+            if (this._method === 'POST' && this._url && this._url.includes('/wp-json/wc/store/v1/checkout')) {
+                data = modifyCheckoutData(data);
+            }
+            return originalXHRSend.apply(this, [data]);
+        };
+
+        // Intercepta fetch API
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options = {}) {
+            if (options.method === 'POST' && url && url.includes('/wp-json/wc/store/v1/checkout')) {
+                options.body = modifyCheckoutData(options.body);
+            }
+            return originalFetch.apply(this, [url, options]);
+        };
+
+        // Intercepta jQuery AJAX
+        if (typeof jQuery !== 'undefined') {
+            const originalAjax = jQuery.ajax;
+            jQuery.ajax = function(options) {
+                if (options.type === 'POST' && options.url && options.url.includes('/wp-json/wc/store/v1/checkout')) {
+                    options.data = modifyCheckoutData(options.data);
+                }
+                return originalAjax.apply(this, [options]);
+            };
+        }
+    }
+
+    // Função para modificar os dados do checkout
+    function modifyCheckoutData(data) {
+        try {
+            const checkboxAnonymousDonate = document.getElementById('wcPaymentInvoiceContainerCheckboxAnonymousDonate');
+            const isAnonymousDonation = checkboxAnonymousDonate && checkboxAnonymousDonate.checked;
+
+            let parsedData;
+            let isFormData = false;
+            let isString = false;
+
+            // Verifica o tipo de dados
+            if (data instanceof FormData) {
+                isFormData = true;
+                parsedData = {};
+                for (let [key, value] of data.entries()) {
+                    parsedData[key] = value;
+                }
+            } else if (typeof data === 'string') {
+                isString = true;
+                try {
+                    parsedData = JSON.parse(data);
+                } catch (e) {
+                    // Se não for JSON, tenta como URL encoded
+                    parsedData = new URLSearchParams(data);
+                    const obj = {};
+                    for (let [key, value] of parsedData.entries()) {
+                        obj[key] = value;
+                    }
+                    parsedData = obj;
+                }
+            } else if (typeof data === 'object') {
+                parsedData = { ...data };
+            } else {
+                return data;
+            }
+
+            // Adiciona a informação da doação anônima
+            parsedData.anonymous_donation = isAnonymousDonation ? '1' : '0';
+
+            // Converte de volta para o formato original
+            if (isFormData) {
+                const newFormData = new FormData();
+                for (let key in parsedData) {
+                    newFormData.append(key, parsedData[key]);
+                }
+                return newFormData;
+            } else if (isString) {
+                return JSON.stringify(parsedData);
+            } else {
+                return parsedData;
+            }
+        } catch (error) {
+            console.error('Erro ao modificar dados do checkout:', error);
+            return data;
+        }
+    }
+
+    // Função para adicionar campo hidden ao formulário de checkout tradicional
+    function addHiddenFieldToForm() {
+        const checkoutForm = document.querySelector('form.checkout, form.woocommerce-checkout');
+        
+        if (checkoutForm && !document.getElementById('anonymous_donation_hidden')) {
+            const hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden';
+            hiddenField.id = 'anonymous_donation_hidden';
+            hiddenField.name = 'anonymous_donation';
+            hiddenField.value = '0';
+            checkoutForm.appendChild(hiddenField);
+            
+            // Atualiza o valor do campo hidden quando a checkbox muda
+            const checkboxAnonymousDonate = document.getElementById('wcPaymentInvoiceContainerCheckboxAnonymousDonate');
+            if (checkboxAnonymousDonate) {
+                checkboxAnonymousDonate.addEventListener('change', function() {
+                    hiddenField.value = this.checked ? '1' : '0';
+                });
+            }
+        }
+    }
+
+    // Função adicional para interceptar eventos de checkout de blocos
+    function interceptBlocksCheckout() {
+        // Para checkout em blocos, monitora mudanças nos dados
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    const checkoutForm = document.querySelector('.wc-block-components-form.wc-block-checkout__form');
+                    if (checkoutForm && !checkoutForm.hasAttribute('data-anonymous-listener')) {
+                        checkoutForm.setAttribute('data-anonymous-listener', 'true');
+                        
+                        // Adiciona listener para quando o formulário é submetido
+                        checkoutForm.addEventListener('submit', function(e) {
+                            const checkbox = document.getElementById('wcPaymentInvoiceContainerCheckboxAnonymousDonate');
+                            if (checkbox && checkbox.checked) {
+                                // Adiciona dados aos componentes do WooCommerce Blocks
+                                if (window.wc && window.wc.wcBlocksData) {
+                                    window.wc.wcBlocksData.anonymous_donation = '1';
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    // Inicializa interceptação para checkout em blocos
+    interceptBlocksCheckout();
 })(jQuery);
