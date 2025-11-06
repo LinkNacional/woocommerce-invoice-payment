@@ -776,6 +776,14 @@ final class WcPaymentInvoiceSettings
                 'id'       => $slug . 'donation_dokan_compatibility',
                 'default'  => 'no',
             ),
+            $slug . 'donation_button_text' => array(
+                'name'     => __('Donation button text', 'wc-invoice-payment'),
+                'type'     => 'text',
+                'desc' => __('Text displayed on the "Add to cart" button for variable donation products. Leave empty to use the default text.', 'wc-invoice-payment'),
+                'id'       => $slug . 'donation_button_text',
+                'default'  => __('Make a donation', 'wc-invoice-payment'),
+                'placeholder' => __('Make a donation', 'wc-invoice-payment'),
+            ),
             'sectionEnd' => array(
                 'type' => 'sectionend'
             )

@@ -26,7 +26,7 @@
 	</p>
 	
 	<!-- === CAMPOS DE META DE DOAÇÃO === -->
-	<div class="donation-goal-section">
+	<div class="donation-goal-section dokan-section">
 		<h4><?php esc_html_e(__('Donation Goal Settings', 'wc-invoice-payment')); ?></h4>
 		
 		<p class="show_if_donation">
@@ -52,7 +52,7 @@
 	</div>
 	
 	<!-- === CAMPOS DE DATA LIMITE === -->
-	<div class="donation-deadline-section">
+	<div class="donation-deadline-section dokan-section">
 		<h4><?php esc_html_e(__('Donation Deadline Settings', 'wc-invoice-payment')); ?></h4>
 		
 		<p class="show_if_donation">
@@ -64,8 +64,20 @@
 		</p>
 		
 		<p class="show_if_donation_deadline">
-			<label for="_donation_deadline_date"><?php esc_html_e(__('Deadline date', 'wc-invoice-payment')); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Set the deadline date for donations (YYYY-MM-DD format).', 'wc-invoice-payment')); ?>"></i></label>
-			<input type="date" class="dokan-form-control" id="_donation_deadline_date" name="_donation_deadline_date" value="<?php echo esc_attr($_donation_deadline_date); ?>">
+			<?php
+			// Data limite
+			$deadline_date = get_post_meta(get_the_ID(), '_donation_deadline_date', true);
+			// Define o valor mínimo como 1 minuto no futuro
+			$min_datetime = date('Y-m-d\TH:i', strtotime('+1 minute'));
+			?>
+			<label for="_donation_deadline_date"><?php esc_html_e(__('Deadline date and time', 'wc-invoice-payment')); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e(__('Set the deadline date and time for donations.', 'wc-invoice-payment')); ?>"></i></label>
+			<input type="datetime-local" 
+				   class="dokan-form-control" 
+				   id="_donation_deadline_date" 
+				   name="_donation_deadline_date" 
+				   value="<?php echo esc_attr($deadline_date); ?>" 
+				   placeholder="<?php echo esc_attr($min_datetime); ?>"
+				   min="<?php echo esc_attr($min_datetime); ?>">
 		</p>
 		
 		<p class="show_if_donation_deadline">

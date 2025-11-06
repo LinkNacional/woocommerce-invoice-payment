@@ -1,4 +1,41 @@
 document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.dokan-attribute-variation-options, .dokan-rma-options, .dokan-linked-product-options').forEach(item => {
+        item.classList.add('hide_if_donation');
+        console.log(item)
+    })
+
+    const linkEl = document.querySelector('a[href*="_dokan_edit_product_nonce"]');
+    const currentUrl = new URL(window.location.href);
+    const donationType = currentUrl.searchParams.get('donation_type');
+
+    if (donationType && linkEl) {
+        // URL do link
+        const linkUrl = new URL(linkEl.href);
+
+        // adiciona o parâmetro
+        linkUrl.searchParams.set('donation_type', donationType);
+
+        // atualiza o href do link
+        linkEl.href = linkUrl.toString();
+        linkEl.click()
+    }
+
+    if (donationType) {
+        const $productTypeSelect = jQuery('#product_type');
+        const $donationTypeSelect = jQuery('#_donation_type');
+
+        // Atualiza o tipo de produto para "doação"
+        if ($productTypeSelect.length) {3
+            $productTypeSelect.val('donation').trigger('change');
+        }
+
+        // Atualiza o tipo de doação
+        if ($donationTypeSelect.length) {
+            $donationTypeSelect.val(donationType).trigger('change');
+        }
+    }
+
+
     // Função para mostrar/ocultar campos baseado no tipo de doação
     function toggleDonationFields() {
         var donationType = document.getElementById('_donation_type')?.value;

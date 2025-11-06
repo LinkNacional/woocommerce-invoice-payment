@@ -178,6 +178,14 @@ final class WcPaymentInvoiceDonation
             wp_enqueue_script( 'wcInvoicePaymentDonationDokanScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-donation-dokan.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
             wp_enqueue_style('wcInvoicePaymentDonationStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-donation-dokan.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         }
+
+        // Carrega CSS específico para o dashboard de doações no Dokan
+        if (function_exists('dokan_is_seller_dashboard') && dokan_is_seller_dashboard()) {
+            global $wp;
+            if (isset($wp->query_vars['doacoes']) || (isset($wp->query_vars['custom']) && $wp->query_vars['custom'] === 'doacoes')) {
+                wp_enqueue_style('wcInvoicePaymentDokanDashboardStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-dokan-dashboard.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
+            }
+        }
     }
 
     public function addDonationType( $product_types ) {
@@ -658,6 +666,10 @@ final class WcPaymentInvoiceDonation
         if ($product->get_type() === 'donation') {
             $donation_type = $product->get_meta('_donation_type', true);
             if ($donation_type === 'variable') {
+                $custom_text = get_option('lkn_wcip_donation_button_text', '');
+                if (!empty($custom_text)) {
+                    return $custom_text;
+                }
                 return __('Make a donation', 'wc-invoice-payment');
             }
         }
@@ -672,6 +684,10 @@ final class WcPaymentInvoiceDonation
         if ($product->get_type() === 'donation') {
             $donation_type = $product->get_meta('_donation_type', true);
             if ($donation_type === 'variable') {
+                $custom_text = get_option('lkn_wcip_donation_button_text', '');
+                if (!empty($custom_text)) {
+                    return $custom_text;
+                }
                 return __('Make a donation', 'wc-invoice-payment');
             }
         }
@@ -698,11 +714,16 @@ final class WcPaymentInvoiceDonation
             WC_PAYMENT_INVOICE_VERSION,
             true
         );
+        $custom_text = get_option('lkn_wcip_donation_button_text', '');
+        if (empty($custom_text)) {
+            $custom_text = __('Make a donation', 'wc-invoice-payment');
+        }
+        
         wp_localize_script(
             'wc-invoice-payment-donation-frontend-js',
             'phpAttributes',
             array(
-                'makeDonation' => __('Make a donation', 'wc-invoice-payment'),
+                'makeDonation' => $custom_text,
             )
         );
     }
@@ -1284,6 +1305,203 @@ final class WcPaymentInvoiceDonation
             $logger = \wc_get_logger();
             $logger->info('Dados de endereço removidos para doação anônima', array('source' => 'wc-invoice-payment'));
         }
+    }
+
+    /**
+     * Adiciona página de doações no dashboard do Dokan
+     *
+     * @param array $nav_menus Array de menus do dashboard
+     * @return array Array modificado com o menu de doações
+     */
+    public function addDokanDashboardPage($nav_menus) {
+        // Só adiciona o menu se o usuário atual for um vendedor do Dokan
+        if (!function_exists('dokan_is_user_seller') || !dokan_is_user_seller(get_current_user_id())) {
+            return $nav_menus;
+        }
+
+        $nav_menus['doacoes'] = array(
+            'title'      => __('Doações', 'wc-invoice-payment'),
+            'icon'       => '<i class="fas fa-heart"></i>',
+            'url'        => dokan_get_navigation_url('doacoes'),
+            'pos'        => 35, // Posição entre produtos (30) e pedidos (50)
+            'permission' => 'dokan_view_product_menu', // Mesma permissão dos produtos
+        );
+
+        return $nav_menus;
+    }
+
+    /**
+     * Carrega o template da página de doações no dashboard do Dokan
+     *
+     * @return void
+     */
+    public function loadDokanDashboardTemplate() {
+        global $wp;
+
+        // Verifica se estamos na página de doações
+        if (isset($wp->query_vars['doacoes']) || (isset($wp->query_vars['custom']) && $wp->query_vars['custom'] === 'doacoes')) {
+            if (!function_exists('dokan_is_user_seller') || !dokan_is_user_seller(get_current_user_id())) {
+                if (function_exists('dokan_get_template_part')) {
+                    dokan_get_template_part('global/no-permission');
+                } else {
+                    echo '<div class="dokan-alert dokan-alert-danger">' . __('Você não tem permissão para acessar esta página.', 'wc-invoice-payment') . '</div>';
+                }
+                return;
+            }
+
+            // Carrega o template da página de doações
+            $this->renderDokanDashboardPage();
+        }
+    }
+
+    /**
+     * Renderiza a página de doações do dashboard do Dokan
+     *
+     * @return void
+     */
+    private function renderDokanDashboardPage() {
+        ?>
+        <div class="dokan-dashboard-wrap">
+            <?php
+            /**
+             * dokan_dashboard_content_before hook
+             *
+             * @hooked get_dashboard_side_navigation
+             *
+             * @since 2.4
+             */
+            do_action('dokan_dashboard_content_before');
+            ?>
+
+            <div class="dokan-dashboard-content dokan-donations-content">
+                <?php
+                /**
+                 * dokan_donations_content_inside_before hook
+                 *
+                 * @since 1.0.0
+                 */
+                do_action('dokan_donations_content_inside_before');
+                ?>
+
+                <article class="dokan-donations-area">
+                    <?php
+                    /**
+                     * dokan_donations_content_area_header hook
+                     *
+                     * @since 1.0.0
+                     */
+                    do_action('dokan_donations_content_area_header');
+                    ?>
+
+                    <div class="dokan-donations-dashboard">
+                        <div class="dokan-donation-header-div">
+                            <div class="dokan-donations-header">
+                                <h1 class="entry-title"><?php _e('Gerenciar Doações', 'wc-invoice-payment'); ?></h1>
+                                <p class="description"><?php _e('Crie e configure os diferentes tipos de doação do seu site, seja para receber valores monetários ou para gerenciar a doação de itens.', 'wc-invoice-payment'); ?></p>
+                            </div>
+                            <!-- Botão Ver Pedidos de Doações -->
+                            <div class="orders-button-section">
+                                <a href="<?php echo esc_url(add_query_arg('product_type', 'donation', dokan_get_navigation_url('orders'))); ?>" class="donation-button orders-button">
+                                    <?php _e('Ver pedidos de doações', 'wc-invoice-payment'); ?>
+                                </a>
+                            </div>
+                        </div>
+
+                        <?php
+                        $has_permission = current_user_can('dokan_add_product');
+                        $disabled_class = !$has_permission ? ' disabled' : '';
+                        ?>
+
+                        <!-- Seção de Doação Monetária -->
+                        <div class="donation-section<?php echo $disabled_class; ?>">
+                            <h3><?php _e('Recebimento de Doações Monetárias', 'wc-invoice-payment'); ?></h3>
+                            <p><?php _e('Nesta opção, você cria uma campanha para arrecadar valores monetários. É possível configurar a campanha com ou sem uma meta de arrecadação e também definir valores de doação predefinidos (botões) ou deixar o campo de valor aberto para o doador decidir.', 'wc-invoice-payment'); ?></p>
+                            <?php if ($has_permission): ?>
+                                <a href="<?php echo esc_url(add_query_arg(array('product_type' => 'donation', 'donation_type' => 'variable'), dokan_get_navigation_url('products'))); ?>" class="donation-button">
+                                    <?php _e('Receber Doação Monetária', 'wc-invoice-payment'); ?>
+                                </a>
+                            <?php else: ?>
+                                <button class="donation-button disabled" disabled>
+                                    <i class="fas fa-lock" aria-hidden="true"></i>
+                                    <?php _e('Receber Doação Monetária', 'wc-invoice-payment'); ?>
+                                </button>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Seção de Doação de Item Gratuito -->
+                        <div class="donation-section<?php echo $disabled_class; ?>">
+                            <h3><?php _e('Gratuito (Doação de um item)', 'wc-invoice-payment'); ?></h3>
+                            <p><?php _e('Nesta opção, é possível registrar um item para doação gratuitamente. Se o produto for físico (não digital), o cálculo de frete será aplicado no checkout. Caso o beneficiário opte pela "Entrega em Mãos" (retirada), o custo do frete não será aplicado.', 'wc-invoice-payment'); ?></p>
+                            <?php if ($has_permission): ?>
+                                <a href="<?php echo esc_url(add_query_arg(array('product_type' => 'donation', 'donation_type' => 'free'), dokan_get_navigation_url('products'))); ?>" class="donation-button">
+                                    <?php _e('Doar um Item Grátis', 'wc-invoice-payment'); ?>
+                                </a>
+                            <?php else: ?>
+                                <button class="donation-button disabled" disabled>
+                                    <i class="fas fa-lock" aria-hidden="true"></i>
+                                    <?php _e('Doar um Item Grátis', 'wc-invoice-payment'); ?>
+                                </button>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Seção de Doação de Item com Valor Fixo -->
+                        <div class="donation-section<?php echo $disabled_class; ?>">
+                            <h3><?php _e('Valor Fixo (Doação de item com valor pré-definido)', 'wc-invoice-payment'); ?></h3>
+                            <p><?php _e('Nesta opção, é possível registrar um item para doação com um valor simbólico ou que cubra alguns custos para concluir o processo (ex: "Doar um Sofá por R$ 5,00"). Se o produto for físico (não digital), o cálculo de frete será aplicado no checkout.', 'wc-invoice-payment'); ?></p>
+                            <?php if ($has_permission): ?>
+                                <a href="<?php echo esc_url(add_query_arg(array('product_type' => 'donation', 'donation_type' => 'fixed'), dokan_get_navigation_url('products'))); ?>" class="donation-button">
+                                    <?php _e('Doar um Item com Valor Fixo', 'wc-invoice-payment'); ?>
+                                </a>
+                            <?php else: ?>
+                                <button class="donation-button disabled" disabled>
+                                    <i class="fas fa-lock" aria-hidden="true"></i>
+                                    <?php _e('Doar um Item com Valor Fixo', 'wc-invoice-payment'); ?>
+                                </button>
+                            <?php endif; ?>
+                        </div>
+
+                        
+
+                        <?php if (!$has_permission): ?>
+                            <div class="donation-alert">
+                                <strong><?php _e('Erro!', 'wc-invoice-payment'); ?></strong>
+                                <?php _e('Sua conta não permite o recebimento de doações. Para habilitar esta funcionalidade, entre em contato.', 'wc-invoice-payment'); ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </article>
+
+                <?php
+                /**
+                 * dokan_donations_content_inside_after hook
+                 *
+                 * @since 1.0.0
+                 */
+                do_action('dokan_donations_content_inside_after');
+                ?>
+            </div>
+
+            <?php
+            /**
+             * dokan_dashboard_content_after hook
+             *
+             * @since 2.4
+             */
+            do_action('dokan_dashboard_content_after');
+            ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * Adiciona query variable para a página de doações do Dokan
+     *
+     * @param array $query_vars Array de query variables
+     * @return array Array modificado com a nova query variable
+     */
+    public function addDokanQueryVar($query_vars) {
+        $query_vars['doacoes'] = 'doacoes';
+        return $query_vars;
     }
 
 }

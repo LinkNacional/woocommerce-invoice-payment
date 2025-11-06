@@ -190,8 +190,6 @@ final class WcPaymentInvoice {
         $this->loader->add_action('wp_ajax_lkn_wcip_cancel_quote_frontend', $plugin_admin, 'ajax_cancel_quote_frontend');
         $this->loader->add_action('wp_ajax_nopriv_lkn_wcip_cancel_quote_frontend', $plugin_admin, 'ajax_cancel_quote_frontend');
 
-        $api_handler = new WcPaymentInvoiceLoaderRest();
-        $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
         
         // Inicializa a classe de doação
         $donation_class = new WcPaymentInvoiceDonation();
@@ -442,6 +440,9 @@ final class WcPaymentInvoice {
      * @since    1.0.0
      */
     private function define_public_hooks(): void {
+        $api_handler = new WcPaymentInvoiceLoaderRest();
+        $this->loader->add_action('rest_api_init', $api_handler, 'register_routes');
+
         $plugin_public = new WcPaymentInvoicePublic($this->get_plugin_name(), $this->get_version());
         $subscription_class = new WcPaymentInvoiceSubscription();
         $feeOrDiscountClass = new WcPaymentInvoiceFeeOrDiscount();
@@ -458,7 +459,24 @@ final class WcPaymentInvoice {
             $this->loader->add_action( 'dokan_product_edit_after_title', $donation_class, 'loadDokanSettingsTemplate', 10, 2);
             $this->loader->add_action( 'woocommerce_process_product_meta_donation', $donation_class, 'saveDokanSettings', 10, 1);
             $this->loader->add_filter( 'dokan_product_types', $donation_class, 'addDonationType', 11 );
+            
+            // Adiciona página de doações no dashboard do Dokan
+            $this->loader->add_filter( 'dokan_get_dashboard_nav', $donation_class, 'addDokanDashboardPage', 15 );
+            $this->loader->add_action( 'dokan_load_custom_template', $donation_class, 'loadDokanDashboardTemplate' );
+            $this->loader->add_filter( 'dokan_query_var_filter', $donation_class, 'addDokanQueryVar' );
         }
+        
+        // Adiciona página de faturas no dashboard do Dokan
+        $this->loader->add_filter( 'dokan_get_dashboard_nav', $this->WcPaymentInvoicePartialClass, 'addDokanInvoicesPage', 15 );
+        $this->loader->add_action( 'dokan_load_custom_template', $this->WcPaymentInvoicePartialClass, 'loadDokanInvoicesTemplate' );
+        $this->loader->add_filter( 'dokan_query_var_filter', $this->WcPaymentInvoicePartialClass, 'addDokanInvoicesQueryVar' );
+        
+        // Adiciona botões de fatura na página de detalhes do pedido do Dokan
+        $this->loader->add_action( 'dokan_order_detail_after_order_general_details', $this->WcPaymentInvoicePartialClass, 'addInvoiceButtonsToOrderDetails', 10, 1 );
+        
+        // Inicializa sistema de download de faturas do Dokan
+        $this->loader->add_action( 'init', $this->WcPaymentInvoicePartialClass, 'initDokanInvoicesSystem' );
+        
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoicePartialClass, "showPartialFields");
 		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoicePartialClass, 'allowStatusCancel');
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
