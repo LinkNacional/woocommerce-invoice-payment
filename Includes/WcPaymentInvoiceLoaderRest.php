@@ -34,8 +34,50 @@ final class WcPaymentInvoiceLoaderRest {
         );
     }
 
-    public function check_permission() {
-        return current_user_can('administrator');
+    public function check_permission(WP_REST_Request $request) {
+        // Se for administrador, permitir
+        if (current_user_can('administrator')) {
+            return true;
+        }
+        
+        // Verificar se é um vendedor do Dokan tentando acessar sua própria fatura
+        $invoice_id = $request->get_param('invoice_id');
+        if (!$invoice_id) {
+            return false;
+        }
+        
+        $order = wc_get_order($invoice_id);
+        if (!$order) {
+            return false;
+        }
+        
+        $current_user_id = get_current_user_id();
+        if (!$current_user_id) {
+            return false;
+        }
+        
+        // Verificar se o usuário é um vendedor do Dokan
+        if (!function_exists('dokan_is_user_seller') || !dokan_is_user_seller($current_user_id)) {
+            return false;
+        }
+        
+        // Verificar se a fatura pertence ao vendedor
+        $vendor_id = $order->get_meta('_dokan_vendor_id');
+        if ($vendor_id && (int) $vendor_id === $current_user_id) {
+            return true;
+        }
+        
+        // Verificar na tabela wp_dokan_orders se existe relação
+        global $wpdb;
+        $dokan_order = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}dokan_orders WHERE order_id = %d AND seller_id = %d",
+                $invoice_id,
+                $current_user_id
+            )
+        );
+        
+        return !empty($dokan_order);
     }
 
     public function generate_invoice(WP_REST_Request $request): void {

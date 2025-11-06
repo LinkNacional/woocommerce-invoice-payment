@@ -13,6 +13,11 @@
     padding-top: 20px;
     margin-top: 20px;
 }
+.dokan-section{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
 .donation-goal-section h4 {
     margin: 0 0 15px 0;

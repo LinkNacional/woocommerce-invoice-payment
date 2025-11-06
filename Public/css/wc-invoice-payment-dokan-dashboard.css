@@ -1,0 +1,306 @@
+/* === ESTILOS PARA DASHBOARD DE DOAÇÕES DO DOKAN - BASEADO NO FIGMA === */
+
+/* Importação das fontes do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Arimo:wght@400&display=swap');
+
+/* Container principal */
+.dokan-donations-dashboard {
+    padding: 24px;
+    background: #fff;
+}
+
+/* Header da página */
+.dokan-donations-header {
+    margin-bottom: 48px;
+}
+
+.dokan-donations-header h1.entry-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 0.52em;
+    letter-spacing: -0.4%;
+    color: #6D6D6D;
+    margin: 0 0 16px 0;
+}
+
+.dokan-donations-header .description {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 1.083em;
+    letter-spacing: -0.83%;
+    color: #6D6D6D;
+    margin: 0;
+    max-width: 745px;
+}
+
+/* Seções de doação */
+.donation-section {
+    border-radius: 3px;
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.donation-section h3 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 0.75em;
+    letter-spacing: -0.5%;
+    color: #6D6D6D;
+    margin: 0 0 12px 0;
+    padding: 0 24px;
+    padding-top: 24px;
+}
+
+.donation-section p {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 1.25em;
+    letter-spacing: -0.83%;
+    color: #6D6D6D;
+    margin: 0 0 24px 0;
+    padding: 0 24px;
+    max-width: 669px;
+}
+
+/* Botões de doação */
+.donation-button {
+    font-family: 'Arimo', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.428em;
+    text-align: center;
+    color: #FFFFFF;
+    background: #F05025;
+    border: 1px solid #DA502B;
+    border-radius: 3px;
+    padding: 8px 39px;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0 24px 24px 24px;
+    min-width: 300px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.donation-button:hover {
+    background: #DA502B;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.donation-button:focus {
+    background: #DA502B;
+    color: #FFFFFF;
+    outline: none;
+}
+
+/* Botões desabilitados */
+.donation-section.disabled .donation-button.disabled,
+.donation-button.disabled {
+    background: #CCCCCC;
+    border-color: #BBBBBB;
+    color: #888888;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.donation-button.disabled i {
+    margin-right: 8px;
+}
+
+/* Seção do botão de pedidos */
+.orders-button-section {
+    margin-bottom: 24px;
+    text-align: right;
+}
+
+.orders-button-section .donation-button.orders-button {
+    min-width: 222px;
+    margin: 0;
+}
+
+/* Alerta de erro */
+.donation-alert {
+    background: #FFFBEB;
+    border: 1px solid #FFEED1;
+    border-radius: 4px;
+    padding: 16px;
+    margin-top: 24px;
+}
+
+.donation-alert strong {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.4em;
+    letter-spacing: -0.45%;
+    color: #9D5425;
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Seções desabilitadas */
+.donation-section.disabled {
+    background: #F5F5F5;
+    border-color: #DDDDDD;
+    opacity: 0.7;
+}
+
+.donation-section.disabled h3,
+.donation-section.disabled p {
+    color: #999999;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .dokan-donations-dashboard {
+        padding: 16px;
+    }
+    
+    .dokan-donations-header h1.entry-title {
+        font-size: 20px;
+    }
+    
+    .donation-button {
+        min-width: 100%;
+        margin: 0 16px 16px 16px;
+    }
+    
+    .orders-button-section {
+        text-align: center;
+    }
+    
+    .orders-button-section .donation-button.orders-button {
+        min-width: 100%;
+        margin: 0 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .donation-section h3 {
+        font-size: 18px;
+        line-height: 1.2em;
+    }
+    
+    .donation-section p {
+        font-size: 11px;
+        line-height: 1.3em;
+    }
+    
+    .donation-button {
+        font-size: 13px;
+        padding: 8px 16px;
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .dokan-donations-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .dokan-donations-dashboard {
+        padding: 15px;
+    }
+    
+    .dokan-donations-header h1.entry-title {
+        font-size: 24px;
+    }
+    
+    .donation-type-card {
+        padding: 25px 20px;
+    }
+    
+    .dokan-donations-orders {
+        padding: 20px;
+    }
+    
+    .orders-section h2 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dokan-donations-header h1.entry-title {
+        font-size: 20px;
+    }
+    
+    .donation-type-card h3 {
+        font-size: 18px;
+    }
+    
+    .donation-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .donation-icon i {
+        font-size: 24px;
+    }
+    
+    .btn-large {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+}
+
+/* === MELHORIAS PARA INTEGRAÇÃO COM DOKAN === */
+
+/* Garante que o layout funcione bem com o dashboard do Dokan */
+.dokan-dashboard-content.dokan-donations-content {
+    background: #f8f9fa;
+    min-height: calc(100vh - 200px);
+}
+
+.dokan-donations-area {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Compatibilidade com temas do Dokan */
+.dokan-dashboard-wrap .dokan-donations-dashboard .btn {
+    text-decoration: none !important;
+}
+
+.dokan-dashboard-wrap .dokan-donations-dashboard .btn:focus {
+    outline: 2px solid #7047EB;
+    outline-offset: 2px;
+}
+
+/* Animações suaves */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.donation-type-card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.donation-type-card:nth-child(1) { animation-delay: 0.1s; }
+.donation-type-card:nth-child(2) { animation-delay: 0.2s; }
+.donation-type-card:nth-child(3) { animation-delay: 0.3s; }
+
+.dokan-donations-orders {
+    animation: fadeInUp 0.6s ease 0.4s forwards;
+    opacity: 0;
+}
+
+.dokan-donation-header-div{
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+    justify-content: space-between;
+}
