@@ -71,14 +71,6 @@ final class WcPaymentInvoiceFeeOrDiscount
                 false
             );
     
-            wp_enqueue_style(
-                'wcInvoicePaymentFeeOrDiscountStyle',
-                WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-fee-or-discount.css',
-                [],
-                WC_PAYMENT_INVOICE_VERSION,
-                'all'
-            );
-    
             wp_localize_script('wcInvoicePaymentFeeOrDiscountScript', 'wcInvoicePaymentFeeOrDiscountVariables', [
                 'methods' => $data,
                 'translations' => [

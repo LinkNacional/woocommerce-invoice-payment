@@ -277,6 +277,10 @@ jQuery(document).ready(function($) {
                 nameInput.value = productName;
                 amountInput.value = totalPrice;
                 
+                // Make fields readonly for real WooCommerce products
+                nameInput.readOnly = true;
+                amountInput.readOnly = true;
+                
                 // Add hidden fields to store product information for real WooCommerce items
                 const hiddenProductId = document.createElement('input');
                 hiddenProductId.type = 'hidden';
