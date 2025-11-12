@@ -1,3 +1,7 @@
+# 2.7.1 - 12/11/2025
+* Correção de carregamento de css;
+* Adição de read-only em produto selecionado na fatura.
+
 # 2.7.0 - 23/10/2025
 * Adição de produto do tipo doação.
 
