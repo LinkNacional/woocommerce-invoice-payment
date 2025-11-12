@@ -1,3 +1,6 @@
+# 2.7.2 - 12/11/2025
+* Adição de imagens.
+
 # 2.7.1 - 12/11/2025
 * Correção de carregamento de css;
 * Adição de read-only em produto selecionado na fatura.
