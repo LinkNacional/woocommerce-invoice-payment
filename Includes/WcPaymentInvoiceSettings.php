@@ -193,6 +193,14 @@ final class WcPaymentInvoiceSettings
                             <label for="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>"><?php echo esc_html(__('Enable this option', 'wc-invoice-payment')); ?></label>
                             <p class="description"><?php echo esc_html(__('Enables fee/discount payment for the payment method.', 'wc-invoice-payment')); ?></p>        
                         </div>
+                        
+                        <!-- Checkbox para mostrar preço na página do produto -->
+                        <div>
+                            <?php $show_price_value = get_option($slug . 'show_price_' . $gateway_id, 'no'); ?>
+                            <input type="checkbox" name="<?php echo esc_attr($slug . 'show_price_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'show_price_' . $gateway_id); ?>" value="yes" <?php checked($show_price_value, 'yes'); ?> />
+                            <label for="<?php echo esc_attr($slug . 'show_price_' . $gateway_id); ?>"><?php echo esc_html(__('Show price on product page', 'wc-invoice-payment')); ?></label>
+                            <p class="description"><?php echo esc_html(__('Shows the product price with fee/discount applied for this payment method on product pages.', 'wc-invoice-payment')); ?></p>        
+                        </div>
 
                         <!-- Tipo: Taxa ou Desconto -->
                         <div>
@@ -384,6 +392,14 @@ final class WcPaymentInvoiceSettings
                 update_option($method_activated_field, sanitize_text_field($_POST[$method_activated_field]));
             } else {
                 update_option($method_activated_field, 'no');
+            }
+            
+            // Processar checkbox de mostrar preço
+            $show_price_field = $slug . 'show_price_' . $gateway_id;
+            if (isset($_POST[$show_price_field])) {
+                update_option($show_price_field, sanitize_text_field($_POST[$show_price_field]));
+            } else {
+                update_option($show_price_field, 'no');
             }
             
             // Processar outros campos
@@ -619,6 +635,24 @@ final class WcPaymentInvoiceSettings
                 'type'     => 'title',
                 'name'     => __('Fees and Discounts Settings', 'wc-invoice-payment'),
                 'desc'     => __('Configure fees and discounts for each payment method.', 'wc-invoice-payment'),
+            ),
+            $slug . 'whatsapp_buy_button_enabled' => array(
+                'name'     => __('Enable "Buy via WhatsApp" button', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip' => __('When enabled, a green "Buy via WhatsApp" button with WhatsApp icon will be displayed below the "Add to cart" button on product pages. Clicking it will redirect to WhatsApp with a message containing the product name and price.', 'wc-invoice-payment'),
+                'id'       => $slug . 'whatsapp_buy_button_enabled',
+                'default'  => 'no',
+            ),
+            $slug . 'whatsapp_phone_number' => array(
+                'name'     => __('WhatsApp Phone Number', 'wc-invoice-payment'),
+                'type'     => 'text',
+                'desc'     => __('Enter the WhatsApp phone number in international format (e.g., 5511999999999). Leave empty to use WhatsApp without a specific number.', 'wc-invoice-payment'),
+                'id'       => $slug . 'whatsapp_phone_number',
+                'placeholder' => '5511999999999',
+                'custom_attributes' => array(
+                    'pattern' => '[0-9]+',
+                    'title' => __('Please enter only numbers (without + symbol)', 'wc-invoice-payment')
+                )
             ),
             $slug . 'show_fee_activated' => array(
                 'name'     => __('Show payment discount', 'wc-invoice-payment'),

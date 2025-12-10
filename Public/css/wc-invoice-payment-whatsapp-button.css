@@ -1,0 +1,90 @@
+/* CSS para o botão "Comprar pelo WhatsApp" */
+.lkn-whatsapp-buy-wrapper {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.lkn-whatsapp-buy-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #25D366;
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    width: fit-content;
+}
+
+.lkn-whatsapp-buy-button:hover {
+    background-color: #22c55e;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3);
+}
+
+.lkn-whatsapp-buy-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.3);
+    color: white;
+}
+
+.lkn-whatsapp-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .lkn-whatsapp-buy-button {
+        padding: 14px 18px;
+        font-size: 16px;
+    }
+    
+    .lkn-whatsapp-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Compatibilidade com temas diferentes */
+.single-product .lkn-whatsapp-buy-wrapper {
+    clear: both;
+    width: 100%;
+}
+
+.woocommerce div.product form.cart .lkn-whatsapp-buy-wrapper {
+    margin-top: 15px;
+}
+
+/* Estilos adicionais para melhor integração com temas */
+.woocommerce .lkn-whatsapp-buy-button,
+.woocommerce-page .lkn-whatsapp-buy-button {
+    background-color: #25D366 !important;
+    color: white !important;
+    border-color: #25D366 !important;
+}
+
+.woocommerce .lkn-whatsapp-buy-button:hover,
+.woocommerce-page .lkn-whatsapp-buy-button:hover {
+    background-color: #22c55e !important;
+    color: white !important;
+    border-color: #22c55e !important;
+}
+
+/* Para garantir que o botão apareça corretamente em themes com flexbox */
+.summary .lkn-whatsapp-buy-wrapper {
+    order: 999;
+    width: 100%;
+}

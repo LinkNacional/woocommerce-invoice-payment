@@ -7,6 +7,7 @@ use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceLoaderRest;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSettings;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceDonation;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceWhatsAppButton;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
 use WC_Countries;
@@ -219,6 +220,9 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_checkout_order_processed', $donation_class, 'process_anonymous_donation', 10, 3);
         $this->loader->add_action('woocommerce_rest_checkout_process_payment_with_context', $donation_class, 'process_anonymous_donation_rest', 10, 2);
         $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $donation_class, 'process_anonymous_donation_blocks', 10, 1);
+        
+        // Inicializa a classe WhatsApp
+        new WcPaymentInvoiceWhatsAppButton($this->loader);
         
         $subscription_class = new WcPaymentInvoiceSubscription();
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');
@@ -484,6 +488,9 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart', 999);
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
         $this->loader->add_action('enqueue_block_assets', $feeOrDiscountClass, 'loadScripts');
+        
+        // Adiciona preços com fee/discount nas páginas de produto
+        $this->loader->add_filter('woocommerce_get_price_html', $feeOrDiscountClass, 'addPaymentMethodPrices', 10, 2);
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoiceQuoteClass, "showQuoteFields");
         $this->loader->add_action('woocommerce_before_pay_action', $this->WcPaymentInvoiceQuoteClass, "showQuoteFields");
         $this->loader->add_action('template_redirect', $this->WcPaymentInvoiceQuoteClass, "interceptOrderPayPage");
@@ -499,7 +506,6 @@ final class WcPaymentInvoice {
         
         // Hook temporário para registrar o endpoint - execute uma vez e comente
         $this->loader->add_action('wp_loaded', $this->WcPaymentInvoiceQuoteClass, 'forceFlushRewriteRules');
-        
-        add_filter("woocommerce_order_email_verification_required", array($this, "custom_email_verification_required"), 10, 3);
+        $this->loader->add_filter("woocommerce_order_email_verification_required", $this, "custom_email_verification_required", 10, 3);
     }
 }
