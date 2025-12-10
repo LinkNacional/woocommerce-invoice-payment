@@ -646,7 +646,7 @@ final class WcPaymentInvoiceSettings
             $slug . 'whatsapp_phone_number' => array(
                 'name'     => __('WhatsApp Phone Number', 'wc-invoice-payment'),
                 'type'     => 'text',
-                'desc'     => __('Enter the WhatsApp phone number in international format (e.g., 5511999999999). Leave empty to use WhatsApp without a specific number.', 'wc-invoice-payment'),
+                'desc'     => __('Enter the WhatsApp phone number in international format (e.g., 5511999999999).', 'wc-invoice-payment'),
                 'id'       => $slug . 'whatsapp_phone_number',
                 'placeholder' => '5511999999999',
                 'custom_attributes' => array(
