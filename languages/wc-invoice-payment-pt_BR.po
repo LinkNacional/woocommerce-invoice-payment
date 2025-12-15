@@ -635,6 +635,60 @@ msgstr "Quando habilitado, ativa recursos de compatibilidade com o Dokan para ha
 msgid "Warning: Disabling the \"Donation\" product type will automatically convert all existing donation products to simple products. Do you want to continue?"
 msgstr "Atenção: Ao desabilitar o tipo de produto \"Doação\", todos os produtos existentes do tipo doação serão convertidos automaticamente para produtos simples. Deseja continuar?"
 
+msgid "Sell via WhatsApp"
+msgstr "Vender por WhatsApp"
+
+msgid "Configure settings for the \"Buy via WhatsApp\" button"
+msgstr "Configure as configurações do botão \"Comprar pelo WhatsApp\""
+
+msgid "Enable \"Buy via WhatsApp\" button"
+msgstr "Habilitar botão \"Comprar pelo WhatsApp\""
+
+msgid "When enabled, a green \"Buy via WhatsApp\" button with WhatsApp icon will be displayed below the \"Add to cart\" button on product pages. When clicked, it will redirect to WhatsApp with a message containing the product name and price."
+msgstr "Quando habilitado, um botão verde \"Comprar pelo WhatsApp\" com ícone do WhatsApp será exibido abaixo do botão \"Adicionar ao carrinho\" nas páginas dos produtos. Ao clicar, redirecionará para o WhatsApp com uma mensagem contendo o nome e preço do produto."
+
+msgid "WhatsApp Number"
+msgstr "Número do WhatsApp"
+
+msgid "Enter the WhatsApp number in international format (e.g.: 5511999999999)."
+msgstr "Digite o número do WhatsApp no formato internacional (ex: 5511999999999)."
+
+msgid "Enter numbers only (without the + symbol)"
+msgstr "Digite apenas números (sem o símbolo +)"
+
+msgid "Button text"
+msgstr "Texto do botão"
+
+msgid "Enter the text that will be displayed inside the button"
+msgstr "Digite o texto que será exibido dentro do botão"
+
+msgid "Buy via WhatsApp"
+msgstr "Comprar pelo WhatsApp"
+
+msgid "Message text"
+msgstr "Texto da mensagem"
+
+msgid "Default message that will be written for the customer to send. Available parameters: %productName% - %price% - %productLink%"
+msgstr "Mensagem padrão que será escrita para o cliente enviar. Parâmetros disponíveis: %productName% - %price% - %productLink%"
+
+msgid "Hello! I am interested in the product: %productName% - Price: %price%. Link: %productLink%"
+msgstr "Olá! Tenho interesse no produto: %productName% - Preço: %price%. Link: %productLink%"
+
+msgid "Wallet"
+msgstr "Carteira"
+
+msgid "Bank"
+msgstr "Banco"
+
+msgid "Credit Card"
+msgstr "Cartão de Crédito"
+
+msgid "Money"
+msgstr "Dinheiro"
+
+msgid "PIX"
+msgstr "PIX"
+
 msgid "Donation Goal Settings"
 msgstr "Configurações de Meta de Doação"
 

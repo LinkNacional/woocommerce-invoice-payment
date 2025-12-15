@@ -1,0 +1,6 @@
+.wc-block-product.product.status-publish #lknWcInvoicePriceMethodsDiv{ 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}

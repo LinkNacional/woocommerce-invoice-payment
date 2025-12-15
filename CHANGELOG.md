@@ -1,3 +1,7 @@
+# 2.8.0 - 10/12/2025
+* Adição de configuração para exibir botão "Comprar pelo whatsapp".
+* Adição de configuração para exibir preço junto com o método de pagamento.
+
 # 2.7.2 - 12/11/2025
 * Adição de imagens.
 

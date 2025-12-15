@@ -454,3 +454,57 @@ msgstr ""
 
 msgid "Warning: Disabling the \"Donation\" product type will automatically convert all existing donation products to simple products. Do you want to continue?"
 msgstr ""
+
+msgid "Sell via WhatsApp"
+msgstr ""
+
+msgid "Configure settings for the \"Buy via WhatsApp\" button"
+msgstr ""
+
+msgid "Enable \"Buy via WhatsApp\" button"
+msgstr ""
+
+msgid "When enabled, a green \"Buy via WhatsApp\" button with WhatsApp icon will be displayed below the \"Add to cart\" button on product pages. When clicked, it will redirect to WhatsApp with a message containing the product name and price."
+msgstr ""
+
+msgid "WhatsApp Number"
+msgstr ""
+
+msgid "Enter the WhatsApp number in international format (e.g.: 5511999999999)."
+msgstr ""
+
+msgid "Enter numbers only (without the + symbol)"
+msgstr ""
+
+msgid "Button text"
+msgstr ""
+
+msgid "Enter the text that will be displayed inside the button"
+msgstr ""
+
+msgid "Buy via WhatsApp"
+msgstr ""
+
+msgid "Message text"
+msgstr ""
+
+msgid "Default message that will be written for the customer to send. Available parameters: %productName% - %price% - %productLink%"
+msgstr ""
+
+msgid "Hello! I am interested in the product: %productName% - Price: %price%. Link: %productLink%"
+msgstr ""
+
+msgid "Wallet"
+msgstr ""
+
+msgid "Bank"
+msgstr ""
+
+msgid "Credit Card"
+msgstr ""
+
+msgid "Money"
+msgstr ""
+
+msgid "PIX"
+msgstr ""

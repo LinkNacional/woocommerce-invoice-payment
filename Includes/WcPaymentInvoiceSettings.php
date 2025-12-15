@@ -76,6 +76,14 @@ final class WcPaymentInvoiceSettings
             'saveQuoteSettings'
         );
 
+        // Aba Vender por WhatsApp
+        $this->register_settings_tab(
+            'wc_payment_whatsapp_settings',
+            __('Sell via WhatsApp', 'wc-invoice-payment'),
+            'showWhatsAppSettingTabContent',
+            'saveWhatsAppSettings'
+        );
+
         // Aba Doações
         $this->register_settings_tab(
             'wc_payment_donation_settings',
@@ -175,25 +183,61 @@ final class WcPaymentInvoiceSettings
         $method_value = get_option($slug . 'percent_fixed_' . $gateway_id, 'percentage');
         $amount_value = get_option($slug . 'value_' . $gateway_id, '0');
         $active_value = get_option($slug . 'method_activated_' . $gateway_id, 'no');
+        $icon_value = get_option($slug . 'icon_' . $gateway_id, 'wallet');
         ?>
         <tr valign="top">
             <th scope="row" class="titledesc">
                 <label for="<?php echo esc_attr($slug . 'type_' . $gateway_id); ?>"><?php echo esc_html($gateway_title); ?></label>
             </th>
             <td class="forminp">
-                <fieldset>
+                <!-- Primeira seção: Exibir preço -->
+                <fieldset data-section-title="<?php echo esc_attr(__('Show price on product page', 'wc-invoice-payment')); ?>">
                     <legend class="screen-reader-text">
-                        <span><?php echo esc_html(__('Configure fee or discount for this payment method', 'wc-invoice-payment')); ?></span>
+                        <span><?php echo esc_html(__('Show price on product page', 'wc-invoice-payment')); ?></span>
                     </legend>
                     
                     <div style="display: flex;gap: 15px;align-items: flex-start;flex-wrap: wrap;flex-direction: column;">
-                        <!-- Adicionando checkbox -->
+                        <!-- Checkbox para mostrar preço na página do produto -->
+                        <div>
+                            <?php $show_price_value = get_option($slug . 'show_price_' . $gateway_id, 'no'); ?>
+                            <input type="checkbox" name="<?php echo esc_attr($slug . 'show_price_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'show_price_' . $gateway_id); ?>" value="yes" <?php checked($show_price_value, 'yes'); ?> />
+                            <label for="<?php echo esc_attr($slug . 'show_price_' . $gateway_id); ?>"><?php echo esc_html(__('Show price on product page', 'wc-invoice-payment')); ?></label>
+                            <p class="description"><?php echo esc_html(__('Shows the product price with fee/discount applied for this payment method on product pages.', 'wc-invoice-payment')); ?></p>        
+                        </div>
+                        
+                        <!-- Ícone do método de pagamento -->
+                        <div>
+                            <label for="<?php echo esc_attr($slug . 'icon_' . $gateway_id); ?>"><?php echo esc_html(__('Payment Method Icon', 'wc-invoice-payment')); ?></label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <select name="<?php echo esc_attr($slug . 'icon_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'icon_' . $gateway_id); ?>" class="wc-enhanced-select lkn-icon-select" data-gateway="<?php echo esc_attr($gateway_id); ?>">
+                                    <option value="wallet" <?php selected($icon_value, 'wallet'); ?>><?php echo esc_html(__('Wallet', 'wc-invoice-payment')); ?></option>
+                                    <option value="bank" <?php selected($icon_value, 'bank'); ?>><?php echo esc_html(__('Bank', 'wc-invoice-payment')); ?></option>
+                                    <option value="creditCard" <?php selected($icon_value, 'creditCard'); ?>><?php echo esc_html(__('Credit Card', 'wc-invoice-payment')); ?></option>
+                                    <option value="money" <?php selected($icon_value, 'money'); ?>><?php echo esc_html(__('Money', 'wc-invoice-payment')); ?></option>
+                                    <option value="pix" <?php selected($icon_value, 'pix'); ?>><?php echo esc_html(__('PIX', 'wc-invoice-payment')); ?></option>
+                                </select>
+                                <div class="lkn-icon-preview" data-gateway="<?php echo esc_attr($gateway_id); ?>">
+                                    <img src="<?php echo WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . esc_attr($icon_value) . '.svg'; ?>" alt="<?php echo esc_attr($icon_value); ?>" style="width: 24px; height: 24px;" />
+                                </div>
+                            </div>
+                            <p class="description"><?php echo esc_html(__('Select the icon to be displayed for this payment method.', 'wc-invoice-payment')); ?></p>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Segunda seção: Taxas/descontos -->
+                <fieldset style="margin-top: 20px;" data-section-title="<?php echo esc_attr(__('Fees/Discounts', 'wc-invoice-payment')); ?>">
+                    <legend class="screen-reader-text">
+                        <span><?php echo esc_html(__('Fees/Discounts', 'wc-invoice-payment')); ?></span>
+                    </legend>
+                    
+                    <div style="display: flex;gap: 15px;align-items: flex-start;flex-wrap: wrap;flex-direction: column;">
                         <div>
                             <input type="checkbox" name="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>" value="yes" <?php checked($active_value, 'yes'); ?> />
                             <label for="<?php echo esc_attr($slug . 'method_activated_' . $gateway_id); ?>"><?php echo esc_html(__('Enable this option', 'wc-invoice-payment')); ?></label>
                             <p class="description"><?php echo esc_html(__('Enables fee/discount payment for the payment method.', 'wc-invoice-payment')); ?></p>        
                         </div>
-
+                        
                         <!-- Tipo: Taxa ou Desconto -->
                         <div>
                             <select name="<?php echo esc_attr($slug . 'type_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'type_' . $gateway_id); ?>" class="wc-enhanced-select">
@@ -216,9 +260,10 @@ final class WcPaymentInvoiceSettings
                         <div>
                             <input name="<?php echo esc_attr($slug . 'value_' . $gateway_id); ?>" id="<?php echo esc_attr($slug . 'value_' . $gateway_id); ?>" type="number" value="<?php echo esc_attr($amount_value); ?>" min="0" step="0.01" />
                             <p class="description"><?php echo esc_html(__('Only integer or decimal numbers are allowed. Examples of allowed numbers: 10 or 10.55. For 30% percentage use 30.', 'wc-invoice-payment')); ?></p>
-                        </div>                        
+                        </div>
                     </div>
                 </fieldset>
+                
             </td>
         </tr>
         <?php
@@ -386,11 +431,20 @@ final class WcPaymentInvoiceSettings
                 update_option($method_activated_field, 'no');
             }
             
+            // Processar checkbox de mostrar preço
+            $show_price_field = $slug . 'show_price_' . $gateway_id;
+            if (isset($_POST[$show_price_field])) {
+                update_option($show_price_field, sanitize_text_field($_POST[$show_price_field]));
+            } else {
+                update_option($show_price_field, 'no');
+            }
+            
             // Processar outros campos
             $fields_to_process = array(
                 'type_' . $gateway_id,
                 'percent_fixed_' . $gateway_id,
-                'value_' . $gateway_id
+                'value_' . $gateway_id,
+                'icon_' . $gateway_id
             );
             
             foreach ($fields_to_process as $field) {
@@ -620,6 +674,7 @@ final class WcPaymentInvoiceSettings
                 'name'     => __('Fees and Discounts Settings', 'wc-invoice-payment'),
                 'desc'     => __('Configure fees and discounts for each payment method.', 'wc-invoice-payment'),
             ),
+
             $slug . 'show_fee_activated' => array(
                 'name'     => __('Show payment discount', 'wc-invoice-payment'),
                 'type'     => 'checkbox',
@@ -665,6 +720,19 @@ final class WcPaymentInvoiceSettings
     public function saveQuoteSettings()
     {
         woocommerce_update_options($this->getQuoteSettings());
+    }
+
+    // === MÉTODOS DA ABA WHATSAPP ===
+    public function showWhatsAppSettingTabContent()
+    {
+        wp_enqueue_script('woocommerce_admin');
+        $this->loadScriptsAndStyles();
+        woocommerce_admin_fields($this->getWhatsAppSettings());
+    }
+
+    public function saveWhatsAppSettings()
+    {
+        woocommerce_update_options($this->getWhatsAppSettings());
     }
 
     // === MÉTODOS DA ABA DOAÇÕES ===
@@ -745,6 +813,59 @@ final class WcPaymentInvoiceSettings
         return $settingsFields;
     }
 
+    private function getWhatsAppSettings()
+    {
+        $slug = 'lkn_wcip_';
+
+        $settingsFields = array(
+            'sectionTitle' => array(
+                'type'     => 'title',
+                'name'     => __('Sell via WhatsApp', 'wc-invoice-payment'),
+                'desc'     => __('Configure settings for the "Buy via WhatsApp" button', 'wc-invoice-payment'),
+            ),
+            $slug . 'whatsapp_buy_button_enabled' => array(
+                'name'     => __('Enable "Buy via WhatsApp" button', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip' => __('When enabled, a green "Buy via WhatsApp" button with WhatsApp icon will be displayed below the "Add to cart" button on product pages. When clicked, it will redirect to WhatsApp with a message containing the product name and price.', 'wc-invoice-payment'),
+                'id'       => $slug . 'whatsapp_buy_button_enabled',
+                'default'  => 'no',
+            ),
+            $slug . 'whatsapp_phone_number' => array(
+                'name'     => __('WhatsApp Number', 'wc-invoice-payment'),
+                'type'     => 'text',
+                'desc'     => __('Enter the WhatsApp number in international format (e.g.: 5511999999999).', 'wc-invoice-payment'),
+                'id'       => $slug . 'whatsapp_phone_number',
+                'placeholder' => '5511999999999',
+                'custom_attributes' => array(
+                    'pattern' => '[0-9]+',
+                    'title' => __('Enter numbers only (without the + symbol)', 'wc-invoice-payment')
+                )
+            ),
+            $slug . 'whatsapp_button_text' => array(
+                'name'     => __('Button text', 'wc-invoice-payment'),
+                'type'     => 'text',
+                'desc'     => __('Enter the text that will be displayed inside the button', 'wc-invoice-payment'),
+                'id'       => $slug . 'whatsapp_button_text',
+                'default'  => __('Buy via WhatsApp', 'wc-invoice-payment'),
+                'placeholder' => __('Buy via WhatsApp', 'wc-invoice-payment'),
+            ),
+            $slug . 'whatsapp_message_text' => array(
+                'name'     => __('Message text', 'wc-invoice-payment'),
+                'type'     => 'textarea',
+                'desc'     => __('Default message that will be written for the customer to send. Available parameters: %productName% - %price% - %productLink%', 'wc-invoice-payment'),
+                'id'       => $slug . 'whatsapp_message_text',
+                'default'  => __('Hello! I am interested in the product: %productName% - Price: %price%. Link: %productLink%', 'wc-invoice-payment'),
+                'placeholder' => __('Hello! I am interested in the product: %productName% - Price: %price%. Link: %productLink%', 'wc-invoice-payment'),
+                'css'      => 'min-height: 60px;',
+            ),
+            'sectionEnd' => array(
+                'type' => 'sectionend'
+            )
+        );
+
+        return $settingsFields;
+    }
+
     private function getDonationSettings()
     {
         $slug = 'lkn_wcip_';
@@ -792,6 +913,22 @@ final class WcPaymentInvoiceSettings
         return $settingsFields;
     }
 
+    /**
+     * Obtém o ícone configurado para um gateway de pagamento específico
+     */
+    public function getGatewayIcon($gateway_id) {
+        $slug = 'lkn_wcip_fee_or_discount_';
+        return get_option($slug . 'icon_' . $gateway_id, 'wallet');
+    }
+
+    /**
+     * Obtém a URL completa do ícone para um gateway de pagamento específico
+     */
+    public function getGatewayIconUrl($gateway_id) {
+        $icon = $this->getGatewayIcon($gateway_id);
+        return WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . $icon . '.svg';
+    }
+
     public function loadScriptsAndStyles(){
         // Carrega a biblioteca de mídia do WordPress
         wp_enqueue_media();
@@ -808,6 +945,9 @@ final class WcPaymentInvoiceSettings
             'disable' => __('Disable', 'wc-invoice-payment'),
             'alert' => __('Alert', 'wc-invoice-payment'),
             'donation_disable_warning' => __('Warning: Disabling the "Donation" product type will automatically convert all existing donation products to simple products. Do you want to continue?', 'wc-invoice-payment'),
+        ));
+        wp_localize_script('admin-layout-script', 'wcInvoicePaymentData', array(
+            'pluginUrl' => WC_PAYMENT_INVOICE_ROOT_URL,
         ));
 
         // Adiciona suporte aos tipos customizados de campos
