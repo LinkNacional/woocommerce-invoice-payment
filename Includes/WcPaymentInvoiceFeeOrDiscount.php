@@ -368,94 +368,36 @@ final class WcPaymentInvoiceFeeOrDiscount
                 // Adiciona classe CSS baseada no tipo (fee ou discount)
                 $css_class = $type === 'fee' ? 'fee-type' : 'discount-type';
                 
-                // Verifica se é método PIX para adicionar ícone
-                $pix_icon = '';
-                $is_pix_method = stripos($gateway_id, 'pix') !== false;
+                // Obtém o ícone configurado para este gateway de pagamento
+                $gateway_icon_name = get_option('lkn_wcip_fee_or_discount_icon_' . $gateway_id, 'wallet');
+                $gateway_icon_url = WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . $gateway_icon_name . '.svg';
+                $gateway_icon = sprintf(
+                    '<img class="lknWcInvoiceGatewayIcon" src="%s" alt="%s" style="width: 20px; height: 20px; vertical-align: middle; display: inline-block;">',
+                    esc_url($gateway_icon_url),
+                    esc_attr($gateway_icon_name)
+                );
                 
-                if ($is_pix_method) {
-                    $pix_icon_url = WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/pix.svg';
-                    $pix_icon = sprintf(
-                        '<img id="lknWcInvoicePixIcon" src="%s" alt="PIX" style="width: 20px; height: 20px; vertical-align: middle; display: inline-block;">',
-                        esc_url($pix_icon_url)
-                    );
-                }
-                
-                
+                // Verifica se há informações de parcelamento para gateways específicos
+                $installment_info = '';
                 if ($gateway_id === 'rede_credit') {
                     $installment_info = $this->getRedeInstallmentInfo($final_price);
-                    
-                    if ($installment_info) {
-                        $credit_icon_url = WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/creditCard.svg';
-                        $credit_icon = sprintf(
-                            '<img id="lknWcInvoiceCreditIcon" src="%s" alt="Cartão" style="width: 20px; height: 20px; vertical-align: middle; display: inline-block;">',
-                            esc_url($credit_icon_url)
-                        );
-                        
-                        $price_info = sprintf(
-                            '%s%s',
-                            $credit_icon,
-                            $installment_info
-                        );
-                    } else {
-                        $price_info = sprintf(
-                            '%s%s no %s',
-                            $pix_icon,
-                            wc_price($final_price),
-                            esc_html($gateway_title)
-                        );
-                    }
                 } elseif ($gateway_id === 'lkn_cielo_credit') {
-                    // Gateway Cielo Credit (wc_cielo_payment_gateway plugin)
                     $installment_info = $this->getCieloCreditInstallmentInfo($final_price);
-                    
-                    if ($installment_info) {
-                        $credit_icon_url = WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/creditCard.svg';
-                        $credit_icon = sprintf(
-                            '<img id="lknWcInvoiceCreditIcon" src="%s" alt="Cartão" style="width: 20px; height: 20px; vertical-align: middle; display: inline-block;">',
-                            esc_url($credit_icon_url)
-                        );
-                        
-                        $price_info = sprintf(
-                            '%s%s',
-                            $credit_icon,
-                            $installment_info
-                        );
-                    } else {
-                        $price_info = sprintf(
-                            '%s%s no %s',
-                            $pix_icon,
-                            wc_price($final_price),
-                            esc_html($gateway_title)
-                        );
-                    }
                 } elseif ($gateway_id === 'lkn_cielo_debit') {
-                    // Gateway Cielo Debit (wc_cielo_payment_gateway plugin) - pode ter opção de crédito
                     $installment_info = $this->getCieloDebitInstallmentInfo($final_price);
-                    
-                    if ($installment_info) {
-                        $credit_icon_url = WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/creditCard.svg';
-                        $credit_icon = sprintf(
-                            '<img id="lknWcInvoiceCreditIcon" src="%s" alt="Cartão" style="width: 20px; height: 20px; vertical-align: middle; display: inline-block;">',
-                            esc_url($credit_icon_url)
-                        );
-                        
-                        $price_info = sprintf(
-                            '%s%s',
-                            $credit_icon,
-                            $installment_info
-                        );
-                    } else {
-                        $price_info = sprintf(
-                            '%s%s no %s',
-                            $pix_icon,
-                            wc_price($final_price),
-                            esc_html($gateway_title)
-                        );
-                    }
+                }
+                
+                // Monta a informação do preço com o ícone configurado
+                if (!empty($installment_info)) {
+                    $price_info = sprintf(
+                        '%s%s',
+                        $gateway_icon,
+                        $installment_info
+                    );
                 } else {
                     $price_info = sprintf(
                         '%s%s no %s',
-                        $pix_icon,
+                        $gateway_icon,
                         wc_price($final_price),
                         esc_html($gateway_title)
                     );
