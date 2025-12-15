@@ -79,7 +79,7 @@ final class WcPaymentInvoiceSettings
         // Aba Vender por WhatsApp
         $this->register_settings_tab(
             'wc_payment_whatsapp_settings',
-            __('Sell through WhatsApp', 'wc-invoice-payment'),
+            __('Sell via WhatsApp', 'wc-invoice-payment'),
             'showWhatsAppSettingTabContent',
             'saveWhatsAppSettings'
         );
@@ -820,13 +820,13 @@ final class WcPaymentInvoiceSettings
         $settingsFields = array(
             'sectionTitle' => array(
                 'type'     => 'title',
-                'name'     => __('Sell through WhatsApp', 'wc-invoice-payment'),
-                'desc'     => __('Configure settings for the "Buy through WhatsApp" button', 'wc-invoice-payment'),
+                'name'     => __('Sell via WhatsApp', 'wc-invoice-payment'),
+                'desc'     => __('Configure settings for the "Buy via WhatsApp" button', 'wc-invoice-payment'),
             ),
             $slug . 'whatsapp_buy_button_enabled' => array(
-                'name'     => __('Enable "Buy through WhatsApp" button', 'wc-invoice-payment'),
+                'name'     => __('Enable "Buy via WhatsApp" button', 'wc-invoice-payment'),
                 'type'     => 'checkbox',
-                'desc_tip' => __('When enabled, a green "Buy through WhatsApp" button with WhatsApp icon will be displayed below the "Add to cart" button on product pages. When clicked, it will redirect to WhatsApp with a message containing the product name and price.', 'wc-invoice-payment'),
+                'desc_tip' => __('When enabled, a green "Buy via WhatsApp" button with WhatsApp icon will be displayed below the "Add to cart" button on product pages. When clicked, it will redirect to WhatsApp with a message containing the product name and price.', 'wc-invoice-payment'),
                 'id'       => $slug . 'whatsapp_buy_button_enabled',
                 'default'  => 'no',
             ),
@@ -846,8 +846,8 @@ final class WcPaymentInvoiceSettings
                 'type'     => 'text',
                 'desc'     => __('Enter the text that will be displayed inside the button', 'wc-invoice-payment'),
                 'id'       => $slug . 'whatsapp_button_text',
-                'default'  => __('Buy through WhatsApp', 'wc-invoice-payment'),
-                'placeholder' => __('Buy through WhatsApp', 'wc-invoice-payment'),
+                'default'  => __('Buy via WhatsApp', 'wc-invoice-payment'),
+                'placeholder' => __('Buy via WhatsApp', 'wc-invoice-payment'),
             ),
             $slug . 'whatsapp_message_text' => array(
                 'name'     => __('Message text', 'wc-invoice-payment'),
