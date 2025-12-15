@@ -10,3 +10,25 @@
 .wp-core-ui.wp-editor-wrap.tmce-active{
     width: 100%;
 }
+
+/* Estilos para configuração de ícones dos métodos de pagamento */
+.lkn-icon-select {
+    min-width: 180px;
+}
+
+.lkn-icon-preview {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.lkn-icon-preview img {
+    max-width: 24px;
+    max-height: 24px;
+    object-fit: contain;
+}

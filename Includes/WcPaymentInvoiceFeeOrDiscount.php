@@ -357,9 +357,8 @@ final class WcPaymentInvoiceFeeOrDiscount
         foreach ($gateways as $gateway_id => $gateway) {
             // Verifica se deve mostrar o preço para este método
             $show_price = get_option('lkn_wcip_fee_or_discount_show_price_' . $gateway_id);
-            $method_active = get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id);
             
-            if ($show_price === 'yes' && $method_active === 'yes') {
+            if ($show_price === 'yes') {
                 $final_price = $this->calculateProductPriceWithFeeOrDiscount($product_price, $gateway_id);
                 $type = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id);
 
