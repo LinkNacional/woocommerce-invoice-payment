@@ -410,7 +410,13 @@
         }
       })
 
-      observer.observe(document.body, { childList: true, subtree: true })
+      if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true })
+      } else {
+        document.addEventListener('DOMContentLoaded', function() {
+          observer.observe(document.body, { childList: true, subtree: true })
+        })
+      }
     }
 
     const message = $('<p id="footer-left" class="alignleft"></p>')

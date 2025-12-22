@@ -9,11 +9,163 @@ final class WcPaymentInvoiceEndpoint {
         register_rest_route('invoice_payments', '/create_partial_payment', array(
             'methods' => 'POST',
             'callback' => array($this, 'createPartialPayment'),
+            'permission_callback' => array($this, 'checkCreatePartialPaymentPermission'),
         ));
         register_rest_route('invoice_payments', '/cancel_partial_payment', array(
             'methods'  => 'POST',
             'callback' => array($this, 'cancelPartialPayment'),
+            'permission_callback' => array($this, 'checkCancelPartialPaymentPermission'),
         ));
+    }
+    
+    /**
+     * Verifica permissão para criar pagamento parcial
+     */
+    public function checkCreatePartialPaymentPermission($request) {
+        // Verificar nonce para proteção CSRF
+        $nonce = $request->get_header('X-WP-Nonce');
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new \WP_Error('invalid_nonce', 'Nonce inválido', array('status' => 403));
+        }
+
+        $parameters = $request->get_params();
+        $order_id = isset($parameters['orderId']) ? $parameters['orderId'] : 0;
+        $user_id = isset($parameters['userId']) ? intval($parameters['userId']) : 0;
+
+        // Permitir criação de novo pedido
+        if ($order_id === 'newOrder') {
+            return true;
+        }
+
+        // Verificar se o pedido existe
+        if (!$order_id) {
+            return new \WP_Error('invalid_order', 'ID do pedido é obrigatório', array('status' => 400));
+        }
+
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return new \WP_Error('order_not_found', 'Pedido não encontrado', array('status' => 404));
+        }
+
+        $current_user_id = get_current_user_id();
+        
+        // Se usuário está logado, verificar se é o dono do pedido ou admin
+        if ($current_user_id > 0) {
+            if (current_user_can('manage_woocommerce') || $current_user_id == $order->get_customer_id()) {
+                return true;
+            }
+            return new \WP_Error('insufficient_permission', 'Você não tem permissão para criar pagamentos parciais para este pedido', array('status' => 403));
+        }
+
+        // Para usuários não logados, validações mais flexíveis
+        // Verificar se o user_id fornecido corresponde ao dono do pedido
+        if ($user_id != $order->get_customer_id()) {
+            return new \WP_Error('user_mismatch', 'Usuário não corresponde ao dono do pedido', array('status' => 403));
+        }
+
+        // Validação adicional: verificar se é um pedido recente (últimas 24 horas) ou há uma sessão válida
+        if (!$this->isRecentOrderOrValidSession($order)) {
+            return new \WP_Error('order_access_denied', 'Acesso negado: pedido muito antigo ou sessão inválida', array('status' => 403));
+        }
+
+        return true;
+    }
+
+    /**
+     * Verifica permissão para cancelar pagamento parcial
+     */
+    public function checkCancelPartialPaymentPermission($request) {
+        // Verificar nonce para proteção CSRF
+        $nonce = $request->get_header('X-WP-Nonce');
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new \WP_Error('invalid_nonce', 'Nonce inválido', array('status' => 403));
+        }
+
+        $params = $request->get_params();
+        $partial_order_id = isset($params['partialOrderId']) ? intval($params['partialOrderId']) : 0;
+
+        if (!$partial_order_id) {
+            return new \WP_Error('invalid_order_id', 'ID da ordem parcial é obrigatório', array('status' => 400));
+        }
+
+        $partial_order = wc_get_order($partial_order_id);
+        if (!$partial_order || $partial_order->get_meta('_wc_lkn_is_partial_order') !== 'yes') {
+            return new \WP_Error('invalid_partial_order', 'Ordem parcial não encontrada ou inválida', array('status' => 404));
+        }
+
+        $current_user_id = get_current_user_id();
+        
+        // Se usuário está logado, verificar se é o dono do pedido ou admin
+        if ($current_user_id > 0) {
+            if (current_user_can('manage_woocommerce') || $current_user_id == $partial_order->get_customer_id()) {
+                return true;
+            }
+            return new \WP_Error('insufficient_permission', 'Você não tem permissão para cancelar este pagamento parcial', array('status' => 403));
+        }
+
+        // Para usuários não logados, validação mais flexível
+        // Verificar se é um pedido recente ou há sessão válida
+        if (!$this->isRecentOrderOrValidSession($partial_order)) {
+            return new \WP_Error('access_denied', 'Acesso negado para cancelar este pagamento', array('status' => 403));
+        }
+
+        return true;
+    }
+
+    /**
+     * Valida se a sessão atual corresponde ao pedido
+     */
+    private function validateOrderSession($order_id, $user_id) {
+        // Para usuários não logados, verificar se existe um cookie/sessão válida
+        // que associe o usuário atual com o pedido
+        
+        // Verificar se existe uma sessão WC válida
+        if (!WC()->session) {
+            return false;
+        }
+
+        // Verificar se o customer_id da sessão corresponde
+        $session_customer_id = WC()->session->get_customer_id();
+        if ($session_customer_id && $session_customer_id == $user_id) {
+            return true;
+        }
+
+        // Verificar se existe um cookie de ordem recente
+        $recent_orders = WC()->session->get('wc_recent_orders', array());
+        if (is_array($recent_orders) && in_array($order_id, $recent_orders)) {
+            return true;
+        }
+
+        // Para casos onde o usuário acabou de criar o pedido, permitir por um tempo limitado
+        // baseado em um cookie específico do plugin
+        $order_access_token = isset($_COOKIE['wc_invoice_payment_order_' . $order_id]) ? $_COOKIE['wc_invoice_payment_order_' . $order_id] : '';
+        if ($order_access_token) {
+            $expected_token = wp_hash($order_id . $user_id . 'wc_invoice_payment');
+            return hash_equals($expected_token, $order_access_token);
+        }
+
+        return false;
+    }
+
+    /**
+     * Verifica se é um pedido recente ou há uma sessão válida
+     */
+    private function isRecentOrderOrValidSession($order) {
+        // Verificar se o pedido é recente (últimas 24 horas)
+        $order_date = $order->get_date_created();
+        if ($order_date) {
+            $now = new \DateTime();
+            $order_datetime = $order_date;
+            $diff = $now->diff($order_datetime);
+            
+            // Se foi criado nas últimas 24 horas, permitir
+            if ($diff->days == 0) {
+                return true;
+            }
+        }
+
+        // Verificar se há uma sessão válida
+        return $this->validateOrderSession($order->get_id(), $order->get_customer_id());
     }
     
     public function createPartialPayment($request) {
@@ -168,6 +320,9 @@ final class WcPaymentInvoiceEndpoint {
         $order->save();
         $partial_order->save();
 
+        // Definir cookie de acesso para usuários não logados
+        $this->setOrderAccessCookie($order_id, $user_id);
+
         
         return new WP_REST_Response([
             'success'       => true,
@@ -232,6 +387,23 @@ final class WcPaymentInvoiceEndpoint {
             'message' => 'Pagamento parcial cancelado com sucesso.',
             'new_pending_total' => $new_pending_total,
         ], 200);
+    }
+    
+    /**
+     * Define um cookie de acesso para validar sessões de usuários não logados
+     */
+    private function setOrderAccessCookie($order_id, $user_id) {
+        if (get_current_user_id() > 0) {
+            return; // Não precisa de cookie para usuários logados
+        }
+        
+        $token = wp_hash($order_id . $user_id . 'wc_invoice_payment');
+        $cookie_name = 'wc_invoice_payment_order_' . $order_id;
+        
+        // Cookie válido por 24 horas
+        $expire = time() + (24 * 60 * 60);
+        
+        setcookie($cookie_name, $token, $expire, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true);
     }
     
 }

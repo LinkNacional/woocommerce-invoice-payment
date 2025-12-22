@@ -20,6 +20,7 @@ final class WcPaymentInvoicePartial
                 'partialPaymentTitle' => __('Partial Payment', 'wc-invoice-payment'),
                 'partialPaymentDescription' => __('Enter the amount you want to pay now, the rest can be paid later with other payment methods.', 'wc-invoice-payment'),
                 'payPartialText' => __('Pay Partial', 'wc-invoice-payment'),
+                'nonce' => wp_create_nonce('wp_rest'),
             ));
         }
     }
@@ -94,6 +95,8 @@ final class WcPaymentInvoicePartial
                 'totalToPay' => $totalToPay,
                 'confirmPayment' => __('Are you sure you want to pay %s?', 'wc-invoice-payment'),
                 'confirmCancel' => __('Are you sure you want to cancel this partial payment?', 'wc-invoice-payment'),
+                'nonce' => wp_create_nonce('wp_rest'),
+                'symbol' => get_woocommerce_currency_symbol( $order->get_currency() ),
             ));
         }
     }

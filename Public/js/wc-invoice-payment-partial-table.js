@@ -12,6 +12,14 @@
             }).format(number);
         }
 
+        // Função para formatar valor com símbolo de moeda da variável
+        function formatValueWithSymbol(value) {
+            const symbol = lknWcipPartialTableVariables.symbol || 'R$';
+            const number = parseFloat(value);
+            if (isNaN(number)) return '';
+            return symbol + ' ' + number.toFixed(2).replace('.', ',');
+        }
+
         // Evento ao digitar no campo formatado
         formattedInput.on('input', function () {
             const raw = $(this).val();
@@ -54,14 +62,20 @@
                 return;
             }
 
-            if (!confirm(lknWcipPartialTableVariables.confirmPayment || ('Are you sure you want to pay ' + formattedInput.val() + '?'))) {
+            // Prepara a mensagem de confirmação com o valor formatado
+            const formattedValue = formatValueWithSymbol(partialValue);
+            const confirmMessage = lknWcipPartialTableVariables.confirmPayment 
+                ? lknWcipPartialTableVariables.confirmPayment.replace('%s', formattedValue)
+                : ('Are you sure you want to pay ' + formattedValue + '?');
+
+            if (!confirm(confirmMessage)) {
                 return;
             }
 
             // Cria o payload
             const data = {
                 partialAmount: partialValue,
-                orderId: wcInvoicePaymentPartialTableVariables.orderId,
+                orderId: lknWcipPartialTableVariables.orderId,
             };
         
             // Envia a requisição POST para a REST API
@@ -69,6 +83,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-WP-Nonce': lknWcipPartialTableVariables.nonce || wpApiSettings.nonce,
                 },
                 body: JSON.stringify(data)
             })
@@ -90,11 +105,21 @@
 
         $('.wcPaymentInvoiceTotalButton').on('click', function (e) {
             e.preventDefault();
+            
+            // Prepara a mensagem de confirmação para pagamento total
+            const totalValue = formatValueWithSymbol(lknWcipPartialTableVariables.totalToPay);
+            const confirmMessage = lknWcipPartialTableVariables.confirmPayment 
+                ? lknWcipPartialTableVariables.confirmPayment.replace('%s', totalValue)
+                : ('Are you sure you want to pay ' + totalValue + '?');
+
+            if (!confirm(confirmMessage)) {
+                return;
+            }
         
             // Cria o payload
             const data = {
-                partialAmount: wcInvoicePaymentPartialTableVariables.totalToPay,
-                orderId: wcInvoicePaymentPartialTableVariables.orderId,
+                partialAmount: lknWcipPartialTableVariables.totalToPay,
+                orderId: lknWcipPartialTableVariables.orderId,
             };
         
             // Envia a requisição POST para a REST API
@@ -104,6 +129,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-WP-Nonce': lknWcipPartialTableVariables.nonce || wpApiSettings.nonce,
                 },
                 body: JSON.stringify(data)
             })

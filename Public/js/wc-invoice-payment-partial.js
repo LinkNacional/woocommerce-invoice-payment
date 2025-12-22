@@ -16,10 +16,11 @@
             }
             if (checkoutForm || cartFlowDiv) {
                 symbol = lknWcipPartialVariables.symbol
-                clearInterval(intervalId);
-
+                
+                
                 if(checkoutForm){
-                    totalElement = $('.wc-block-formatted-money-amount.wc-block-components-formatted-money-amount.wc-block-components-totals-footer-item-tax-value');
+                    totalElement = $('.wc-block-components-totals-footer-item-tax-value');
+                    
                 }else{
                     totalElement = $('.woocommerce-Price-amount.amount').last();
                 }
@@ -254,6 +255,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'X-WP-Nonce': lknWcipPartialVariables.nonce || wpApiSettings.nonce,
                             },
                             body: JSON.stringify(data)
                         })                        
@@ -299,6 +301,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'X-WP-Nonce': lknWcipPartialVariables.nonce || wpApiSettings.nonce,
                             },
                             body: JSON.stringify(data)
                         })                        
@@ -317,6 +320,7 @@
                             alert(error.message || 'Erro na requisição');
                         });
                     });
+                    clearInterval(intervalId);
                 }
 
             }

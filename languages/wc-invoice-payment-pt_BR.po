@@ -496,6 +496,9 @@ msgstr "Digite o endereço em que deseja que seu orçamento seja entregue."
 msgid "Are you sure you want to pay "
 msgstr "Tem certeza que deseja pagar "
 
+msgid "Are you sure you want to pay %s?"
+msgstr "Tem certeza que deseja pagar %s?"
+
 msgid "Are you sure you want to cancel this partial payment?"
 msgstr "Tem certeza que deseja cancelar este pagamento parcial?"
 
