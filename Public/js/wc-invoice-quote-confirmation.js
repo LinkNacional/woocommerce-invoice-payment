@@ -116,11 +116,20 @@
                 });
             });
 
-            // Observe changes in body
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
+            // Observe changes in body apenas se existir
+            if (document.body) {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                });
+            }
         }
     });
 

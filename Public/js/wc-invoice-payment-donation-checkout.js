@@ -232,6 +232,13 @@
 
     // Função adicional para interceptar eventos de checkout de blocos
     function interceptBlocksCheckout() {
+        // Verifica se document.body existe antes de tentar observá-lo
+        if (!document.body) {
+            // Se o body ainda não existe, agenda a função para ser executada quando o DOM estiver pronto
+            document.addEventListener('DOMContentLoaded', interceptBlocksCheckout);
+            return;
+        }
+
         // Para checkout em blocos, monitora mudanças nos dados
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
@@ -261,6 +268,10 @@
         });
     }
 
-    // Inicializa interceptação para checkout em blocos
-    interceptBlocksCheckout();
+    // Inicializa interceptação para checkout em blocos de forma segura
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', interceptBlocksCheckout);
+    } else {
+        interceptBlocksCheckout();
+    }
 })(jQuery);

@@ -75,11 +75,20 @@ jQuery(document).ready(function($) {
         });
     });
 
-    // Inicia o observer
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    // Inicia o observer apenas se document.body existir
+    if (document.body) {
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    }
 
     /**
      * Função para controlar estado do botão baseado no valor do input

@@ -77,11 +77,21 @@
       })
     })
 
-    // Inicia a observação
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    })
+    // Inicia a observação apenas se document.body existir
+    if (document.body) {
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      })
+    } else {
+      // Se o body ainda não existe, agenda para quando o DOM estiver pronto
+      document.addEventListener('DOMContentLoaded', function() {
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true
+        })
+      })
+    }
 
     // Timeout de segurança para parar o observer após 30 segundos
     setTimeout(function () {
