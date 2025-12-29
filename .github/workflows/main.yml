@@ -8,7 +8,7 @@ on:
 env:
   PLUGIN_NAME: invoice-payment-for-woocommerce
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "2.8.1"
+  DEPLOY_TAG: "2.9.0"
 jobs:
   release-build:
     runs-on: ubuntu-latest

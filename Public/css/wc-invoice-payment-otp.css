@@ -1,0 +1,86 @@
+/**
+ * CSS para formulário OTP Email
+ * @package WcInvoicePayment
+ */
+
+.lkn-otp-auth-wrapper {
+    max-width: 400px;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.lkn-otp-form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.lkn-otp-form-container p {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #666;
+}
+
+.lkn-otp-form .form-row {
+    margin-bottom: 20px;
+}
+
+.lkn-otp-form .input-text {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.lkn-otp-form .button {
+    padding: 10px 20px;
+    margin-right: 10px;
+}
+
+.lkn-otp-form small {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 12px;
+}
+
+#lkn-otp-messages {
+    margin-top: 20px;
+}
+
+#lkn-otp-messages .woocommerce-message,
+#lkn-otp-messages .woocommerce-error,
+#lkn-otp-messages .woocommerce-info {
+    padding: 10px;
+    border-radius: 3px;
+    margin: 0;
+}
+
+/* Remove ou ajusta o ícone ::before das mensagens do WooCommerce */
+#lkn-otp-messages .woocommerce-message::before,
+#lkn-otp-messages .woocommerce-error::before,
+#lkn-otp-messages .woocommerce-info::before {
+    display: none !important;
+}
+
+#customer_login > :nth-child(1),
+#customer_login > :nth-child(2) {
+    display: none;
+}
+
+#lkn_otp_code{
+    font-size: xx-large;
+    letter-spacing: 10px;
+    text-align: center;
+}
+
+#lkn-otp-code-form div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#lkn-otp-code-form .wp-element-button{
+    width: 100%;
+}

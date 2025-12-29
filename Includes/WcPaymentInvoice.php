@@ -9,6 +9,7 @@ use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceDonation;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceWhatsAppButton;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
+use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceOtpEmail;
 use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
 use WC_Countries;
 
@@ -67,6 +68,7 @@ final class WcPaymentInvoice {
     public $WcPaymentInvoicePartialClass;
     public $WcPaymentInvoiceEndpointClass;
     public $WcPaymentInvoiceQuoteClass;
+    public $WcPaymentInvoiceOtpEmailClass;
 
     /**
      * Define the core functionality of the plugin.
@@ -153,6 +155,7 @@ final class WcPaymentInvoice {
         $this->WcPaymentInvoicePartialClass = new WcPaymentInvoicePartial();
         $this->WcPaymentInvoiceEndpointClass = new WcPaymentInvoiceEndpoint();
         $this->WcPaymentInvoiceQuoteClass = new WcPaymentInvoiceQuote();
+        $this->WcPaymentInvoiceOtpEmailClass = new WcPaymentInvoiceOtpEmail($this->loader);
     }
 
     /**
@@ -257,6 +260,8 @@ final class WcPaymentInvoice {
 
         $this->loader->add_action('woocommerce_get_country_locale', $this, 'lkn_woo_better_shipping_calculator_locale', 10, 1);
 
+        // Hooks para OTP Email
+        $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceOtpEmailClass, 'registerEndpoints');
 
         new WcPaymentInvoiceSettings($this->loader);
     }
@@ -507,5 +512,21 @@ final class WcPaymentInvoice {
         // Hook temporário para registrar o endpoint - execute uma vez e comente
         $this->loader->add_action('wp_loaded', $this->WcPaymentInvoiceQuoteClass, 'forceFlushRewriteRules');
         $this->loader->add_filter("woocommerce_order_email_verification_required", $this, "custom_email_verification_required", 10, 3);
+        
+        // Hooks para OTP Email no frontend
+        
+        // Hooks condicionais para OTP - só registra se OTP estiver ativo
+        if ($this->WcPaymentInvoiceOtpEmailClass->is_otp_enabled()) {
+            $this->loader->add_action('wp_footer', $this->WcPaymentInvoiceOtpEmailClass, 'add_otp_scripts');
+            
+            if ($this->WcPaymentInvoiceOtpEmailClass->is_full_mode()) {
+                // Modo completo: substitui login e registro + bloqueia registros tradicionais
+                $this->loader->add_action('woocommerce_before_customer_login_form', $this->WcPaymentInvoiceOtpEmailClass, 'replace_login_register_forms');
+                $this->loader->add_filter('woocommerce_process_registration_errors', $this->WcPaymentInvoiceOtpEmailClass, 'block_woocommerce_registration', 10, 4);
+            } elseif ($this->WcPaymentInvoiceOtpEmailClass->is_login_only_mode()) {
+                // Modo apenas login: substitui apenas login
+                $this->loader->add_action('woocommerce_before_customer_login_form', $this->WcPaymentInvoiceOtpEmailClass, 'replace_login_form');
+            }
+        }
     }
 }
