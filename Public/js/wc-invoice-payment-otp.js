@@ -59,6 +59,10 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         
         const code = $('#lkn_otp_code').val();
+        const submitButton = $(this).find('button[type="submit"]');
+        
+        // Desabilita o botão durante a requisição
+        submitButton.prop('disabled', true)
         
         $('#lkn-otp-messages').html('<div class="woocommerce-info">Verificando código...</div>');
         
@@ -78,6 +82,8 @@ jQuery(document).ready(function($) {
                 }, 1000);
             } else {
                 $('#lkn-otp-messages').html('<div class="woocommerce-error">' + response.message + '</div>');
+                // Reabilita o botão em caso de erro
+                submitButton.prop('disabled', false);
             }
         }).catch(function(error) {
             if(error.success == false){
@@ -86,6 +92,8 @@ jQuery(document).ready(function($) {
                 console.log(error)
                 $('#lkn-otp-messages').html('<div class="woocommerce-error">Erro de conexão.</div>');
             }
+            // Reabilita o botão em caso de erro
+            submitButton.prop('disabled', false);
         });
     });
 
@@ -108,9 +116,15 @@ jQuery(document).ready(function($) {
         }
     });
 
-    // Auto-focus no campo de código
+    // Auto-focus no campo de código e submissão automática
     $(document).on('input', '#lkn_otp_code', function() {
+        // Remove caracteres não numéricos
         $(this).val($(this).val().replace(/[^0-9]/g, ''));
+        
+        // Se chegou a 6 dígitos, submete automaticamente
+        if ($(this).val().length === 6) {
+            $('#lkn-otp-code-form').submit();
+        }
     });
 
     // Se o modo OTP é 'login_only', remove os elementos de login padrão do WooCommerce
