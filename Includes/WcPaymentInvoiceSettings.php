@@ -91,6 +91,14 @@ final class WcPaymentInvoiceSettings
             'showDonationSettingTabContent',
             'saveDonationSettings'
         );
+
+        // Aba OTP Email
+        $this->register_settings_tab(
+            'wc_payment_otp_email_settings',
+            __('OTP Email', 'wc-invoice-payment'),
+            'showOtpEmailSettingTabContent',
+            'saveOtpEmailSettings'
+        );
     }
 
 
@@ -748,6 +756,19 @@ final class WcPaymentInvoiceSettings
         woocommerce_update_options($this->getDonationSettings());
     }
 
+    // === MÉTODOS DA ABA OTP EMAIL ===
+    public function showOtpEmailSettingTabContent()
+    {
+        wp_enqueue_script('woocommerce_admin');
+        $this->loadScriptsAndStyles();
+        woocommerce_admin_fields($this->getOtpEmailSettings());
+    }
+
+    public function saveOtpEmailSettings()
+    {
+        woocommerce_update_options($this->getOtpEmailSettings());
+    }
+
     private function getQuoteSettings()
     {
         $slug = 'lkn_wcip_';
@@ -904,6 +925,37 @@ final class WcPaymentInvoiceSettings
                 'id'       => $slug . 'donation_button_text',
                 'default'  => __('Make a donation', 'wc-invoice-payment'),
                 'placeholder' => __('Make a donation', 'wc-invoice-payment'),
+            ),
+            'sectionEnd' => array(
+                'type' => 'sectionend'
+            )
+        );
+
+        return $settingsFields;
+    }
+
+    private function getOtpEmailSettings()
+    {
+        $slug = 'lkn_wcip_otp_email_';
+
+        $settingsFields = array(
+            'sectionTitle' => array(
+                'type'     => 'title',
+                'name'     => __('Configurações de OTP por Email', 'wc-invoice-payment'),
+                'desc'     => __('Configure as configurações de autenticação OTP (One-Time Password) por email.', 'wc-invoice-payment'),
+            ),
+            $slug . 'enable_type' => array(
+                'name'     => __('Modo de Autenticação OTP', 'wc-invoice-payment'),
+                'type'     => 'select',
+                'class'    => 'wc-enhanced-select',
+                'desc' => __('Escolha o modo de autenticação OTP. "Apenas Login" permite que usuários façam login com OTP (devem ter uma conta existente com senha). "Registro e Login" permite tanto o registro quanto o login com OTP (sem necessidade de senha).', 'wc-invoice-payment'),
+                'id'       => $slug . 'enable_type',
+                'options'  => array(
+                    'disabled'    => __('Desabilitado', 'wc-invoice-payment'),
+                    'login_only'  => __('Apenas Login', 'wc-invoice-payment'),
+                    'register_and_login' => __('Registro e Login', 'wc-invoice-payment')
+                ),
+                'default'  => 'disabled',
             ),
             'sectionEnd' => array(
                 'type' => 'sectionend'

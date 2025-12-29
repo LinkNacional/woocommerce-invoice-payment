@@ -1,3 +1,6 @@
+# 2.9.0 - 29/12/2025
+* Adição de OTP para registros e logins dos usuários.
+
 # 2.8.1 - 22/12/2025
 * Correção de erros encontrados pelo wordfence.
 * Correção em script de criação de pagamentos parciais.
