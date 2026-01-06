@@ -258,7 +258,7 @@ jQuery(document).ready(function($) {
      */
     function addProductsToInvoice() {
         selectedProducts.forEach(function(product) {
-            const totalPrice = (parseFloat(product.price) * product.quantity).toFixed(2).replace('.', ',');
+            const totalPrice = (parseFloat(product.price) * product.quantity).toFixed(2).replace('.', wcipProductSearch.decimalSeparator);
             const productName = `${product.name} (x${product.quantity})`;
             
             // Add a new line to the invoice form

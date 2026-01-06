@@ -1,3 +1,7 @@
+# 2.9.1 - 06/01/2026
+* Correção de erro no valor dos produtos da fatura.
+* Correção em carregamento de scripts de orçamento.
+
 # 2.9.0 - 29/12/2025
 * Adição de OTP para registros e logins dos usuários.
 
