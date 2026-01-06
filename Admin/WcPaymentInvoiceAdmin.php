@@ -138,6 +138,7 @@ final class WcPaymentInvoiceAdmin
             || 'woocommerce_page_wc-orders' === $hook
             || 'woocommerce_page_wc-settings' === $hook
             || 'quotes_page_new-quote' === $hook
+            || 'orcamentos_page_new-quote' === $hook
             || 'toplevel_page_wc-invoice-payment-quotes' === $hook
         ) {
             wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', array(), $this->version, 'all');
@@ -173,6 +174,7 @@ final class WcPaymentInvoiceAdmin
             || 'admin_page_edit-subscription' === $hook
             || 'wc-invoice-payment_page_wc-subscription-payment' === $hook
             || 'quotes_page_new-quote' === $hook
+            || 'orcamentos_page_new-quote' === $hook
             || 'admin_page_edit-quote' == $hook
         ) {
             wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', array('wp-i18n', 'jquery'), $this->version, false);
@@ -204,6 +206,7 @@ final class WcPaymentInvoiceAdmin
                 || 'admin_page_edit-invoice' === $hook
                 || 'admin_page_edit-quote' === $hook
                 || 'quotes_page_new-quote' === $hook
+                || 'orcamentos_page_new-quote' === $hook
             ) {
                 // Enqueue WooCommerce admin scripts for product search
                 wp_enqueue_script('wc-enhanced-select');
@@ -234,7 +237,9 @@ final class WcPaymentInvoiceAdmin
                         'quantity' => __('Quantity', 'wc-invoice-payment'),
                         'cancel' => __('Cancel', 'wc-invoice-payment'),
                         'addToInvoice' => __('Add to Invoice', 'wc-invoice-payment'),
-                        'noProductsSelected' => __('No products selected', 'wc-invoice-payment')
+                        'noProductsSelected' => __('No products selected', 'wc-invoice-payment'),
+                        'decimalSeparator' => wc_get_price_decimal_separator(),
+                        'thousandSeparator' => wc_get_price_thousand_separator()
                     )
                 );
             }

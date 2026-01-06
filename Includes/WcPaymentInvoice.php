@@ -236,7 +236,6 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_init', $this, 'woocommerceInit');
         $this->loader->add_filter('woocommerce_payment_gateways', $this, 'add_payment_gateways');
         $this->loader->add_action('init', $this, 'manage_quote_gateway_status');
-        $this->loader->add_action('woocommerce_blocks_loaded', $this, 'register_blocks_integration');
 		$this->loader->add_filter( 'wc_order_statuses', $this->WcPaymentInvoicePartialClass, 'createStatus' );
 		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoicePartialClass, 'registerStatus' );
 		$this->loader->add_action( 'woocommerce_order_status_changed', $this->WcPaymentInvoicePartialClass, 'statusChanged', 10, 4);
@@ -376,31 +375,6 @@ final class WcPaymentInvoice {
     {
         $gateways[] = 'LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceQuoteGateway';
         return $gateways;
-    }
-
-    /**
-     * Register WooCommerce Blocks integration
-     */
-    public function register_blocks_integration()
-    {
-        if (class_exists('Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry')) {
-            add_action(
-                'woocommerce_blocks_payment_method_type_registration',
-                array($this, 'add_blocks_payment_method')
-            );
-        }
-    }
-
-    /**
-     * Add blocks payment method
-     */
-    public function add_blocks_payment_method($payment_method_registry)
-    {
-        if (!class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
-            return;
-        }
-
-        $payment_method_registry->register(new WcPaymentInvoiceQuoteGatewayBlocks());
     }
 
     public function wcEditorBlocksAddPaymentMethod(\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry): void {
