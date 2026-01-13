@@ -1014,7 +1014,6 @@ final class WcPaymentInvoiceSettings
                 'name'     => __('Global minimum donation amount', 'wc-invoice-payment'),
                 'type'     => 'number',
                 'desc'     => __('Set the global minimum donation amount for all variable donation products. If a user tries to donate less, this amount will be used instead.', 'wc-invoice-payment'),
-                'desc_tip' => true,
                 'id'       => $slug . 'donation_minimum_amount',
                 'default'  => '1.00',
                 'custom_attributes' => array(
