@@ -100,7 +100,25 @@ jQuery(document).ready(function($) {
         if (!donationAmount || donationAmount.trim() === '') {
             button.prop('disabled', true);
         } else {
-            button.prop('disabled', false);
+            // Valida valor mínimo se disponível
+            if (typeof phpAttributes !== 'undefined' && phpAttributes.minimumAmount) {
+                var amount = parseFloat(donationAmount);
+                var minimum = parseFloat(phpAttributes.minimumAmount);
+                
+                if (amount > 0 && amount < minimum) {
+                    // Aplica o valor mínimo automaticamente
+                    $('#donation_amount').val(minimum);
+                    button.prop('disabled', false);
+                } else if (amount <= 0) {
+                    // Aplica o valor mínimo se valor inválido
+                    $('#donation_amount').val(minimum);
+                    button.prop('disabled', false);
+                } else {
+                    button.prop('disabled', false);
+                }
+            } else {
+                button.prop('disabled', false);
+            }
         }
     }
     

@@ -52,7 +52,7 @@ if (!defined('ABSPATH')) {
             <div style="background-color: #f8f9fa; border-left: 4px solid #dee2e6; padding: 20px; margin: 30px 0; border-radius: 0 6px 6px 0;">
                 <p style="margin: 0; font-size: 14px; color: #6c757d; line-height: 1.5;">
                     <strong style="color: #495057;">Instruções:</strong><br>
-                    • Este código expira em <strong>5 minutos</strong><br>
+                    • Este código expira em <strong><?php echo esc_html($expiration_minutes); ?> minuto<?php echo $expiration_minutes > 1 ? 's' : ''; ?></strong><br>
                     • Digite-o na tela de login para acessar sua conta<br>
                     • Não compartilhe este código com ninguém
                 </p>
