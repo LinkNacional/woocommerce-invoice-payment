@@ -75,13 +75,27 @@ final class WcPaymentInvoiceOtpEmail {
     }
 
     /**
+     * Obtém o tempo de expiração configurado em minutos
+     */
+    private function get_otp_expiration_minutes() {
+        $expiration_minutes = get_option('lkn_wcip_otp_email_expiration_time', 5);
+        
+        // Validação: mínimo 1 minuto, máximo 60 minutos
+        $expiration_minutes = max(1, min(60, (int) $expiration_minutes));
+        
+        return $expiration_minutes;
+    }
+
+    /**
      * Salva código OTP nas options do WordPress
      */
     private function save_otp_code($email, $code) {
+        $expiration_minutes = $this->get_otp_expiration_minutes();
+        
         $otp_data = array(
             'code' => $code,
             'email' => $email,
-            'expires_at' => time() + (5 * 60), // 5 minutos
+            'expires_at' => time() + ($expiration_minutes * 60),
             'used' => false,
             'created_at' => time()
         );
@@ -163,7 +177,8 @@ final class WcPaymentInvoiceOtpEmail {
         $template_data = array(
             'otp_code' => $code,
             'site_name' => \get_bloginfo('name'),
-            'site_url' => \home_url()
+            'site_url' => \home_url(),
+            'expiration_minutes' => $this->get_otp_expiration_minutes()
         );
 
         // Gera o HTML do email usando template
@@ -538,7 +553,8 @@ final class WcPaymentInvoiceOtpEmail {
             'dashboardUrl' => \wc_get_account_endpoint_url('dashboard'),
             'ajaxUrl' => \admin_url('admin-ajax.php'),
             'nonce' => \wp_create_nonce('wc_invoice_payment_otp_nonce'),
-            'get_otp_mode' => $this->get_otp_mode()
+            'get_otp_mode' => $this->get_otp_mode(),
+            'expiration_minutes' => $this->get_otp_expiration_minutes()
         ));
     }
 
