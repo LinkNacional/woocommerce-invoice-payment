@@ -753,7 +753,91 @@ final class WcPaymentInvoiceSettings
 
     public function saveDonationSettings()
     {
+        // Salva as configurações primeiro
         woocommerce_update_options($this->getDonationSettings());
+        
+        // Se o valor mínimo de doação foi alterado, atualiza produtos existentes
+        if (isset($_POST['lkn_wcip_donation_minimum_amount'])) {
+            $new_minimum_amount = floatval($_POST['lkn_wcip_donation_minimum_amount']);
+            $this->updateExistingDonationProducts($new_minimum_amount);
+        }
+    }
+    
+    /**
+     * Atualiza produtos de doação variável existentes que têm preço R$ 0,00
+     * para usar o novo valor mínimo configurado.
+     */
+    private function updateExistingDonationProducts($new_minimum_amount)
+    {
+        // Busca todos os produtos do tipo 'donation'
+        $args = array(
+            'post_type' => 'product',
+            'post_status' => array('publish', 'private', 'draft'),
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    'key' => '_donation_type',
+                    'value' => 'variable',
+                    'compare' => '='
+                ),
+                array(
+                    'relation' => 'OR',
+                    array(
+                        'key' => '_regular_price',
+                        'value' => '0',
+                        'compare' => '='
+                    ),
+                    array(
+                        'key' => '_regular_price',
+                        'value' => '0.00',
+                        'compare' => '='
+                    ),
+                    array(
+                        'key' => '_regular_price',
+                        'compare' => 'NOT EXISTS'
+                    )
+                )
+            ),
+            'fields' => 'ids',
+            'posts_per_page' => -1
+        );
+        
+        $donation_products = get_posts($args);
+        
+        $updated_count = 0;
+        
+        foreach ($donation_products as $product_id) {
+            // Verifica se é realmente um produto de doação
+            $product = wc_get_product($product_id);
+            if ($product && $product->get_type() === 'donation') {
+                // Atualiza o preço do produto para o valor mínimo
+                update_post_meta($product_id, '_regular_price', $new_minimum_amount);
+                update_post_meta($product_id, '_price', $new_minimum_amount);
+                
+                // Limpa o cache do produto
+                wc_delete_product_transients($product_id);
+                
+                $updated_count++;
+            }
+        }
+        
+        // Exibe mensagem informativa se produtos foram atualizados
+        if ($updated_count > 0) {
+            add_action('admin_notices', function() use ($updated_count, $new_minimum_amount) {
+                echo '<div class="notice notice-success is-dismissible">';
+                echo '<p>' . sprintf(
+                    _n(
+                        'Updated %d donation product with the new minimum amount of %s.',
+                        'Updated %d donation products with the new minimum amount of %s.',
+                        $updated_count,
+                        'wc-invoice-payment'
+                    ),
+                    $updated_count,
+                    wc_price($new_minimum_amount)
+                ) . '</p>';
+                echo '</div>';
+            });
+        }
     }
 
     // === MÉTODOS DA ABA OTP EMAIL ===
@@ -926,6 +1010,18 @@ final class WcPaymentInvoiceSettings
                 'default'  => __('Make a donation', 'wc-invoice-payment'),
                 'placeholder' => __('Make a donation', 'wc-invoice-payment'),
             ),
+            $slug . 'donation_minimum_amount' => array(
+                'name'     => __('Global minimum donation amount', 'wc-invoice-payment'),
+                'type'     => 'number',
+                'desc'     => __('Set the global minimum donation amount for all variable donation products. If a user tries to donate less, this amount will be used instead.', 'wc-invoice-payment'),
+                'id'       => $slug . 'donation_minimum_amount',
+                'default'  => '1.00',
+                'custom_attributes' => array(
+                    'min' => '0.01',
+                    'step' => '0.01'
+                ),
+                'css'      => 'width: 80px;'
+            ),
             'sectionEnd' => array(
                 'type' => 'sectionend'
             )
@@ -956,6 +1052,18 @@ final class WcPaymentInvoiceSettings
                     'register_and_login' => __('Registro e Login', 'wc-invoice-payment')
                 ),
                 'default'  => 'disabled',
+            ),
+            $slug . 'expiration_time' => array(
+                'name'     => __('Tempo de Expiração do Código', 'wc-invoice-payment'),
+                'type'     => 'number',
+                'desc'     => __('Tempo em minutos para expiração do código OTP. Recomendado entre 5 a 15 minutos.', 'wc-invoice-payment'),
+                'id'       => $slug . 'expiration_time',
+                'default'  => '5',
+                'custom_attributes' => array(
+                    'min' => '1',
+                    'max' => '60',
+                    'step' => '1'
+                )
             ),
             'sectionEnd' => array(
                 'type' => 'sectionend'

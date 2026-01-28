@@ -73,8 +73,8 @@ if ($product->is_in_stock() && $within_deadline && !$goal_reached) : ?>
                         } ?>
                     </div>
                     <?php } ?>
-                    <div class="custom-amount-field">
-                        <div class="custom-amount-field"
+                    <div class="custom-amount-field div-father">
+                        <div class="custom-amount-field div-child"
                             <?php if ($hide_custom_amount == 'yes') { ?>
                             style="
                                 display: none !important;

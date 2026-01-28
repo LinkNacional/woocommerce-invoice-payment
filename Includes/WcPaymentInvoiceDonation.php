@@ -719,11 +719,16 @@ final class WcPaymentInvoiceDonation
             $custom_text = __('Make a donation', 'wc-invoice-payment');
         }
         
+        // Obtém ID do produto atual se disponível
+        global $product;
+        $minimum_amount = $this->get_minimum_donation_amount(); // configuração global
+        
         wp_localize_script(
             'wc-invoice-payment-donation-frontend-js',
             'phpAttributes',
             array(
                 'makeDonation' => $custom_text,
+                'minimumAmount' => $minimum_amount,
             )
         );
     }
@@ -757,14 +762,39 @@ final class WcPaymentInvoiceDonation
             
             $donation_type = $product->get_meta('_donation_type', true);
             if ($donation_type === 'variable') {
+                // Se não há valor especificado no POST (adição direta do carrinho de listagem)
+                // E o produto tem valor 0, aplica automaticamente o valor mínimo
                 if (!isset($_POST['donation_amount']) || empty($_POST['donation_amount'])) {
-                    wc_add_notice(__('Please enter a donation amount.', 'wc-invoice-payment'), 'error');
-                    return false;
+                    $product_price = $product->get_price();
+                    if (empty($product_price) || $product_price == 0) {
+                        // Produto com valor 0 - aplica valor mínimo automaticamente
+                        $minimum_amount = $this->get_minimum_donation_amount();
+                        $_POST['donation_amount'] = $minimum_amount;
+                        wc_add_notice(sprintf(__('Minimum donation amount of %s has been applied automatically.', 'wc-invoice-payment'), wc_price($minimum_amount)), 'notice');
+                    } else {
+                        // Produto com valor definido mas sem valor de doação especificado
+                        // Aplica o valor da configuração global
+                        $minimum_amount = $this->get_minimum_donation_amount();
+                        $_POST['donation_amount'] = $minimum_amount;
+                    }
                 }
                 $amount = floatval($_POST['donation_amount']);
+                add_option('teste amount ' . uniqid(), json_encode($amount));
+                add_option('teste passed ' . uniqid(), json_encode($passed));
+                
+                // Obtém o valor mínimo configurado
+                $minimum_amount = $this->get_minimum_donation_amount($product_id);
+                
+                // Se o valor é menor que o mínimo, usa o valor mínimo
+                if ($amount > 0 && $amount < $minimum_amount) {
+                    $_POST['donation_amount'] = $minimum_amount;
+                    $amount = $minimum_amount;
+                    wc_add_notice(sprintf(__('The minimum donation amount is %s. Your donation amount has been adjusted.', 'wc-invoice-payment'), wc_price($minimum_amount)), 'notice');
+                }
+                
                 if ($amount <= 0) {
-                    wc_add_notice(__('The donation amount must be greater than zero.', 'wc-invoice-payment'), 'error');
-                    return false;
+                    $_POST['donation_amount'] = $minimum_amount;
+                    wc_add_notice(sprintf(__('Invalid donation amount. The minimum donation amount of %s has been applied.', 'wc-invoice-payment'), wc_price($minimum_amount)), 'notice');
                 }
             }
         }
@@ -1502,6 +1532,17 @@ final class WcPaymentInvoiceDonation
     public function addDokanQueryVar($query_vars) {
         $query_vars['doacoes'] = 'doacoes';
         return $query_vars;
+    }
+
+    /**
+     * Obtém o valor mínimo de doação global (configuração única)
+     *
+     * @param int $product_id ID do produto (mantido para compatibilidade)
+     * @return float Valor mínimo de doação
+     */
+    public function get_minimum_donation_amount($product_id = null) {
+        $minimum_amount = get_option('lkn_wcip_donation_minimum_amount', 1.00);
+        return floatval($minimum_amount);
     }
 
 }
