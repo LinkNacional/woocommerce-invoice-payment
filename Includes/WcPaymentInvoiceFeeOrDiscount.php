@@ -16,7 +16,7 @@ final class WcPaymentInvoiceFeeOrDiscount
             if($active == 'yes'){
                 $total = $cart->get_subtotal(); 
 
-                if ($percentOrFixed === 'percent') {
+                if ($percentOrFixed === 'percent' || $percentOrFixed === 'percentage') {
                     $amount = ($total * $value) / 100;
                 } else {
                     $amount = $value;
@@ -44,7 +44,7 @@ final class WcPaymentInvoiceFeeOrDiscount
                 $percentOrFixed = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id); // 'percent' ou 'fixed'
                 $value = (float) get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id);
 
-                if($percentOrFixed == 'percent'){
+                if($percentOrFixed == 'percent' || $percentOrFixed == 'percentage'){
                     $cartTotal = (float) WC()->cart->get_subtotal( '' );
                     $value = ($value / 100) * $cartTotal;
                 }

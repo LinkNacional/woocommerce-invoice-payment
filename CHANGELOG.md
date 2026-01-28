@@ -1,3 +1,6 @@
+# 2.10.1 - 28/01/2026
+* Correção em calculo de descontos em porcentagem.
+
 # 2.10.0 - 13/01/2026
 * Adição de configuração para definir tempo de expiração do código OTP;
 * Adição de configuração para definir valor mínimo de doação.
