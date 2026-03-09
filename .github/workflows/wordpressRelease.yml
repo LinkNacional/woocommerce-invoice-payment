@@ -6,7 +6,7 @@ on:
 env:
   PLUGIN_NAME: invoice-payment-for-woocommerce
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "2.10.0"
+  DEPLOY_TAG: "2.10.1"
 
 jobs:
   deploy-to-wp:
