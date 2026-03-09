@@ -65,7 +65,9 @@
 }
 
 #customer_login > :nth-child(1),
-#customer_login > :nth-child(2) {
+#customer_login > :nth-child(2),
+.woocommerce-form-login.login,
+.woocommerce-form-login.login {
     display: none;
 }
 
