@@ -1,3 +1,7 @@
+# 2.11.0 - 09/03/2026
+* Adição de função para editar assinaturas ativas.
+* Adição de função secundária para gerar faturas se o Cron estiver desativado.
+
 # 2.10.1 - 09/03/2026
 * Correção em css do OTP.
 
