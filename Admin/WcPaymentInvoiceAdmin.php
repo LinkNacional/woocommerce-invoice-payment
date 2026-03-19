@@ -1700,6 +1700,11 @@ final class WcPaymentInvoiceAdmin
                     <h2 class="title">
                         <?php esc_attr_e('Subscription details', 'wc-invoice-payment'); ?>
                         <?php echo esc_html('#' . $invoiceId); ?>
+                        <?php if ('completed' === $orderStatus) : ?>
+                            <div style="background: #10b981; color: white; padding: 8px 16px; border-radius: 6px; margin: 0 10px; display: inline-block; font-weight: 500; font-size: 14px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);">
+                                <?php esc_attr_e('Subscription Active', 'wc-invoice-payment'); ?>
+                            </div>
+                        <?php endif; ?>
                     </h2>
                     <div class="invoice-row-wrap">
                         <div class="invoice-column-wrap">
@@ -1889,6 +1894,42 @@ final class WcPaymentInvoiceAdmin
                         </div>
                     </div>
                 </div>
+                <!-- Subscription interval settings -->
+                <div class="wcip-invoice-data wcip-postbox">
+                    <span
+                        class="text-bold"><?php esc_attr_e('Subscription settings', 'wc-invoice-payment'); ?></span>
+                    <hr>
+                    <div class="wcip-row">
+                        <div class="invoice-column-wrap">
+                            <div class="input-row-wrap" id="lkn_wcip_subscription_interval">
+                                <label for="lkn_wcip_subscription_interval_number"><?php esc_attr_e('Subscription Interval', 'wc-invoice-payment'); ?></label>
+                                <div class="lkn_wcip_subscription_interval_div">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        name="lkn_wcip_subscription_interval_number"
+                                        id="lkn_wcip_subscription_interval_number"
+                                        value="<?php echo esc_attr($order->get_meta('lkn_wcip_subscription_interval_number', true) ?: '1'); ?>">
+                                    <select name="lkn_wcip_subscription_interval_type">
+                                        <?php
+                                        $current_interval_type = $order->get_meta('lkn_wcip_subscription_interval_type', true) ?: 'month';
+                                        $interval_options = array(
+                                            'day' => __('Days', 'wc-invoice-payment'),
+                                            'week' => __('Weeks', 'wc-invoice-payment'),
+                                            'month' => __('Months', 'wc-invoice-payment'),
+                                            'year' => __('Years', 'wc-invoice-payment')
+                                        );
+                                        foreach ($interval_options as $value => $label) {
+                                            $selected = ($current_interval_type === $value) ? 'selected' : '';
+                                            echo '<option value="' . esc_attr($value) . '" ' . esc_attr($selected) . '>' . esc_html($label) . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Form actions -->
                 <div class="wcip-invoice-data wcip-postbox">
                     <span
@@ -1906,7 +1947,7 @@ final class WcPaymentInvoiceAdmin
                                     name="lkn_wcip_exp_date"
                                     value="<?php echo esc_attr($order->get_meta('lkn_exp_date')); ?>"
                                     min="<?php echo esc_attr(gmdate('Y-m-d')); ?>"
-                                    readonly>
+                                    <?php echo ('completed' === $orderStatus) ? 'readonly' : ''; ?>>
                             </div>
                             <div class="input-column-wrap">
                                 <a
@@ -1919,8 +1960,8 @@ final class WcPaymentInvoiceAdmin
                             <div class="input-row-wrap">
                                 <?php
                                 // Verifique se o invoiceId está agendado
-
-                                if ($this->is_invoice_id_scheduled($invoiceId)) {
+                                    $subscriptions = get_option('lkn_wcip_subscription_schedule');
+                                if ($this->is_invoice_id_scheduled($invoiceId) || (is_array($subscriptions) && array_key_exists($invoiceId, $subscriptions))) {
                                     // O invoiceId está agendado, exiba o link para cancelar a assinatura
                                 ?>
                                     <a
@@ -1992,11 +2033,11 @@ final class WcPaymentInvoiceAdmin
                             ?>
                                 <p>
                                     <?php
-                                    if (0 != $i) {
+                                    if (1 != $index) {
                                         echo ' | ';
                                     }
                                     ?>
-                                    <a target="_blank">
+                                    <a target="_blank" href="<?php echo esc_url(admin_url('admin.php?page=edit-invoice&invoice=' . $order->get_id())); ?>">
                                         <?php
                                         echo esc_attr($order->get_id());
                                         ?>
@@ -2038,20 +2079,18 @@ final class WcPaymentInvoiceAdmin
                                             id="lkn_wcip_name_invoice_<?php echo esc_attr($c); ?>"
                                             class="regular-text"
                                             required
-                                            value="<?php echo esc_attr($item->get_name()); ?>"
-                                            readonly>
+                                            value="<?php echo esc_attr($item->get_name()); ?>">
                                     </div>
                                     <div class="input-row-wrap">
                                         <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
                                         <input
                                             name="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
-                                            type="tel"
+                                            type="text"
                                             id="lkn_wcip_amount_invoice_<?php echo esc_attr($c); ?>"
                                             class="regular-text lkn_wcip_amount_input"
                                             oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');"
                                             required
-                                            value="<?php echo esc_attr(number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>"
-                                            readonly>
+                                            value="<?php echo esc_attr(number_format($item->get_total(), $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>">
                                     </div>
                                 <?php
                                 } else {
@@ -3176,10 +3215,39 @@ final class WcPaymentInvoiceAdmin
                 $extraData = wp_kses(wp_unslash($_POST['lkn_wcip_extra_data']), array('br' => array()));
                 $footerNotes = wp_kses_post(wp_unslash($_POST['lkn-wc-invoice-payment-footer-notes']));
 
+                // Process subscription interval fields
+                $intervalNumber = isset($_POST['lkn_wcip_subscription_interval_number']) ? 
+                    intval(sanitize_text_field(wp_unslash($_POST['lkn_wcip_subscription_interval_number']))) : 
+                    intval($order->get_meta('lkn_wcip_subscription_interval_number', true) ?: 1);
+                
+                $intervalType = isset($_POST['lkn_wcip_subscription_interval_type']) ? 
+                    sanitize_text_field(wp_unslash($_POST['lkn_wcip_subscription_interval_type'])) : 
+                    ($order->get_meta('lkn_wcip_subscription_interval_type', true) ?: 'month');
+
+                // Validate interval values
+                if ($intervalNumber < 1) {
+                    $intervalNumber = 1;
+                }
+                
+                $validIntervalTypes = array('day', 'week', 'month', 'year');
+                if (!in_array($intervalType, $validIntervalTypes)) {
+                    $intervalType = 'month';
+                }
+
+                // Check if interval values have changed
+                $currentIntervalNumber = intval($order->get_meta('lkn_wcip_subscription_interval_number', true) ?: 1);
+                $currentIntervalType = $order->get_meta('lkn_wcip_subscription_interval_type', true) ?: 'month';
+                
+                $intervalChanged = ($intervalNumber !== $currentIntervalNumber) || ($intervalType !== $currentIntervalType);
+
                 $order->update_meta_data('wcip_extra_data', $extraData);
                 $order->update_meta_data('wcip_footer_notes', $footerNotes);
                 $order->update_meta_data('wcip_select_invoice_template_id', $pdfTemplateId);
-                $order->update_meta_data('wcip_select_invoice_language', $pdfLanguage);
+                $order->update_meta_data('wcip_select_invoice_language', 'en_US');
+
+                // Update subscription interval metadata
+                $order->update_meta_data('lkn_wcip_subscription_interval_number', $intervalNumber);
+                $order->update_meta_data('lkn_wcip_subscription_interval_type', $intervalType);
 
                 // Saves all charges as products inside the order object
                 for ($i = 0; $i < count($invoices); ++$i) {
@@ -3220,6 +3288,70 @@ final class WcPaymentInvoiceAdmin
                 $order->calculate_totals();
                 $order->save();
 
+                // Handle subscription interval changes - reschedule cron and update backup schedule
+                if ($intervalChanged) {
+                    // Remove ALL old cron jobs related to this subscription (robust cleanup)
+                    $scheduled_events = _get_cron_array();
+                    foreach ($scheduled_events as $timestamp => $cron_events) {
+                        foreach ($cron_events as $hook => $events) {
+                            foreach ($events as $event) {
+                                // Check if the event is associated with subscription hooks
+                                if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
+                                    // Check if event args contain the invoiceId we want to remove
+                                    $event_args = $event['args'];
+                                    if (is_array($event_args) && in_array($invoiceId, $event_args)) {
+                                        // Remove the event from WP Cron
+                                        wp_unschedule_event($timestamp, $hook, $event_args);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Calculate next invoice date with new interval
+                    $nextInvoiceTime = strtotime("+{$intervalNumber} {$intervalType}");
+                    
+                    // Update the saved next due date
+                    $order->update_meta_data('lkn_wcip_subscription_next_due_date', $nextInvoiceTime);
+                    
+                    // Only schedule new cron if the order is already completed
+                    if ($order->get_status() === 'completed') {
+                        // Schedule new cron job using single event (like original subscription system)
+                        wp_schedule_single_event($nextInvoiceTime, 'generate_invoice_event', array($invoiceId));
+                        
+                        // Update backup schedule
+                        $subscription_handler = new \LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription('wc-invoice-payment', '1.0.0');
+                        
+                        // Remove old schedule
+                        $subscription_handler->remove_subscription_from_schedule($invoiceId);
+                        
+                        // Add new schedule with updated date
+                        $subscription_handler->save_subscription_to_schedule($invoiceId, $nextInvoiceTime);
+                    } else {
+                        // If not completed yet, just update the backup schedule
+                        $subscription_handler = new \LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription('wc-invoice-payment', '1.0.0');
+                        $subscription_handler->remove_subscription_from_schedule($invoiceId);
+                        $subscription_handler->save_subscription_to_schedule($invoiceId, $nextInvoiceTime);
+                    }
+                    
+                    // Add order note about the change
+                    if ($order->get_status() === 'completed') {
+                        $order->add_order_note(sprintf(
+                            __('Subscription interval updated to: %d %s(s). Next invoice scheduled for: %s', 'wc-invoice-payment'),
+                            $intervalNumber,
+                            $intervalType,
+                            date('Y-m-d H:i:s', $nextInvoiceTime)
+                        ));
+                    } else {
+                        $order->add_order_note(sprintf(
+                            __('Subscription interval updated to: %d %s(s). Next invoice will be scheduled when order is completed: %s', 'wc-invoice-payment'),
+                            $intervalNumber,
+                            $intervalType,
+                            date('Y-m-d H:i:s', $nextInvoiceTime)
+                        ));
+                    }
+                }
+
                 if (! empty($expDate) && 'wc-pending' === $paymentStatus) {
                     $todayTime = time();
                     $expDateTime = strtotime($expDate);
@@ -3232,7 +3364,7 @@ final class WcPaymentInvoiceAdmin
                     }
 
                     wp_schedule_event(time() + $nextVerification, 'daily', 'lkn_wcip_cron_hook', array($invoiceId));
-                } else {
+                } else if ('wc-cancelled' == $paymentStatus) {
                     $timestamp = wp_next_scheduled('lkn_wcip_cron_hook', array($invoiceId));
                     wp_unschedule_event($timestamp, 'lkn_wcip_cron_hook', array($invoiceId));
                 }
@@ -3282,6 +3414,14 @@ final class WcPaymentInvoiceAdmin
                         }
                     }
                 }
+                
+                // Remove da lista do schedule quando a subscription for deletada
+                $schedule = get_option('lkn_wcip_subscription_schedule', array());
+                if (isset($schedule[$invoiceDelete[0]])) {
+                    unset($schedule[$invoiceDelete[0]]);
+                    update_option('lkn_wcip_subscription_schedule', $schedule);
+                }
+                
                 // Redirect to invoice list
                 wp_redirect(home_url('wp-admin/admin.php?page=wc-subscription-payment'));
             } else {

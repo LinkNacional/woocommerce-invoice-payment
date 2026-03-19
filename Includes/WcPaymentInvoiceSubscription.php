@@ -33,6 +33,13 @@ final class WcPaymentInvoiceSubscription
                     }
                 }
             }
+            $invoice = wc_get_order($invoice_id);
+            $invoice->update_status('cancelled');
+            $invoice->save();
+            
+            // Remove da lista do schedule quando cancelar
+            $this->remove_subscription_from_schedule($invoice_id);
+            
             wp_die();
         }
     }
@@ -212,12 +219,14 @@ final class WcPaymentInvoiceSubscription
                         $order->add_meta_data('lkn_exp_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
                     }
 
-                    //Caso seja assinatura gera evento do WP cron
+                    //Caso seja assinatura marca como tal, mas só agenda o cron quando status for completed
                     $order->save();
                     if ('on' == $is_subscription_enabled) {
                         $order->add_meta_data('lkn_is_subscription', true);
+                        // Salvar a data de vencimento para uso posterior quando status for completed
+                        $order->add_meta_data('lkn_wcip_subscription_next_due_date', $next_due_date);
                         $order->save();
-                        $this->schedule_next_invoice_generation($order_id, $next_due_date);
+                        // Não agendar o cron aqui - será agendado quando status for completed
                     }
 
                     //Caso não seja uma assinatura manual é preciso atualizar a lista
@@ -323,12 +332,17 @@ final class WcPaymentInvoiceSubscription
     {
         wp_schedule_single_event($due_date, 'generate_invoice_event', array($order_id));
         wp_schedule_single_event($due_date + 86400, 'lkn_wcip_cron_hook', array($order_id));
+        
+        // Salva no banco como backup do sistema de cron
+        $this->save_subscription_to_schedule($order_id, $due_date);
     }
 
     public function create_next_invoice($order_id): void
     {
         $order = wc_get_order($order_id);
-
+        if('completed' != $order->get_status()) {
+            return;
+        }
         //Valida se a ordem está no limite de faturas
         $initialLimit = $order->get_meta('lkn_wcip_subscription_initial_limit');
         $limit = $order->get_meta('lkn_wcip_subscription_limit');
@@ -373,7 +387,9 @@ final class WcPaymentInvoiceSubscription
         $iniDate = new DateTime();
         $iniDateFormatted = $iniDate->format('Y-m-d');
         //Soma o tempo removido anteriormente para colocar na data de vencimento
-        $iniDate->modify("+" . $time_removed);
+        if (!empty($time_removed) && is_string($time_removed)) {
+            $iniDate->modify("+" . $time_removed);
+        }
         $expDateFormatted = gmdate('Y-m-d', $iniDate->getTimestamp());
 
         $new_order = wc_create_order(array(
@@ -443,6 +459,9 @@ final class WcPaymentInvoiceSubscription
         $invoice_list = get_option('lkn_wcip_invoices', array());
         $invoice_list[] = $new_order->get_id();
         update_option('lkn_wcip_invoices', $invoice_list);
+        
+        // Atualiza a próxima data de geração no schedule para backup do cron
+        $this->update_next_invoice_schedule($order_id);
     }
 
     public function forceUserRegistration($forceRegistration)
@@ -465,5 +484,227 @@ final class WcPaymentInvoiceSubscription
         }
 
         return $forceRegistration;
+    }
+
+    /**
+     * Salva a assinatura no schedule do banco de dados
+     */
+    public function save_subscription_to_schedule($order_id, $next_due_date): void
+    {
+        $schedule = get_option('lkn_wcip_subscription_schedule', array());
+        $schedule[$order_id] = $next_due_date;
+        update_option('lkn_wcip_subscription_schedule', $schedule);
+    }
+
+    /**
+     * Remove a assinatura do schedule do banco de dados
+     */
+    public function remove_subscription_from_schedule($order_id): void
+    {
+        $schedule = get_option('lkn_wcip_subscription_schedule', array());
+        if (isset($schedule[$order_id])) {
+            unset($schedule[$order_id]);
+            update_option('lkn_wcip_subscription_schedule', $schedule);
+        }
+        
+    }
+
+    /**
+     * Verifica se existe um cron agendado para a assinatura
+     */
+    public function is_cron_scheduled($order_id): bool
+    {
+        $scheduled_events = _get_cron_array();
+        
+        foreach ($scheduled_events as $timestamp => $cron_events) {
+            foreach ($cron_events as $hook => $events) {
+                if ('generate_invoice_event' === $hook) {
+                    foreach ($events as $event) {
+                        $event_args = $event['args'];
+                        if (is_array($event_args) && in_array($order_id, $event_args)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Verifica assinaturas pendentes e gera faturas se necessário
+     * Executado no admin init como backup ao sistema de cron
+     */
+    public function check_pending_subscriptions(): void
+    {
+        $schedule = get_option('lkn_wcip_subscription_schedule', array());
+        $current_time = current_time('timestamp');
+        
+        foreach ($schedule as $order_id => $next_due_date) {
+            // Verifica se passou da data de vencimento
+            if ($current_time >= $next_due_date) {
+                // Verifica se não tem cron ativo para esta assinatura
+                if (!$this->is_cron_scheduled($order_id)) {
+                    // Verifica se a ordem ainda existe e é uma assinatura ativa
+                    $order = wc_get_order($order_id);
+                    if ($order && $order->get_meta('lkn_is_subscription')) {
+                        // Gera a próxima fatura
+                        $this->create_next_invoice($order_id);
+                    } else {
+                        // Remove da lista se a ordem não existe mais ou não é mais assinatura
+                        $this->remove_subscription_from_schedule($order_id);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Calcula e salva a próxima data de geração para a assinatura
+     */
+    public function update_next_invoice_schedule($order_id): void
+    {
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return;
+        }
+
+        // Pega os dados da assinatura
+        $items = $order->get_items();
+        foreach ($items as $item) {
+            $product_id = $item->get_product_id();
+            $subscription_interval_number = get_post_meta($product_id, 'lkn_wcip_subscription_interval_number', true);
+            $subscription_interval_type = get_post_meta($product_id, 'lkn_wcip_subscription_interval_type', true);
+
+            // Se for assinatura manual, pega os dados do pedido
+            $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
+            if ($is_subscription_manual) {
+                $subscription_interval_number = $order->get_meta('lkn_wcip_subscription_interval_number');
+                $subscription_interval_type = $order->get_meta('lkn_wcip_subscription_interval_type');
+            }
+
+            if ($subscription_interval_number && $subscription_interval_type) {
+                $result = $this->calculate_next_due_date($subscription_interval_number, $subscription_interval_type);
+                $next_due_date = $result['next_due_date'];
+                
+                // Salva a próxima data no schedule
+                $this->save_subscription_to_schedule($order_id, $next_due_date);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Remove subscription do schedule quando um pedido é deletado pelo WooCommerce
+     * É executado via hook 'woocommerce_before_delete_order'
+     */
+    public function cleanup_subscription_on_order_delete($order_id): void
+    {
+        // Verifica se o pedido que está sendo deletado é uma assinatura
+        $order = wc_get_order($order_id);
+        if ($order && $order->get_meta('lkn_is_subscription')) {
+            // Remove do schedule do sistema de backup
+            $this->remove_subscription_from_schedule($order_id);
+            $scheduled_events = _get_cron_array();
+                // verifica todos os eventos agendados
+            foreach ($scheduled_events as $timestamp => $cron_events) {
+                foreach ($cron_events as $hook => $events) {
+                    foreach ($events as $event) {
+                        // Verifique se o evento está associado ao seu gancho (hook)
+                        if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
+                            // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                            $event_args = $event['args'];
+                            if (is_array($event_args) && in_array($order_id, $event_args)) {
+                                // Remova o evento do WP Cron
+                                wp_unschedule_event($timestamp, $hook, $event_args);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Handle subscription when order status changes to completed
+     * This is where we actually schedule the first invoice generation
+     */
+    public function handle_subscription_on_completed($order_id): void
+    {
+        $order = wc_get_order($order_id);
+        
+        // Verifica se é uma assinatura e se ainda não foi agendado o cron
+        if ($order && $order->get_meta('lkn_is_subscription') && !$this->is_subscription_scheduled($order_id)) {
+            $next_due_date = $order->get_meta('lkn_wcip_subscription_next_due_date');
+            
+            // Se a data de vencimento foi salva anteriormente, agenda o cron
+            if ($next_due_date) {
+                $this->schedule_next_invoice_generation($order_id, $next_due_date);
+                
+                // Adiciona nota na order sobre o agendamento
+                $order->add_order_note(sprintf(
+                    __('Subscription activated and first invoice scheduled for: %s', 'wc-invoice-payment'),
+                    date('Y-m-d H:i:s', $next_due_date)
+                ));
+            } else {
+                // Se não tem a data salva, recalcula
+                $subscription_interval_number = $order->get_meta('lkn_wcip_subscription_interval_number');
+                $subscription_interval_type = $order->get_meta('lkn_wcip_subscription_interval_type');
+                
+                // Se é uma assinatura manual, pega os valores do meta
+                $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
+                if (!$is_subscription_manual) {
+                    // Se não é manual, pega do produto
+                    $items = $order->get_items();
+                    foreach ($items as $item) {
+                        $product_id = $item->get_product_id();
+                        $subscription_interval_number = get_post_meta($product_id, 'lkn_wcip_subscription_interval_number', true);
+                        $subscription_interval_type = get_post_meta($product_id, 'lkn_wcip_subscription_interval_type', true);
+                        break; // Pega do primeiro item
+                    }
+                }
+                
+                if ($subscription_interval_number && $subscription_interval_type) {
+                    $result = $this->calculate_next_due_date($subscription_interval_number, $subscription_interval_type);
+                    $next_due_date = $result['next_due_date'];
+                    
+                    // Salva a data e agenda
+                    $order->update_meta_data('lkn_wcip_subscription_next_due_date', $next_due_date);
+                    $order->save();
+                    
+                    $this->schedule_next_invoice_generation($order_id, $next_due_date);
+                    
+                    // Adiciona nota na order sobre o agendamento
+                    $order->add_order_note(sprintf(
+                        __('Subscription activated and first invoice scheduled for: %s', 'wc-invoice-payment'),
+                        date('Y-m-d H:i:s', $next_due_date)
+                    ));
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if subscription is already scheduled
+     */
+    private function is_subscription_scheduled($order_id): bool
+    {
+        $scheduled_events = _get_cron_array();
+        
+        foreach ($scheduled_events as $timestamp => $cron_events) {
+            foreach ($cron_events as $hook => $events) {
+                foreach ($events as $event) {
+                    if ($hook === 'generate_invoice_event') {
+                        $event_args = $event['args'];
+                        if (is_array($event_args) && in_array($order_id, $event_args)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return false;
     }
 }

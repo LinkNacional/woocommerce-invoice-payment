@@ -233,6 +233,12 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
         $this->loader->add_action('woocommerce_checkout_order_processed', $subscription_class, 'validate_product');
         $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $subscription_class, 'validate_product');
+        // Hook para agendar subscription quando status muda para completed
+        $this->loader->add_action('woocommerce_order_status_completed', $subscription_class, 'handle_subscription_on_completed');
+        // Hook para verificar assinaturas pendentes como backup do sistema de cron
+        $this->loader->add_action('admin_init', $subscription_class, 'check_pending_subscriptions');
+        // Hook para limpar subscription do schedule quando pedido for deletado pelo WooCommerce
+        $this->loader->add_action('woocommerce_before_delete_order', $subscription_class, 'cleanup_subscription_on_order_delete');
         $this->loader->add_action('woocommerce_init', $this, 'woocommerceInit');
         $this->loader->add_filter('woocommerce_payment_gateways', $this, 'add_payment_gateways');
         $this->loader->add_action('init', $this, 'manage_quote_gateway_status');
