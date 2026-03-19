@@ -15,8 +15,8 @@ final class WcPaymentInvoiceSettings
         $this->loader = $loader;
         $this->handler_invoice_templates = new WcPaymentInvoicePdfTemplates('wc-invoice-payment', WC_PAYMENT_INVOICE_VERSION);
 
-        // Registra todas as abas de configuração
-        $this->register_all_settings_tabs();
+        // Defer tab registration to init so the textdomain is already loaded
+        $this->loader->add_action('init', $this, 'register_all_settings_tabs');
         $this->loader->add_action('admin_head', $this, 'fixSettingsTabs');
     }
 
@@ -32,7 +32,7 @@ final class WcPaymentInvoiceSettings
         }
     }
 
-    private function register_all_settings_tabs()
+    public function register_all_settings_tabs()
     {
         // Registra o filtro uma única vez
         $this->loader->add_filter('woocommerce_settings_tabs_array', $this, 'add_settings_tab', 50);
