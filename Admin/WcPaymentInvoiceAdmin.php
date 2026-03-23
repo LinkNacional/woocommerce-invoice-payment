@@ -1551,6 +1551,10 @@ final class WcPaymentInvoiceAdmin
         wp_enqueue_script($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-invoice-edit.js', array('jquery'), $this->version, 'all');
         wp_enqueue_style($this->plugin_name . '-edit', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-invoice-edit.css', array(), $this->version, 'all');
         
+        // Enqueue tooltip CSS and JS
+        wp_enqueue_style($this->plugin_name . '-tooltip', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-tooltip.css', array(), $this->version, 'all');
+        wp_enqueue_script($this->plugin_name . '-tooltip', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-tooltip.js', array('jquery'), $this->version, true);
+        
         // Localize script for AJAX and translations
         wp_localize_script($this->plugin_name . '-edit', 'wcip_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -1701,8 +1705,13 @@ final class WcPaymentInvoiceAdmin
                         <?php esc_attr_e('Subscription details', 'wc-invoice-payment'); ?>
                         <?php echo esc_html('#' . $invoiceId); ?>
                         <?php if ('completed' === $orderStatus) : ?>
-                            <div style="background: #10b981; color: white; padding: 8px 16px; border-radius: 6px; margin: 0 10px; display: inline-block; font-weight: 500; font-size: 14px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);">
-                                <?php esc_attr_e('Subscription Active', 'wc-invoice-payment'); ?>
+                            <div class="wcip-subscription-badge-container">
+                                <div class="wcip-subscription-badge">
+                                    <?php esc_attr_e('Subscription Active', 'wc-invoice-payment'); ?>
+                                </div>
+                                <div class="wcip-subscription-tooltip">
+                                    <?php esc_attr_e('Complete status keeps the subscription active.', 'wc-invoice-payment'); ?>
+                                </div>
                             </div>
                         <?php endif; ?>
                     </h2>
@@ -2920,6 +2929,8 @@ final class WcPaymentInvoiceAdmin
                 if ($isSubscription) {
                     $subscription_class = new WcPaymentInvoiceSubscription();
                     $subscription_class->validate_product($orderId, true);
+                    $order->update_status('wc-pending');
+                    $order->update_status($paymentStatus);
                 }
 
                 $invoiceList = get_option('lkn_wcip_invoices');

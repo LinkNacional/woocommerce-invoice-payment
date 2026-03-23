@@ -179,8 +179,8 @@ final class WcPaymentInvoiceSubscription
 
     public function validate_product($order_id, $manualSubscription = false): void
     {
-        if (is_object($order_id)) {
-            $order_id = $order_id->get_id();
+        if (gettype($order_id) == "object") {
+            $order_id = $order_id->id;
         }
 
         $order = wc_get_order($order_id);
@@ -538,8 +538,22 @@ final class WcPaymentInvoiceSubscription
      */
     public function check_pending_subscriptions(): void
     {
-        $schedule = get_option('lkn_wcip_subscription_schedule', array());
+        // Verifica a última execução
+        $last_check = get_option('lkn_wcip_last_subscription_check', 0);
         $current_time = current_time('timestamp');
+        
+        // Se já foi executado hoje, não executa novamente (24 horas = 86400 segundos)
+        if (($current_time - $last_check) < 86400) {
+            return;
+        }
+        
+        $schedule = get_option('lkn_wcip_subscription_schedule', array());
+        
+        // Se não tem assinaturas no schedule, atualiza o timestamp e retorna
+        if (empty($schedule)) {
+            update_option('lkn_wcip_last_subscription_check', $current_time);
+            return;
+        }
         
         foreach ($schedule as $order_id => $next_due_date) {
             // Verifica se passou da data de vencimento
@@ -558,6 +572,9 @@ final class WcPaymentInvoiceSubscription
                 }
             }
         }
+        
+        // Atualiza o timestamp da última verificação
+        update_option('lkn_wcip_last_subscription_check', $current_time);
     }
 
     /**

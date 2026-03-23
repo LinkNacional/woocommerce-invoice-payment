@@ -848,6 +848,7 @@ final class LknWcipListTable {
             'lkn_wcip_id' => array('lkn_wcip_id', false),
             'lkn_wcip_client' => array('lkn_wcip_client', false), 
             'lkn_wcip_status' => array('lkn_wcip_status', false),
+            'lkn_wcip_subscription_status' => array('lkn_wcip_subscription_status', false),
             'lkn_wcip_exp_date' => array('lkn_wcip_exp_date', false)
         );
 
@@ -1574,6 +1575,12 @@ final class LknWcipListTable {
                     {
                         $fromSubscription = '-';
                     }
+
+                    // Determine subscription status based on order status
+                    $subscriptionStatus = '-';
+                    if ($showSubscriptions && $invoice->get_meta('lkn_is_subscription')) {
+                        $subscriptionStatus = ($invoice->get_status() === 'completed') ? __('Active', 'wc-invoice-payment') : __('Inactive', 'wc-invoice-payment');
+                    }
                                        
                     $data_array[] = array(
                         'lkn_wcip_id' => $invoiceId,
@@ -1581,6 +1588,7 @@ final class LknWcipListTable {
                         'lkn_wcip_status' => ucfirst(wc_get_order_status_name($invoice->get_status())),
                         'lkn_wcip_total_price' => get_woocommerce_currency_symbol($invoice->get_currency()) . ' ' . number_format($invoice->get_total(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator()),
                         'lkn_wcip_from_subscription' => $fromSubscription ?? '-',
+                        'lkn_wcip_subscription_status' => $subscriptionStatus,
                         'lkn_wcip_exp_date' => $dueDate,
                         'lkn_wcip_ini_date' => $iniDate
                     );
@@ -1621,8 +1629,19 @@ final class LknWcipListTable {
 
         $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : null;
         
-        if('wc-subscription-payment' == $page) {
+        if('wc-invoice-payment-subscriptions' == $page) {
             unset($columns['lkn_wcip_from_subscription']);
+            
+            // Reorganize columns to add subscription status after total
+            $new_columns = array();
+            foreach ($columns as $key => $value) {
+                $new_columns[$key] = $value;
+                // Add subscription status column after total price
+                if ($key === 'lkn_wcip_total_price') {
+                    $new_columns['lkn_wcip_subscription_status'] = __('Subscription Status', 'wc-invoice-payment');
+                }
+            }
+            $columns = $new_columns;
         }
 
         return $columns;
@@ -1640,6 +1659,7 @@ final class LknWcipListTable {
             case 'lkn_wcip_status':
             case 'lkn_wcip_total_price':
             case 'lkn_wcip_from_subscription':
+            case 'lkn_wcip_subscription_status':
             case 'lkn_wcip_exp_date':
             case 'lkn_wcip_ini_date':
                 return $item[$column_name];
