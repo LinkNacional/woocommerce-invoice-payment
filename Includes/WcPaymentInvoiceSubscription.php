@@ -179,8 +179,8 @@ final class WcPaymentInvoiceSubscription
 
     public function validate_product($order_id, $manualSubscription = false): void
     {
-        if (gettype($order_id) == "object") {
-            $order_id = $order_id->id;
+        if (is_object($order_id)) {
+            $order_id = $order_id->get_id();
         }
 
         $order = wc_get_order($order_id);

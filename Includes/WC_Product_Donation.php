@@ -12,17 +12,28 @@ if (!defined('ABSPATH')) {
  */
 class WC_Product_Donation extends WC_Product_Simple
 {
+    
+    /**
+     * Tipo de produto.
+     *
+     * @var string
+     */
+    protected $product_type = 'donation';
+
     /**
      * Inicializa o produto doação.
+     *
+     * @param int|object $product Produto ou ID do produto.
      */
     public function __construct($product = 0)
     {
         parent::__construct($product);
-        $this->product_type = 'donation';
     }
 
     /**
      * Retorna o tipo do produto.
+     * 
+     * @return string
      */
     public function get_type()
     {
