@@ -289,23 +289,8 @@ final class WcPaymentInvoiceDonation
      */
     public function add_donation_product_data_tabs($tabs)
     {
-        // Garante que as abas essenciais apareçam para produtos de doação
-        if (isset($tabs['inventory'])) {
-            $tabs['inventory']['class'][] = 'show_if_simple show_if_donation';
-        }
-        
-        if (isset($tabs['linked_product'])) {
-            $tabs['linked_product']['class'][] = 'show_if_simple show_if_donation';
-        }
-        
-        if (isset($tabs['attribute'])) {
-            $tabs['attribute']['class'][] = 'show_if_simple show_if_donation';
-        }
-        
-        if (isset($tabs['advanced'])) {
-            $tabs['advanced']['class'][] = 'show_if_simple show_if_donation';
-        }
-        
+        // Não altera classes das abas nativas do WooCommerce para evitar
+        // conflitos de visibilidade com produtos não donation.
         return $tabs;
     }
 
