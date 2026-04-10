@@ -1,3 +1,6 @@
+# 2.12.0 - 10/04/2026
+* Adição de compatibilidade para pagamentos recorrentes com a Cielo.
+
 # 2.11.0 - 09/03/2026
 * Adição de função para editar assinaturas ativas.
 * Adição de função secundária para gerar faturas se o Cron estiver desativado.
