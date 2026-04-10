@@ -3,6 +3,7 @@
 namespace LknWc\WcInvoicePayment\Includes;
 
 use DateTime;
+use Exception;
 
 final class WcPaymentInvoiceSubscription
 {
@@ -183,14 +184,19 @@ final class WcPaymentInvoiceSubscription
             $order_id = $order_id->id;
         }
 
+        
         $order = wc_get_order($order_id);
         $items = $order->get_items();
         $orderStatus = $order->get_status();
-        if ('pending' != $orderStatus || $manualSubscription) {
+        
+        // Status que não devem processar assinatura
+        $excludedStatuses = array('pending', 'cancelled', 'refunded', 'failed');
+        
+        if ((! in_array($orderStatus, $excludedStatuses) || $manualSubscription) && ! $order->get_meta('lkn_wcip_subscription_already_processed')) {
             foreach ($items as $item) {
                 $product_id = $item->get_product_id();
                 $is_subscription_enabled = get_post_meta($product_id, '_lkn-wcip-subscription-product', true);
-                if ( $order->get_meta('lkn_is_quote') != 'yes' && (get_option("lkn_wcip_subscription_active_product_invoices") == 'yes' || 'on' == $is_subscription_enabled || $manualSubscription)) {
+                if ($order->get_meta('lkn_is_quote') != 'yes' && (get_option("lkn_wcip_subscription_active_product_invoices") == 'yes' || 'on' == $is_subscription_enabled || $manualSubscription)) {
                     $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
                     $iniDate = new DateTime();
                     $iniDateFormatted = $iniDate->format('Y-m-d');
@@ -214,6 +220,8 @@ final class WcPaymentInvoiceSubscription
                     $order->add_meta_data('lkn_ini_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
                     $order->add_meta_data('lkn_wcip_subscription_limit', $subscriptionLimit);
                     $order->add_meta_data('lkn_wcip_subscription_initial_limit', 0);
+                    $order->add_meta_data('lkn_wcip_subscription_already_processed', true);
+                    $order->add_meta_data('wcip_select_invoice_language', 'pt_BR');
 
                     if (! $order->get_meta('lkn_exp_date')) {
                         $order->add_meta_data('lkn_exp_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
@@ -239,6 +247,18 @@ final class WcPaymentInvoiceSubscription
                 }
             }
         }
+    }
+
+    public function order_contains_subscription($order){
+        $items = $order->get_items();
+        foreach ($items as $item) {
+            $product_id = $item->get_product_id();
+            $is_subscription_enabled = get_post_meta($product_id, '_lkn-wcip-subscription-product', true);
+            if ('on' == $is_subscription_enabled) {
+                $have_subscription_items = true;
+            }
+        }
+        return $have_subscription_items ?? false;
     }
 
     public function calculate_next_due_date($interval_number, $interval_type)
@@ -370,15 +390,6 @@ final class WcPaymentInvoiceSubscription
 
         $customerId = $order->get_customer_id();
         $billing_email = $order->get_billing_email();
-        $user = get_user_by('email', $billing_email);
-
-        if ($user) {
-            $user_id = $user->ID; // Obtém o ID do usuário
-            $customerId = $user_id;
-            $order->set_customer_id($customerId);
-            $order->save();
-        }
-
         $billing_country = $order->get_billing_country();
         $billing_first_name = $order->get_billing_first_name();
         $billing_last_name = $order->get_billing_last_name();
@@ -439,7 +450,7 @@ final class WcPaymentInvoiceSubscription
         // Chama o método de processamento de assinatura
         if ($paymentMethod != 'multiplePayment' && $customerId != 0) {
             $subscriptionResult = apply_filters('lkn_process_subscription_' . $paymentMethod, $newOrderId, $customerId, false);
-
+            
             $status = isset($subscriptionResult['status']) ? $subscriptionResult['status'] : false;
             $makeRetry = isset($subscriptionResult['makeRetry']) ? $subscriptionResult['makeRetry'] : false;
             $nextCronHours = isset($subscriptionResult['nextCronHours']) ? $subscriptionResult['nextCronHours'] : 0;

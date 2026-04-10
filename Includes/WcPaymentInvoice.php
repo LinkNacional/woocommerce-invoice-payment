@@ -231,8 +231,8 @@ final class WcPaymentInvoice {
         $this->loader->add_action('product_type_options', $subscription_class, 'add_checkbox');
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');
         $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
-        $this->loader->add_action('woocommerce_checkout_order_processed', $subscription_class, 'validate_product');
-        $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $subscription_class, 'validate_product');
+        $this->loader->add_action('woocommerce_thankyou', $subscription_class, 'validate_product');
+        $this->loader->add_action('woocommerce_thankyou', $subscription_class, 'validate_product');
         // Hook para agendar subscription quando status muda para completed
         $this->loader->add_action('woocommerce_order_status_completed', $subscription_class, 'handle_subscription_on_completed');
         // Hook para verificar assinaturas pendentes como backup do sistema de cron

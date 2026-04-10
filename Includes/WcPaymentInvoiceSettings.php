@@ -16,7 +16,7 @@ final class WcPaymentInvoiceSettings
         $this->handler_invoice_templates = new WcPaymentInvoicePdfTemplates('wc-invoice-payment', WC_PAYMENT_INVOICE_VERSION);
 
         // Defer tab registration to init so the textdomain is already loaded
-        $this->loader->add_action('init', $this, 'register_all_settings_tabs');
+        $this->register_all_settings_tabs();
         $this->loader->add_action('admin_head', $this, 'fixSettingsTabs');
     }
 
