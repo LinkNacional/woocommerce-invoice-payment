@@ -188,7 +188,7 @@ final class WcPaymentInvoiceSubscription
         $order = wc_get_order($order_id);
         $items = $order->get_items();
         $orderStatus = $order->get_status();
-        
+        $isRecurringDonation = $order->get_meta('_recurring_donation') == 'yes';
         // Status que não devem processar assinatura
         $excludedStatuses = array('pending', 'cancelled', 'refunded', 'failed');
         
@@ -196,7 +196,7 @@ final class WcPaymentInvoiceSubscription
             foreach ($items as $item) {
                 $product_id = $item->get_product_id();
                 $is_subscription_enabled = get_post_meta($product_id, '_lkn-wcip-subscription-product', true);
-                if ($order->get_meta('lkn_is_quote') != 'yes' && (get_option("lkn_wcip_subscription_active_product_invoices") == 'yes' || 'on' == $is_subscription_enabled || $manualSubscription)) {
+                if ($order->get_meta('lkn_is_quote') != 'yes' && (get_option("lkn_wcip_subscription_active_product_invoices") == 'yes' || 'on' == $is_subscription_enabled || $manualSubscription || $isRecurringDonation)) {
                     $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
                     $iniDate = new DateTime();
                     $iniDateFormatted = $iniDate->format('Y-m-d');

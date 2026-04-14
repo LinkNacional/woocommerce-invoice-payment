@@ -629,6 +629,12 @@ msgstr "Ativar doação anônima no checkout"
 msgid "When enabled, a checkbox will appear at checkout allowing the customer to make an anonymous donation with their purchase."
 msgstr "Quando habilitado, uma checkbox aparecerá no checkout permitindo que o cliente faça uma doação anônima junto com sua compra."
 
+msgid "Enable recurring donation at checkout"
+msgstr "Ativar doação recorrente no checkout"
+
+msgid "When enabled, a checkbox will appear at checkout allowing the customer to make a recurring donation with their purchase."
+msgstr "Quando habilitado, uma checkbox aparecerá no checkout permitindo que o cliente faça uma doação recorrente junto com sua compra."
+
 msgid "Enable Dokan compatibility"
 msgstr "Habilitar compatibilidade com Dokan"
 

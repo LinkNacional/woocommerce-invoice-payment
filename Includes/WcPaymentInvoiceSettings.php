@@ -995,6 +995,13 @@ final class WcPaymentInvoiceSettings
                 'id'       => $slug . 'anonymous_donation_checkout',
                 'default'  => 'no',
             ),
+            $slug . 'recurring_donation_checkout' => array(
+                'name'     => __('Enable recurring donation at checkout', 'wc-invoice-payment'),
+                'type'     => 'checkbox',
+                'desc_tip' => __('When enabled, a checkbox will appear at checkout allowing the customer to make a recurring donation with their purchase.', 'wc-invoice-payment'),
+                'id'       => $slug . 'recurring_donation_checkout',
+                'default'  => 'no',
+            ),
             $slug . 'donation_dokan_compatibility' => array(
                 'name'     => __('Enable Dokan compatibility', 'wc-invoice-payment'),
                 'type'     => 'checkbox',

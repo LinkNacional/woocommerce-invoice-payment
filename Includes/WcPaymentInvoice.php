@@ -224,6 +224,11 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_rest_checkout_process_payment_with_context', $donation_class, 'process_anonymous_donation_rest', 10, 2);
         $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $donation_class, 'process_anonymous_donation_blocks', 10, 1);
         
+        // Hooks para processar doação recorrente
+        $this->loader->add_action('woocommerce_checkout_order_processed', $donation_class, 'process_recurring_donation', 10, 3);
+        $this->loader->add_action('woocommerce_rest_checkout_process_payment_with_context', $donation_class, 'process_recurring_donation_rest', 10, 2);
+        $this->loader->add_action('woocommerce_store_api_checkout_order_processed', $donation_class, 'process_recurring_donation_blocks', 10, 1);
+        
         // Inicializa a classe WhatsApp
         new WcPaymentInvoiceWhatsAppButton($this->loader);
         
