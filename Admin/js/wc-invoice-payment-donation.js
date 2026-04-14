@@ -8,92 +8,52 @@
      * Gerencia a exibição dos campos baseado no tipo de doação
      */
     function initDonationFields() {
-        const donationRegularInput = $('#_regular_donation_price');
-        const regularPrice = $('#_regular_price');
-        const productType = $('#product-type');
-
-        if (donationRegularInput.length || regularPrice.length || productType.length) {
-            // Executa quando o tipo de produto muda
-            productType.on('change', function() {
-                if ($(this).val() === 'donation' && regularPrice.val() === '') {
-                    regularPrice.val(donationRegularInput.val());
-                }
-            });
-        }
-
-        
-        document.querySelectorAll('.show_if_simple').forEach(item => {
-            //Se o item não tiver a classe options_group
-            if (!item.classList.contains('options_group')) {
-                item.classList.add('show_if_donation');
-            }
-        })
-        
         const $selectType = $('#product-type');
-
-        if ($selectType.length) {
-            // Se o tipo atual for "donation", troca para "simple" e volta depois de 1s
-            if ($selectType.val() === 'donation') {
-                $selectType.trigger('change');
-            }
-        }
-
         const $donationType = $('#_donation_type');
+        const $donationRegularInput = $('#_regular_donation_price');
+        const $regularPrice = $('#_regular_price');
         const $inventoryTab = $('.inventory_options.inventory_tab');
         const $shippingTab = $('.shipping_options.shipping_tab');
         const $manageStock = $('#_manage_stock');
         const $donationTab = $('.donation_options');
+        const $donationPanel = $('#donation_product_data');
         const $stock = $('#_stock');
+        const $fixedFields = $('.show_if_donation_fixed');
+        const $variableFields = $('.show_if_donation_variable');
+        const $freeFields = $('.show_if_donation_free');
+        const $goalSection = $('.donation-goal-section');
+        const $enableGoal = $('#_donation_enable_goal');
+        const $goalFields = $('.show_if_donation_goal');
+        const $enableDeadline = $('#_donation_enable_deadline');
+        const $deadlineFields = $('.show_if_donation_deadline');
 
-        function handleDonationTypeChange(isOnChange = false) {
-            const value = $donationType.val();
-
-            if (value === 'variable' && $selectType.val() === 'donation') {
-                // Esconde abas e desmarca estoque
-                $inventoryTab.hide();
-                $shippingTab.hide();
-                $manageStock.prop('checked', false).trigger('change');
-                //click em donationTab
-                $donationTab.find('a').trigger('click');
-            } else {
-                // Mostra abas e marca estoque
-                $inventoryTab.show();
-                $shippingTab.show();
-                $manageStock.prop('checked', true).trigger('change');
-
-                // Só altera o valor do estoque no onchange
-                if (isOnChange) {
-                    const currentStock = parseInt($stock.val(), 10);
-                    if (isNaN(currentStock) || currentStock <= 0) {
-                        $stock.val(1).trigger('change');
-                    }
-                }
-            }
+        if (!$selectType.length) {
+            return;
         }
 
-        // Executa no carregar da tela
-        handleDonationTypeChange(false);
+        // Se o tipo donation não estiver habilitado, não aplica nenhuma regra do plugin.
+        if (!$selectType.find('option[value="donation"]').length) {
+            return;
+        }
 
-        // Executa no change
-        $donationType.on('change', function () {
-            handleDonationTypeChange(true);
-        });
+        function getState() {
+            const productType = $selectType.val();
+            const donationType = $donationType.val();
 
+            return {
+                isDonationProduct: productType === 'donation',
+                donationType: donationType,
+                isVariableDonation: donationType === 'variable'
+            };
+        }
 
-        // Função para mostrar/ocultar campos baseado no tipo de doação
-        function toggleDonationFields() {
-            var donationType = $('#_donation_type').val();
-            var $fixedFields = $('.show_if_donation_fixed');
-            var $variableFields = $('.show_if_donation_variable');
-            var $freeFields = $('.show_if_donation_free');
-            var $goalSection = $('.donation-goal-section');
-            
+        function toggleDonationFields(donationType) {
             // Esconde todos os campos primeiro
             $fixedFields.hide();
             $variableFields.hide();
             $freeFields.hide();
             $goalSection.hide();
-            
+
             // Mostra campos baseado no tipo
             if (donationType === 'fixed') {
                 $fixedFields.show();
@@ -104,45 +64,94 @@
                 $freeFields.show();
             }
         }
-        
-        // Função para verificar se é produto de doação
-        function isDonationProduct() {
-            return $('#product-type').val() === 'donation';
-        }
-        
-        // Função para controlar visibilidade da aba de doação
-        function toggleDonationTab() {
-            var $donationTab = $('.donation_tab');
-            var $donationPanel = $('#donation_product_data');
-            
-            if (isDonationProduct()) {
-                $donationTab.show();
-                if ($donationTab.hasClass('active')) {
-                    toggleDonationFields();
-                }
+
+        function toggleGoalFields(isVisible) {
+            if (isVisible && $enableGoal.is(':checked')) {
+                $goalFields.show();
             } else {
-                $donationTab.hide();
-                $donationPanel.hide();
+                $goalFields.hide();
             }
         }
-        
-        // Executar ao carregar a página
-        if ($('#_donation_type').length) {
-            toggleDonationTab();
-            toggleDonationFields();
+
+        function toggleDeadlineFields(isVisible) {
+            if (isVisible && $enableDeadline.is(':checked')) {
+                $deadlineFields.show();
+            } else {
+                $deadlineFields.hide();
+            }
         }
-        
-        // Event listeners
-        $('#_donation_type').on('change', toggleDonationFields);
-        $('#product-type').on('change', function() {
-            setTimeout(toggleDonationTab, 100);
+
+        function applyDonationUiState(options) {
+            const state = getState();
+            const opts = options || {};
+
+            $donationTab.toggle(state.isDonationProduct);
+
+            if (!state.isDonationProduct) {
+                $donationPanel.hide();
+                $inventoryTab.show();
+                $shippingTab.show();
+                toggleGoalFields(false);
+                toggleDeadlineFields(false);
+                return;
+            }
+
+            toggleDonationFields(state.donationType);
+            toggleGoalFields(state.isVariableDonation);
+            toggleDeadlineFields(state.isVariableDonation);
+
+            if (state.isVariableDonation) {
+                $inventoryTab.hide();
+                $shippingTab.hide();
+                $manageStock.prop('checked', false).trigger('change');
+            } else {
+                $inventoryTab.show();
+                $shippingTab.show();
+                $manageStock.prop('checked', true).trigger('change');
+
+                if (opts.fromDonationTypeChange) {
+                    const currentStock = parseInt($stock.val(), 10);
+                    if (isNaN(currentStock) || currentStock <= 0) {
+                        $stock.val(1).trigger('change');
+                    }
+                }
+            }
+        }
+
+        // Executa quando o tipo de produto muda
+        if ($donationRegularInput.length || $regularPrice.length) {
+            $selectType.on('change', function() {
+                if ($(this).val() === 'donation' && $regularPrice.val() === '') {
+                    $regularPrice.val($donationRegularInput.val());
+                }
+            });
+        }
+
+        $selectType.on('change', function() {
+            applyDonationUiState();
         });
-        
-        // Quando a aba de doação é clicada
+
+        $donationType.on('change', function() {
+            applyDonationUiState({ fromDonationTypeChange: true });
+        });
+
+        $enableGoal.on('change', function() {
+            applyDonationUiState();
+        });
+
+        $enableDeadline.on('change', function() {
+            applyDonationUiState();
+        });
+
+        $(document.body).on('woocommerce-product-type-change', function() {
+            applyDonationUiState();
+        });
+
+        // Quando a aba de doação é clicada, reaplica o estado dos campos.
         $(document).on('click', '.donation_tab a', function() {
-            setTimeout(toggleDonationFields, 100);
+            applyDonationUiState();
         });
-        
+
         // Função para mostrar/ocultar checkbox baseado nos valores
         function toggleCustomAmountCheckbox() {
             var values = $('#_donation_button_values').val();
@@ -191,64 +200,8 @@
                 $('#_regular_price').val(value);
             }
         });
-        
-        // === CONTROLE DE VISIBILIDADE DOS CAMPOS DE META ===
-        initDonationGoalFields();
-    }
-    
-    /**
-     * Controla a visibilidade dos campos de meta de doação
-     */
-    function initDonationGoalFields() {
-        const $enableGoal = $('#_donation_enable_goal');
-        const $goalFields = $('.show_if_donation_goal');
-        
-        // Função para mostrar/ocultar campos de meta
-        function toggleGoalFields() {
-            if ($enableGoal.is(':checked')) {
-                $goalFields.show();
-            } else {
-                $goalFields.hide();
-            }
-        }
-        
-        // Executa ao carregar
-        toggleGoalFields();
-        
-        // Event listener para mudança no checkbox
-        $enableGoal.on('change', toggleGoalFields);
-        
-        // Também executa quando a aba de doação for clicada
-        $(document).on('click', '.donation_tab a', function() {
-            setTimeout(toggleGoalFields, 100);
-        });
-        
-        // === CONTROLES PARA CAMPOS DE DATA LIMITE ===
-        const $enableDeadline = $('#_donation_enable_deadline');
-        const $deadlineFields = $('.show_if_donation_deadline');
-        
-        // Função para mostrar/ocultar campos de data limite
-        function toggleDeadlineFields() {
-            if ($enableDeadline.is(':checked')) {
-                $deadlineFields.show();
-            } else {
-                $deadlineFields.hide();
-            }
-        }
-        
-        // Executa ao carregar
-        toggleDeadlineFields();
-        
-        // Event listener para mudança no checkbox
-        $enableDeadline.on('change', toggleDeadlineFields);
-        
-        // Também executa quando a aba de doação for clicada
-        $(document).on('click', '.donation_tab a', function() {
-            setTimeout(function() {
-                toggleGoalFields();
-                toggleDeadlineFields();
-            }, 100);
-        });
+
+        applyDonationUiState();
     }
 
     // Inicializar quando o documento estiver pronto

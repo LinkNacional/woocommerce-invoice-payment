@@ -5,6 +5,9 @@
 * Adição de função para editar assinaturas ativas.
 * Adição de função secundária para gerar faturas se o Cron estiver desativado.
 
+# 2.10.2 - 06/04/2026
+* Correção em campos de doação interferindo nos campos de produto variavel.
+
 # 2.10.1 - 09/03/2026
 * Correção em css do OTP.
 

@@ -124,6 +124,9 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 * Add function to edit active subscriptions.
 * Add secondary function to generate invoices if Cron is disabled.
 
+= 2.10.2 = *06/04/2026*
+* Fix donation fields interfering with variable product fields.
+
 = 2.10.1 = *09/03/2026*
 * Fix OTP css.
 

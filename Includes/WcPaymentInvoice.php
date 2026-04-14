@@ -200,7 +200,6 @@ final class WcPaymentInvoice {
         $this->loader->add_filter('product_type_selector', $donation_class, 'add_donation_product_type');
         $this->loader->add_filter('product_type_options', $donation_class, 'add_donation_type_options');
         $this->loader->add_filter('woocommerce_product_data_tabs', $donation_class, 'add_donation_product_tab');
-        $this->loader->add_filter('woocommerce_product_data_tabs', $donation_class, 'add_donation_product_data_tabs', 98);
         $this->loader->add_action('woocommerce_product_data_panels', $donation_class, 'add_donation_product_panel');
         $this->loader->add_action('woocommerce_process_product_meta', $donation_class, 'save_donation_product_data');
         $this->loader->add_action('admin_enqueue_scripts', $donation_class, 'enqueue_donation_assets');
