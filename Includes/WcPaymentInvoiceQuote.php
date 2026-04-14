@@ -576,7 +576,7 @@ final class WcPaymentInvoiceQuote
      */
     public function changeQuotesPageTitle($title) {
         // Verifica se estamos na página de orçamentos
-        if (isset($_GET['quotes']) || strpos($_SERVER['REQUEST_URI'], '/quotes') !== false) {
+        if ((isset($_GET['quotes']) || strpos($_SERVER['REQUEST_URI'], '/quotes') !== false ) && ($title == 'Minha conta' || $title == 'My Account')) {
             return __('Quotes', 'wc-invoice-payment');
         }
         

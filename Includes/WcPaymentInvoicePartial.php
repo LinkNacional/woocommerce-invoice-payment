@@ -118,6 +118,32 @@ final class WcPaymentInvoicePartial
                 switch ($newStatus) {
                     case 'wc-cancelled':
                         $parentOrder->update_meta_data('_wc_lkn_total_peding', $totalPending - $orderTotal);
+                        $scheduled_events = _get_cron_array();
+                        // verifica todos os eventos agendados
+                        foreach ($scheduled_events as $timestamp => $cron_events) {
+                            foreach ($cron_events as $hook => $events) {
+                                foreach ($events as $event) {
+                                    // Verifique se o evento está associado ao seu gancho (hook)
+                                    if ('generate_invoice_event' === $hook) {
+                                        // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                                        $event_args = $event['args'];
+                                        if (is_array($event_args) && in_array($orderId, $event_args)) {
+                                            // Remova o evento do WP Cron
+                                            wp_unschedule_event($timestamp, $hook, $event_args);
+                                        }
+                                    }
+                                    if ('lkn_wcip_cron_hook' === $hook) {
+                                        // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
+                                        $event_args = $event['args'];
+                                        if (is_array($event_args) && in_array($orderId, $event_args)) {
+                                            // Remova o evento do WP Cron
+                                            wp_unschedule_event($timestamp, $hook, $event_args);
+                                            
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         break;
                     case $successStatuses:
                         $parentOrder->update_meta_data("_wc_lkn_total_peding", $totalPending - $orderTotal);
@@ -133,6 +159,7 @@ final class WcPaymentInvoicePartial
                 $order->save();
             }
         }
+        
     }
 
     public function showPartialsPayments($order){

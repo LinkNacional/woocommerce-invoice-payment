@@ -446,6 +446,12 @@ msgstr ""
 msgid "When enabled, a checkbox will appear at checkout allowing the customer to make an anonymous donation with their purchase."
 msgstr ""
 
+msgid "Enable recurring donation at checkout"
+msgstr ""
+
+msgid "When enabled, a checkbox will appear at checkout allowing the customer to make a recurring donation with their purchase."
+msgstr ""
+
 msgid "Enable Dokan compatibility"
 msgstr ""
 

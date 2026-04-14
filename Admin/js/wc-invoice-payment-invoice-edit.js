@@ -22,7 +22,46 @@ jQuery(document).ready(function ($) {
         firstQuoteItem.parentElement.classList.add('current');
       }
     }
-  }else{
+  } else if (window.location.search.includes("page=edit-subscription")) {
+    // Remover classes ativas do menu Invoices
+    const $invoicesTopLevelMenu = $('#toplevel_page_wc-invoice-payment')
+    $invoicesTopLevelMenu.removeClass('wp-has-current-submenu wp-menu-open')
+    
+    const $invoicesTopLevelLink = $invoicesTopLevelMenu.find('a').first()
+    $invoicesTopLevelLink.removeClass('wp-has-current-submenu wp-menu-open')
+    
+    // Remover current do submenu de invoices
+    const $invoicesSubMenuItem = $invoicesTopLevelMenu.find('.wp-submenu .current')
+    $invoicesSubMenuItem.removeClass('current')
+
+    // Ativar menu Subscriptions
+    const $subscriptionsTopLevelMenu = $('#toplevel_page_wc-invoice-payment-subscriptions')
+    $subscriptionsTopLevelMenu.addClass('wp-has-submenu wp-has-current-submenu wp-menu-open menu-top toplevel_page_wc-invoice-payment-subscriptions')
+
+    const $subscriptionsTopLevelLink = $subscriptionsTopLevelMenu.find('a').first()
+    $subscriptionsTopLevelLink.addClass('wp-has-submenu wp-has-current-submenu wp-menu-open menu-top toplevel_page_wc-invoice-payment-subscriptions')
+    $subscriptionsTopLevelLink.attr('aria-haspopup', 'false')
+
+    const $subscriptionsSubMenu = $('#toplevel_page_wc-invoice-payment-subscriptions').find('.wp-submenu')
+    $subscriptionsSubMenu.css('min-width', 'auto')
+    $subscriptionsSubMenu.css('border-left', '0')
+
+    // Ativar primeiro item do submenu de subscriptions
+    const subscriptionsElementBar = document.querySelector('#toplevel_page_wc-invoice-payment-subscriptions')
+    if(subscriptionsElementBar) {
+      const firstSubscriptionItem = subscriptionsElementBar.querySelector('.wp-submenu .wp-first-item a');
+      if (firstSubscriptionItem) {
+        firstSubscriptionItem.classList.add('current');
+        firstSubscriptionItem.parentElement.classList.add('current');
+      }
+    }
+
+    // Remover botão de limpar seleção do select2
+    const removeUserButton = document.querySelector(".select2-selection__clear");
+    if (removeUserButton) {
+        removeUserButton.remove();
+    }
+  } else {
 
     const $topLevelMenu = $('#toplevel_page_wc-invoice-payment')
     $topLevelMenu.addClass('wp-has-submenu wp-has-current-submenu wp-menu-open menu-top toplevel_page_wc-invoice-payment menu-top-last')

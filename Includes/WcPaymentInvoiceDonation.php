@@ -211,6 +211,8 @@ final class WcPaymentInvoiceDonation
                 }
             }
         }
+        
+        // Carrega script para doação anônima
         if ( is_checkout() && 
             WC()->payment_gateways() && 
             ! empty( WC()->payment_gateways()->get_available_payment_gateways() ) && 
@@ -221,6 +223,27 @@ final class WcPaymentInvoiceDonation
             wp_enqueue_script( 'wcInvoicePaymentDonationScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-donation-checkout.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
             wp_enqueue_style('wcInvoicePaymentDonationStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-donation-checkout.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
             wp_localize_script('wcInvoicePaymentDonationScript', 'lknWcipDonationVariables', array(
+                'minPartialAmount' => get_option('lkn_wcip_partial_interval_minimum', 0),
+                'cart' => WC()->cart,
+                'userId' => get_current_user_id(),
+                'symbol' => $currency_symbol,
+                'partialPaymentTitle' => __('Partial Payment', 'wc-invoice-payment'),
+                'partialPaymentDescription' => __('Enter the amount you want to pay now, the rest can be paid later with other payment methods.', 'wc-invoice-payment'),
+                'payPartialText' => __('Pay Partial', 'wc-invoice-payment'),
+            ));
+        }
+        
+        // Carrega script para doação recorrente
+        if ( is_checkout() && 
+            WC()->payment_gateways() && 
+            ! empty( WC()->payment_gateways()->get_available_payment_gateways() ) && 
+            get_option('lkn_wcip_recurring_donation_checkout', '') == 'yes' && 
+            $only_free_or_variable_donations){
+            $currency_code =  get_woocommerce_currency();
+            $currency_symbol = get_woocommerce_currency_symbol( $currency_code );
+            wp_enqueue_script( 'wcInvoicePaymentRecurringDonationScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-recurring-donation-checkout.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
+            wp_enqueue_style('wcInvoicePaymentRecurringDonationStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-recurring-donation-checkout.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
+            wp_localize_script('wcInvoicePaymentRecurringDonationScript', 'lknWcipRecurringDonationVariables', array(
                 'minPartialAmount' => get_option('lkn_wcip_partial_interval_minimum', 0),
                 'cart' => WC()->cart,
                 'userId' => get_current_user_id(),
@@ -1320,6 +1343,154 @@ final class WcPaymentInvoiceDonation
             $logger = \wc_get_logger();
             $logger->info('Dados de endereço removidos para doação anônima', array('source' => 'wc-invoice-payment'));
         }
+    }
+
+    /**
+     * Processa doação recorrente - hook woocommerce_checkout_order_processed
+     * 
+     * @param int $order_id
+     * @param array $posted_data
+     * @param WC_Order $order
+     */
+    public function process_recurring_donation($order_id, $posted_data, $order)
+    {
+        // Verifica se existe o campo de doação recorrente nos dados enviados
+        $is_recurring = false;
+        
+        if (isset($posted_data['recurring_donation']) && $posted_data['recurring_donation'] === '1') {
+            $is_recurring = true;
+        }
+        
+        // Verifica também nos dados $_POST
+        if (isset($_POST['recurring_donation']) && $_POST['recurring_donation'] === '1') {
+            $is_recurring = true;
+        }
+        
+        if ($is_recurring) {
+            $this->save_recurring_donation_meta($order_id);
+        }
+    }
+
+    /**
+     * Processa doação recorrente - hook woocommerce_rest_checkout_process_payment_with_context
+     * 
+     * @param \PaymentContext $context
+     * @param \PaymentResult $result
+     */
+    public function process_recurring_donation_rest($context, $result)
+    {
+        $request = $context->payment_data;
+        
+        // Verifica se existe o campo de doação recorrente nos dados da requisição
+        if (isset($request['recurring_donation']) && $request['recurring_donation'] === '1') {
+            $order = $result->payment_details['order'] ?? null;
+            if ($order && method_exists($order, 'get_id')) {
+                $this->save_recurring_donation_meta($order->get_id());
+            }
+        }
+    }
+
+    /**
+     * Processa doação recorrente - hook woocommerce_store_api_checkout_order_processed  
+     * 
+     * @param WC_Order $order
+     */
+    public function process_recurring_donation_blocks($order)
+    {
+        // Para o checkout em blocos, verificamos se há meta de doação recorrente na sessão ou na order
+        $is_recurring = false;
+        
+        // Verifica se já foi marcado como doação recorrente (pode ter sido processado antes)
+        $recurring_meta = $order->get_meta('_recurring_donation_temp');
+        if ($recurring_meta === 'yes') {
+            $is_recurring = true;
+        }
+        
+        // Verifica na sessão do WooCommerce
+        if (function_exists('WC') && \WC()->session) {
+            $session_recurring = \WC()->session->get('recurring_donation');
+            if ($session_recurring === 'yes') {
+                $is_recurring = true;
+                // Remove da sessão após usar
+                \WC()->session->__unset('recurring_donation');
+            }
+        }
+        
+        // Verifica se existe no request atual
+        $request_data = $_POST;
+        if (isset($request_data['recurring_donation']) && $request_data['recurring_donation'] === '1') {
+            $is_recurring = true;
+        }
+        
+        // Verifica nos dados de input do request
+        $input = file_get_contents('php://input');
+        if ($input) {
+            $json_data = json_decode($input, true);
+            if (isset($json_data['recurring_donation']) && $json_data['recurring_donation'] === '1') {
+                $is_recurring = true;
+            }
+        }
+        
+        if ($is_recurring) {
+            $this->save_recurring_donation_meta($order->get_id());
+        }
+    }
+
+    /**
+     * Captura dados de doação recorrente da Store API
+     * 
+     * @param WP_Error $errors
+     * @param WP_REST_Request $request
+     * @return WP_Error
+     */
+    public function capture_recurring_donation_data($errors, $request)
+    {
+        $params = $request->get_params();
+        
+        // Se é doação recorrente, armazena temporariamente na sessão
+        if (isset($params['recurring_donation']) && $params['recurring_donation'] === '1') {
+            // Salva na sessão do WooCommerce
+            if (function_exists('WC') && \WC()->session) {
+                \WC()->session->set('recurring_donation', 'yes');
+            }
+        }
+        
+        return $errors;
+    }
+
+    /**
+     * Salva meta de doação recorrente na order
+     * 
+     * @param int $order_id
+     */
+    private function save_recurring_donation_meta($order_id)
+    {
+        $order = \wc_get_order($order_id);
+        
+        if (!$order) {
+            return;
+        }
+
+        // Verifica se o pedido contém produtos de doação
+        $has_donation = false;
+        foreach ($order->get_items() as $item) {
+            $product = $item->get_product();
+            if ($product && $product->get_type() === 'donation') {
+                $has_donation = true;
+                break;
+            }
+        }
+
+        // Se não tem produto de doação, não salva
+        if (!$has_donation) {
+            return;
+        }
+
+        // Salva um meta indicando que é doação recorrente
+        $order->update_meta_data('_recurring_donation', 'yes');
+        
+        // Salva as alterações
+        $order->save();
     }
 
     /**
