@@ -1,3 +1,7 @@
+# 2.12.1 - 07/07/2026
+* Ajuste na documentação.
+* Ajuste na validação dos campos do dokan.
+  
 # 2.12.0 - 10/04/2026
 * Adição de compatibilidade para pagamentos recorrentes com a Cielo.
 

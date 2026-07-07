@@ -117,6 +117,10 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
+= 2.12.1 = *07/07/2026*
+* Documentation adjustment.
+* Adjustment in Dokan field validation.
+
 = 2.12.0 = *04/10/2026*
 * Added compatibility for recurring payments with Cielo.
 
