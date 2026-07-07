@@ -93,6 +93,7 @@ final class WcPaymentInvoicePartial
             wp_localize_script('wcInvoicePaymentPartialScript', 'lknWcipPartialTableVariables', array(
                 'orderId' => $order->get_id(),
                 'totalToPay' => $totalToPay,
+                /* translators: %s: order total price (replaced in JavaScript) */
                 'confirmPayment' => __('Are you sure you want to pay %s?', 'wc-invoice-payment'),
                 'confirmCancel' => __('Are you sure you want to cancel this partial payment?', 'wc-invoice-payment'),
                 'nonce' => wp_create_nonce('wp_rest'),
@@ -216,7 +217,7 @@ final class WcPaymentInvoicePartial
                 'compare' => '!=',
             ),
         );
-        wp_enqueue_style('teste-admin-style', plugin_dir_url(__FILE__) . 'css/wc-teste21.css', array(), '', 'all');
+        wp_enqueue_style('teste-admin-style', plugin_dir_url(__FILE__) . 'css/wc-teste21.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         
         return $queryArgs;
     }
@@ -291,7 +292,7 @@ final class WcPaymentInvoicePartial
                 global $wpdb;
                 $wpdb->delete( $wpdb->prefix . 'postmeta', array( 'post_id' => $partial_id ) );
                 $wpdb->delete( $wpdb->prefix . 'woocommerce_order_items', array( 'order_id' => $partial_id ) );
-                $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}woocommerce_order_itemmeta WHERE order_item_id NOT IN (SELECT order_item_id FROM {$wpdb->prefix}woocommerce_order_items)" ) );
+                $wpdb->query( "DELETE FROM {$wpdb->prefix}woocommerce_order_itemmeta WHERE order_item_id NOT IN (SELECT order_item_id FROM {$wpdb->prefix}woocommerce_order_items)" );
             }
         }
     }
@@ -324,7 +325,7 @@ final class WcPaymentInvoicePartial
             if (function_exists('dokan_get_template_part')) {
                 dokan_get_template_part('global/no-permission');
             } else {
-                echo '<div class="dokan-alert dokan-alert-danger">' . __('Você não tem permissão para acessar esta página.', 'wc-invoice-payment') . '</div>';
+                echo '<div class="dokan-alert dokan-alert-danger">' . esc_html__('Você não tem permissão para acessar esta página.', 'wc-invoice-payment') . '</div>';
             }
             return;
         }
@@ -402,21 +403,21 @@ final class WcPaymentInvoicePartial
 
                     <form action="" method="POST" class="dokan-right">
                         <div class="dokan-form-group">
-                            <a href="<?php echo \dokan_get_navigation_url('nova-fatura'); ?>" class="dokan-btn dokan-btn-sm dokan-btn-theme">
-                                <i class="fas fa-plus"></i> <?php \_e('Nova Fatura', 'wc-invoice-payment'); ?>
+                            <a href="<?php echo \esc_url(\dokan_get_navigation_url('nova-fatura')); ?>" class="dokan-btn dokan-btn-sm dokan-btn-theme">
+                                <i class="fas fa-plus"></i> <?php \esc_html_e('Nova Fatura', 'wc-invoice-payment'); ?>
                             </a>
                         </div>
                     </form>
 
                     <form id="invoice-filter" method="POST" class="dokan-form-inline">
                         <div class="dokan-form-group">
-                            <label for="bulk-invoice-action-selector" class="screen-reader-text"><?php \_e('Select bulk action', 'wc-invoice-payment'); ?></label>
+                            <label for="bulk-invoice-action-selector" class="screen-reader-text"><?php \esc_html_e('Select bulk action', 'wc-invoice-payment'); ?></label>
 
                             <select name="status" id="bulk-invoice-action-selector" class="dokan-form-control chosen">
-                                <option class="bulk-invoice-status" value="-1"><?php \_e('Bulk Actions', 'wc-invoice-payment'); ?></option>
-                                <option class="bulk-invoice-status" value="wc-on-hold"><?php \_e('Change status to on-hold', 'wc-invoice-payment'); ?></option>
-                                <option class="bulk-invoice-status" value="wc-processing"><?php \_e('Change status to processing', 'wc-invoice-payment'); ?></option>
-                                <option class="bulk-invoice-status" value="wc-completed"><?php \_e('Change status to completed', 'wc-invoice-payment'); ?></option>
+                                <option class="bulk-invoice-status" value="-1"><?php \esc_html_e('Bulk Actions', 'wc-invoice-payment'); ?></option>
+                                <option class="bulk-invoice-status" value="wc-on-hold"><?php \esc_html_e('Change status to on-hold', 'wc-invoice-payment'); ?></option>
+                                <option class="bulk-invoice-status" value="wc-processing"><?php \esc_html_e('Change status to processing', 'wc-invoice-payment'); ?></option>
+                                <option class="bulk-invoice-status" value="wc-completed"><?php \esc_html_e('Change status to completed', 'wc-invoice-payment'); ?></option>
                             </select>
                         </div>
 
@@ -432,13 +433,13 @@ final class WcPaymentInvoicePartial
                                         <label for="cb-select-all"></label>
                                         <input id="cb-select-all" class="dokan-checkbox" type="checkbox">
                                     </th>
-                                    <th><?php \_e('Invoice', 'wc-invoice-payment'); ?></th>
-                                    <th><?php \_e('Invoice Total', 'wc-invoice-payment'); ?></th>
-                                    <th><?php \_e('Status', 'wc-invoice-payment'); ?></th>
-                                    <th><?php \_e('Customer', 'wc-invoice-payment'); ?></th>
-                                    <th><?php \_e('Date', 'wc-invoice-payment'); ?></th>
-                                    <th><?php \_e('Due Date', 'wc-invoice-payment'); ?></th>
-                                    <th width="17%"><?php \_e('Action', 'wc-invoice-payment'); ?></th>
+                                    <th><?php \esc_html_e('Invoice', 'wc-invoice-payment'); ?></th>
+                                    <th><?php \esc_html_e('Invoice Total', 'wc-invoice-payment'); ?></th>
+                                    <th><?php \esc_html_e('Status', 'wc-invoice-payment'); ?></th>
+                                    <th><?php \esc_html_e('Customer', 'wc-invoice-payment'); ?></th>
+                                    <th><?php \esc_html_e('Date', 'wc-invoice-payment'); ?></th>
+                                    <th><?php \esc_html_e('Due Date', 'wc-invoice-payment'); ?></th>
+                                    <th width="17%"><?php \esc_html_e('Action', 'wc-invoice-payment'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -463,7 +464,8 @@ final class WcPaymentInvoicePartial
                                             </th>
                                             <td class="dokan-order-id column-primary" data-title="<?php \esc_attr_e('Invoice', 'wc-invoice-payment'); ?>">
                                                 <a href="<?php echo \esc_url($view_url); ?>">
-                                                    <strong><?php \printf(__('Invoice %s', 'wc-invoice-payment'), $invoice['number']); ?></strong>
+                                                    <?php /* translators: %s: invoice number */ ?>
+                                                    <strong><?php printf(esc_html__('Invoice %s', 'wc-invoice-payment'), esc_html($invoice['number'])); ?></strong>
                                                 </a>
                                                 <button type="button" class="toggle-row"></button>
                                             </td>
@@ -471,7 +473,7 @@ final class WcPaymentInvoicePartial
                                                 <?php echo \wp_kses_post($invoice['total_formatted']); ?>
                                             </td>
                                             <td class="dokan-order-status" data-title="<?php \esc_attr_e('Status', 'wc-invoice-payment'); ?>">
-                                                <?php echo $this->getStatusLabel($invoice['status']); ?>
+                                                <?php echo wp_kses_post($this->getStatusLabel($invoice['status'])); ?>
                                             </td>
                                             <td class="dokan-order-customer" data-title="<?php \esc_attr_e('Customer', 'wc-invoice-payment'); ?>">
                                                 <?php echo \esc_html($invoice['customer_name'] ?: __('Guest', 'wc-invoice-payment')); ?>
@@ -486,12 +488,12 @@ final class WcPaymentInvoicePartial
                                             </td>
                                             <td class="dokan-order-action" width="17%" data-title="<?php \esc_attr_e('Action', 'wc-invoice-payment'); ?>">
                                                 <?php if ($invoice['status'] === 'on-hold' || $invoice['status'] === 'pending' ) : ?>
-                                                    <a class="dokan-btn dokan-btn-default dokan-btn-sm tips" href="<?php echo \wp_nonce_url(\admin_url('admin-ajax.php?action=dokan-mark-order-processing&order_id=' . $invoice['id']), 'dokan-mark-order-processing'); ?>" data-toggle="tooltip" data-placement="top" title="<?php \esc_attr_e('Mark Processing', 'wc-invoice-payment'); ?>">
+                                                    <a class="dokan-btn dokan-btn-default dokan-btn-sm tips" href="<?php echo \esc_url(\wp_nonce_url(\admin_url('admin-ajax.php?action=dokan-mark-order-processing&order_id=' . $invoice['id']), 'dokan-mark-order-processing')); ?>" data-toggle="tooltip" data-placement="top" title="<?php \esc_attr_e('Mark Processing', 'wc-invoice-payment'); ?>">
                                                         <i class="far fa-clock">&nbsp;</i>
                                                     </a>
                                                 <?php endif; ?>
                                                 <?php if ($invoice['status'] === 'on-hold' || $invoice['status'] === 'pending' || $invoice['status'] === 'processing') : ?>
-                                                    <a class="dokan-btn dokan-btn-default dokan-btn-sm tips" href="<?php echo \wp_nonce_url(\admin_url('admin-ajax.php?action=dokan-mark-order-complete&order_id=' . $invoice['id']), 'dokan-mark-order-complete'); ?>" data-toggle="tooltip" data-placement="top" title="<?php \esc_attr_e('Mark Complete', 'wc-invoice-payment'); ?>">
+                                                    <a class="dokan-btn dokan-btn-default dokan-btn-sm tips" href="<?php echo \esc_url(\wp_nonce_url(\admin_url('admin-ajax.php?action=dokan-mark-order-complete&order_id=' . $invoice['id']), 'dokan-mark-order-complete')); ?>" data-toggle="tooltip" data-placement="top" title="<?php \esc_attr_e('Mark Complete', 'wc-invoice-payment'); ?>">
                                                         <i class="fas fa-check">&nbsp;</i>
                                                     </a>
                                                 <?php endif; ?>
@@ -512,7 +514,7 @@ final class WcPaymentInvoicePartial
                                     <tr>
                                         <td colspan="8">
                                             <div class="dokan-message">
-                                                <?php \_e('No invoices found.', 'wc-invoice-payment'); ?>
+                                                <?php \esc_html_e('No invoices found.', 'wc-invoice-payment'); ?>
                                             </div>
                                         </td>
                                     </tr>
@@ -571,7 +573,7 @@ final class WcPaymentInvoicePartial
         wp_enqueue_style('wcInvoicePaymentDokanInvoicesStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-dokan-invoices.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         
         // Processar formulário se foi enviado
-        if (isset($_POST['dokan_create_invoice_nonce']) && wp_verify_nonce($_POST['dokan_create_invoice_nonce'], 'dokan_create_invoice_action')) {
+        if (isset($_POST['dokan_create_invoice_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['dokan_create_invoice_nonce'])), 'dokan_create_invoice_action')) {
             $this->processNewInvoiceForm();
         }
         
@@ -610,7 +612,7 @@ final class WcPaymentInvoicePartial
 
                     <div class="dokan-new-invoice-dashboard">
                         <div class="dokan-new-invoice-header">
-                            <h1 class="entry-title"><?php _e('Nova Fatura', 'wc-invoice-payment'); ?></h1>
+                            <h1 class="entry-title"><?php esc_html_e('Nova Fatura', 'wc-invoice-payment'); ?></h1>
                         </div>
 
                         <form method="post" class="wcip-form-wrap dokan-invoice-form">
@@ -618,27 +620,27 @@ final class WcPaymentInvoicePartial
                             
                             <div class="wcip-invoice-data">
                                 <div id="wcPaymentInvoiceTitles">
-                                    <h3 class="title"><?php _e('Detalhes da fatura', 'wc-invoice-payment'); ?></h3>
-                                    <h3 class="title"><?php _e('Dados do Pagador', 'wc-invoice-payment'); ?></h3>
+                                    <h3 class="title"><?php esc_html_e('Detalhes da fatura', 'wc-invoice-payment'); ?></h3>
+                                    <h3 class="title"><?php esc_html_e('Dados do Pagador', 'wc-invoice-payment'); ?></h3>
                                 </div>
                                 <div class="invoice-row-wrap">
                                     <div class="invoice-column-wrap">
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_payment_status_input"><?php _e('Status', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_payment_status_input"><?php esc_html_e('Status', 'wc-invoice-payment'); ?></label>
                                             <select name="lkn_wcip_payment_status" id="lkn_wcip_payment_status_input" class="regular-text">
-                                                <option value="wc-pending"><?php _e('Pending payment', 'wc-invoice-payment'); ?></option>
-                                                <option value="wc-processing"><?php _e('Processing', 'wc-invoice-payment'); ?></option>
-                                                <option value="wc-on-hold"><?php _e('On hold', 'wc-invoice-payment'); ?></option>
-                                                <option value="wc-completed"><?php _e('Completed', 'wc-invoice-payment'); ?></option>
-                                                <option value="wc-cancelled"><?php _e('Cancelled', 'wc-invoice-payment'); ?></option>
-                                                <option value="wc-refunded"><?php _e('Refunded', 'wc-invoice-payment'); ?></option>
-                                                <option value="wc-failed"><?php _e('Failed', 'wc-invoice-payment'); ?></option>
+                                                <option value="wc-pending"><?php esc_html_e('Pending payment', 'wc-invoice-payment'); ?></option>
+                                                <option value="wc-processing"><?php esc_html_e('Processing', 'wc-invoice-payment'); ?></option>
+                                                <option value="wc-on-hold"><?php esc_html_e('On hold', 'wc-invoice-payment'); ?></option>
+                                                <option value="wc-completed"><?php esc_html_e('Completed', 'wc-invoice-payment'); ?></option>
+                                                <option value="wc-cancelled"><?php esc_html_e('Cancelled', 'wc-invoice-payment'); ?></option>
+                                                <option value="wc-refunded"><?php esc_html_e('Refunded', 'wc-invoice-payment'); ?></option>
+                                                <option value="wc-failed"><?php esc_html_e('Failed', 'wc-invoice-payment'); ?></option>
                                             </select>
                                         </div>
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_select_invoice_template"><?php _e('Template do PDF da fatura', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_select_invoice_template"><?php esc_html_e('Template do PDF da fatura', 'wc-invoice-payment'); ?></label>
                                             <select name="lkn_wcip_select_invoice_template" id="lkn_wcip_select_invoice_template" class="regular-text" required>
-                                                <option value="global"><?php _e('Template padrão', 'wc-invoice-payment'); ?></option>
+                                                <option value="global"><?php esc_html_e('Template padrão', 'wc-invoice-payment'); ?></option>
                                                 <?php
                                                 // Buscar templates disponíveis
                                                 $templates_dir = WC_PAYMENT_INVOICE_ROOT_DIR . 'Includes/templates/';
@@ -655,7 +657,7 @@ final class WcPaymentInvoicePartial
                                             </select>
                                         </div>
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_select_invoice_language"><?php _e('Idioma do PDF da fatura', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_select_invoice_language"><?php esc_html_e('Idioma do PDF da fatura', 'wc-invoice-payment'); ?></label>
                                             <select name="lkn_wcip_select_invoice_language" id="lkn_wcip_select_invoice_language" class="regular-text" required>
                                                 <?php
                                                 $languages = get_available_languages();
@@ -680,21 +682,21 @@ final class WcPaymentInvoicePartial
                                             </select>
                                         </div>
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_extra_data"><?php _e('Dados extra', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_extra_data"><?php esc_html_e('Dados extra', 'wc-invoice-payment'); ?></label>
                                             <textarea name="lkn_wcip_extra_data" id="lkn_wcip_extra_data" class="regular-text"></textarea>
                                         </div>    
                                     </div>
                                     <div class="invoice-column-wrap">
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_name_input"><?php _e('Nome', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_name_input"><?php esc_html_e('Nome', 'wc-invoice-payment'); ?></label>
                                             <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" class="regular-text" required>
                                         </div>
                                         <div class="input-row-wrap" id="lknWcipEmailInput">
-                                            <label for="lkn_wcip_email_input"><?php _e('E-mail', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_email_input"><?php esc_html_e('E-mail', 'wc-invoice-payment'); ?></label>
                                             <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" class="regular-text" required>
                                         </div>
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_country_input"><?php _e('País', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_country_input"><?php esc_html_e('País', 'wc-invoice-payment'); ?></label>
                                             <select name="lkn_wcip_country" id="lkn_wcip_country_input" class="regular-text">
                                                 <?php
                                                 if (function_exists('WC')) {
@@ -702,7 +704,7 @@ final class WcPaymentInvoicePartial
                                                     $base_country = WC()->countries->get_base_country();
                                                     foreach ($countries as $code => $name) {
                                                         $selected = ($code === $base_country) ? 'selected' : '';
-                                                        echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_html($name) . '</option>';
+                                                        echo '<option value="' . esc_attr($code) . '" ' . esc_attr($selected) . '>' . esc_html($name) . '</option>';
                                                     }
                                                 }
                                                 ?>
@@ -713,32 +715,32 @@ final class WcPaymentInvoicePartial
                             </div>
                             
                             <div class="wcip-invoice-data wcip-postbox">
-                                <span class="text-bold"><?php _e('Ações de fatura', 'wc-invoice-payment'); ?></span>
+                                <span class="text-bold"><?php esc_html_e('Ações de fatura', 'wc-invoice-payment'); ?></span>
                                 <hr>
                                 <div class="wcip-row">
                                     <div class="input-row-wrap">
                                         <select name="lkn_wcip_form_actions">
-                                            <option value="no_action" selected><?php _e('Selecione uma ação...', 'wc-invoice-payment'); ?></option>
-                                            <option value="send_email"><?php _e('Enviar fatura para o cliente', 'wc-invoice-payment'); ?></option>
+                                            <option value="no_action" selected><?php esc_html_e('Selecione uma ação...', 'wc-invoice-payment'); ?></option>
+                                            <option value="send_email"><?php esc_html_e('Enviar fatura para o cliente', 'wc-invoice-payment'); ?></option>
                                         </select>
                                     </div>
                                     <div class="input-row-wrap">
-                                        <label for="lkn_wcip_exp_date_input"><?php _e('Data de vencimento', 'wc-invoice-payment'); ?></label>
-                                        <input id="lkn_wcip_exp_date_input" type="date" name="lkn_wcip_exp_date" min="<?php echo date('Y-m-d'); ?>" required>
+                                        <label for="lkn_wcip_exp_date_input"><?php esc_html_e('Data de vencimento', 'wc-invoice-payment'); ?></label>
+                                        <input id="lkn_wcip_exp_date_input" type="date" name="lkn_wcip_exp_date" min="<?php echo esc_attr(gmdate('Y-m-d')); ?>" required>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="wcip-invoice-data">
-                                <h3 class="title"><?php _e('Preço', 'wc-invoice-payment'); ?></h3>
+                                <h3 class="title"><?php esc_html_e('Preço', 'wc-invoice-payment'); ?></h3>
                                 <div id="wcip-invoice-price-row" class="invoice-column-wrap">
                                     <div class="price-row-wrap price-row-0">
                                         <div class="input-row-wrap">
-                                            <label><?php _e('Nome', 'wc-invoice-payment'); ?></label>
+                                            <label><?php esc_html_e('Nome', 'wc-invoice-payment'); ?></label>
                                             <input name="lkn_wcip_name_invoice_0" type="text" id="lkn_wcip_name_invoice_0" class="regular-text" required>
                                         </div>
                                         <div class="input-row-wrap">
-                                            <label><?php _e('Valor', 'wc-invoice-payment'); ?></label>
+                                            <label><?php esc_html_e('Valor', 'wc-invoice-payment'); ?></label>
                                             <input name="lkn_wcip_amount_invoice_0" type="tel" id="lkn_wcip_amount_invoice_0" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" required>
                                         </div>
                                         <div class="input-row-wrap">
@@ -750,23 +752,23 @@ final class WcPaymentInvoicePartial
                                 </div>
                                 <hr>
                                 <div class="invoice-row-wrap">
-                                    <button type="button" class="btn btn-add-line" onclick="lkn_wcip_add_amount_row()"><?php _e('Adicionar linha', 'wc-invoice-payment'); ?></button>
+                                    <button type="button" class="btn btn-add-line" onclick="lkn_wcip_add_amount_row()"><?php esc_html_e('Adicionar linha', 'wc-invoice-payment'); ?></button>
                                 </div>
                             </div>
                             
                             <div class="wcip-invoice-data">
-                                <h3 class="title"><?php _e('Notas do rodapé', 'wc-invoice-payment'); ?></h3>
+                                <h3 class="title"><?php esc_html_e('Notas do rodapé', 'wc-invoice-payment'); ?></h3>
                                 <div id="wcip-invoice-price-row" class="invoice-column-wrap">
                                     <div class="input-row-wrap">
-                                        <label><?php _e('Detalhes em HTML', 'wc-invoice-payment'); ?></label>
+                                        <label><?php esc_html_e('Detalhes em HTML', 'wc-invoice-payment'); ?></label>
                                         <textarea name="lkn-wc-invoice-payment-footer-notes" id="lkn-wc-invoice-payment-footer-notes" class="regular-text"></textarea>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="wcip-invoice-actions">
-                                <button type="submit" class="dokan-btn dokan-btn-primary"><?php _e('Criar Fatura', 'wc-invoice-payment'); ?></button>
-                                <a href="<?php echo dokan_get_navigation_url('faturas'); ?>" class="dokan-btn dokan-btn-default"><?php _e('Cancelar', 'wc-invoice-payment'); ?></a>
+                                <button type="submit" class="dokan-btn dokan-btn-primary"><?php esc_html_e('Criar Fatura', 'wc-invoice-payment'); ?></button>
+                                <a href="<?php echo \esc_url(dokan_get_navigation_url('faturas')); ?>" class="dokan-btn dokan-btn-default"><?php esc_html_e('Cancelar', 'wc-invoice-payment'); ?></a>
                             </div>
                         </form>
                     </div>
@@ -801,11 +803,11 @@ final class WcPaymentInvoicePartial
                 lkn_wcip_row_counter++;
                 var row = '<div class="price-row-wrap price-row-' + lkn_wcip_row_counter + '">' +
                     '<div class="input-row-wrap">' +
-                        '<label><?php _e("Nome", "wc-invoice-payment"); ?></label>' +
+                        '<label><?php esc_html_e("Nome", "wc-invoice-payment"); ?></label>' +
                         '<input name="lkn_wcip_name_invoice_' + lkn_wcip_row_counter + '" type="text" class="regular-text" required>' +
                     '</div>' +
                     '<div class="input-row-wrap">' +
-                        '<label><?php _e("Valor", "wc-invoice-payment"); ?></label>' +
+                        '<label><?php esc_html_e("Valor", "wc-invoice-payment"); ?></label>' +
                         '<input name="lkn_wcip_amount_invoice_' + lkn_wcip_row_counter + '" type="tel" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, \'\').replace(/(\..*?)\..*/g, \'$1\');" required>' +
                     '</div>' +
                     '<div class="input-row-wrap">' +
@@ -845,24 +847,25 @@ final class WcPaymentInvoicePartial
             
             foreach ($required_fields as $field => $label) {
                 if (empty($_POST[$field])) {
+                    /* translators: %s: field label */
                     throw new Exception(sprintf(__('Campo obrigatório: %s', 'wc-invoice-payment'), $label));
                 }
             }
             
             // Coletar dados do formulário
             $invoice_data = array(
-                'payment_status' => sanitize_text_field($_POST['lkn_wcip_payment_status']),
+                'payment_status' => isset($_POST['lkn_wcip_payment_status']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_payment_status'])) : '',
                 'payment_method' => 'multiplePayment', // Valor padrão fixo
                 'currency' => \get_woocommerce_currency(), // Moeda padrão do WooCommerce
-                'template' => sanitize_text_field($_POST['lkn_wcip_select_invoice_template']),
-                'language' => sanitize_text_field($_POST['lkn_wcip_select_invoice_language']),
-                'customer_name' => sanitize_text_field($_POST['lkn_wcip_name']),
-                'customer_email' => sanitize_email($_POST['lkn_wcip_email']),
-                'country' => sanitize_text_field($_POST['lkn_wcip_country']),
-                'extra_data' => sanitize_textarea_field($_POST['lkn_wcip_extra_data']),
-                'form_action' => sanitize_text_field($_POST['lkn_wcip_form_actions']),
-                'due_date' => sanitize_text_field($_POST['lkn_wcip_exp_date']),
-                'footer_notes' => wp_kses_post($_POST['lkn-wc-invoice-payment-footer-notes'])
+                'template' => isset($_POST['lkn_wcip_select_invoice_template']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_template'])) : '',
+                'language' => isset($_POST['lkn_wcip_select_invoice_language']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_select_invoice_language'])) : '',
+                'customer_name' => isset($_POST['lkn_wcip_name']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_name'])) : '',
+                'customer_email' => isset($_POST['lkn_wcip_email']) ? sanitize_email(wp_unslash($_POST['lkn_wcip_email'])) : '',
+                'country' => isset($_POST['lkn_wcip_country']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_country'])) : '',
+                'extra_data' => isset($_POST['lkn_wcip_extra_data']) ? sanitize_textarea_field(wp_unslash($_POST['lkn_wcip_extra_data'])) : '',
+                'form_action' => isset($_POST['lkn_wcip_form_actions']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_form_actions'])) : '',
+                'due_date' => isset($_POST['lkn_wcip_exp_date']) ? sanitize_text_field(wp_unslash($_POST['lkn_wcip_exp_date'])) : '',
+                'footer_notes' => isset($_POST['lkn-wc-invoice-payment-footer-notes']) ? wp_kses_post(wp_unslash($_POST['lkn-wc-invoice-payment-footer-notes'])) : ''
             );
             
             // Coletar itens da fatura
@@ -871,8 +874,8 @@ final class WcPaymentInvoicePartial
             while (isset($_POST['lkn_wcip_name_invoice_' . $counter])) {
                 if (!empty($_POST['lkn_wcip_name_invoice_' . $counter]) && !empty($_POST['lkn_wcip_amount_invoice_' . $counter])) {
                     $invoice_items[] = array(
-                        'name' => sanitize_text_field($_POST['lkn_wcip_name_invoice_' . $counter]),
-                        'amount' => floatval(str_replace(',', '.', str_replace('.', '', $_POST['lkn_wcip_amount_invoice_' . $counter])))
+                        'name' => sanitize_text_field(wp_unslash($_POST['lkn_wcip_name_invoice_' . $counter])),
+                        'amount' => floatval(str_replace(',', '.', str_replace('.', '', sanitize_text_field(wp_unslash($_POST['lkn_wcip_amount_invoice_' . $counter])))))
                     );
                 }
                 $counter++;
@@ -892,7 +895,7 @@ final class WcPaymentInvoicePartial
                     'order_id' => $order_id
                 ), dokan_get_navigation_url('faturas'));
                 
-                wp_redirect($redirect_url);
+                wp_safe_redirect($redirect_url);
                 exit;
             } else {
                 throw new Exception(__('Erro ao criar a fatura', 'wc-invoice-payment'));
@@ -972,7 +975,8 @@ final class WcPaymentInvoicePartial
             $vendor_name = $vendor_info ? $vendor_info->display_name : __('Vendedor', 'wc-invoice-payment');
             $edit_link = \admin_url('admin.php?page=edit-invoice&invoice=' . $order->get_id());
             $note = \sprintf(
-                __('Esta <a href="%s" target="_blank">fatura</a> foi criada pelo vendedor: %s', 'wc-invoice-payment'),
+                /* translators: %1$s: edit invoice URL, %2$s: vendor name */
+                __('Esta <a href="%1$s" target="_blank">fatura</a> foi criada pelo vendedor: %2$s', 'wc-invoice-payment'),
                 $edit_link,
                 $vendor_name
             );
@@ -1024,6 +1028,7 @@ final class WcPaymentInvoicePartial
             return $order->get_id();
             
         } catch (Exception $e) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- keep debug logging for admin troubleshooting
             \error_log('Erro ao criar fatura: ' . $e->getMessage());
             return false;
         }
@@ -1250,15 +1255,15 @@ final class WcPaymentInvoicePartial
     public function handleInvoiceDownload() {
         // Verificar nonce
         $invoice_id = intval($_GET['invoice_id'] ?? 0);
-        $nonce = sanitize_text_field($_GET['nonce'] ?? '');
+        $nonce = sanitize_text_field(wp_unslash($_GET['nonce'] ?? ''));
         
         if (!wp_verify_nonce($nonce, 'lkn_wcip_download_invoice_' . $invoice_id)) {
-            wp_die(__('Security check failed', 'wc-invoice-payment'));
+            wp_die(esc_html__('Security check failed', 'wc-invoice-payment'));
         }
 
         // Verificar se usuário pode baixar esta fatura
         if (!$this->canUserDownloadInvoice($invoice_id)) {
-            wp_die(__('You do not have permission to download this invoice', 'wc-invoice-payment'));
+            wp_die(esc_html__('You do not have permission to download this invoice', 'wc-invoice-payment'));
         }
 
         // Gerar e servir o PDF
@@ -1303,7 +1308,7 @@ final class WcPaymentInvoicePartial
         $response = $rest_server->dispatch($rest_request);
         
         if (is_wp_error($response)) {
-            wp_die(__('Error generating PDF', 'wc-invoice-payment'));
+            wp_die(esc_html__('Error generating PDF', 'wc-invoice-payment'));
         }
 
         // Se chegou até aqui, o PDF foi gerado e servido pela API REST

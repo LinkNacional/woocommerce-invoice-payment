@@ -8,7 +8,6 @@ use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSettings;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceDonation;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceWhatsAppButton;
-use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceOtpEmail;
 use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
 use WC_Countries;
@@ -167,9 +166,6 @@ final class WcPaymentInvoice {
      * @since    1.0.0
      */
     private function set_locale(): void {
-        $plugin_i18n = new WcPaymentInvoicei18n();
-
-        $this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
     }
 
     /**
@@ -343,7 +339,7 @@ final class WcPaymentInvoice {
                 </p>
             </div>";
         
-            echo $message;
+            echo wp_kses_post($message);
         }
 
         // Compatibilidade com configurações antigas

@@ -8,7 +8,11 @@
 		</select>
 	</p>
 	<p class="show_if_donation_fixed ">
-		<label for="_regular_donation_price"><?php echo sprintf(esc_html__('Donation amount (%s)', 'wc-invoice-payment'), get_woocommerce_currency_symbol()); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e('Set the fixed donation amount.', 'wc-invoice-payment'); ?>"></i></label>
+		<label for="_regular_donation_price"><?php echo sprintf(
+			/* translators: %s: currency symbol */
+			esc_html__('Donation amount (%s)', 'wc-invoice-payment'),
+			esc_html(get_woocommerce_currency_symbol())
+		); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e('Set the fixed donation amount.', 'wc-invoice-payment'); ?>"></i></label>
 		<input type="text" class="short wc_input_price dokan-form-control" name="_regular_donation_price" id="_regular_donation_price" value="<?php echo esc_attr($_regular_price); ?>" placeholder="0">
 	</p>
 	<p class="show_if_donation_variable">
@@ -38,7 +42,11 @@
 		</p>
 		
 		<p class="show_if_donation_goal">
-			<label for="_donation_goal_amount"><?php echo sprintf(esc_html__('Goal amount (%s)', 'wc-invoice-payment'), get_woocommerce_currency_symbol()); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e('Set the donation goal amount. When this amount is reached with completed orders, no more donations will be accepted.', 'wc-invoice-payment'); ?>"></i></label>
+			<label for="_donation_goal_amount"><?php echo sprintf(
+			/* translators: %s: currency symbol */
+			esc_html__('Goal amount (%s)', 'wc-invoice-payment'),
+			esc_html(get_woocommerce_currency_symbol())
+		); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e('Set the donation goal amount. When this amount is reached with completed orders, no more donations will be accepted.', 'wc-invoice-payment'); ?>"></i></label>
 			<input type="text" class="dokan-form-control wc_input_price" id="_donation_goal_amount" name="_donation_goal_amount" value="<?php echo esc_attr($_donation_goal_amount); ?>" placeholder="0">
 		</p>
 		
@@ -68,7 +76,7 @@
 			// Data limite
 			$deadline_date = get_post_meta(get_the_ID(), '_donation_deadline_date', true);
 			// Define o valor mínimo como 1 minuto no futuro
-			$min_datetime = date('Y-m-d\TH:i', strtotime('+1 minute'));
+			$min_datetime = gmdate('Y-m-d\TH:i', strtotime('+1 minute'));
 			?>
 			<label for="_donation_deadline_date"><?php esc_html_e('Deadline date and time', 'wc-invoice-payment'); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e('Set the deadline date and time for donations.', 'wc-invoice-payment'); ?>"></i></label>
 			<input type="datetime-local" 

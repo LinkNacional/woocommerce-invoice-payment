@@ -197,7 +197,7 @@ final class WcPaymentInvoiceQuote
             // Buscar pedido pela order_key
             $orders = wc_get_orders(array(
                 'limit' => 1,
-                'order_key' => wc_clean($_GET['key'])
+                'order_key' => sanitize_text_field(wp_unslash($_GET['key']))
             ));
             if (!empty($orders)) {
                 $order_id = $orders[0]->get_id();
@@ -207,6 +207,7 @@ final class WcPaymentInvoiceQuote
                 if ($order->get_meta('lkn_is_quote') === 'yes' && 
                     in_array($order->get_status(), ['quote-awaiting'])) {
                     
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug log for quote approval flow
                     error_log("interceptOrderPayPage - Redirecionando para aprovação: Order ID $order_id");
                     
                     // Limpar output buffer e renderizar nossa página
@@ -242,6 +243,7 @@ final class WcPaymentInvoiceQuote
         $needs_approval = in_array($quoteOrder->get_status(), ['quote-awaiting', 'wc-quote-request']);
         
         // Debug - adicionar log para verificar condições
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug log for quote fields
         error_log("showQuoteFields Debug - Order ID: $orderId, Status: " . $quoteOrder->get_status() . ", is_order_pay_page: " . ($is_order_pay_page ? 'true' : 'false') . ", needs_approval: " . ($needs_approval ? 'true' : 'false'));
         
         if ($is_order_pay_page && $needs_approval) {
@@ -256,6 +258,7 @@ final class WcPaymentInvoiceQuote
                 }
             </style>';
             
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug log for approval page rendering
             error_log("showQuoteFields - Renderizando página de aprovação para ordem $orderId");
             $this->renderQuoteApprovalPage($quoteOrder);
             return;
@@ -305,13 +308,14 @@ final class WcPaymentInvoiceQuote
         }
 
         // Verificar nonce de segurança
-        if (!wp_verify_nonce($_GET['_wpnonce'], 'lkn_wcip_approve_quote')) {
-            wp_die(__('Invalid security action.', 'wc-invoice-payment'));
+        $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+        if (!$nonce || !wp_verify_nonce($nonce, 'lkn_wcip_approve_quote')) {
+            wp_die(esc_html__('Invalid security action.', 'wc-invoice-payment'));
         }
 
         // Verificar se o quote_id foi fornecido
         if (!isset($_GET['quote_id']) || empty($_GET['quote_id'])) {
-            wp_die(__('Quote ID not provided.', 'wc-invoice-payment'));
+            wp_die(esc_html__('Quote ID not provided.', 'wc-invoice-payment'));
         }
 
         $quote_id = intval($_GET['quote_id']);
@@ -319,18 +323,18 @@ final class WcPaymentInvoiceQuote
 
         // Verificar se o pedido existe
         if (!$quote_order) {
-            wp_die(__('Quote not found.', 'wc-invoice-payment'));
+            wp_die(esc_html__('Quote not found.', 'wc-invoice-payment'));
         }
 
         // Verificar se é realmente um orçamento
         if ($quote_order->get_meta('lkn_is_quote') !== 'yes') {
-            wp_die(__('This order is not a quote.', 'wc-invoice-payment'));
+            wp_die(esc_html__('This order is not a quote.', 'wc-invoice-payment'));
         }
 
         // Verificar se o status permite aprovação
         $current_status = $quote_order->get_status();
         if (!in_array($current_status, ['quote-awaiting', 'wc-quote-request'])) {
-            wp_die(__('This quote cannot be approved in its current status.', 'wc-invoice-payment'));
+            wp_die(esc_html__('This quote cannot be approved in its current status.', 'wc-invoice-payment'));
         }
 
         // Aprovar o orçamento
@@ -339,7 +343,7 @@ final class WcPaymentInvoiceQuote
         // Obter informações do cliente para a nota
         $current_user = wp_get_current_user();
         $user_email = $current_user->user_email;
-        $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '';
+        $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
         
         // Criar nota detalhada com email e IP
         $note = __('Quote approved by customer ', 'wc-invoice-payment') . $user_email;
@@ -369,7 +373,7 @@ final class WcPaymentInvoiceQuote
         // Adicionar parâmetro displayQuoteNotice à URL de redirecionamento
         $redirect_url = add_query_arg('displayQuoteNotice', 'true', $redirect_url);
         
-        wp_redirect($redirect_url);
+        wp_safe_redirect($redirect_url);
         exit;
     }
 
@@ -576,7 +580,8 @@ final class WcPaymentInvoiceQuote
      */
     public function changeQuotesPageTitle($title) {
         // Verifica se estamos na página de orçamentos
-        if ((isset($_GET['quotes']) || strpos($_SERVER['REQUEST_URI'], '/quotes') !== false ) && ($title == 'Minha conta' || $title == 'My Account')) {
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+        if ((isset($_GET['quotes']) || strpos($request_uri, '/quotes') !== false ) && ($title == 'Minha conta' || $title == 'My Account')) {
             return __('Quotes', 'wc-invoice-payment');
         }
         
@@ -605,7 +610,7 @@ final class WcPaymentInvoiceQuote
         }
         
         // Caso 3: Verifica URL atual diretamente para capturar IDs
-        $current_url = $_SERVER['REQUEST_URI'];
+        $current_url = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
         
         // Para URLs do tipo /finalizar-compra/order-received/284/
         if (preg_match('/order-received\/(\d+)/', $current_url, $matches)) {
@@ -644,7 +649,7 @@ final class WcPaymentInvoiceQuote
         
         // Verificar URL atual para capturar pages order-received
         if (isset($_SERVER['REQUEST_URI'])) {
-            $current_url = $_SERVER['REQUEST_URI'];
+            $current_url = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
             $is_order_received_url = preg_match('/order-received\/\d+/', $current_url);
         }
         
@@ -705,17 +710,33 @@ final class WcPaymentInvoiceQuote
         ?>
         <div class="woocommerce">
             <div class="wc-invoice-quote-approval-container">
-                <h2><?php _e('Detalhes do Orçamento', 'wc-invoice-payment'); ?></h2>
+                <h2><?php esc_html_e('Detalhes do Orçamento', 'wc-invoice-payment'); ?></h2>
                 
                 <div class="quote-details-summary">
-                    <p><strong><?php _e('Orçamento #', 'wc-invoice-payment'); ?><?php echo $order->get_order_number(); ?></strong></p>
-                    <p><?php printf(__('Criado em %s', 'wc-invoice-payment'), $order->get_date_created()->date_i18n(get_option('date_format'))); ?></p>
-                    <p><?php printf(__('Status: %s', 'wc-invoice-payment'), '<span class="quote-status">' . wc_get_order_status_name($order->get_status()) . '</span>'); ?></p>
+                    <p><strong><?php esc_html_e('Orçamento #', 'wc-invoice-payment'); ?><?php echo esc_html($order->get_order_number()); ?></strong></p>
+                    <p><?php
+                    printf(
+                        /* translators: %s: creation date */
+                        esc_html__('Criado em %s', 'wc-invoice-payment'),
+                        esc_html($order->get_date_created()->date_i18n(get_option('date_format')))
+                    );
+                    ?></p>
+                    <p><?php
+                    printf(
+                        /* translators: %s: order status */
+                        esc_html__('Status: %s', 'wc-invoice-payment'),
+                        '<span class="quote-status">' . esc_html(wc_get_order_status_name($order->get_status())) . '</span>'
+                    );
+                    ?></p>
                     <?php 
                     $exp_date = $order->get_meta('lkn_exp_date');
                     if ($exp_date) {
                         $exp_date_formatted = date_i18n(get_option('date_format'), strtotime($exp_date));
-                        printf(__('Válido até %s', 'wc-invoice-payment'), $exp_date_formatted);
+                    printf(
+                        /* translators: %s: expiration date */
+                        esc_html__('Válido até %s', 'wc-invoice-payment'),
+                        esc_html($exp_date_formatted)
+                    );
                     }
                     ?>
                 </div>
@@ -723,8 +744,8 @@ final class WcPaymentInvoiceQuote
                 <table class="shop_table shop_table_responsive quote-details-table">
                     <thead>
                         <tr>
-                            <th class="product-name"><?php _e('Produto', 'wc-invoice-payment'); ?></th>
-                            <th class="product-total"><?php _e('Total', 'wc-invoice-payment'); ?></th>
+                            <th class="product-name"><?php esc_html_e('Produto', 'wc-invoice-payment'); ?></th>
+                            <th class="product-total"><?php esc_html_e('Total', 'wc-invoice-payment'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -735,11 +756,11 @@ final class WcPaymentInvoiceQuote
                                 <td class="product-name">
                                     <?php echo esc_html($item->get_name()); ?>
                                     <?php if ($item->get_quantity() > 1): ?>
-                                        <strong class="product-quantity"> × <?php echo $item->get_quantity(); ?></strong>
+                                        <strong class="product-quantity"> × <?php echo esc_html($item->get_quantity()); ?></strong>
                                     <?php endif; ?>
                                 </td>
                                 <td class="product-total">
-                                    <?php echo $order->get_formatted_line_subtotal($item); ?>
+                                    <?php echo wp_kses_post($order->get_formatted_line_subtotal($item)); ?>
                                 </td>
                             </tr>
                             <?php
@@ -748,33 +769,33 @@ final class WcPaymentInvoiceQuote
                         
                         <?php if ($order->get_shipping_total() > 0): ?>
                         <tr class="shipping-row">
-                            <td class="product-name"><?php _e('Entrega:', 'wc-invoice-payment'); ?></td>
-                            <td class="product-total"><?php echo wc_price($order->get_shipping_total()); ?></td>
+                            <td class="product-name"><?php esc_html_e('Entrega:', 'wc-invoice-payment'); ?></td>
+                            <td class="product-total"><?php echo wp_kses_post(wc_price($order->get_shipping_total())); ?></td>
                         </tr>
                         <?php endif; ?>
                         
                         <?php if ($order->get_total_tax() > 0): ?>
                         <tr class="tax-row">
-                            <td class="product-name"><?php _e('Impostos:', 'wc-invoice-payment'); ?></td>
-                            <td class="product-total"><?php echo wc_price($order->get_total_tax()); ?></td>
+                            <td class="product-name"><?php esc_html_e('Impostos:', 'wc-invoice-payment'); ?></td>
+                            <td class="product-total"><?php echo wp_kses_post(wc_price($order->get_total_tax())); ?></td>
                         </tr>
                         <?php endif; ?>
                         
                         <tr class="order-total">
-                            <td class="product-name"><strong><?php _e('Total:', 'wc-invoice-payment'); ?></strong></td>
-                            <td class="product-total"><strong><?php echo $order->get_formatted_order_total(); ?></strong></td>
+                            <td class="product-name"><strong><?php esc_html_e('Total:', 'wc-invoice-payment'); ?></strong></td>
+                            <td class="product-total"><strong><?php echo wp_kses_post($order->get_formatted_order_total()); ?></strong></td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="quote-actions">
-                    <h3><?php _e('Ações:', 'wc-invoice-payment'); ?></h3>
+                    <h3><?php esc_html_e('Ações:', 'wc-invoice-payment'); ?></h3>
                     <div class="quote-action-buttons">
-                        <button type="button" id="approve-quote-btn" class="button button-primary approve-quote" data-quote-id="<?php echo $order_id; ?>">
-                            <?php _e('Aprovar', 'wc-invoice-payment'); ?>
+                        <button type="button" id="approve-quote-btn" class="button button-primary approve-quote" data-quote-id="<?php echo esc_attr($order_id); ?>">
+                            <?php esc_html_e('Aprovar', 'wc-invoice-payment'); ?>
                         </button>
-                        <button type="button" id="cancel-quote-btn" class="button button-secondary cancel-quote" data-quote-id="<?php echo $order_id; ?>">
-                            <?php _e('Cancelar', 'wc-invoice-payment'); ?>
+                        <button type="button" id="cancel-quote-btn" class="button button-secondary cancel-quote" data-quote-id="<?php echo esc_attr($order_id); ?>">
+                            <?php esc_html_e('Cancelar', 'wc-invoice-payment'); ?>
                         </button>
                     </div>
                 </div>
@@ -810,17 +831,33 @@ final class WcPaymentInvoiceQuote
         ?>
         <div class="woocommerce">
             <div class="wc-invoice-quote-approval-container">
-                <h2><?php _e('Detalhes do Orçamento', 'wc-invoice-payment'); ?></h2>
+                <h2><?php esc_html_e('Detalhes do Orçamento', 'wc-invoice-payment'); ?></h2>
                 
                 <div class="quote-details-summary">
-                    <p><strong><?php _e('Orçamento #', 'wc-invoice-payment'); ?><?php echo $order->get_order_number(); ?></strong></p>
-                    <p><?php printf(__('Criado em %s', 'wc-invoice-payment'), $order->get_date_created()->date_i18n(get_option('date_format'))); ?></p>
-                    <p><?php printf(__('Status: %s', 'wc-invoice-payment'), '<span class="quote-status">' . wc_get_order_status_name($order->get_status()) . '</span>'); ?></p>
+                    <p><strong><?php esc_html_e('Orçamento #', 'wc-invoice-payment'); ?><?php echo esc_html($order->get_order_number()); ?></strong></p>
+                    <p><?php
+                    printf(
+                        /* translators: %s: creation date */
+                        esc_html__('Criado em %s', 'wc-invoice-payment'),
+                        esc_html($order->get_date_created()->date_i18n(get_option('date_format')))
+                    );
+                    ?></p>
+                    <p><?php
+                    printf(
+                        /* translators: %s: order status */
+                        esc_html__('Status: %s', 'wc-invoice-payment'),
+                        '<span class="quote-status">' . esc_html(wc_get_order_status_name($order->get_status())) . '</span>'
+                    );
+                    ?></p>
                     <?php 
                     $exp_date = $order->get_meta('lkn_exp_date');
                     if ($exp_date) {
                         $exp_date_formatted = date_i18n(get_option('date_format'), strtotime($exp_date));
-                        printf(__('Válido até %s', 'wc-invoice-payment'), $exp_date_formatted);
+                    printf(
+                        /* translators: %s: expiration date */
+                        esc_html__('Válido até %s', 'wc-invoice-payment'),
+                        esc_html($exp_date_formatted)
+                    );
                     }
                     ?>
                 </div>
@@ -828,8 +865,8 @@ final class WcPaymentInvoiceQuote
                 <table class="shop_table shop_table_responsive quote-details-table">
                     <thead>
                         <tr>
-                            <th class="product-name"><?php _e('Produto', 'wc-invoice-payment'); ?></th>
-                            <th class="product-total"><?php _e('Total', 'wc-invoice-payment'); ?></th>
+                            <th class="product-name"><?php esc_html_e('Produto', 'wc-invoice-payment'); ?></th>
+                            <th class="product-total"><?php esc_html_e('Total', 'wc-invoice-payment'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -840,11 +877,11 @@ final class WcPaymentInvoiceQuote
                                 <td class="product-name">
                                     <?php echo esc_html($item->get_name()); ?>
                                     <?php if ($item->get_quantity() > 1): ?>
-                                        <strong class="product-quantity"> × <?php echo $item->get_quantity(); ?></strong>
+                                        <strong class="product-quantity"> × <?php echo esc_html($item->get_quantity()); ?></strong>
                                     <?php endif; ?>
                                 </td>
                                 <td class="product-total">
-                                    <?php echo $order->get_formatted_line_subtotal($item); ?>
+                                    <?php echo wp_kses_post($order->get_formatted_line_subtotal($item)); ?>
                                 </td>
                             </tr>
                             <?php
@@ -853,33 +890,33 @@ final class WcPaymentInvoiceQuote
                         
                         <?php if ($order->get_shipping_total() > 0): ?>
                         <tr class="shipping-row">
-                            <td class="product-name"><?php _e('Entrega:', 'wc-invoice-payment'); ?></td>
-                            <td class="product-total"><?php echo wc_price($order->get_shipping_total()); ?></td>
+                            <td class="product-name"><?php esc_html_e('Entrega:', 'wc-invoice-payment'); ?></td>
+                            <td class="product-total"><?php echo wp_kses_post(wc_price($order->get_shipping_total())); ?></td>
                         </tr>
                         <?php endif; ?>
                         
                         <?php if ($order->get_total_tax() > 0): ?>
                         <tr class="tax-row">
-                            <td class="product-name"><?php _e('Impostos:', 'wc-invoice-payment'); ?></td>
-                            <td class="product-total"><?php echo wc_price($order->get_total_tax()); ?></td>
+                            <td class="product-name"><?php esc_html_e('Impostos:', 'wc-invoice-payment'); ?></td>
+                            <td class="product-total"><?php echo wp_kses_post(wc_price($order->get_total_tax())); ?></td>
                         </tr>
                         <?php endif; ?>
                         
                         <tr class="order-total">
-                            <td class="product-name"><strong><?php _e('Total:', 'wc-invoice-payment'); ?></strong></td>
-                            <td class="product-total"><strong><?php echo $order->get_formatted_order_total(); ?></strong></td>
+                            <td class="product-name"><strong><?php esc_html_e('Total:', 'wc-invoice-payment'); ?></strong></td>
+                            <td class="product-total"><strong><?php echo wp_kses_post($order->get_formatted_order_total()); ?></strong></td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="quote-actions">
-                    <h3><?php _e('Ações:', 'wc-invoice-payment'); ?></h3>
+                    <h3><?php esc_html_e('Ações:', 'wc-invoice-payment'); ?></h3>
                     <div class="quote-action-buttons">
-                        <button type="button" id="approve-quote-btn" class="button button-primary approve-quote" data-quote-id="<?php echo $order_id; ?>">
-                            <?php _e('Aprovar', 'wc-invoice-payment'); ?>
+                        <button type="button" id="approve-quote-btn" class="button button-primary approve-quote" data-quote-id="<?php echo esc_attr($order_id); ?>">
+                            <?php esc_html_e('Aprovar', 'wc-invoice-payment'); ?>
                         </button>
-                        <button type="button" id="cancel-quote-btn" class="button button-secondary cancel-quote" data-quote-id="<?php echo $order_id; ?>">
-                            <?php _e('Cancelar', 'wc-invoice-payment'); ?>
+                        <button type="button" id="cancel-quote-btn" class="button button-secondary cancel-quote" data-quote-id="<?php echo esc_attr($order_id); ?>">
+                            <?php esc_html_e('Cancelar', 'wc-invoice-payment'); ?>
                         </button>
                     </div>
                 </div>

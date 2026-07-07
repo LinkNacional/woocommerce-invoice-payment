@@ -672,8 +672,9 @@ final class WcPaymentInvoiceSubscription
                 
                 // Adiciona nota na order sobre o agendamento
                 $order->add_order_note(sprintf(
+                    /* translators: %s: scheduled invoice date */
                     __('Subscription activated and first invoice scheduled for: %s', 'wc-invoice-payment'),
-                    date('Y-m-d H:i:s', $next_due_date)
+                    gmdate('Y-m-d H:i:s', $next_due_date)
                 ));
             } else {
                 // Se não tem a data salva, recalcula
@@ -705,8 +706,9 @@ final class WcPaymentInvoiceSubscription
                     
                     // Adiciona nota na order sobre o agendamento
                     $order->add_order_note(sprintf(
+                        /* translators: %s: scheduled invoice date */
                         __('Subscription activated and first invoice scheduled for: %s', 'wc-invoice-payment'),
-                        date('Y-m-d H:i:s', $next_due_date)
+                        gmdate('Y-m-d H:i:s', $next_due_date)
                     ));
                 }
             }

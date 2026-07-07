@@ -91,18 +91,18 @@ final class WcPaymentInvoiceDonation
     public function saveDokanSettings( $post_id ) {
         // Salva o tipo de doação
         if (isset($_POST['_donation_type'])) {
-            update_post_meta($post_id, '_donation_type', sanitize_text_field($_POST['_donation_type']));
+            update_post_meta($post_id, '_donation_type', sanitize_text_field(wp_unslash($_POST['_donation_type'])));
         }
         // Salva os valores dos botões para doação variável
         if (isset($_POST['_donation_button_values'])) {
-            update_post_meta($post_id, '_donation_button_values', sanitize_text_field($_POST['_donation_button_values']));
+            update_post_meta($post_id, '_donation_button_values', sanitize_text_field(wp_unslash($_POST['_donation_button_values'])));
         }
         // Salva o texto para doação grátis
         if (isset($_POST['_donation_free_text'])) {
-            update_post_meta($post_id, '_donation_free_text', sanitize_text_field($_POST['_donation_free_text']));
+            update_post_meta($post_id, '_donation_free_text', sanitize_text_field(wp_unslash($_POST['_donation_free_text'])));
         }
         if(isset($_POST['_regular_donation_price'])){
-            $regular_price =  floatval($_POST['_regular_donation_price']);
+            $regular_price =  floatval(wp_unslash($_POST['_regular_donation_price']));
             update_post_meta( $post_id, '_regular_price', $regular_price );
         }
         // Salva a configuração de ocultar campo personalizado
@@ -120,7 +120,7 @@ final class WcPaymentInvoiceDonation
         }
         
         if (isset($_POST['_donation_goal_amount'])) {
-            $goal_amount = floatval($_POST['_donation_goal_amount']);
+            $goal_amount = floatval(wp_unslash($_POST['_donation_goal_amount']));
             update_post_meta($post_id, '_donation_goal_amount', $goal_amount);
         }
         
@@ -138,7 +138,7 @@ final class WcPaymentInvoiceDonation
         }
         
         if (isset($_POST['_donation_deadline_date'])) {
-            $deadline_date = sanitize_text_field($_POST['_donation_deadline_date']);
+            $deadline_date = sanitize_text_field(wp_unslash($_POST['_donation_deadline_date']));
             
             // Validação: a data deve ser pelo menos 1 minuto no futuro
             if (!empty($deadline_date)) {
@@ -147,7 +147,7 @@ final class WcPaymentInvoiceDonation
                 
                 if ($deadline_timestamp < $min_timestamp) {
                     // Se a data for no passado ou muito próxima, define para 1 minuto no futuro
-                    $deadline_date = date('Y-m-d\TH:i', $min_timestamp);
+                    $deadline_date = gmdate('Y-m-d\TH:i', $min_timestamp);
                 }
             }
             
@@ -161,12 +161,12 @@ final class WcPaymentInvoiceDonation
         }
         
         if (isset($_POST['_donation_deadline_message'])) {
-            update_post_meta($post_id, '_donation_deadline_message', sanitize_textarea_field($_POST['_donation_deadline_message']));
+            update_post_meta($post_id, '_donation_deadline_message', sanitize_textarea_field(wp_unslash($_POST['_donation_deadline_message'])));
         }
         
         // Para doação de valor fixo, o preço é salvo automaticamente pelo WooCommerce
         // Para doação variável e grátis, definimos o preço como 0
-        $donation_type = isset($_POST['_donation_type']) ? sanitize_text_field($_POST['_donation_type']) : 'fixed';
+        $donation_type = isset($_POST['_donation_type']) ? sanitize_text_field(wp_unslash($_POST['_donation_type'])) : 'fixed';
         if ($donation_type === 'variable' || $donation_type === 'free') {
             update_post_meta($post_id, '_regular_price', 0);
             update_post_meta($post_id, '_price', 0);
@@ -363,7 +363,11 @@ final class WcPaymentInvoiceDonation
         }
         woocommerce_wp_text_input(array(
             'id'                => '_regular_donation_price',
-            'label'             => __('Donation amount (' . get_woocommerce_currency_symbol() . ')', 'wc-invoice-payment'),
+            'label'             => sprintf(
+                /* translators: %s: currency symbol */
+                __('Donation amount (%s)', 'wc-invoice-payment'),
+                get_woocommerce_currency_symbol()
+            ),
             'placeholder'       => wc_format_localized_price(0),
             'description'       => __('Set the fixed donation amount.', 'wc-invoice-payment'),
             'type'              => 'text',
@@ -429,7 +433,11 @@ final class WcPaymentInvoiceDonation
         $goal_amount = get_post_meta(get_the_ID(), '_donation_goal_amount', true);
         woocommerce_wp_text_input(array(
             'id'                => '_donation_goal_amount',
-            'label'             => __('Goal amount (' . get_woocommerce_currency_symbol() . ')', 'wc-invoice-payment'),
+            'label'             => sprintf(
+                /* translators: %s: currency symbol */
+                __('Goal amount (%s)', 'wc-invoice-payment'),
+                get_woocommerce_currency_symbol()
+            ),
             'placeholder'       => wc_format_localized_price(0),
             'description'       => __('Set the donation goal amount. When this amount is reached with completed orders, no more donations will be accepted.', 'wc-invoice-payment'),
             'type'              => 'text',
@@ -470,7 +478,7 @@ final class WcPaymentInvoiceDonation
         // Data limite
         $deadline_date = get_post_meta(get_the_ID(), '_donation_deadline_date', true);
         // Define o valor mínimo como 1 minuto no futuro
-        $min_datetime = date('Y-m-d\TH:i', strtotime('+1 minute'));
+        $min_datetime = gmdate('Y-m-d\TH:i', strtotime('+1 minute'));
         woocommerce_wp_text_input(array(
             'id'                => '_donation_deadline_date',
             'label'             => __('Deadline date and time', 'wc-invoice-payment'),
@@ -532,21 +540,21 @@ final class WcPaymentInvoiceDonation
     public function save_donation_product_data($post_id)
     {
         // Verifica se é um produto do tipo doação
-        $product_type = isset($_POST['product-type']) ? $_POST['product-type'] : '';
+        $product_type = isset($_POST['product-type']) ? sanitize_text_field(wp_unslash($_POST['product-type'])) : '';
         if ($product_type !== 'donation') {
             return;
         }
         // Salva o tipo de doação
         if (isset($_POST['_donation_type'])) {
-            update_post_meta($post_id, '_donation_type', $_POST['_donation_type']);
+            update_post_meta($post_id, '_donation_type', sanitize_text_field(wp_unslash($_POST['_donation_type'])));
         }
         // Salva os valores dos botões para doação variável
         if (isset($_POST['_donation_button_values'])) {
-            update_post_meta($post_id, '_donation_button_values', $_POST['_donation_button_values']);
+            update_post_meta($post_id, '_donation_button_values', sanitize_text_field(wp_unslash($_POST['_donation_button_values'])));
         }
         // Salva o texto para doação grátis
         if (isset($_POST['_donation_free_text'])) {
-            update_post_meta($post_id, '_donation_free_text', $_POST['_donation_free_text']);
+            update_post_meta($post_id, '_donation_free_text', sanitize_textarea_field(wp_unslash($_POST['_donation_free_text'])));
         }
         // Salva a configuração de ocultar campo personalizado
         if (isset($_POST['_donation_hide_custom_amount'])) {
@@ -565,7 +573,8 @@ final class WcPaymentInvoiceDonation
         
         // Valor da meta
         if (isset($_POST['_donation_goal_amount'])) {
-            $goal_amount = wc_format_decimal($_POST['_donation_goal_amount']);
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- wc_format_decimal sanitizes
+            $goal_amount = wc_format_decimal(wp_unslash($_POST['_donation_goal_amount']));
             update_post_meta($post_id, '_donation_goal_amount', $goal_amount);
         }
         
@@ -586,7 +595,7 @@ final class WcPaymentInvoiceDonation
         
         // Data limite
         if (isset($_POST['_donation_deadline_date'])) {
-            $deadline_date = sanitize_text_field($_POST['_donation_deadline_date']);
+            $deadline_date = sanitize_text_field(wp_unslash($_POST['_donation_deadline_date']));
             
             // Validação: a data deve ser pelo menos 1 minuto no futuro
             if (!empty($deadline_date)) {
@@ -595,7 +604,7 @@ final class WcPaymentInvoiceDonation
                 
                 if ($deadline_timestamp < $min_timestamp) {
                     // Se a data for no passado ou muito próxima, define para 1 minuto no futuro
-                    $deadline_date = date('Y-m-d\TH:i', $min_timestamp);
+                    $deadline_date = gmdate('Y-m-d\TH:i', $min_timestamp);
                 }
             }
             
@@ -611,18 +620,19 @@ final class WcPaymentInvoiceDonation
         
         // Mensagem quando prazo expirado
         if (isset($_POST['_donation_deadline_message'])) {
-            update_post_meta($post_id, '_donation_deadline_message', sanitize_textarea_field($_POST['_donation_deadline_message']));
+            update_post_meta($post_id, '_donation_deadline_message', sanitize_textarea_field(wp_unslash($_POST['_donation_deadline_message'])));
         }
         
         // Salva o valor atual da doação (para manter consistência)
         if (isset($_POST['_donation_current_amount'])) {
-            $current_amount = wc_format_decimal($_POST['_donation_current_amount']);
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- wc_format_decimal sanitizes
+            $current_amount = wc_format_decimal(wp_unslash($_POST['_donation_current_amount']));
             update_post_meta($post_id, '_donation_current_amount', $current_amount);
         }
         
         // Para doação de valor fixo, o preço é salvo automaticamente pelo WooCommerce
         // Para doação variável e grátis, definimos o preço como 0
-        $donation_type = isset($_POST['_donation_type']) ? $_POST['_donation_type'] : 'fixed';
+        $donation_type = isset($_POST['_donation_type']) ? sanitize_text_field(wp_unslash($_POST['_donation_type'])) : 'fixed';
         if ($donation_type === 'variable' || $donation_type === 'free') {
             update_post_meta($post_id, '_regular_price', 0);
             update_post_meta($post_id, '_price', 0);
@@ -778,7 +788,11 @@ final class WcPaymentInvoiceDonation
                         // Produto com valor 0 - aplica valor mínimo automaticamente
                         $minimum_amount = $this->get_minimum_donation_amount();
                         $_POST['donation_amount'] = $minimum_amount;
-                        wc_add_notice(sprintf(__('Minimum donation amount of %s has been applied automatically.', 'wc-invoice-payment'), wc_price($minimum_amount)), 'notice');
+                        wc_add_notice(sprintf(
+                            /* translators: %s: formatted minimum donation amount */
+                            __('Minimum donation amount of %s has been applied automatically.', 'wc-invoice-payment'),
+                            wc_price($minimum_amount)
+                        ), 'notice');
                     } else {
                         // Produto com valor definido mas sem valor de doação especificado
                         // Aplica o valor da configuração global
@@ -786,7 +800,7 @@ final class WcPaymentInvoiceDonation
                         $_POST['donation_amount'] = $minimum_amount;
                     }
                 }
-                $amount = floatval($_POST['donation_amount']);
+                $amount = floatval(wp_unslash($_POST['donation_amount']));
                 add_option('teste amount ' . uniqid(), json_encode($amount));
                 add_option('teste passed ' . uniqid(), json_encode($passed));
                 
@@ -797,12 +811,20 @@ final class WcPaymentInvoiceDonation
                 if ($amount > 0 && $amount < $minimum_amount) {
                     $_POST['donation_amount'] = $minimum_amount;
                     $amount = $minimum_amount;
-                    wc_add_notice(sprintf(__('The minimum donation amount is %s. Your donation amount has been adjusted.', 'wc-invoice-payment'), wc_price($minimum_amount)), 'notice');
+                    wc_add_notice(sprintf(
+                        /* translators: %s: formatted minimum donation amount */
+                        __('The minimum donation amount is %s. Your donation amount has been adjusted.', 'wc-invoice-payment'),
+                        wc_price($minimum_amount)
+                    ), 'notice');
                 }
                 
                 if ($amount <= 0) {
                     $_POST['donation_amount'] = $minimum_amount;
-                    wc_add_notice(sprintf(__('Invalid donation amount. The minimum donation amount of %s has been applied.', 'wc-invoice-payment'), wc_price($minimum_amount)), 'notice');
+                    wc_add_notice(sprintf(
+                        /* translators: %s: formatted minimum donation amount */
+                        __('Invalid donation amount. The minimum donation amount of %s has been applied.', 'wc-invoice-payment'),
+                        wc_price($minimum_amount)
+                    ), 'notice');
                 }
             }
         }
@@ -818,10 +840,10 @@ final class WcPaymentInvoiceDonation
         if ($product && $product->get_type() === 'donation') {
             $donation_type = $product->get_meta('_donation_type', true);
             if ($donation_type === 'variable' && isset($_POST['donation_amount'])) {
-                $amount = floatval($_POST['donation_amount']);
+                $amount = floatval(wp_unslash($_POST['donation_amount']));
                 $cart_item_data['donation_amount'] = $amount;
                 // Adiciona uma chave única para evitar que doações com valores diferentes sejam agrupadas
-                $cart_item_data['unique_key'] = md5(microtime() . rand());
+                $cart_item_data['unique_key'] = md5(microtime() . wp_rand());
             }
         }
         return $cart_item_data;
@@ -932,7 +954,10 @@ final class WcPaymentInvoiceDonation
                     <?php esc_html_e('Donation Progress', 'wc-invoice-payment'); ?>
                 </div>
                 <div class="donation-progress-percentage">
-                    <?php printf(esc_html__('%s%% funded', 'wc-invoice-payment'), number_format($progress['percentage'], 1)); ?>
+                    <?php
+                    /* translators: %s: donation progress percentage */
+                    printf(esc_html__('%s%% funded', 'wc-invoice-payment'), number_format($progress['percentage'], 1));
+                    ?>
                 </div>
             </div>
             
@@ -1181,7 +1206,7 @@ final class WcPaymentInvoiceDonation
         }
         
         // Verifica também nos dados $_POST
-        if (isset($_POST['anonymous_donation']) && $_POST['anonymous_donation'] === '1') {
+        if (isset($_POST['anonymous_donation']) && sanitize_text_field(wp_unslash($_POST['anonymous_donation'])) === '1') {
             $is_anonymous = true;
         }
         
@@ -1362,7 +1387,7 @@ final class WcPaymentInvoiceDonation
         }
         
         // Verifica também nos dados $_POST
-        if (isset($_POST['recurring_donation']) && $_POST['recurring_donation'] === '1') {
+        if (isset($_POST['recurring_donation']) && sanitize_text_field(wp_unslash($_POST['recurring_donation'])) === '1') {
             $is_recurring = true;
         }
         
@@ -1505,6 +1530,7 @@ final class WcPaymentInvoiceDonation
             return $nav_menus;
         }
 
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returned via Dokan filter, escaped by Dokan core
         $nav_menus['doacoes'] = array(
             'title'      => __('Doações', 'wc-invoice-payment'),
             'icon'       => '<i class="fas fa-heart"></i>',
@@ -1530,7 +1556,7 @@ final class WcPaymentInvoiceDonation
                 if (function_exists('dokan_get_template_part')) {
                     dokan_get_template_part('global/no-permission');
                 } else {
-                    echo '<div class="dokan-alert dokan-alert-danger">' . __('Você não tem permissão para acessar esta página.', 'wc-invoice-payment') . '</div>';
+                    echo '<div class="dokan-alert dokan-alert-danger">' . esc_html__('Você não tem permissão para acessar esta página.', 'wc-invoice-payment') . '</div>';
                 }
                 return;
             }
@@ -1582,13 +1608,13 @@ final class WcPaymentInvoiceDonation
                     <div class="dokan-donations-dashboard">
                         <div class="dokan-donation-header-div">
                             <div class="dokan-donations-header">
-                                <h1 class="entry-title"><?php _e('Gerenciar Doações', 'wc-invoice-payment'); ?></h1>
-                                <p class="description"><?php _e('Crie e configure os diferentes tipos de doação do seu site, seja para receber valores monetários ou para gerenciar a doação de itens.', 'wc-invoice-payment'); ?></p>
+                                <h1 class="entry-title"><?php esc_html_e('Gerenciar Doações', 'wc-invoice-payment'); ?></h1>
+                                <p class="description"><?php esc_html_e('Crie e configure os diferentes tipos de doação do seu site, seja para receber valores monetários ou para gerenciar a doação de itens.', 'wc-invoice-payment'); ?></p>
                             </div>
                             <!-- Botão Ver Pedidos de Doações -->
                             <div class="orders-button-section">
                                 <a href="<?php echo esc_url(add_query_arg('product_type', 'donation', dokan_get_navigation_url('orders'))); ?>" class="donation-button orders-button">
-                                    <?php _e('Ver pedidos de doações', 'wc-invoice-payment'); ?>
+                                    <?php esc_html_e('Ver pedidos de doações', 'wc-invoice-payment'); ?>
                                 </a>
                             </div>
                         </div>
@@ -1599,49 +1625,49 @@ final class WcPaymentInvoiceDonation
                         ?>
 
                         <!-- Seção de Doação Monetária -->
-                        <div class="donation-section<?php echo $disabled_class; ?>">
-                            <h3><?php _e('Recebimento de Doações Monetárias', 'wc-invoice-payment'); ?></h3>
-                            <p><?php _e('Nesta opção, você cria uma campanha para arrecadar valores monetários. É possível configurar a campanha com ou sem uma meta de arrecadação e também definir valores de doação predefinidos (botões) ou deixar o campo de valor aberto para o doador decidir.', 'wc-invoice-payment'); ?></p>
+                        <div class="donation-section<?php echo esc_attr($disabled_class); ?>">
+                            <h3><?php esc_html_e('Recebimento de Doações Monetárias', 'wc-invoice-payment'); ?></h3>
+                            <p><?php esc_html_e('Nesta opção, você cria uma campanha para arrecadar valores monetários. É possível configurar a campanha com ou sem uma meta de arrecadação e também definir valores de doação predefinidos (botões) ou deixar o campo de valor aberto para o doador decidir.', 'wc-invoice-payment'); ?></p>
                             <?php if ($has_permission): ?>
                                 <a href="<?php echo esc_url(add_query_arg(array('product_type' => 'donation', 'donation_type' => 'variable'), dokan_get_navigation_url('products'))); ?>" class="donation-button">
-                                    <?php _e('Receber Doação Monetária', 'wc-invoice-payment'); ?>
+                                    <?php esc_html_e('Receber Doação Monetária', 'wc-invoice-payment'); ?>
                                 </a>
                             <?php else: ?>
                                 <button class="donation-button disabled" disabled>
                                     <i class="fas fa-lock" aria-hidden="true"></i>
-                                    <?php _e('Receber Doação Monetária', 'wc-invoice-payment'); ?>
+                                    <?php esc_html_e('Receber Doação Monetária', 'wc-invoice-payment'); ?>
                                 </button>
                             <?php endif; ?>
                         </div>
 
                         <!-- Seção de Doação de Item Gratuito -->
-                        <div class="donation-section<?php echo $disabled_class; ?>">
-                            <h3><?php _e('Gratuito (Doação de um item)', 'wc-invoice-payment'); ?></h3>
-                            <p><?php _e('Nesta opção, é possível registrar um item para doação gratuitamente. Se o produto for físico (não digital), o cálculo de frete será aplicado no checkout. Caso o beneficiário opte pela "Entrega em Mãos" (retirada), o custo do frete não será aplicado.', 'wc-invoice-payment'); ?></p>
+                        <div class="donation-section<?php echo esc_attr($disabled_class); ?>">
+                            <h3><?php esc_html_e('Gratuito (Doação de um item)', 'wc-invoice-payment'); ?></h3>
+                            <p><?php esc_html_e('Nesta opção, é possível registrar um item para doação gratuitamente. Se o produto for físico (não digital), o cálculo de frete será aplicado no checkout. Caso o beneficiário opte pela "Entrega em Mãos" (retirada), o custo do frete não será aplicado.', 'wc-invoice-payment'); ?></p>
                             <?php if ($has_permission): ?>
                                 <a href="<?php echo esc_url(add_query_arg(array('product_type' => 'donation', 'donation_type' => 'free'), dokan_get_navigation_url('products'))); ?>" class="donation-button">
-                                    <?php _e('Doar um Item Grátis', 'wc-invoice-payment'); ?>
+                                    <?php esc_html_e('Doar um Item Grátis', 'wc-invoice-payment'); ?>
                                 </a>
                             <?php else: ?>
                                 <button class="donation-button disabled" disabled>
                                     <i class="fas fa-lock" aria-hidden="true"></i>
-                                    <?php _e('Doar um Item Grátis', 'wc-invoice-payment'); ?>
+                                    <?php esc_html_e('Doar um Item Grátis', 'wc-invoice-payment'); ?>
                                 </button>
                             <?php endif; ?>
                         </div>
 
                         <!-- Seção de Doação de Item com Valor Fixo -->
-                        <div class="donation-section<?php echo $disabled_class; ?>">
-                            <h3><?php _e('Valor Fixo (Doação de item com valor pré-definido)', 'wc-invoice-payment'); ?></h3>
-                            <p><?php _e('Nesta opção, é possível registrar um item para doação com um valor simbólico ou que cubra alguns custos para concluir o processo (ex: "Doar um Sofá por R$ 5,00"). Se o produto for físico (não digital), o cálculo de frete será aplicado no checkout.', 'wc-invoice-payment'); ?></p>
+                        <div class="donation-section<?php echo esc_attr($disabled_class); ?>">
+                            <h3><?php esc_html_e('Valor Fixo (Doação de item com valor pré-definido)', 'wc-invoice-payment'); ?></h3>
+                            <p><?php esc_html_e('Nesta opção, é possível registrar um item para doação com um valor simbólico ou que cubra alguns custos para concluir o processo (ex: "Doar um Sofá por R$ 5,00"). Se o produto for físico (não digital), o cálculo de frete será aplicado no checkout.', 'wc-invoice-payment'); ?></p>
                             <?php if ($has_permission): ?>
                                 <a href="<?php echo esc_url(add_query_arg(array('product_type' => 'donation', 'donation_type' => 'fixed'), dokan_get_navigation_url('products'))); ?>" class="donation-button">
-                                    <?php _e('Doar um Item com Valor Fixo', 'wc-invoice-payment'); ?>
+                                    <?php esc_html_e('Doar um Item com Valor Fixo', 'wc-invoice-payment'); ?>
                                 </a>
                             <?php else: ?>
                                 <button class="donation-button disabled" disabled>
                                     <i class="fas fa-lock" aria-hidden="true"></i>
-                                    <?php _e('Doar um Item com Valor Fixo', 'wc-invoice-payment'); ?>
+                                    <?php esc_html_e('Doar um Item com Valor Fixo', 'wc-invoice-payment'); ?>
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -1650,8 +1676,8 @@ final class WcPaymentInvoiceDonation
 
                         <?php if (!$has_permission): ?>
                             <div class="donation-alert">
-                                <strong><?php _e('Erro!', 'wc-invoice-payment'); ?></strong>
-                                <?php _e('Sua conta não permite o recebimento de doações. Para habilitar esta funcionalidade, entre em contato.', 'wc-invoice-payment'); ?>
+                                <strong><?php esc_html_e('Erro!', 'wc-invoice-payment'); ?></strong>
+                                <?php esc_html_e('Sua conta não permite o recebimento de doações. Para habilitar esta funcionalidade, entre em contato.', 'wc-invoice-payment'); ?>
                             </div>
                         <?php endif; ?>
                     </div>

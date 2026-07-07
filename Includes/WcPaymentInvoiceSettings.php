@@ -225,7 +225,7 @@ final class WcPaymentInvoiceSettings
                                     <option value="pix" <?php selected($icon_value, 'pix'); ?>><?php echo esc_html(__('PIX', 'wc-invoice-payment')); ?></option>
                                 </select>
                                 <div class="lkn-icon-preview" data-gateway="<?php echo esc_attr($gateway_id); ?>">
-                                    <img src="<?php echo WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . esc_attr($icon_value) . '.svg'; ?>" alt="<?php echo esc_attr($icon_value); ?>" style="width: 24px; height: 24px;" />
+                                    <img src="<?php echo esc_url(WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . $icon_value . '.svg'); ?>" alt="<?php echo esc_attr($icon_value); ?>" style="width: 24px; height: 24px;" />
                                 </div>
                             </div>
                             <p class="description"><?php echo esc_html(__('Select the icon to be displayed for this payment method.', 'wc-invoice-payment')); ?></p>
@@ -401,7 +401,7 @@ final class WcPaymentInvoiceSettings
             // Processar checkbox de método habilitado
             $method_field = $method_slug . $gateway_id;
             if (isset($_POST[$method_field])) {
-                update_option($method_field, sanitize_text_field($_POST[$method_field]));
+                update_option($method_field, sanitize_text_field(wp_unslash($_POST[$method_field])));
             } else {
                 update_option($method_field, 'no');
             }
@@ -409,7 +409,7 @@ final class WcPaymentInvoiceSettings
             // Processar campo de status
             $status_field = $status_slug . $gateway_id;
             if (isset($_POST[$status_field])) {
-                update_option($status_field, sanitize_text_field($_POST[$status_field]));
+                update_option($status_field, sanitize_text_field(wp_unslash($_POST[$status_field])));
             }
         }
     }
@@ -434,7 +434,7 @@ final class WcPaymentInvoiceSettings
             // Processar checkbox de ativação
             $method_activated_field = $slug . 'method_activated_' . $gateway_id;
             if (isset($_POST[$method_activated_field])) {
-                update_option($method_activated_field, sanitize_text_field($_POST[$method_activated_field]));
+                update_option($method_activated_field, sanitize_text_field(wp_unslash($_POST[$method_activated_field])));
             } else {
                 update_option($method_activated_field, 'no');
             }
@@ -442,7 +442,7 @@ final class WcPaymentInvoiceSettings
             // Processar checkbox de mostrar preço
             $show_price_field = $slug . 'show_price_' . $gateway_id;
             if (isset($_POST[$show_price_field])) {
-                update_option($show_price_field, sanitize_text_field($_POST[$show_price_field]));
+                update_option($show_price_field, sanitize_text_field(wp_unslash($_POST[$show_price_field])));
             } else {
                 update_option($show_price_field, 'no');
             }
@@ -458,7 +458,7 @@ final class WcPaymentInvoiceSettings
             foreach ($fields_to_process as $field) {
                 $full_field_name = $slug . $field;
                 if (isset($_POST[$full_field_name])) {
-                    update_option($full_field_name, sanitize_text_field($_POST[$full_field_name]));
+                    update_option($full_field_name, sanitize_text_field(wp_unslash($_POST[$full_field_name])));
                 }
             }
         }
@@ -825,16 +825,17 @@ final class WcPaymentInvoiceSettings
         if ($updated_count > 0) {
             add_action('admin_notices', function() use ($updated_count, $new_minimum_amount) {
                 echo '<div class="notice notice-success is-dismissible">';
-                echo '<p>' . sprintf(
+                echo '<p>' . wp_kses_post(sprintf(
+                    /* translators: %1$d: number of donation products updated, %2$s: formatted minimum amount */
                     _n(
-                        'Updated %d donation product with the new minimum amount of %s.',
-                        'Updated %d donation products with the new minimum amount of %s.',
+                        'Updated %1$d donation product with the new minimum amount of %2$s.',
+                        'Updated %1$d donation products with the new minimum amount of %2$s.',
                         $updated_count,
                         'wc-invoice-payment'
                     ),
                     $updated_count,
                     wc_price($new_minimum_amount)
-                ) . '</p>';
+                )) . '</p>';
                 echo '</div>';
             });
         }

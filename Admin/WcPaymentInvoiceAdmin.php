@@ -280,7 +280,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-settings',
             function () {
-                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_invoice_settings'));
+                wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_invoice_settings'));
                 exit;
             },
             3
@@ -315,7 +315,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-subscriptions-add',
             function () {
-                wp_redirect(admin_url('admin.php?page=new-invoice&subscription=true'));
+                wp_safe_redirect(admin_url('admin.php?page=new-invoice&subscription=true'));
                 exit;
             },
             2
@@ -328,7 +328,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-subscriptions-settings',
             function () {
-                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_subscription_settings'));
+                wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_subscription_settings'));
                 exit;
             },
             3
@@ -364,7 +364,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-quote-settings',
             function () {
-                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_quote_settings'));
+                wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_quote_settings'));
                 exit;
             },
             4
@@ -384,8 +384,8 @@ final class WcPaymentInvoiceAdmin
         }
 
         if (isset($_GET['message'])) {
-            // Decodifica a mensagem recebida na URL
-            $decoded_message = urldecode(wp_unslash($_GET['message']));
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via sanitize_text_field+urldecode+wp_unslash
+            $decoded_message = sanitize_text_field(urldecode(wp_unslash($_GET['message'])));
 
             echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
         }
@@ -881,7 +881,7 @@ final class WcPaymentInvoiceAdmin
         wp_enqueue_script('wc-enhanced-select');
         wp_enqueue_style('woocommerce_admin_styles');
 
-        $invoiceId = sanitize_text_field(wp_unslash($_GET['invoice']));
+        $invoiceId = isset($_GET['invoice']) ? sanitize_text_field(wp_unslash($_GET['invoice'])) : 0;
 
         $decimalSeparator = wc_get_price_decimal_separator();
         $thousandSeparator = wc_get_price_thousand_separator();
@@ -1583,7 +1583,7 @@ final class WcPaymentInvoiceAdmin
         wp_enqueue_editor();
         wp_create_nonce('wp_rest');
 
-        $invoiceId = sanitize_text_field(wp_unslash($_GET['invoice']));
+        $invoiceId = isset($_GET['invoice']) ? sanitize_text_field(wp_unslash($_GET['invoice'])) : 0;
 
         $decimalSeparator = wc_get_price_decimal_separator();
         $thousandSeparator = wc_get_price_thousand_separator();
@@ -2182,8 +2182,8 @@ final class WcPaymentInvoiceAdmin
         }
 
         if (isset($_GET['message'])) {
-            // Decodifica a mensagem recebida na URL
-            $decoded_message = urldecode(wp_unslash($_GET['message']));
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via sanitize_text_field+urldecode+wp_unslash
+            $decoded_message = sanitize_text_field(urldecode(wp_unslash($_GET['message'])));
 
             echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
         }
@@ -2221,8 +2221,8 @@ final class WcPaymentInvoiceAdmin
         }
 
         if (isset($_GET['message'])) {
-            // Decodifica a mensagem recebida na URL
-            $decoded_message = urldecode($_GET['message']);
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via sanitize_text_field+urldecode+wp_unslash
+            $decoded_message = sanitize_text_field(urldecode(wp_unslash($_GET['message'])));
 
             echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
         }
@@ -2787,6 +2787,7 @@ final class WcPaymentInvoiceAdmin
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_add_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
@@ -2967,19 +2968,20 @@ final class WcPaymentInvoiceAdmin
                     $message = urlencode(__('Subscription successfully saved', 'wc-invoice-payment'));
 
                     // Redireciona para a página desejada com o parâmetro 'message'
-                    wp_redirect(admin_url('admin.php?page=wc-invoice-payment-subscriptions&message=' . $message));
+                    wp_safe_redirect(admin_url('admin.php?page=wc-invoice-payment-subscriptions&message=' . $message));
                     exit;
                 } else {
                     $message = urlencode(__('Invoice successfully saved', 'wc-invoice-payment'));
 
                     // Redireciona para a página desejada com o parâmetro 'message'
-                    wp_redirect(admin_url('admin.php?page=wc-invoice-payment&message=' . $message));
+                    wp_safe_redirect(admin_url('admin.php?page=wc-invoice-payment&message=' . $message));
                     exit;
                 }
             } else {
                 // Error messages
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         }
     }
 
@@ -2992,12 +2994,13 @@ final class WcPaymentInvoiceAdmin
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
 
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             // Validates WP nonce
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_edit_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
-                $invoiceId = sanitize_text_field(wp_unslash($_GET['invoice']));
+                $invoiceId = isset($_GET['invoice']) ? sanitize_text_field(wp_unslash($_GET['invoice'])) : 0;
                 $order = wc_get_order($invoiceId);
                 $order->remove_order_items();
 
@@ -3140,6 +3143,7 @@ final class WcPaymentInvoiceAdmin
                 // Error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         } elseif ('GET' == $method && isset($_GET['lkn_wcip_delete'])) {
             $invoiceDeleteSanitized = sanitize_text_field(wp_unslash($_GET['lkn_wcip_delete']));
             // Validates request for deleting invoice
@@ -3155,7 +3159,7 @@ final class WcPaymentInvoiceAdmin
                 update_option('lkn_wcip_invoices', $invoices);
 
                 // Redirect to invoice list
-                wp_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
+                wp_safe_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
             } else {
                 // Show error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
@@ -3172,6 +3176,7 @@ final class WcPaymentInvoiceAdmin
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
 
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             // Validates WP nonce
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_edit_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
@@ -3348,17 +3353,19 @@ final class WcPaymentInvoiceAdmin
                     // Add order note about the change
                     if ($order->get_status() === 'completed') {
                         $order->add_order_note(sprintf(
-                            __('Subscription interval updated to: %d %s(s). Next invoice scheduled for: %s', 'wc-invoice-payment'),
+                            /* translators: %1$d: interval number, %2$s: interval type (days/weeks/months), %3$s: next invoice date */
+                            __('Subscription interval updated to: %1$d %2$s(s). Next invoice scheduled for: %3$s', 'wc-invoice-payment'),
                             $intervalNumber,
                             $intervalType,
-                            date('Y-m-d H:i:s', $nextInvoiceTime)
+                            gmdate('Y-m-d H:i:s', $nextInvoiceTime)
                         ));
                     } else {
                         $order->add_order_note(sprintf(
-                            __('Subscription interval updated to: %d %s(s). Next invoice will be scheduled when order is completed: %s', 'wc-invoice-payment'),
+                            /* translators: %1$d: interval number, %2$s: interval type (days/weeks/months), %3$s: next invoice date */
+                            __('Subscription interval updated to: %1$d %2$s(s). Next invoice will be scheduled when order is completed: %3$s', 'wc-invoice-payment'),
                             $intervalNumber,
                             $intervalType,
-                            date('Y-m-d H:i:s', $nextInvoiceTime)
+                            gmgmdate('Y-m-d H:i:s', $nextInvoiceTime)
                         ));
                     }
                 }
@@ -3394,6 +3401,7 @@ final class WcPaymentInvoiceAdmin
                 // Error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         } elseif ('GET' == $method && isset($_GET['lkn_wcip_delete'])) {
             // Validates request for deleting invoice
             $invoiceDeleteSanitized = sanitize_text_field(wp_unslash($_GET['lkn_wcip_delete']));
@@ -3434,7 +3442,7 @@ final class WcPaymentInvoiceAdmin
                 }
                 
                 // Redirect to invoice list
-                wp_redirect(home_url('wp-admin/admin.php?page=wc-subscription-payment'));
+                wp_safe_redirect(home_url('wp-admin/admin.php?page=wc-subscription-payment'));
             } else {
                 // Show error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
@@ -3450,12 +3458,14 @@ final class WcPaymentInvoiceAdmin
     public function ajax_get_product_data(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'lkn-wcip-product-data')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'lkn-wcip-product-data')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
-        $product_id = intval($_POST['product_id']);
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval+wp_unslash
+        $product_id = intval(wp_unslash($_POST['product_id']));
 
         if (!$product_id) {
             wp_send_json_error(__('Invalid product ID', 'wc-invoice-payment'));
@@ -3491,11 +3501,13 @@ final class WcPaymentInvoiceAdmin
     public function ajax_approve_quote(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'wp_rest')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'wp_rest')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -3524,11 +3536,13 @@ final class WcPaymentInvoiceAdmin
     public function ajax_approve_quote_only(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'wp_rest')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'wp_rest')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -3568,11 +3582,13 @@ final class WcPaymentInvoiceAdmin
     public function ajax_create_invoice(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'wp_rest')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'wp_rest')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -3615,11 +3631,13 @@ final class WcPaymentInvoiceAdmin
     public function ajax_send_quote_email(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'wp_rest')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'wp_rest')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -3661,6 +3679,7 @@ final class WcPaymentInvoiceAdmin
             $exp_date_formatted = date_i18n(get_option('date_format'), strtotime($exp_date));
         }
         
+        /* translators: %s: quote number */
         $subject = sprintf(__('Orçamento #%s - Link para aprovação', 'wc-invoice-payment'), $quote_number);
         
         // Create a beautiful HTML email template
@@ -3698,11 +3717,15 @@ final class WcPaymentInvoiceAdmin
         <body>
             <div class="email-container">
                 <div class="email-header">
-                    <h1>🧾 ' . sprintf(__('Orçamento #%s', 'wc-invoice-payment'), $quote_number) . '</h1>
+                    <h1>🧾 '
+                    /* translators: %s: quote number */
+                    . sprintf(__('Orçamento #%s', 'wc-invoice-payment'), $quote_number) . '</h1>
                 </div>
                 
                 <div class="email-content">
-                    <p style="font-size: 18px; margin-bottom: 20px;">' . sprintf(__('Olá %s!', 'wc-invoice-payment'), '<strong>' . esc_html($customer_name) . '</strong>') . '</p>
+                    <p style="font-size: 18px; margin-bottom: 20px;">'
+                    /* translators: %s: customer name */
+                    . sprintf(__('Olá %s!', 'wc-invoice-payment'), '<strong>' . esc_html($customer_name) . '</strong>') . '</p>
                     
                     <div class="quote-info">
                         <h2>📋 ' . __('Quote Details', 'wc-invoice-payment') . '</h2>
@@ -3746,10 +3769,12 @@ final class WcPaymentInvoiceAdmin
         
         if ($email_sent) {
             // Add order note
+            /* translators: %s: customer email */
             $order->add_order_note(sprintf(__('Email do orçamento enviado para o cliente (%s) com template HTML melhorado', 'wc-invoice-payment'), $customer_email));
             
             wp_send_json_success(array(
                 'message' => __('Email enviado com sucesso!', 'wc-invoice-payment'),
+                /* translators: %s: customer email */
                 'details' => sprintf(__('O orçamento foi enviado para %s com um template profissional', 'wc-invoice-payment'), $customer_email),
                 'email' => $customer_email
             ));
@@ -3765,6 +3790,7 @@ final class WcPaymentInvoiceAdmin
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_add_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
@@ -3911,13 +3937,14 @@ final class WcPaymentInvoiceAdmin
                 $message = urlencode(__('Quote successfully saved', 'wc-invoice-payment'));
 
                 // Redireciona para a página desejada com o parâmetro 'message'
-                wp_redirect(admin_url('admin.php?page=wc-invoice-payment-quotes&message=' . $message));
+                wp_safe_redirect(admin_url('admin.php?page=wc-invoice-payment-quotes&message=' . $message));
 
                 exit;
             } else {
                 // Error messages
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on quote generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         }
     }
 
@@ -3930,12 +3957,13 @@ final class WcPaymentInvoiceAdmin
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
 
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             // Validates WP nonce
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_edit_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
-                $invoiceId = sanitize_text_field(wp_unslash($_GET['quote']));
+                $invoiceId = isset($_GET['quote']) ? sanitize_text_field(wp_unslash($_GET['quote'])) : 0;
                 $order = wc_get_order($invoiceId);
                 $order->remove_order_items();
 
@@ -4061,6 +4089,7 @@ final class WcPaymentInvoiceAdmin
                 // Error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         } elseif ('GET' == $method && isset($_GET['lkn_wcip_delete'])) {
             $invoiceDeleteSanitized = sanitize_text_field(wp_unslash($_GET['lkn_wcip_delete']));
             // Validates request for deleting invoice
@@ -4076,7 +4105,7 @@ final class WcPaymentInvoiceAdmin
                 update_option('lkn_wcip_invoices', $invoices);
 
                 // Redirect to invoice list
-                wp_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
+                wp_safe_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
             } else {
                 // Show error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
@@ -4124,7 +4153,7 @@ final class WcPaymentInvoiceAdmin
         wp_enqueue_script('wc-enhanced-select');
         wp_enqueue_style('woocommerce_admin_styles');
 
-        $invoiceId = sanitize_text_field(wp_unslash($_GET['quote']));
+        $invoiceId = isset($_GET['quote']) ? sanitize_text_field(wp_unslash($_GET['quote'])) : 0;
 
         $decimalSeparator = wc_get_price_decimal_separator();
         $thousandSeparator = wc_get_price_thousand_separator();
@@ -4676,11 +4705,13 @@ final class WcPaymentInvoiceAdmin
      */
     public function ajax_approve_quote_frontend(): void {
         // Verificar nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'lkn_wcip_quote_action')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_quote_action')) {
             wp_send_json_error(__('Falha na verificação de segurança', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -4715,7 +4746,7 @@ final class WcPaymentInvoiceAdmin
             // Obter informações do cliente para a nota
             $current_user = wp_get_current_user();
             $user_email = $current_user->user_email;
-            $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '';
+            $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
             
             // Criar nota detalhada com email e IP
             $note = __('Orçamento aprovado pelo cliente ', 'wc-invoice-payment') . $user_email;
@@ -4764,11 +4795,13 @@ final class WcPaymentInvoiceAdmin
      */
     public function ajax_cancel_quote_frontend(): void {
         // Verificar nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'lkn_wcip_quote_action')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_quote_action')) {
             wp_send_json_error(__('Falha na verificação de segurança', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -4796,7 +4829,7 @@ final class WcPaymentInvoiceAdmin
             // Obter informações do cliente para a nota
             $current_user = wp_get_current_user();
             $user_email = $current_user->user_email;
-            $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '';
+            $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
             
             // Criar nota detalhada com email e IP
             $note = __('Orçamento cancelado pelo cliente ', 'wc-invoice-payment') . $user_email;

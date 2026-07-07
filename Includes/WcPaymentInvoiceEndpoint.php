@@ -138,7 +138,7 @@ final class WcPaymentInvoiceEndpoint {
 
         // Para casos onde o usuário acabou de criar o pedido, permitir por um tempo limitado
         // baseado em um cookie específico do plugin
-        $order_access_token = isset($_COOKIE['wc_invoice_payment_order_' . $order_id]) ? $_COOKIE['wc_invoice_payment_order_' . $order_id] : '';
+        $order_access_token = isset($_COOKIE['wc_invoice_payment_order_' . $order_id]) ? sanitize_text_field(wp_unslash($_COOKIE['wc_invoice_payment_order_' . $order_id])) : '';
         if ($order_access_token) {
             $expected_token = wp_hash($order_id . $user_id . 'wc_invoice_payment');
             return hash_equals($expected_token, $order_access_token);

@@ -55,7 +55,8 @@ final class WcPaymentInvoiceFeeOrDiscount
                         'mode' => $percentOrFixed, // 'percent' ou 'fixed'
                         'value' => $value,
                         'label' => sprintf(
-                            __('%s of %s', 'wc-invoice-payment'),
+                            /* translators: %1$s: Fee or Discount label, %2$s: formatted price value */
+                            __('%1$s of %2$s', 'wc-invoice-payment'),
                             $type === 'fee' ? __('Fee', 'wc-invoice-payment') : __('Discount', 'wc-invoice-payment'),
                             wc_price($value)
                         ),
