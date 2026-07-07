@@ -18,7 +18,9 @@
  * Version:           2.12.1
  * Author:            Link Nacional
  * Author URI:        https://www.linknacional.com/
- * Requires Plugins: woocommerce
+ * Requires at least: 6.0
+ * Requires PHP:      8.2
+ * Requires Plugins:  woocommerce
  * License:           GPL-3.0+
  * License URI:       http://www.gnu.org/licenses/gpl-3.0.txt
  * Text Domain:       wc-invoice-payment

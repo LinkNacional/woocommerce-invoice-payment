@@ -2,10 +2,10 @@
 Contributors: linknacional
 Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: subscription, invoice, payment, recorrente, faturas
-Requires at least: 5.7
-Tested up to: 6.8
+Requires at least: 6.0
+Tested up to: 7.0
 Stable tag: 2.12.1
-Requires PHP: 7.2
+Requires PHP: 8.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
