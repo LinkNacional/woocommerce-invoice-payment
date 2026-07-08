@@ -6,7 +6,6 @@
     const logoField = $('#lkn_wcip_template_logo_url')
     
     if (!logoField.length) {
-      console.log('Campo logo não encontrado')
       return
     }
 

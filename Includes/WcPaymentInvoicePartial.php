@@ -1028,8 +1028,6 @@ final class WcPaymentInvoicePartial
             return $order->get_id();
             
         } catch (Exception $e) {
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- keep debug logging for admin troubleshooting
-            \error_log('Erro ao criar fatura: ' . $e->getMessage());
             return false;
         }
     }

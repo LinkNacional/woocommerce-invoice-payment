@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.dokan-attribute-variation-options, .dokan-rma-options, .dokan-linked-product-options').forEach(item => {
         item.classList.add('hide_if_donation');
-        console.log(item)
     })
 
     const linkEl = document.querySelector('a[href*="_dokan_edit_product_nonce"]');

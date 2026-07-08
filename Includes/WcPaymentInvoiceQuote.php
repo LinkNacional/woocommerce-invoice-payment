@@ -207,9 +207,6 @@ final class WcPaymentInvoiceQuote
                 if ($order->get_meta('lkn_is_quote') === 'yes' && 
                     in_array($order->get_status(), ['quote-awaiting'])) {
                     
-                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug log for quote approval flow
-                    error_log("interceptOrderPayPage - Redirecionando para aprovação: Order ID $order_id");
-                    
                     // Limpar output buffer e renderizar nossa página
                     if (ob_get_level()) {
                         ob_end_clean();
@@ -242,10 +239,6 @@ final class WcPaymentInvoiceQuote
         $is_order_pay_page = isset($_GET['pay_for_order']) && $_GET['pay_for_order'] === 'true';
         $needs_approval = in_array($quoteOrder->get_status(), ['quote-awaiting', 'wc-quote-request']);
         
-        // Debug - adicionar log para verificar condições
-        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug log for quote fields
-        error_log("showQuoteFields Debug - Order ID: $orderId, Status: " . $quoteOrder->get_status() . ", is_order_pay_page: " . ($is_order_pay_page ? 'true' : 'false') . ", needs_approval: " . ($needs_approval ? 'true' : 'false'));
-        
         if ($is_order_pay_page && $needs_approval) {
             // Substituir todo o conteúdo da página com a interface de aprovação
             echo '<style>
@@ -258,8 +251,6 @@ final class WcPaymentInvoiceQuote
                 }
             </style>';
             
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug log for approval page rendering
-            error_log("showQuoteFields - Renderizando página de aprovação para ordem $orderId");
             $this->renderQuoteApprovalPage($quoteOrder);
             return;
         }

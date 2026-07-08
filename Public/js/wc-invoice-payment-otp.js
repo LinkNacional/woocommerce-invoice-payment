@@ -90,7 +90,6 @@ jQuery(document).ready(function($) {
             if(error.success == false){
                 $('#lkn-otp-messages').html('<div class="woocommerce-error">' + error.message + '</div>');
             }else{
-                console.log(error)
                 $('#lkn-otp-messages').html('<div class="woocommerce-error">Erro de conexão.</div>');
             }
             // Reabilita o botão em caso de erro
