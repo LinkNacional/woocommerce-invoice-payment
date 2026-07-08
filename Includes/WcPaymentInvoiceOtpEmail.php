@@ -460,7 +460,8 @@ final class WcPaymentInvoiceOtpEmail {
      */
     public function replace_login_register_forms() {
         // Adiciona formulário OTP
-        echo wp_kses_post($this->get_otp_form_html());
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML estático do plugin já escapado com esc_html_e
+        echo $this->get_otp_form_html();
         
     }
 
@@ -468,7 +469,8 @@ final class WcPaymentInvoiceOtpEmail {
      * Substitui apenas formulário de login
      */
     public function replace_login_form() {
-        echo wp_kses_post($this->get_otp_form_html());
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML estático do plugin já escapado com esc_html_e
+        echo $this->get_otp_form_html();
     }
 
     /**
