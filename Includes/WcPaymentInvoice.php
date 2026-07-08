@@ -205,6 +205,10 @@ final class WcPaymentInvoice {
         // Hooks para o frontend - garantir que produtos de doação funcionem corretamente
         $this->loader->add_filter('woocommerce_product_add_to_cart_text', $donation_class, 'donation_add_to_cart_text', 10, 2);
         $this->loader->add_filter('woocommerce_product_single_add_to_cart_text', $donation_class, 'donation_single_add_to_cart_text', 10, 2);
+        $this->loader->add_filter('woocommerce_product_add_to_cart_text', $this->WcPaymentInvoiceQuoteClass, 'quote_add_to_cart_text', 20, 2);
+        $this->loader->add_filter('woocommerce_product_single_add_to_cart_text', $this->WcPaymentInvoiceQuoteClass, 'quote_single_add_to_cart_text', 20, 2);
+        $this->loader->add_filter('render_block', $this->WcPaymentInvoiceQuoteClass, 'replaceQuoteBlocks', 10, 2);
+        $this->loader->add_filter('gettext', $this->WcPaymentInvoiceQuoteClass, 'filterGettextForQuoteMode', 10, 3);
         $this->loader->add_filter('woocommerce_get_price_html', $donation_class, 'customize_donation_price_html', 10, 2);
         $this->loader->add_action('woocommerce_donation_add_to_cart', $donation_class, 'donation_add_to_cart_template');
         $this->loader->add_filter('woocommerce_add_to_cart_validation', $donation_class, 'validate_donation_add_to_cart', 10, 3);
@@ -339,7 +343,8 @@ final class WcPaymentInvoice {
                 </p>
             </div>";
         
-            echo wp_kses_post($message);
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML estático do plugin, sem input de usuário
+            echo $message;
         }
 
         // Compatibilidade com configurações antigas
@@ -488,6 +493,10 @@ final class WcPaymentInvoice {
         $this->loader->add_filter('the_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
         $this->loader->add_filter('wp_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
         $this->loader->add_action('wp_enqueue_scripts', $this->WcPaymentInvoiceQuoteClass, 'enqueueQuoteConfirmationScript');
+        $this->loader->add_filter('woocommerce_package_rates', $this->WcPaymentInvoiceQuoteClass, 'disableShippingForQuoteMode', 9999);
+        $this->loader->add_filter('woocommerce_cart_needs_shipping', $this->WcPaymentInvoiceQuoteClass, 'disableCartNeedsShipping', 9999);
+        $this->loader->add_filter('woocommerce_cart_no_shipping_available_html', $this->WcPaymentInvoiceQuoteClass, 'replaceNoShippingMessage');
+        $this->loader->add_filter('woocommerce_no_shipping_available_html', $this->WcPaymentInvoiceQuoteClass, 'replaceNoShippingMessage');
         
         // Hook temporário para registrar o endpoint - execute uma vez e comente
         $this->loader->add_action('wp_loaded', $this->WcPaymentInvoiceQuoteClass, 'forceFlushRewriteRules');

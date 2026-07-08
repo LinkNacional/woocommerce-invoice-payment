@@ -58,6 +58,93 @@ final class WcPaymentInvoiceQuote
         }
     }
 
+
+    /**
+     * Remove todos os métodos de entrega quando o modo orçamento está ativo.
+     * Prioridade alta para sobrescrever hooks de plugins de calculadora de frete.
+     *
+     * @since 2.12.1
+     * @param array $rates Métodos de entrega disponíveis.
+     * @return array Vazio se modo orçamento ativo, ou os rates originais.
+     */
+    public function disableShippingForQuoteMode($rates) {
+        // Não bloqueia fretes na página de pagamento de fatura aprovada (order-pay)
+        if (is_wc_endpoint_url('order-pay') || is_checkout_pay_page()) {
+            return $rates;
+        }
+        if (get_option('lkn_wcip_quote_mode', 'no') === 'yes') {
+            return array();
+        }
+        return $rates;
+    }
+
+    /**
+     * Faz o WooCommerce tratar o carrinho como "sem necessidade de frete"
+     * quando o modo orçamento está ativo (como se fossem produtos virtuais).
+     *
+     * @since 2.12.1
+     * @param bool $needs_shipping
+     * @return bool
+     */
+    public function disableCartNeedsShipping($needs_shipping) {
+        if (is_wc_endpoint_url('order-pay') || is_checkout_pay_page()) {
+            return $needs_shipping;
+        }
+        if (get_option('lkn_wcip_quote_mode', 'no') === 'yes') {
+            return false;
+        }
+        return $needs_shipping;
+    }
+
+    /**
+     * Substitui a mensagem "sem frete disponível" quando o modo orçamento está ativo.
+     *
+     * @since 2.12.1
+     * @param string $html HTML padrão do WooCommerce.
+     * @return string HTML substituído.
+     */
+    public function replaceNoShippingMessage($html) {
+        // Não substitui mensagem na página de pagamento de fatura aprovada (order-pay)
+        if (is_wc_endpoint_url('order-pay') || is_checkout_pay_page()) {
+            return $html;
+        }
+        if (get_option('lkn_wcip_quote_mode', 'no') === 'yes') {
+            return '<span>' . esc_html__('Modo orçamento.', 'wc-invoice-payment') . '</span>';
+        }
+        return $html;
+    }
+
+    /**
+     * Altera texto do botão "Adicionar ao carrinho" para "Solicitar orçamento"
+     * em páginas de listagem de produtos (loop).
+     *
+     * @since 2.12.1
+     * @param string $text Texto original do botão.
+     * @param \WC_Product $product Produto atual.
+     * @return string
+     */
+    public function quote_add_to_cart_text($text, $product) {
+        if (get_option('lkn_wcip_quote_mode', 'no') === 'yes') {
+            return __('Add to quote', 'wc-invoice-payment');
+        }
+        return $text;
+    }
+
+    /**
+     * Altera texto do botão na página individual do produto.
+     *
+     * @since 2.12.1
+     * @param string $text Texto original.
+     * @param \WC_Product $product Produto atual.
+     * @return string
+     */
+    public function quote_single_add_to_cart_text($text, $product) {
+        if (get_option('lkn_wcip_quote_mode', 'no') === 'yes') {
+            return __('Add to quote', 'wc-invoice-payment');
+        }
+        return $text;
+    }
+
     function lknWcInvoiceHidePrice( $price, $product ) {
         $showPrice = get_option(  'lkn_wcip_show_products_price', 'no' );
         $quoteMode = get_option(  'lkn_wcip_quote_mode', 'no' );
@@ -68,6 +155,178 @@ final class WcPaymentInvoiceQuote
         }
 
         return $price; // mantém o preço normal
+    }
+
+    /**
+     * Substitui ícone e textos dos blocos do WooCommerce quando modo orçamento está ativo.
+     *
+     * @since 2.12.1
+     * @param string $block_content HTML do bloco.
+     * @param array $block Dados do bloco.
+     * @return string HTML modificado.
+     */
+    public function replaceQuoteBlocks($block_content, $block) {
+        if (get_option('lkn_wcip_quote_mode', 'no') !== 'yes') {
+            return $block_content;
+        }
+
+        $block_name = isset($block['blockName']) ? $block['blockName'] : '';
+
+        // Ícone do SVG só existe no bloco pai mini-cart
+        if ($block_name === 'woocommerce/mini-cart') {
+            return $this->replaceMiniCartContent($block_content);
+        }
+
+        // Blocos filhos do mini-cart: aplicar só texto, sem mexer no ícone
+        if (strpos($block_name, 'woocommerce/mini-cart') === 0) {
+            return $this->replaceCartTexts($block_content);
+        }
+
+        // Bloco de título do resumo no carrinho
+        if ($block_name === 'woocommerce/cart-order-summary-heading-block') {
+            return $this->replaceCartTexts($block_content);
+        }
+
+        // Link "Carrinho" no header do checkout
+        if ($block_name === 'woocommerce/cart-link') {
+            return $this->replaceCartLinkBlock($block_content);
+        }
+
+        if ($block_name === 'woocommerce/product-button') {
+            return $this->replaceProductButtonText($block_content);
+        }
+
+        return $block_content;
+    }
+
+    /**
+     * Troca ícone e textos do mini-carrinho.
+     */
+    private function replaceMiniCartContent($block_content) {
+        // Ícone de documento/orçamento (clipboard)
+        $quote_icon = '<svg class="wc-block-mini-cart__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M17 3.5H7C5.61929 3.5 4.5 4.61929 4.5 6V20C4.5 21.3807 5.61929 22.5 7 22.5H17C18.3807 22.5 19.5 21.3807 19.5 20V6C19.5 4.61929 18.3807 3.5 17 3.5ZM7 2C4.79086 2 3 3.79086 3 6V20C3 22.2091 4.79086 24 7 24H17C19.2091 24 21 22.2091 21 20V6C21 3.79086 19.2091 2 17 2H7Z" fill="currentColor"/>
+            <path d="M8 7H16V8.5H8V7Z" fill="currentColor"/>
+            <path d="M8 10.5H16V12H8V10.5Z" fill="currentColor"/>
+            <path d="M8 14H13V15.5H8V14Z" fill="currentColor"/>
+        </svg>';
+
+        $block_content = preg_replace(
+            '/<svg[^>]*class="[^"]*wc-block-mini-cart__icon[^"]*"[^>]*>.*?<\/svg>/s',
+            $quote_icon,
+            $block_content
+        );
+
+        return $this->replaceCartTexts($block_content);
+    }
+
+    /**
+     * Troca ícone e aria-label do link "Carrinho" no header do checkout.
+     */
+    private function replaceCartLinkBlock($block_content) {
+        // Mesmo ícone de orçamento
+        $quote_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="wc-block-mini-cart__icon" viewBox="0 0 24 24" width="24" height="24">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M17 3.5H7C5.61929 3.5 4.5 4.61929 4.5 6V20C4.5 21.3807 5.61929 22.5 7 22.5H17C18.3807 22.5 19.5 21.3807 19.5 20V6C19.5 4.61929 18.3807 3.5 17 3.5ZM7 2C4.79086 2 3 3.79086 3 6V20C3 22.2091 4.79086 24 7 24H17C19.2091 24 21 22.2091 21 20V6C21 3.79086 19.2091 2 17 2H7Z" fill="currentColor"/>
+            <path d="M8 7H16V8.5H8V7Z" fill="currentColor"/>
+            <path d="M8 10.5H16V12H8V10.5Z" fill="currentColor"/>
+            <path d="M8 14H13V15.5H8V14Z" fill="currentColor"/>
+        </svg>';
+
+        $block_content = preg_replace(
+            '/<svg[^>]*class="[^"]*wc-block-mini-cart__icon[^"]*"[^>]*>.*?<\/svg>/s',
+            $quote_icon,
+            $block_content
+        );
+
+        // Troca aria-label
+        $block_content = str_replace(
+            array('aria-label="Carrinho"', 'aria-label="Cart"'),
+            array('aria-label="Orçamento"', 'aria-label="Quote"'),
+            $block_content
+        );
+
+        return $block_content;
+    }
+
+    /**
+     * Substitui todos os textos de "carrinho" por "orçamento".
+     */
+    private function replaceCartTexts($block_content) {
+        // Usa __() para buscar a string traduzida no idioma atual do site
+        // Regex lida com whitespace do HTML (ex: "\n                Ver carrinho            ")
+        $pairs = array(
+            'View cart' => 'View quote',
+        );
+
+        foreach ($pairs as $wc_text => $our_text) {
+            $search  = __($wc_text, 'woocommerce');
+            $replace = __($our_text, 'wc-invoice-payment');
+            if ($search !== $replace) {
+                $block_content = preg_replace(
+                    '/(' . preg_quote($search, '/') . ')/',
+                    $replace,
+                    $block_content
+                );
+            }
+        }
+
+        return $block_content;
+    }
+
+    /**
+     * Filtra strings de tradução do WooCommerce: cart → quote.
+     * Mapeia o original em inglês ($text) para o substituto e deixa o WP traduzir.
+     * Funciona em qualquer idioma.
+     *
+     * @since 2.12.1
+     */
+    public function filterGettextForQuoteMode($translation, $text, $domain) {
+        if (get_option('lkn_wcip_quote_mode', 'no') !== 'yes') {
+            return $translation;
+        }
+
+        $replacements = array(
+            'Cart'                                     => 'Quote',
+            'Your cart'                                => 'Your quotes',
+            'Products in cart'                         => 'Products in quote',
+            'Your cart is currently empty!'            => 'Your quotes are currently empty!',
+            'Total in cart'                            => 'Total in quote',
+            'items in cart'                            => 'items in quote',
+            'item in cart'                             => 'item in quote',
+            'Start shopping'                           => 'Browse products',
+            'Cart updated.'                            => 'Quote updated.',
+            'Cart updated'                             => 'Quote updated',
+            'Update cart'                              => 'Update quote',
+            'Shipping, taxes, and discounts calculated at checkout.'
+                                                       => 'Shipping, taxes, and discounts calculated for the quote.',
+        );
+
+        if (isset($replacements[$text])) {
+            return __($replacements[$text], 'wc-invoice-payment');
+        }
+
+        return $translation;
+    }
+
+    /**
+     * Troca textos do botão de produto via Interactivity API context.
+     */
+    private function replaceProductButtonText($block_content) {
+        // Substitui no data-wp-context: "inTheCartText":"### no carrinho" → "in quote"
+        $block_content = preg_replace(
+            '/"inTheCartText"\s*:\s*"###\s*(?:no carrinho|in cart)"/',
+            '"inTheCartText":"### in quote"',
+            $block_content
+        );
+
+        // Substitui no aria-label: "Adicione ao carrinho" → "Adicionar ao orçamento"
+        $block_content = preg_replace(
+            '/(aria-label=")[^"]*Adicione ao carrinho[^"]*"/',
+            '$1' . esc_attr__('Add to quote', 'wc-invoice-payment') . '"',
+            $block_content
+        );
+
+        return $block_content;
     }
 
     function lknWcInvoiceHidePriceFrontend() {
@@ -103,9 +362,15 @@ final class WcPaymentInvoiceQuote
                 'emailDescription' => __('We will use this email to send information and updates about your quote.', 'wc-invoice-payment'),
                 'addressDescription' => __('Enter the address where you want your quote to be delivered.', 'wc-invoice-payment'),
                 'reviewText' => __('Under Review', 'wc-invoice-payment'),
-                'requestQuoteText' => __('Request Quote', 'wc-invoice-payment'),
+                'requestQuoteText' => __('Request quote', 'wc-invoice-payment'),
                 'quoteSummaryText' => __('Quote Summary', 'wc-invoice-payment'),
-                'quotesText' => __('Quotes', 'wc-invoice-payment')
+                'quotesText' => __('Quotes', 'wc-invoice-payment'),
+                // Textos substituídos no carrinho
+                'totalText'       => __('Total', 'wc-invoice-payment'),
+                'totalInQuote'    => __('Total in quote', 'wc-invoice-payment'),
+                'updateQuote'     => __('Update quote', 'wc-invoice-payment'),
+                'quoteUpdated'    => __('Quote updated.', 'wc-invoice-payment'),
+                'shippingCalcAtQuote' => __('The quote will be calculated during checkout.', 'wc-invoice-payment'),
             ));
         }
     }
@@ -285,7 +550,6 @@ final class WcPaymentInvoiceQuote
         }
         //noticia para o cliente que foi aprovado o orçamento
         wp_enqueue_script( 'wcInvoicePaymentQuoteScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-quote-table.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
-        wp_enqueue_style('wcInvoicePaymentQuoteStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-quote-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         wp_localize_script('wcInvoicePaymentQuoteScript', 'wcInvoicePaymentQuoteTableVariables', $wcInvoicePaymentQuoteTableVariables);
     }
 
