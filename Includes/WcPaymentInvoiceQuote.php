@@ -252,16 +252,16 @@ final class WcPaymentInvoiceQuote
      * Substitui todos os textos de "carrinho" por "orçamento".
      */
     private function replaceCartTexts($block_content) {
-        // Usa __() para buscar a string traduzida no idioma atual do site
-        // Regex lida com whitespace do HTML (ex: "\n                Ver carrinho            ")
-        $pairs = array(
-            'View cart' => 'View quote',
+        // Busca direta no HTML já renderizado (não usa __() pois gettext já interceptou)
+        $search_patterns = array(
+            'Ver carrinho',
+            'View cart',
         );
 
-        foreach ($pairs as $wc_text => $our_text) {
-            $search  = __($wc_text, 'woocommerce');
-            $replace = __($our_text, 'wc-invoice-payment');
-            if ($search !== $replace) {
+        $replace = __('View quote', 'wc-invoice-payment');
+
+        foreach ($search_patterns as $search) {
+            if ($search !== $replace && strpos($block_content, $search) !== false) {
                 $block_content = preg_replace(
                     '/(' . preg_quote($search, '/') . ')/',
                     $replace,
@@ -293,12 +293,15 @@ final class WcPaymentInvoiceQuote
             'Total in cart'                            => 'Total in quote',
             'items in cart'                            => 'items in quote',
             'item in cart'                             => 'item in quote',
+            'View cart'                                => 'View quote',
             'Start shopping'                           => 'Browse products',
             'Cart updated.'                            => 'Quote updated.',
             'Cart updated'                             => 'Quote updated',
             'Update cart'                              => 'Update quote',
             'Shipping, taxes, and discounts calculated at checkout.'
                                                        => 'Shipping, taxes, and discounts calculated for the quote.',
+            '%s has been added to your cart.'           => '%s has been added to your quote.',
+            '"%s" has been added to your cart.'         => '"%s" has been added to your quote.',
         );
 
         if (isset($replacements[$text])) {
@@ -371,6 +374,8 @@ final class WcPaymentInvoiceQuote
                 'updateQuote'     => __('Update quote', 'wc-invoice-payment'),
                 'quoteUpdated'    => __('Quote updated.', 'wc-invoice-payment'),
                 'shippingCalcAtQuote' => __('The quote will be calculated during checkout.', 'wc-invoice-payment'),
+                'viewQuote'       => __('View quote', 'wc-invoice-payment'),
+                'addedToQuoteText' => __('has been added to your quote.', 'wc-invoice-payment'),
             ));
         }
     }

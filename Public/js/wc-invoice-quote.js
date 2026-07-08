@@ -59,11 +59,21 @@
       el.setAttribute('data-quote-shipping', 'true');
     });
 
-    // "Carrinho atualizado." / "Cart updated."
+    // Notícias: "Carrinho atualizado." / "adicionado ao carrinho" → texto traduzido
     document.querySelectorAll('.wc-block-components-notice-banner__content').forEach(function(el) {
+      var p = wcInvoiceHidePrice;
       el.innerHTML = el.innerHTML
-        .replace(/Carrinho atualizado\./g, wcInvoiceHidePrice.quoteUpdated)
-        .replace(/Cart updated\./g, wcInvoiceHidePrice.quoteUpdated);
+        .replace(/Carrinho atualizado\./g, p.quoteUpdated)
+        .replace(/Cart updated\./g, p.quoteUpdated)
+        .replace(/(?:foi|foram) adicionad[oa]s? ao seu carrinho\./g, p.addedToQuoteText)
+        .replace(/has been added to your cart\./g, p.addedToQuoteText);
+    });
+
+    // Link "Ver carrinho" dentro de notícias → "View quote" traduzido
+    document.querySelectorAll('.wc-block-components-notice-banner__content a.wc-forward').forEach(function(link) {
+      if (link.textContent.trim() === 'Ver carrinho' || link.textContent.trim() === 'View cart') {
+        link.textContent = wcInvoiceHidePrice.viewQuote;
+      }
     });
   }
 
