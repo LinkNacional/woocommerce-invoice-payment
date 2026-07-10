@@ -711,6 +711,20 @@ final class WcPaymentInvoiceSettings
             );
         }
 
+        $settingsFields[$slug . 'img_badge_position'] = array(
+            'name'    => __('Badge position', 'wc-invoice-payment'),
+            'type'    => 'select',
+            'options' => array(
+                'bottom-right' => __('↘ Bottom Right', 'wc-invoice-payment'),
+                'bottom-left'  => __('↙ Bottom Left', 'wc-invoice-payment'),
+                'top-right'    => __('↗ Top Right', 'wc-invoice-payment'),
+                'top-left'     => __('↖ Top Left', 'wc-invoice-payment'),
+            ),
+            'desc'    => __('Choose where the fee/discount badge appears on the product image.', 'wc-invoice-payment'),
+            'id'      => $slug . 'img_badge_position',
+            'default' => 'bottom-right',
+        );
+
         $settingsFields['sectionEnd'] = array(
             'type' => 'sectionend'
         );

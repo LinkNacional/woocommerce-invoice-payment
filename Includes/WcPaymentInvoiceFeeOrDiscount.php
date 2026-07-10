@@ -5,11 +5,14 @@ use WC_Order;
 
 final class WcPaymentInvoiceFeeOrDiscount
 {
-    private $rendered_products = [];
+    private static $img_badges = [];
 
     public function __construct() {
         add_action('wp_ajax_lkn_wcip_set_default_gateway', array($this, 'ajaxSetDefaultGateway'));
         add_action('wp_ajax_nopriv_lkn_wcip_set_default_gateway', array($this, 'ajaxSetDefaultGateway'));
+        add_action('woocommerce_before_shop_loop_item', array($this, 'collectImageBadgeData'), 5);
+        add_action('woocommerce_before_single_product', array($this, 'collectImageBadgeData'), 5);
+        add_action('wp_footer', array($this, 'outputImageBadgeScript'), 50);
     }
 
     public function ajaxSetDefaultGateway() {
@@ -19,6 +22,153 @@ final class WcPaymentInvoiceFeeOrDiscount
         $gateway = sanitize_text_field(wp_unslash($_POST['gateway']));
         WC()->session->set('chosen_payment_method', $gateway);
         wp_send_json_success();
+    }
+
+    /**
+     * Coleta dados do badge (Taxa/Desconto) para o produto atual.
+     * Usado depois via JS para injetar na imagem.
+     */
+    public function collectImageBadgeData() {
+        global $product;
+
+        if (!$product) return;
+
+        $product_price = (float) $product->get_price();
+        if (!$product_price) return;
+
+        if (!WC()->payment_gateways()) return;
+        $gateways = WC()->payment_gateways()->get_available_payment_gateways();
+        if (empty($gateways)) return;
+
+        $default_gateway = null;
+        if (WC()->session && WC()->session->get('chosen_payment_method')) {
+            $default_gateway = WC()->session->get('chosen_payment_method');
+        }
+
+        $best_type      = null;
+        $best_diff      = 0;
+        $best_gw_value  = 0;
+        $best_gw_percent = false;
+
+        foreach ($gateways as $gateway_id => $gateway) {
+            $active = get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id);
+            $show   = get_option('lkn_wcip_fee_or_discount_show_price_' . $gateway_id);
+            if ($active !== 'yes' || $show !== 'yes') continue;
+
+            $final_price = $this->calculateProductPriceWithFeeOrDiscount($product_price, $gateway_id);
+            if ($final_price == $product_price) continue;
+
+            $type   = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id);
+            $value  = (float) get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id);
+            $mode   = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id);
+            $isPct  = ($mode === 'percent' || $mode === 'percentage');
+
+            $diff = abs($final_price - $product_price);
+            if ($gateway_id === $default_gateway || $diff > $best_diff) {
+                $best_type       = $type;
+                $best_diff       = $diff;
+                $best_gw_value   = $value;
+                $best_gw_percent = $isPct;
+
+                if ($gateway_id === $default_gateway) break;
+            }
+        }
+
+        if (!$best_type) return;
+
+        $type_label = $best_type === 'fee'
+            ? __('Fee', 'wc-invoice-payment')
+            : __('Discount', 'wc-invoice-payment');
+
+        $amount_str = $best_gw_percent
+            ? $best_gw_value . '%'
+            : html_entity_decode(wp_strip_all_tags(wc_price($best_gw_value)));
+
+        $cssClass = ($best_type === 'fee') ? 'badge-fee' : 'badge-discount';
+
+        self::$img_badges[$product->get_id()] = array(
+            'typeLabel' => $type_label,
+            'amount' => $amount_str,
+            'cssClass' => $cssClass,
+        );
+    }
+
+    /**
+     * Injeta JS no footer para colocar os badges nas imagens.
+     */
+    public function outputImageBadgeScript() {
+        if (empty(self::$img_badges)) return;
+
+        $position = get_option('lkn_wcip_img_badge_position', 'bottom-right');
+
+        wp_enqueue_style(
+            'wc-invoice-payment-method-prices',
+            WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-method-prices.css',
+            array(),
+            WC_PAYMENT_INVOICE_VERSION,
+            'all'
+        );
+        ?>
+        <script>
+        (function() {
+            var badges = <?php echo json_encode(self::$img_badges); ?>;
+            var position = <?php echo json_encode($position); ?>;
+            if (!badges || Object.keys(badges).length === 0) return;
+
+            function placeBadge(el, data) {
+                if (!el || el.querySelector('.wc-invoice-img-badge')) return;
+                var badge = document.createElement('span');
+                badge.className = 'wc-invoice-img-badge wc-invoice-img-badge--' + position + ' ' + data.cssClass;
+
+                var labelEl = document.createElement('span');
+                labelEl.className = 'wc-invoice-img-badge-label';
+                labelEl.textContent = data.typeLabel;
+
+                var amountEl = document.createElement('span');
+                amountEl.className = 'wc-invoice-img-badge-amount';
+                amountEl.innerHTML = data.amount;
+
+                badge.appendChild(labelEl);
+                badge.appendChild(amountEl);
+                el.style.position = 'relative';
+                el.appendChild(badge);
+            }
+
+            function findImageContainer(productEl) {
+                // Tenta o link da imagem primeiro (padrão WooCommerce)
+                var imgLink = productEl.querySelector('a.woocommerce-LoopProduct-link, a[href*="/produto/"]');
+                if (imgLink) return imgLink;
+                // Tenta o container da imagem do tema
+                var imgWrap = productEl.querySelector('.product-element-top, .wd-product-thumb, .product-image');
+                if (imgWrap) return imgWrap;
+                // Fallback: primeiro link
+                return productEl.querySelector('a');
+            }
+
+            // ========== Loops de produto ==========
+            document.querySelectorAll('.product.type-product[data-id], li.product[class*="post-"]').forEach(function(el) {
+                var match = el.className.match(/post-(\d+)/);
+                var pid = match ? match[1] : null;
+                if (!pid || !badges[pid]) return;
+
+                var container = findImageContainer(el);
+                if (container) placeBadge(container, badges[pid]);
+            });
+
+            // ========== Página de produto individual ==========
+            var singleProductEl = document.querySelector('.product.type-product, .single-product');
+            if (singleProductEl) {
+                Object.keys(badges).forEach(function(pid) {
+                    var figure = document.querySelector('.woocommerce-product-gallery__image');
+                    if (figure) {
+                        figure.style.overflow = 'visible';
+                        placeBadge(figure, badges[pid]);
+                    }
+                });
+            }
+        })();
+        </script>
+        <?php
     }
 
     public function caclulateCart($cart) {
@@ -58,11 +208,15 @@ final class WcPaymentInvoiceFeeOrDiscount
                 $active = get_option('lkn_wcip_fee_or_discount_method_activated_' . $gateway_id);
                 $type = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id); // 'fee' ou 'discount'
                 $percentOrFixed = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id); // 'percent' ou 'fixed'
-                $value = (float) get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id);
+                $original_value = (float) get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id);
+                $display_value = $original_value;
 
                 if($percentOrFixed == 'percent' || $percentOrFixed == 'percentage'){
                     $cartTotal = (float) WC()->cart->get_subtotal( '' );
-                    $value = ($value / 100) * $cartTotal;
+                    $display_value = ($original_value / 100) * $cartTotal;
+                    $label_amount = $original_value . '%';
+                } else {
+                    $label_amount = wp_strip_all_tags(wc_price($original_value));
                 }
     
                 if ($active === 'yes') {
@@ -72,13 +226,13 @@ final class WcPaymentInvoiceFeeOrDiscount
                     $data[$gateway_id] = [
                         'type' => $type,
                         'mode' => $percentOrFixed,
-                        'value' => $value,
+                        'value' => $display_value,
                         'icon' => $gateway_icon_url,
                         'label' => sprintf(
                             '<span class="wc-invoice-checkout-badge %s">%s %s <img src="%s" class="wc-invoice-checkout-badge-icon" alt=""></span>',
                             $type === 'fee' ? 'checkout-fee' : 'checkout-discount',
                             $type === 'fee' ? __('Fee', 'wc-invoice-payment') : __('Discount', 'wc-invoice-payment'),
-                            wp_strip_all_tags(wc_price($value)),
+                            $label_amount,
                             esc_url($gateway_icon_url)
                         ),
                     ];
@@ -268,16 +422,17 @@ final class WcPaymentInvoiceFeeOrDiscount
         if (is_admin()) {
             return $price_html;
         }
-        
+
+        // Evita reprocessar HTML que já contém nossa marcação
+        if (strpos($price_html, 'wc-invoice-payment-method-prices') !== false
+            || strpos($price_html, 'wc-invoice-original-price') !== false) {
+            return $price_html;
+        }
+
         $pid = $product->get_id();
         $type = $product->get_type();
         $isVar = $product->is_type('variable') ? 'VARIABLE' : ($product->is_type('variation') ? 'VARIATION' : 'SIMPLE');
-        
-        // Evita duplicação: cada produto só é processado uma vez por requisição
-        if (isset($this->rendered_products[$pid])) {
-            return $price_html;
-        }
-        
+
         // Só exibe em páginas de produto individual ou loops de produto
         if (!is_product() && !wc_get_loop_prop('is_shortcode') && !is_shop() && !is_product_category()) {
             return $price_html;
@@ -387,23 +542,67 @@ final class WcPaymentInvoiceFeeOrDiscount
                 }
                 
                 // Monta a informação do preço com o ícone configurado
-                if (!empty($installment_info)) {
-                    $price_info = sprintf(
-                        '%s %s%s no %s',
-                        $gateway_icon,
-                        $installment_info,
-                        $fee_label,
-                        esc_html($gateway_title)
-                    );
+                if (!empty($installment_info) && $isVar === 'VARIABLE') {
+                    // Produto variável com parcelamento: calcula min e max
+                    $min_price = (float) $product->get_variation_price('min');
+                    $max_price = (float) $product->get_variation_price('max');
+                    $min_final = $this->calculateProductPriceWithFeeOrDiscount($min_price, $gateway_id);
+                    $max_final = $this->calculateProductPriceWithFeeOrDiscount($max_price, $gateway_id);
+
+                    $installment_min = false;
+                    $installment_max = false;
+                    if ($gateway_id === 'rede_credit') {
+                        $installment_min = $this->getRedeInstallmentInfo($min_final, $product);
+                        $installment_max = $this->getRedeInstallmentInfo($max_final, $product);
+                    } elseif ($gateway_id === 'lkn_cielo_credit') {
+                        $installment_min = $this->getCieloCreditInstallmentInfo($min_final, $product);
+                        $installment_max = $this->getCieloCreditInstallmentInfo($max_final, $product);
+                    } elseif ($gateway_id === 'lkn_cielo_debit') {
+                        $installment_min = $this->getCieloDebitInstallmentInfo($min_final, $product);
+                        $installment_max = $this->getCieloDebitInstallmentInfo($max_final, $product);
+                    }
+
+                    if ($installment_min && $installment_max) {
+                        // Extrai Nx e valor de cada um: "em até 6x de R$ 5,00" → "6x" e "R$ 5,00"
+                        $min_parts = array();
+                        $max_parts = array();
+                        preg_match('/(\d+x)\s.*?de\s(.+)$/', $installment_min, $min_parts);
+                        preg_match('/(\d+x)\s.*?de\s(.+)$/', $installment_max, $max_parts);
+
+                        if (!empty($min_parts[1]) && !empty($max_parts[1])) {
+                            $price_str = sprintf(
+                                'em até %s – %s de %s – %s',
+                                $min_parts[1],
+                                $max_parts[1],
+                                $min_parts[2],
+                                $max_parts[2]
+                            );
+                        } else {
+                            $price_str = $installment_min . ' – ' . $installment_max;
+                        }
+                    } else {
+                        $price_str = $installment_info;
+                    }
+                } elseif (!empty($installment_info)) {
+                    $price_str = $installment_info;
+                } elseif ($isVar === 'VARIABLE') {
+                    // Produto variável sem parcelamento
+                    $min_price = (float) $product->get_variation_price('min');
+                    $max_price = (float) $product->get_variation_price('max');
+                    $final_min = $this->calculateProductPriceWithFeeOrDiscount($min_price, $gateway_id);
+                    $final_max = $this->calculateProductPriceWithFeeOrDiscount($max_price, $gateway_id);
+                    $price_str = 'a partir de ' . wc_price($final_min) . ' – ' . wc_price($final_max);
                 } else {
-                    $price_info = sprintf(
-                        '%s a partir de %s%s no %s',
-                        $gateway_icon,
-                        wc_price($final_price),
-                        $fee_label,
-                        esc_html($gateway_title)
-                    );
+                    $price_str = 'a partir de ' . wc_price($final_price);
                 }
+
+                $price_info = sprintf(
+                    '%s %s%s no %s',
+                    $gateway_icon,
+                    $price_str,
+                    $fee_label,
+                    esc_html($gateway_title)
+                );
                 
                 
                 $additional_prices[$gateway_id] = sprintf(
@@ -456,7 +655,6 @@ final class WcPaymentInvoiceFeeOrDiscount
 
             // Variações: só aplica corte de preço, sem bloco de cartões
             if ($isVar === 'VARIATION') {
-                $this->rendered_products[$pid] = true;
                 return $price_html;
             }
 
@@ -477,9 +675,11 @@ final class WcPaymentInvoiceFeeOrDiscount
             $price_html .= '<div class="wc-invoice-payment-method-prices">';
             $price_html .= implode('', $ordered);
             $price_html .= '</div>';
+            $price_html .= '<small class="wc-invoice-prices-disclaimer">'
+                . esc_html__('Values may vary depending on the selected installment, shipping, and other fees at checkout.', 'wc-invoice-payment')
+                . '</small>';
         }
 
-        $this->rendered_products[$pid] = true;
         return $price_html;
     }
     
