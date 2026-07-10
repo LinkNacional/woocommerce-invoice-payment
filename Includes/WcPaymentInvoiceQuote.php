@@ -302,6 +302,7 @@ final class WcPaymentInvoiceQuote
                                                        => 'Shipping, taxes, and discounts calculated for the quote.',
             '%s has been added to your cart.'           => '%s has been added to your quote.',
             '"%s" has been added to your cart.'         => '"%s" has been added to your quote.',
+            '"%s" has been added to your cart.'         => '"%s" has been added to your quote.',
         );
 
         if (isset($replacements[$text])) {
