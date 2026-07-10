@@ -5,6 +5,22 @@ use WC_Order;
 
 final class WcPaymentInvoiceFeeOrDiscount
 {
+    private $rendered_products = [];
+
+    public function __construct() {
+        add_action('wp_ajax_lkn_wcip_set_default_gateway', array($this, 'ajaxSetDefaultGateway'));
+        add_action('wp_ajax_nopriv_lkn_wcip_set_default_gateway', array($this, 'ajaxSetDefaultGateway'));
+    }
+
+    public function ajaxSetDefaultGateway() {
+        if (!isset($_POST['gateway'])) {
+            wp_send_json_error();
+        }
+        $gateway = sanitize_text_field(wp_unslash($_POST['gateway']));
+        WC()->session->set('chosen_payment_method', $gateway);
+        wp_send_json_success();
+    }
+
     public function caclulateCart($cart) {
         if(isset(WC()->session->chosen_payment_method)){
             $chosenMethod = WC()->session->chosen_payment_method;
@@ -50,20 +66,32 @@ final class WcPaymentInvoiceFeeOrDiscount
                 }
     
                 if ($active === 'yes') {
+                    $gateway_icon_name = get_option('lkn_wcip_fee_or_discount_icon_' . $gateway_id, 'wallet');
+                    $gateway_icon_url = WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . $gateway_icon_name . '.svg';
+
                     $data[$gateway_id] = [
-                        'type' => $type, // 'fee' ou 'discount'
-                        'mode' => $percentOrFixed, // 'percent' ou 'fixed'
+                        'type' => $type,
+                        'mode' => $percentOrFixed,
                         'value' => $value,
+                        'icon' => $gateway_icon_url,
                         'label' => sprintf(
-                            /* translators: %1$s: Fee or Discount label, %2$s: formatted price value */
-                            __('%1$s of %2$s', 'wc-invoice-payment'),
+                            '<span class="wc-invoice-checkout-badge %s">%s %s <img src="%s" class="wc-invoice-checkout-badge-icon" alt=""></span>',
+                            $type === 'fee' ? 'checkout-fee' : 'checkout-discount',
                             $type === 'fee' ? __('Fee', 'wc-invoice-payment') : __('Discount', 'wc-invoice-payment'),
-                            wc_price($value)
+                            wp_strip_all_tags(wc_price($value)),
+                            esc_url($gateway_icon_url)
                         ),
                     ];
                 }
             }
     
+            wp_enqueue_style(
+                'wc-invoice-payment-method-prices',
+                WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-method-prices.css',
+                array(),
+                WC_PAYMENT_INVOICE_VERSION,
+                'all'
+            );
             wp_enqueue_script(
                 'wcInvoicePaymentFeeOrDiscountScript',
                 WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-fee-or-discount.js',
@@ -157,9 +185,9 @@ final class WcPaymentInvoiceFeeOrDiscount
         $effectiveMax = min($maxParcels, max(1, (int) floor($product_price / $minParcelValue)));
 
         return sprintf(
-            ' em até %dx de %s',
+            'em até %dx de %s',
             $effectiveMax,
-            wp_strip_all_tags(wc_price($product_price / $effectiveMax))
+            wc_price($product_price / $effectiveMax)
         );
     }
 
@@ -222,9 +250,9 @@ final class WcPaymentInvoiceFeeOrDiscount
         $effectiveMax = min($maxParcels, max(1, (int) floor($product_price / $minParcelValue)));
 
         return sprintf(
-            ' em até %dx de %s',
+            'em até %dx de %s',
             $effectiveMax,
-            wp_strip_all_tags(wc_price($product_price / $effectiveMax))
+            wc_price($product_price / $effectiveMax)
         );
     }
 
@@ -238,6 +266,15 @@ final class WcPaymentInvoiceFeeOrDiscount
     public function addPaymentMethodPrices($price_html, $product) {
         // Não exibe na área administrativa (wp-admin)
         if (is_admin()) {
+            return $price_html;
+        }
+        
+        $pid = $product->get_id();
+        $type = $product->get_type();
+        $isVar = $product->is_type('variable') ? 'VARIABLE' : ($product->is_type('variation') ? 'VARIATION' : 'SIMPLE');
+        
+        // Evita duplicação: cada produto só é processado uma vez por requisição
+        if (isset($this->rendered_products[$pid])) {
             return $price_html;
         }
         
@@ -274,6 +311,17 @@ final class WcPaymentInvoiceFeeOrDiscount
             WC_PAYMENT_INVOICE_VERSION,
             'all'
         );
+        wp_enqueue_script(
+            'wc-invoice-method-prices',
+            WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-method-prices.js',
+            array(),
+            WC_PAYMENT_INVOICE_VERSION,
+            true
+        );
+        wp_localize_script('wc-invoice-method-prices', 'wcInvoiceMethodPrices', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'confirmText' => __('Change default payment method to', 'wc-invoice-payment'),
+        ));
         foreach ($gateways as $gateway_id => $gateway) {
             // Verifica se deve mostrar o preço para este método
             $show_price = get_option('lkn_wcip_fee_or_discount_show_price_' . $gateway_id);
@@ -293,7 +341,7 @@ final class WcPaymentInvoiceFeeOrDiscount
                 $gateway_icon_name = get_option('lkn_wcip_fee_or_discount_icon_' . $gateway_id, 'wallet');
                 $gateway_icon_url = WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . $gateway_icon_name . '.svg';
                 $gateway_icon = sprintf(
-                    '<img class="lknWcInvoiceGatewayIcon" src="%s" alt="%s" style="width: 20px; height: 20px; vertical-align: middle; display: inline-block; margin: 0px !important;">',
+                    '<img class="lknWcInvoiceGatewayIcon" src="%s" alt="%s">',
                     esc_url($gateway_icon_url),
                     esc_attr($gateway_icon_name)
                 );
@@ -308,7 +356,7 @@ final class WcPaymentInvoiceFeeOrDiscount
                     $installment_info = $this->getCieloDebitInstallmentInfo($final_price, $product);
                 }
                 
-                // Label de taxa/desconto do invoice plugin
+                // Label de taxa/desconto do invoice plugin (texto puro, sem tags extras)
                 $fee_label = '';
                 if ($final_price != $product_price) {
                     $fee_type   = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id);
@@ -319,62 +367,57 @@ final class WcPaymentInvoiceFeeOrDiscount
                     if ($fee_value > 0) {
                         $amountStr = $isPercent
                             ? $fee_value . '%'
-                            : wc_price($fee_value);
+                            : wp_strip_all_tags(wc_price($fee_value));
                         
                         if ($fee_type === 'fee') {
                             $label = sprintf(
                                 /* translators: %s: fee amount (e.g. "R$ 1,00" or "5%") */
-                                __('Fee of %s', 'wc-invoice-payment'),
+                                __('Fee: %s', 'wc-invoice-payment'),
                                 $amountStr
                             );
                         } else {
                             $label = sprintf(
                                 /* translators: %s: discount amount */
-                                __('Discount of %s', 'wc-invoice-payment'),
+                                __('Discount: %s', 'wc-invoice-payment'),
                                 $amountStr
                             );
                         }
-                        $fee_label = ' <small>(' . $label . ')</small>';
+                        $fee_label = ' <span class="wc-invoice-fee-label">(' . $label . ')</span>';
                     }
                 }
                 
                 // Monta a informação do preço com o ícone configurado
                 if (!empty($installment_info)) {
                     $price_info = sprintf(
-                        '%s%s%s',
+                        '%s %s%s no %s',
                         $gateway_icon,
                         $installment_info,
-                        $fee_label
+                        $fee_label,
+                        esc_html($gateway_title)
                     );
                 } else {
                     $price_info = sprintf(
-                        '%s%s no %s%s',
+                        '%s a partir de %s%s no %s',
                         $gateway_icon,
                         wc_price($final_price),
-                        esc_html($gateway_title),
-                        $fee_label
+                        $fee_label,
+                        esc_html($gateway_title)
                     );
                 }
                 
                 
                 $additional_prices[$gateway_id] = sprintf(
-                    '<span class="wc-invoice-payment-method-price %s"
-                    style="
-                        display: flex;
-                        flex-wrap: wrap;
-                        align-items: center;
-                        gap: 5px;
-                        margin-top: 14px"
-                        margin-bottom: 14px"
-                    >%s</span>',
+                    '<span class="wc-invoice-payment-method-price %s" data-gateway="%s" data-gateway-title="%s">%s</span>',
                     esc_attr($css_class),
+                    esc_attr($gateway_id),
+                    esc_attr($gateway_title),
                     $price_info
                 );
             }
         }
 
         if (!empty($additional_prices)) {
-            // Gateway default (session ou primeiro da lista) vai primeiro e em negrito
+            // Gateway default (session ou primeiro da lista) vai primeiro e com destaque
             $default_gateway = null;
             if (WC()->session && WC()->session->get('chosen_payment_method')) {
                 $default_gateway = WC()->session->get('chosen_payment_method');
@@ -392,34 +435,51 @@ final class WcPaymentInvoiceFeeOrDiscount
                 array_values($gateway_final_prices)
             ))) > 1);
 
-            // Aplica corte (strikethrough) + novo preço no valor principal
-            if ($any_price_changed && $product->is_type('variable')) {
-                $min_price     = (float) $product->get_variation_price('min');
-                $max_price     = (float) $product->get_variation_price('max');
-                $default_min   = $this->calculateProductPriceWithFeeOrDiscount($min_price, $default_gateway);
-                $default_max   = $this->calculateProductPriceWithFeeOrDiscount($max_price, $default_gateway);
+            // Aplica corte (riscado) + novo preço colorido no valor principal
+            if ($any_price_changed && $isVar === 'VARIABLE') {
+                $min_price   = (float) $product->get_variation_price('min');
+                $max_price   = (float) $product->get_variation_price('max');
+                $default_min = $this->calculateProductPriceWithFeeOrDiscount($min_price, $default_gateway);
+                $default_max = $this->calculateProductPriceWithFeeOrDiscount($max_price, $default_gateway);
+                $is_price_up = ($default_min > $min_price || $default_max > $max_price);
 
-                $price_html = '<del style="font-size: 0.8em; opacity: 0.7;">' . $price_html . '</del> ';
-                $price_html .= '<ins style="text-decoration: none;">'
+                $price_html = '<span class="wc-invoice-original-price">' . $price_html . '</span> ';
+                $price_html .= '<span class="wc-invoice-new-price' . ($is_price_up ? ' price-up' : '') . '">'
                     . wc_price($default_min) . ' – ' . wc_price($default_max)
-                    . '</ins>';
+                    . '</span>';
             } elseif ($any_price_changed && $default_final != $product_price) {
-                $price_html = '<del style="font-size: 0.8em; opacity: 0.7;">' . $price_html . '</del> ';
-                $price_html .= '<ins style="text-decoration: none;">' . wc_price($default_final) . '</ins>';
+                $is_price_up = ($default_final > $product_price);
+                $price_html = '<span class="wc-invoice-original-price">' . $price_html . '</span> ';
+                $price_html .= '<span class="wc-invoice-new-price' . ($is_price_up ? ' price-up' : '') . '">'
+                    . wc_price($default_final) . '</span>';
             }
 
+            // Variações: só aplica corte de preço, sem bloco de cartões
+            if ($isVar === 'VARIATION') {
+                $this->rendered_products[$pid] = true;
+                return $price_html;
+            }
+
+            // Mantém a ordem original, só marca o default com .is-default
             $ordered = array();
-            if (isset($additional_prices[$default_gateway])) {
-                $ordered[] = '<strong>' . $additional_prices[$default_gateway] . '</strong>';
-                unset($additional_prices[$default_gateway]);
+            foreach ($additional_prices as $gw_id => $html) {
+                if ($gw_id === $default_gateway) {
+                    $ordered[] = str_replace(
+                        'wc-invoice-payment-method-price ',
+                        'wc-invoice-payment-method-price is-default ',
+                        $html
+                    );
+                } else {
+                    $ordered[] = $html;
+                }
             }
-            $ordered = array_merge($ordered, array_values($additional_prices));
 
-            $price_html .= '<br><div class="wc-invoice-payment-method-prices" style="margin-top: 5px;">';
+            $price_html .= '<div class="wc-invoice-payment-method-prices">';
             $price_html .= implode('', $ordered);
             $price_html .= '</div>';
         }
 
+        $this->rendered_products[$pid] = true;
         return $price_html;
     }
     

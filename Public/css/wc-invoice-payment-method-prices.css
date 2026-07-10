@@ -1,6 +1,153 @@
-.wc-block-product.product.status-publish .wc-invoice-payment-method-prices{ 
+/* ==============================================
+   Invoice Payment — Preços por Método de Pagamento
+   ============================================== */
+
+/* Container principal */
+.wc-invoice-payment-method-prices {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-top: 6px;
+    max-width: 360px;
+    width: 100%;
+}
+
+/* Cada linha de método — secundário (cinza claro) */
+.wc-invoice-payment-method-price {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 2px;
+    justify-content: flex-start;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    line-height: 1.4;
+    max-width: 100%;
+    text-align: left;
+    cursor: pointer;
+    color: #212529;
+    background: #f2f3f5;
+    border: 1px solid #e0e2e5;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Hover nos blocos clicáveis */
+.wc-invoice-payment-method-price:hover:not(.is-default) {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+/* Default não é clicável */
+.wc-invoice-payment-method-price.is-default {
+    cursor: default;
+}
+
+/* Gateway default (selecionado) — verde */
+.wc-invoice-payment-method-price.is-default {
+    color: #1b5e20;
+    background: #e8f5e9;
+    border-color: #a5d6a7;
+}
+
+/* Negrito apenas no valor monetário */
+.wc-invoice-payment-method-price .woocommerce-Price-amount {
+    font-weight: 700 !important;
+}
+
+/* Ícone verde escuro no bloco default */
+.wc-invoice-payment-method-price.is-default .lknWcInvoiceGatewayIcon {
+    filter: brightness(0) saturate(100%) invert(18%) sepia(38%) saturate(1745%) hue-rotate(96deg) brightness(43%) contrast(97%);
+}
+
+/* Label de fee/discount — menor, ao lado do valor */
+.wc-invoice-fee-label {
+    font-size: 0.85em;
+    font-weight: 400;
+}
+.wc-invoice-payment-method-price:not(.is-default),
+.wc-invoice-payment-method-price:not(.is-default) *,
+.wc-invoice-payment-method-price:not(.is-default) .woocommerce-Price-amount,
+.wc-invoice-payment-method-price:not(.is-default) .woocommerce-Price-amount *,
+.wc-invoice-payment-method-price:not(.is-default) .woocommerce-Price-amount bdi,
+.wc-invoice-payment-method-price:not(.is-default) .woocommerce-Price-currencySymbol {
+    color: #212529 !important;
+}
+
+/* Força cor verde nos textos do bloco default */
+.wc-invoice-payment-method-price.is-default,
+.wc-invoice-payment-method-price.is-default *,
+.wc-invoice-payment-method-price.is-default .woocommerce-Price-amount,
+.wc-invoice-payment-method-price.is-default .woocommerce-Price-amount *,
+.wc-invoice-payment-method-price.is-default .woocommerce-Price-amount bdi,
+.wc-invoice-payment-method-price.is-default .woocommerce-Price-currencySymbol {
+    color: #1b5e20 !important;
+}
+
+/* Ícone do gateway — precisa vencer .woocommerce ul.products li.product a img */
+.woocommerce ul.products li.product .wc-invoice-payment-method-price .lknWcInvoiceGatewayIcon,
+.wc-invoice-payment-method-price .lknWcInvoiceGatewayIcon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    display: inline-block;
+    margin: 0 !important;
+    flex-shrink: 0;
+    box-shadow: none;
+}
+
+/* Preço original riscado */
+.wc-invoice-original-price {
+    color: #999;
+    text-decoration: line-through;
+    margin-right: 4px;
+}
+
+/* Novo preço com destaque */
+.wc-invoice-new-price {
+    font-weight: 700;
+    color: #212529;
+    margin-right: 2px;
+}
+
+/* ==============================================
+   Bloco de preço no WooCommerce Blocks
+   ============================================== */
+.wc-block-product.product.status-publish .wc-invoice-payment-method-prices {
+    align-items: flex-start;
+}
+
+/* ==============================================
+   Badge de Taxa/Desconto no Checkout
+   ============================================== */
+.wc-invoice-checkout-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.82em;
+    font-weight: 500;
+    color: #212529;
+    background: #e8f5e9;
+}
+
+.wc-invoice-checkout-badge.checkout-fee {
+    background: #f2f3f5;
+}
+
+.wc-invoice-checkout-badge .wc-invoice-checkout-badge-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* ==============================================
+   Responsivo: telas pequenas
+   ============================================== */
+@media (max-width: 480px) {
+    .wc-invoice-payment-method-price {
+        padding: 3px 6px;
+    }
 }

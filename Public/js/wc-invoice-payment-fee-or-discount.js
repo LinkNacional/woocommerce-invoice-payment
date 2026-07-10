@@ -30,9 +30,10 @@
             }
 
             // Monta o novo conteúdo com flexbox
-            const wrapper = document.createElement('span');
+            const wrapper = document.createElement('div');
             wrapper.style.display = 'flex';
             wrapper.style.justifyContent = 'space-between';
+            wrapper.style.alignItems = 'center';
             wrapper.style.width = '100%';
 
             const nameSpan = document.createElement('span');
