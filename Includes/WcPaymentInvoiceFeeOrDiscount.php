@@ -122,57 +122,44 @@ final class WcPaymentInvoiceFeeOrDiscount
      * @param float $product_price Preço do produto
      * @return string|false String com informação de parcelamento ou false se não houver
      */
-    private function getRedeInstallmentInfo($product_price) {
-        // Busca as configurações do rede_credit (pode variar o nome exato)
+    private function getRedeInstallmentInfo($product_price, $product = null) {
         $settings = get_option('woocommerce_rede_credit_settings', array());
-        
+
         if (empty($settings)) {
-            // Tenta outras variações possíveis do nome das configurações
             $settings = get_option('woocommerce_maxipago_credit_settings', array());
         }
-        
+
         if (empty($settings)) {
             return false;
         }
-        
-        $maxParcels = isset($settings['max_parcels_number']) ? (int)$settings['max_parcels_number'] : 12;
-        $minParcelValue = isset($settings['min_parcels_value']) ? (int)$settings['min_parcels_value'] : 5;
-        
-        if (!$maxParcels || $product_price < $minParcelValue) {
+
+        $globalMaxParcels = isset($settings['max_parcels_number']) ? (int) $settings['max_parcels_number'] : 12;
+        $minParcelValue   = isset($settings['min_parcels_value']) ? (int) $settings['min_parcels_value'] : 5;
+
+        // Limite por produto tem prioridade
+        $maxParcels = $globalMaxParcels;
+        if ($product) {
+            $productLimit = get_post_meta($product->get_id(), 'lknRedeProdutctInterest', true);
+            if ($productLimit !== 'default' && $productLimit !== '' && $productLimit !== false && $productLimit !== null) {
+                $productLimit = (int) $productLimit;
+                if ($productLimit === 0) {
+                    return false; // Produto sem parcelamento
+                }
+                $maxParcels = $productLimit;
+            }
+        }
+
+        if ( ! $maxParcels || $product_price < $minParcelValue) {
             return false;
         }
-        
-        $maxInstallmentWithoutInterest = 1;
-        
-        // Procura a maior parcela sem juros
-        for ($i = 1; $i <= $maxParcels; $i++) {
-            $parcelAmount = $product_price / $i;
-            
-            // Verifica se a parcela atende ao valor mínimo
-            if ($parcelAmount < $minParcelValue && $i > 1) {
-                break;
-            }
-            
-            // Verifica se existe configuração de juros para esta parcela
-            $interestKey = $i . 'x';
-            if (isset($settings[$interestKey])) {
-                $interest = (float) $settings[$interestKey];
-                
-                // Se tem juros > 0, para na parcela anterior
-                if ($interest > 0) {
-                    break;
-                }
-            }
-            
-            $maxInstallmentWithoutInterest = $i;
-        }
-        
-        $installmentValue = $product_price / $maxInstallmentWithoutInterest;
-        
+
+        // Respeita valor mínimo da parcela
+        $effectiveMax = min($maxParcels, max(1, (int) floor($product_price / $minParcelValue)));
+
         return sprintf(
-            ' em até %dx de %s sem juros',
-            $maxInstallmentWithoutInterest,
-            wp_strip_all_tags(wc_price($installmentValue))
+            ' em até %dx de %s',
+            $effectiveMax,
+            wp_strip_all_tags(wc_price($product_price / $effectiveMax))
         );
     }
 
@@ -182,131 +169,62 @@ final class WcPaymentInvoiceFeeOrDiscount
      * @param float $product_price Preço do produto
      * @return string|false String com informação de parcelamento ou false se não houver
      */
-    private function getCieloCreditInstallmentInfo($product_price) {
-        // Busca as configurações do lkn_cielo_credit
+    private function getCieloCreditInstallmentInfo($product_price, $product = null) {
         $settings = get_option('woocommerce_lkn_cielo_credit_settings', array());
-        
+
         if (empty($settings)) {
             return false;
         }
-        
-        // Verifica se o parcelamento está ativo
-        $installmentActive = isset($settings['installment_payment']) ? $settings['installment_payment'] : 'no';
-        if ($installmentActive !== 'yes') {
-            return false;
-        }
-        
-        $maxParcels = isset($settings['installment_limit']) ? (int)$settings['installment_limit'] : 12;
-        $minParcelValue = isset($settings['installment_min']) ? (float)str_replace(',', '.', $settings['installment_min']) : 5.0;
-        
-        if (!$maxParcels || $product_price < $minParcelValue) {
-            return false;
-        }
-        
-        $maxInstallmentWithoutInterest = 1;
-        $interestOrDiscount = isset($settings['interest_or_discount']) ? $settings['interest_or_discount'] : 'no_interest';
-        
-        // Procura a maior parcela sem juros
-        for ($i = 1; $i <= $maxParcels; $i++) {
-            $parcelAmount = $product_price / $i;
-            
-            // Verifica se a parcela atende ao valor mínimo
-            if ($parcelAmount < $minParcelValue && $i > 1) {
-                break;
-            }
-            
-            // Verifica se existe configuração de juros para esta parcela
-            if ($interestOrDiscount === 'interest') {
-                $interestKey = $i . 'x';
-                if (isset($settings[$interestKey])) {
-                    $interest = (float) $settings[$interestKey];
-                    
-                    // Se tem juros > 0, para na parcela anterior
-                    if ($interest > 0) {
-                        break;
-                    }
-                }
-            }
-            
-            $maxInstallmentWithoutInterest = $i;
-        }
-        
-        $installmentValue = $product_price / $maxInstallmentWithoutInterest;
-        
-        return sprintf(
-            ' em até %dx de %s sem juros',
-            $maxInstallmentWithoutInterest,
-            wp_strip_all_tags(wc_price($installmentValue))
-        );
+
+        return $this->getCieloInstallmentInfoCommon($product_price, $settings, $product);
     }
 
-    /**
-     * Obtém informações de parcelamento para o gateway Cielo Debit (quando tem opção de crédito)
-     *
-     * @param float $product_price Preço do produto
-     * @return string|false String com informação de parcelamento ou false se não houver
-     */
-    private function getCieloDebitInstallmentInfo($product_price) {
-        // Busca as configurações do lkn_cielo_debit
+    private function getCieloDebitInstallmentInfo($product_price, $product = null) {
         $settings = get_option('woocommerce_lkn_cielo_debit_settings', array());
 
         if (empty($settings)) {
             return false;
         }
-        
-        // Verifica se o parcelamento está ativo (Cielo Debit pode ter opção de crédito)
+
+        return $this->getCieloInstallmentInfoCommon($product_price, $settings, $product);
+    }
+
+    /**
+     * Lógica comum de parcelamento para os gateways Cielo (Credit e Debit).
+     */
+    private function getCieloInstallmentInfoCommon($product_price, $settings, $product = null) {
         $installmentActive = isset($settings['installment_payment']) ? $settings['installment_payment'] : 'no';
         if ($installmentActive !== 'yes') {
             return false;
         }
-        
-        $maxParcels = isset($settings['installment_limit']) ? (int)$settings['installment_limit'] : 12;
-        $minParcelValue = isset($settings['installment_min']) ? (float)str_replace(',', '.', $settings['installment_min']) : 5.0;
-        
-        if (!$maxParcels || $product_price < $minParcelValue) {
+
+        $globalMaxParcels = isset($settings['installment_limit']) ? (int) $settings['installment_limit'] : 12;
+        $minParcelValue   = isset($settings['installment_min']) ? (float) str_replace(',', '.', $settings['installment_min']) : 5.0;
+
+        // Limite por produto tem prioridade
+        $maxParcels = $globalMaxParcels;
+        if ($product) {
+            $productLimit = get_post_meta($product->get_id(), 'lknCieloApiProProdutctInterest', true);
+            if ($productLimit !== 'default' && $productLimit !== '' && $productLimit !== false && $productLimit !== null) {
+                $productLimit = (int) $productLimit;
+                if ($productLimit === 0) {
+                    return false; // Produto sem parcelamento
+                }
+                $maxParcels = $productLimit;
+            }
+        }
+
+        if ( ! $maxParcels || $product_price < $minParcelValue) {
             return false;
         }
-        
-        $maxInstallmentWithoutInterest = 1;
-        $interestOrDiscount = isset($settings['interest_or_discount']) ? $settings['interest_or_discount'] : 'no_interest';
-        
-        // Procura a maior parcela sem juros
-        for ($i = 1; $i <= $maxParcels; $i++) {
-            $parcelAmount = $product_price / $i;
-            
-            // Verifica se a parcela atende ao valor mínimo
-            if ($parcelAmount < $minParcelValue && $i > 1) {
-                break;
-            }
-            
-            // Se não há configuração de juros/desconto, todas as parcelas são sem juros
-            if ($interestOrDiscount === 'no_interest') {
-                $maxInstallmentWithoutInterest = $i;
-                continue;
-            }
-            
-            // Verifica se existe configuração de juros para esta parcela
-            if ($interestOrDiscount === 'interest') {
-                $interestKey = $i . 'x';
-                if (isset($settings[$interestKey])) {
-                    $interest = (float) $settings[$interestKey];
-                     
-                    // Se tem juros > 0, para na parcela anterior
-                    if ($interest > 0) {
-                        break;
-                    }
-                }
-            }
-            
-            $maxInstallmentWithoutInterest = $i;
-        }
-        
-        $installmentValue = $product_price / $maxInstallmentWithoutInterest;
-        
+
+        // Respeita valor mínimo da parcela
+        $effectiveMax = min($maxParcels, max(1, (int) floor($product_price / $minParcelValue)));
+
         return sprintf(
-            ' em até %dx de %s sem juros',
-            $maxInstallmentWithoutInterest,
-            wp_strip_all_tags(wc_price($installmentValue))
+            ' em até %dx de %s',
+            $effectiveMax,
+            wp_strip_all_tags(wc_price($product_price / $effectiveMax))
         );
     }
 
@@ -348,6 +266,7 @@ final class WcPaymentInvoiceFeeOrDiscount
         }
         
         $additional_prices = [];
+        $gateway_final_prices = []; // guarda o preço calculado de cada gateway
         wp_enqueue_style(
             'wc-invoice-payment-method-prices',
             WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-method-prices.css',
@@ -361,6 +280,7 @@ final class WcPaymentInvoiceFeeOrDiscount
             
             if ($show_price === 'yes') {
                 $final_price = $this->calculateProductPriceWithFeeOrDiscount($product_price, $gateway_id);
+                $gateway_final_prices[$gateway_id] = $final_price;
                 $type = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id);
 
                 // Só adiciona se o preço for diferente do original
@@ -373,7 +293,7 @@ final class WcPaymentInvoiceFeeOrDiscount
                 $gateway_icon_name = get_option('lkn_wcip_fee_or_discount_icon_' . $gateway_id, 'wallet');
                 $gateway_icon_url = WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . $gateway_icon_name . '.svg';
                 $gateway_icon = sprintf(
-                    '<img class="lknWcInvoiceGatewayIcon" src="%s" alt="%s" style="width: 20px; height: 20px; vertical-align: middle; display: inline-block;">',
+                    '<img class="lknWcInvoiceGatewayIcon" src="%s" alt="%s" style="width: 20px; height: 20px; vertical-align: middle; display: inline-block; margin: 0px !important;">',
                     esc_url($gateway_icon_url),
                     esc_attr($gateway_icon_name)
                 );
@@ -381,37 +301,71 @@ final class WcPaymentInvoiceFeeOrDiscount
                 // Verifica se há informações de parcelamento para gateways específicos
                 $installment_info = '';
                 if ($gateway_id === 'rede_credit') {
-                    $installment_info = $this->getRedeInstallmentInfo($final_price);
+                    $installment_info = $this->getRedeInstallmentInfo($final_price, $product);
                 } elseif ($gateway_id === 'lkn_cielo_credit') {
-                    $installment_info = $this->getCieloCreditInstallmentInfo($final_price);
+                    $installment_info = $this->getCieloCreditInstallmentInfo($final_price, $product);
                 } elseif ($gateway_id === 'lkn_cielo_debit') {
-                    $installment_info = $this->getCieloDebitInstallmentInfo($final_price);
+                    $installment_info = $this->getCieloDebitInstallmentInfo($final_price, $product);
+                }
+                
+                // Label de taxa/desconto do invoice plugin
+                $fee_label = '';
+                if ($final_price != $product_price) {
+                    $fee_type   = get_option('lkn_wcip_fee_or_discount_type_' . $gateway_id);
+                    $fee_value  = (float) get_option('lkn_wcip_fee_or_discount_value_' . $gateway_id);
+                    $fee_mode   = get_option('lkn_wcip_fee_or_discount_percent_fixed_' . $gateway_id);
+                    $isPercent  = ($fee_mode === 'percent' || $fee_mode === 'percentage');
+                    
+                    if ($fee_value > 0) {
+                        $amountStr = $isPercent
+                            ? $fee_value . '%'
+                            : wc_price($fee_value);
+                        
+                        if ($fee_type === 'fee') {
+                            $label = sprintf(
+                                /* translators: %s: fee amount (e.g. "R$ 1,00" or "5%") */
+                                __('Fee of %s', 'wc-invoice-payment'),
+                                $amountStr
+                            );
+                        } else {
+                            $label = sprintf(
+                                /* translators: %s: discount amount */
+                                __('Discount of %s', 'wc-invoice-payment'),
+                                $amountStr
+                            );
+                        }
+                        $fee_label = ' <small>(' . $label . ')</small>';
+                    }
                 }
                 
                 // Monta a informação do preço com o ícone configurado
                 if (!empty($installment_info)) {
                     $price_info = sprintf(
-                        '%s%s',
+                        '%s%s%s',
                         $gateway_icon,
-                        $installment_info
+                        $installment_info,
+                        $fee_label
                     );
                 } else {
                     $price_info = sprintf(
-                        '%s%s no %s',
+                        '%s%s no %s%s',
                         $gateway_icon,
                         wc_price($final_price),
-                        esc_html($gateway_title)
+                        esc_html($gateway_title),
+                        $fee_label
                     );
                 }
                 
                 
-                $additional_prices[] = sprintf(
-                    '<span id="lknWcInvoicePriceMethodsSpan"
-                    class="wc-invoice-payment-method-price %s"
+                $additional_prices[$gateway_id] = sprintf(
+                    '<span class="wc-invoice-payment-method-price %s"
                     style="
                         display: flex;
+                        flex-wrap: wrap;
                         align-items: center;
-                        gap: 5px;"
+                        gap: 5px;
+                        margin-top: 14px"
+                        margin-bottom: 14px"
                     >%s</span>',
                     esc_attr($css_class),
                     $price_info
@@ -420,8 +374,49 @@ final class WcPaymentInvoiceFeeOrDiscount
         }
 
         if (!empty($additional_prices)) {
-            $price_html .= '<br><div id="lknWcInvoicePriceMethodsDiv" class="wc-invoice-payment-method-prices" style="margin-top: 5px;">';
-            $price_html .= implode('', $additional_prices);
+            // Gateway default (session ou primeiro da lista) vai primeiro e em negrito
+            $default_gateway = null;
+            if (WC()->session && WC()->session->get('chosen_payment_method')) {
+                $default_gateway = WC()->session->get('chosen_payment_method');
+            }
+            if (!$default_gateway || !isset($additional_prices[$default_gateway])) {
+                $default_gateway = array_key_first($additional_prices);
+            }
+
+            // Preço do gateway default para exibir como "novo preço" com corte no original
+            $default_final = isset($gateway_final_prices[$default_gateway])
+                ? $gateway_final_prices[$default_gateway]
+                : $product_price;
+            $any_price_changed = (count(array_unique(array_merge(
+                array($product_price),
+                array_values($gateway_final_prices)
+            ))) > 1);
+
+            // Aplica corte (strikethrough) + novo preço no valor principal
+            if ($any_price_changed && $product->is_type('variable')) {
+                $min_price     = (float) $product->get_variation_price('min');
+                $max_price     = (float) $product->get_variation_price('max');
+                $default_min   = $this->calculateProductPriceWithFeeOrDiscount($min_price, $default_gateway);
+                $default_max   = $this->calculateProductPriceWithFeeOrDiscount($max_price, $default_gateway);
+
+                $price_html = '<del style="font-size: 0.8em; opacity: 0.7;">' . $price_html . '</del> ';
+                $price_html .= '<ins style="text-decoration: none;">'
+                    . wc_price($default_min) . ' – ' . wc_price($default_max)
+                    . '</ins>';
+            } elseif ($any_price_changed && $default_final != $product_price) {
+                $price_html = '<del style="font-size: 0.8em; opacity: 0.7;">' . $price_html . '</del> ';
+                $price_html .= '<ins style="text-decoration: none;">' . wc_price($default_final) . '</ins>';
+            }
+
+            $ordered = array();
+            if (isset($additional_prices[$default_gateway])) {
+                $ordered[] = '<strong>' . $additional_prices[$default_gateway] . '</strong>';
+                unset($additional_prices[$default_gateway]);
+            }
+            $ordered = array_merge($ordered, array_values($additional_prices));
+
+            $price_html .= '<br><div class="wc-invoice-payment-method-prices" style="margin-top: 5px;">';
+            $price_html .= implode('', $ordered);
             $price_html .= '</div>';
         }
 

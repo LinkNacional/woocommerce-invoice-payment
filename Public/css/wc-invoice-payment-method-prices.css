@@ -1,4 +1,4 @@
-.wc-block-product.product.status-publish #lknWcInvoicePriceMethodsDiv{ 
+.wc-block-product.product.status-publish .wc-invoice-payment-method-prices{ 
     display: flex;
     flex-direction: column;
     align-items: center;
