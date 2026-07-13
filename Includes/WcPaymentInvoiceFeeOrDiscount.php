@@ -99,6 +99,9 @@ final class WcPaymentInvoiceFeeOrDiscount
     public function outputImageBadgeScript() {
         if (empty(self::$img_badges)) return;
 
+        $badge_enabled = get_option('lkn_wcip_img_badge_enabled', 'no');
+        if ($badge_enabled !== 'yes') return;
+
         $position = get_option('lkn_wcip_img_badge_position', 'bottom-right');
 
         wp_enqueue_style(

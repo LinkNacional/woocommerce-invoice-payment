@@ -220,11 +220,11 @@
 
             // Vincula os eventos para controlar o checkbox oculto
             radioYesInput.addEventListener('change', () => {
-              if (radioYesInput.checked) input.checked = true
+              if (radioYesInput.checked) { input.checked = true; input.dispatchEvent(new Event('change')) }
             })
 
             radioNoInput.addEventListener('change', () => {
-              if (radioNoInput.checked) input.checked = false
+              if (radioNoInput.checked) { input.checked = false; input.dispatchEvent(new Event('change')) }
             })
 
             // Adiciona os radios
@@ -351,11 +351,11 @@
 
             // Vincula os eventos para controlar o checkbox oculto
             radioYesInput.addEventListener('change', () => {
-              if (radioYesInput.checked) input.checked = true
+              if (radioYesInput.checked) { input.checked = true; input.dispatchEvent(new Event('change')) }
             })
 
             radioNoInput.addEventListener('change', () => {
-              if (radioNoInput.checked) input.checked = false
+              if (radioNoInput.checked) { input.checked = false; input.dispatchEvent(new Event('change')) }
             })
 
             // Adiciona os radios
@@ -452,6 +452,42 @@
       
       previewDiv.html('<img src="' + iconUrl + '" alt="' + selectedIcon + '" style="width: 24px; height: 24px;" />');
     });
+
+    // Toggle readonly no campo de posição do badge conforme o checkbox "Show badge"
+    (function() {
+      const $badgeEnabledCb = $('[name="lkn_wcip_img_badge_enabled"]');
+      const $badgePositionSelect = $('[name="lkn_wcip_img_badge_position"]');
+
+      if (!$badgeEnabledCb.length || !$badgePositionSelect.length) return;
+
+      function updateBadgePositionState() {
+        const isEnabled = $badgeEnabledCb.is(':checked');
+        const $select2Container = $badgePositionSelect.siblings('.select2-container');
+
+        if (isEnabled) {
+          $badgePositionSelect.prop('readonly', false);
+          $badgePositionSelect.removeClass('lkn-readonly');
+          $select2Container.removeClass('lkn-readonly');
+        } else {
+          $badgePositionSelect.prop('readonly', true);
+          $badgePositionSelect.addClass('lkn-readonly');
+          $select2Container.addClass('lkn-readonly');
+        }
+      }
+
+      // Bloqueia abertura do select2 quando readonly
+      $badgePositionSelect.on('select2:opening', function(e) {
+        if ($badgePositionSelect.prop('readonly')) {
+          e.preventDefault();
+        }
+      });
+
+      // Inicializa
+      updateBadgePositionState();
+
+      // Escuta mudanças no checkbox oculto (acionado pelos radios Habilitar/Desabilitar)
+      $badgeEnabledCb.on('change', updateBadgePositionState);
+    })();
     
   })
 })(jQuery)

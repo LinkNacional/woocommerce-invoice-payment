@@ -277,6 +277,50 @@ final class WcPaymentInvoiceSettings
         <?php
     }
 
+    public function render_img_badge_config_field()
+    {
+        $slug = 'lkn_wcip_';
+        $enabled = get_option($slug . 'img_badge_enabled', 'no');
+        $position = get_option($slug . 'img_badge_position', 'bottom-right');
+        ?>
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label><?php echo esc_html(__('Badge on product image', 'wc-invoice-payment')); ?></label>
+            </th>
+            <td class="forminp">
+                <fieldset data-section-title="<?php echo esc_attr(__('Badge on product image', 'wc-invoice-payment')); ?>">
+                    <legend class="screen-reader-text">
+                        <span><?php echo esc_html(__('Badge on product image', 'wc-invoice-payment')); ?></span>
+                    </legend>
+
+                    <div style="display: flex;gap: 15px;align-items: flex-start;flex-wrap: wrap;flex-direction: column;">
+                        <!-- Checkbox para habilitar/desabilitar -->
+                        <div>
+                            <input type="checkbox" name="<?php echo esc_attr($slug . 'img_badge_enabled'); ?>" id="<?php echo esc_attr($slug . 'img_badge_enabled'); ?>" value="yes" <?php checked($enabled, 'yes'); ?> />
+                            <label for="<?php echo esc_attr($slug . 'img_badge_enabled'); ?>"><?php echo esc_html(__('Show badge on product image', 'wc-invoice-payment')); ?></label>
+                            <p class="description"><?php echo esc_html(__('Display a fee/discount badge on the product image in the shop and product pages.', 'wc-invoice-payment')); ?></p>
+                        </div>
+
+                        <!-- Posição do badge -->
+                        <div>
+                            <label for="<?php echo esc_attr($slug . 'img_badge_position'); ?>"><?php echo esc_html(__('Badge position', 'wc-invoice-payment')); ?></label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <select name="<?php echo esc_attr($slug . 'img_badge_position'); ?>" id="<?php echo esc_attr($slug . 'img_badge_position'); ?>" class="wc-enhanced-select">
+                                    <option value="bottom-right" <?php selected($position, 'bottom-right'); ?>><?php echo esc_html(__('↘ Bottom Right', 'wc-invoice-payment')); ?></option>
+                                    <option value="bottom-left"  <?php selected($position, 'bottom-left'); ?>><?php echo esc_html(__('↙ Bottom Left', 'wc-invoice-payment')); ?></option>
+                                    <option value="top-right"    <?php selected($position, 'top-right'); ?>><?php echo esc_html(__('↗ Top Right', 'wc-invoice-payment')); ?></option>
+                                    <option value="top-left"     <?php selected($position, 'top-left'); ?>><?php echo esc_html(__('↖ Top Left', 'wc-invoice-payment')); ?></option>
+                                </select>
+                            </div>
+                            <p class="description"><?php echo esc_html(__('Choose where the fee/discount badge appears on the product image.', 'wc-invoice-payment')); ?></p>
+                        </div>
+                    </div>
+                </fieldset>
+            </td>
+        </tr>
+        <?php
+    }
+
     public function render_partial_payment_gateway_config_field($value)
     {
         $gateway_id = $value['gateway_id'];
@@ -711,18 +755,11 @@ final class WcPaymentInvoiceSettings
             );
         }
 
-        $settingsFields[$slug . 'img_badge_position'] = array(
-            'name'    => __('Badge position', 'wc-invoice-payment'),
-            'type'    => 'select',
-            'options' => array(
-                'bottom-right' => __('↘ Bottom Right', 'wc-invoice-payment'),
-                'bottom-left'  => __('↙ Bottom Left', 'wc-invoice-payment'),
-                'top-right'    => __('↗ Top Right', 'wc-invoice-payment'),
-                'top-left'     => __('↖ Top Left', 'wc-invoice-payment'),
-            ),
-            'desc'    => __('Choose where the fee/discount badge appears on the product image.', 'wc-invoice-payment'),
-            'id'      => $slug . 'img_badge_position',
-            'default' => 'bottom-right',
+        $settingsFields[$slug . 'img_badge_config'] = array(
+            'name'     => __('Badge on product image', 'wc-invoice-payment'),
+            'type'     => 'lkn_img_badge_config',
+            'desc'     => __('Display a fee/discount badge on the product image in the shop and product pages.', 'wc-invoice-payment'),
+            'id'       => $slug . 'img_badge_config',
         );
 
         $settingsFields['sectionEnd'] = array(
@@ -1136,5 +1173,6 @@ final class WcPaymentInvoiceSettings
         add_action('woocommerce_admin_field_lkn_wp_editor', array($this, 'render_wp_editor_field'));
         add_action('woocommerce_admin_field_lkn_payment_gateway_config', array($this, 'render_payment_gateway_config_field'));
         add_action('woocommerce_admin_field_lkn_partial_payment_gateway_config', array($this, 'render_partial_payment_gateway_config_field'));
+        add_action('woocommerce_admin_field_lkn_img_badge_config', array($this, 'render_img_badge_config_field'));
     }
 }
