@@ -1458,13 +1458,17 @@ final class LknWcipListTable {
         $invoice = wc_get_order($invoiceId);
         
         $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $orderId);
-        $paymentUrl = $order->get_checkout_payment_url();
+        $paymentUrl = ($order->get_meta('_wc_lkn_is_partial_order') === 'yes')
+            ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($orderId)
+            : $order->get_checkout_payment_url();
 
         if($order->get_meta('lkn_is_subscription')) {
             $editUrl = home_url('wp-admin/admin.php?page=edit-subscription&invoice=' . $orderId);
             //Evita erros caso a primeira fatura ainda não foi gerada
             if($invoice) {
-                $paymentUrl = $invoice->get_checkout_payment_url();
+                $paymentUrl = ($invoice->get_meta('_wc_lkn_is_partial_order') === 'yes')
+                    ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($invoiceId)
+                    : $invoice->get_checkout_payment_url();
                 $orderId = $invoiceId;
             }
         }

@@ -919,7 +919,9 @@ final class WcPaymentInvoiceAdmin
             $subscription_id = $order->get_meta('lkn_subscription_id');
         }
         $items = $order->get_items();
-        $checkoutUrl = $order->get_checkout_payment_url();
+        $checkoutUrl = ($order->get_meta('_wc_lkn_is_partial_order') === 'yes')
+            ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($order->get_id())
+            : $order->get_checkout_payment_url();
         $orderStatus = $order->get_status();
 
         $invoice_template = $order->get_meta('wcip_select_invoice_template_id') ?? get_option('lkn_wcip_global_pdf_template_id', 'global');
@@ -1625,7 +1627,9 @@ final class WcPaymentInvoiceAdmin
         $orders = wc_get_orders($args);
 
         $items = $order->get_items();
-        $checkoutUrl = $order->get_checkout_payment_url();
+        $checkoutUrl = ($order->get_meta('_wc_lkn_is_partial_order') === 'yes')
+            ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($order->get_id())
+            : $order->get_checkout_payment_url();
         $orderStatus = $order->get_status();
 
         $invoice_template = $order->get_meta('wcip_select_invoice_template_id') ?? get_option('lkn_wcip_global_pdf_template_id', 'global');
@@ -4192,9 +4196,13 @@ final class WcPaymentInvoiceAdmin
         $quoteInvoiceId = $order->get_meta('_wc_lkn_invoice_id');
         $quoteInvoice = wc_get_order($quoteInvoiceId);
         if($quoteInvoice) {
-            $quoteCheckoutUrl = $quoteInvoice->get_checkout_payment_url();
+            $quoteCheckoutUrl = ($quoteInvoice->get_meta('_wc_lkn_is_partial_order') === 'yes')
+                ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($quoteInvoice->get_id())
+                : $quoteInvoice->get_checkout_payment_url();
         }
-        $checkoutUrl = $order->get_checkout_payment_url();
+        $checkoutUrl = ($order->get_meta('_wc_lkn_is_partial_order') === 'yes')
+            ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($order->get_id())
+            : $order->get_checkout_payment_url();
         $orderStatus = 'wc-' . $order->get_status();
 
         $invoice_template = $order->get_meta('wcip_select_invoice_template_id') ?? get_option('lkn_wcip_global_pdf_template_id', 'global');

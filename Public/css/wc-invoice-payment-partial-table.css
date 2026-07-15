@@ -50,6 +50,20 @@
 
 .wcPaymentInvoiceCenter{
     text-align: center !important;
+    white-space: nowrap;
+}
+
+.wcPaymentInvoiceTable td{
+    white-space: nowrap;
+}
+
+.wcPaymentInvoiceTable th{
+    white-space: nowrap;
+    min-width: 60px;
+}
+
+.wcPaymentThActions{
+    min-width: 140px;
 }
 
 .wcPaymentInvoicePartialTableAdmin thead tr th{

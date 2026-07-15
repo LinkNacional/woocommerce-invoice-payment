@@ -481,8 +481,6 @@ final class WcPaymentInvoice {
         $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_cart_total', $this->WcPaymentInvoicePartialClass, 'ajaxGetCartTotal');
         $this->loader->add_action( 'wp_ajax_lkn_wcip_create_partial', $this->WcPaymentInvoicePartialClass, 'ajaxCreatePartialPayment');
         $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_create_partial', $this->WcPaymentInvoicePartialClass, 'ajaxCreatePartialPayment');
-        $this->loader->add_action( 'wp_ajax_lkn_wcip_refresh_order_review', $this->WcPaymentInvoicePartialClass, 'ajaxRefreshOrderReview');
-        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_refresh_order_review', $this->WcPaymentInvoicePartialClass, 'ajaxRefreshOrderReview');
 
         // Split de pagamento no checkout (ordem única)
         $this->loader->add_action( 'wp_ajax_lkn_wcip_set_partial_split', $this->WcPaymentInvoicePartialClass, 'ajaxSetPartialSplit');
@@ -499,9 +497,10 @@ final class WcPaymentInvoice {
         // Thank-you page: exibe card com saldo restante
         $this->loader->add_action( 'woocommerce_thankyou', $this->WcPaymentInvoicePartialClass, 'displayPartialRemainingOnThankyou', 5, 1);
         $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'markPartialOrderSession');
-        $this->loader->add_filter( 'lkn_wcip_partial_cart_total', $this->WcPaymentInvoicePartialClass, 'overridePartialTotalForGateways');
+        $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'handleResumePartialFromMyAccount');
         $this->loader->add_filter( 'woocommerce_package_rates', $this->WcPaymentInvoicePartialClass, 'filterShippingForPartialRemaining', 9999);
         $this->loader->add_action( 'woocommerce_before_checkout_form', $this->WcPaymentInvoicePartialClass, 'addLockedShippingNotice');
+        $this->loader->add_filter( 'woocommerce_my_account_my_orders_actions', $this->WcPaymentInvoicePartialClass, 'addPartialActions', 10, 2);
         $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart', 999);
         $this->loader->add_action('woocommerce_cart_calculate_fees', $this->WcPaymentInvoicePartialClass, 'applyPartialSplitFee', 1);
@@ -510,6 +509,12 @@ final class WcPaymentInvoice {
 
         // Registra namespace para extensionCartUpdate (acorda gateways após split)
         $this->loader->add_action('woocommerce_init', $this->WcPaymentInvoicePartialClass, 'registerPartialSplitExtensionCallback');
+        
+        // Coluna "P. parcial" na listagem de pedidos (HPOS + clássico)
+        $this->loader->add_filter('manage_edit-shop_order_columns', $this->WcPaymentInvoicePartialClass, 'addPartialColumn');
+        $this->loader->add_filter('manage_woocommerce_page_wc-orders_columns', $this->WcPaymentInvoicePartialClass, 'addPartialColumn');
+        $this->loader->add_action('manage_shop_order_posts_custom_column', $this->WcPaymentInvoicePartialClass, 'renderPartialColumnClassic', 10, 2);
+        $this->loader->add_action('manage_woocommerce_page_wc-orders_custom_column', $this->WcPaymentInvoicePartialClass, 'renderPartialColumnClassic', 10, 2);
         
         // Adiciona preços com fee/discount nas páginas de produto
         $this->loader->add_filter('woocommerce_get_price_html', $feeOrDiscountClass, 'addPaymentMethodPrices', 10, 2);

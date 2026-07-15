@@ -78,13 +78,20 @@ final class WcPaymentInvoiceEndpoint {
 
         $params = $request->get_params();
         $partial_order_id = isset($params['partialOrderId']) ? intval($params['partialOrderId']) : 0;
+        $order_id         = isset($params['orderId']) ? intval($params['orderId']) : 0;
+        $target_id        = $partial_order_id ?: $order_id;
 
-        if (!$partial_order_id) {
+        if (!$target_id) {
             return new \WP_Error('invalid_order_id', 'ID da ordem parcial é obrigatório', array('status' => 400));
         }
 
-        $partial_order = wc_get_order($partial_order_id);
-        if (!$partial_order || $partial_order->get_meta('_wc_lkn_is_partial_order') !== 'yes') {
+        $partial_order = wc_get_order($target_id);
+        if (!$partial_order) {
+            return new \WP_Error('invalid_partial_order', 'Ordem não encontrada', array('status' => 404));
+        }
+        // Aceita tanto partial order antigo quanto ordem com pendência de retomada
+        if ($partial_order->get_meta('_wc_lkn_is_partial_order') !== 'yes'
+            && $partial_order->get_meta('_wc_lkn_pay_remaining_pending') !== 'yes') {
             return new \WP_Error('invalid_partial_order', 'Ordem parcial não encontrada ou inválida', array('status' => 404));
         }
 
@@ -214,6 +221,51 @@ final class WcPaymentInvoiceEndpoint {
     }
 
     /**
+     * Redireciona pro checkout SEM criar ordem intermediária.
+     * O próprio checkout vai criar a ordem filha.
+     */
+    private function redirectToCheckoutForRemaining($parent_order_id, $partial_amount) {
+        if (!WC()->cart) wc_load_cart();
+        WC()->cart->empty_cart();
+
+        $parent_order = wc_get_order($parent_order_id);
+        if ($parent_order) {
+            foreach ($parent_order->get_items() as $item) {
+                $product_id   = $item->get_product_id();
+                $variation_id = $item->get_variation_id();
+                $quantity     = $item->get_quantity();
+                if ($product_id) {
+                    WC()->cart->add_to_cart($product_id, $quantity, $variation_id);
+                }
+            }
+            // Copia cupons
+            foreach ($parent_order->get_coupon_codes() as $code) {
+                WC()->cart->apply_coupon($code);
+            }
+        }
+
+        WC()->session->set('lkn_partial_amount', $partial_amount);
+        WC()->session->set('lkn_partial_parent_order_id', $parent_order_id);
+        // lkn_partial_order_id = 0 → o checkout vai criar o filho
+
+        $this->saveShippingToSession($parent_order_id);
+
+        // Marca o pai como "pagamento pendente" pra exibir no checkout
+        $parent_order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
+        $parent_order->save();
+        error_log("[PayRemaining] SET flag on order #$parent_order_id — customer redirected to checkout");
+
+        WC()->cart->calculate_totals();
+
+        $checkout_url = add_query_arg('pay_remaining', $parent_order_id, wc_get_checkout_url());
+
+        return new WP_REST_Response([
+            'success'     => true,
+            'payment_url' => $checkout_url,
+        ], 200);
+    }
+
+    /**
      * Lê o frete salvo no pedido pai e joga na sessão
      * para que o checkout "pagar restante" trave o frete.
      *
@@ -224,47 +276,26 @@ final class WcPaymentInvoiceEndpoint {
      * Também restaura chosen_shipping_methods do WooCommerce pra pré-selecionar.
      */
     private function saveShippingToSession($parent_order_id) {
-        $tag = '[LockShipping:restore]';
         $parent_order = wc_get_order($parent_order_id);
-        if (!$parent_order) {
-            error_log("$tag ABORT: parent order $parent_order_id not found");
-            return;
-        }
+        if (!$parent_order) return;
 
-        // 1. Rate IDs exatos salvos no meta (prioridade máxima)
         $rates_json = $parent_order->get_meta('_wc_lkn_chosen_shipping_rates');
-        error_log("$tag parent_id=$parent_order_id rates_json=$rates_json");
-
         if ($rates_json) {
             $rate_ids = json_decode($rates_json, true);
             if (is_array($rate_ids) && !empty($rate_ids)) {
                 WC()->session->set('lkn_partial_shipping_rate_ids', $rate_ids);
-                // Força o WooCommerce a usar esses rate_ids
                 WC()->session->set('chosen_shipping_methods', $rate_ids);
-                error_log("$tag restored rate_ids=[" . implode(', ', $rate_ids) . "] to session");
-            } else {
-                error_log("$tag rates_json decoded to empty/invalid");
             }
-        } else {
-            error_log("$tag no _wc_lkn_chosen_shipping_rates meta — fallback to shipping methods");
         }
 
-        // 2. Dados legíveis (method_title, total) pra exibir aviso
         $shipping_json = $parent_order->get_meta('_wc_lkn_chosen_shipping');
         if ($shipping_json) {
             WC()->session->set('lkn_partial_shipping_methods', json_decode($shipping_json, true));
-            error_log("$tag restored shipping_data for notice display");
             return;
         }
 
-        error_log("$tag no _wc_lkn_chosen_shipping meta — fallback to order items");
-
-        // Fallback: lê dos itens de frete do pedido pai
         $shipping_methods = $parent_order->get_shipping_methods();
-        if (empty($shipping_methods)) {
-            error_log("$tag fallback also empty — no shipping in parent order");
-            return;
-        }
+        if (empty($shipping_methods)) return;
 
         $data = array();
         foreach ($shipping_methods as $item) {
@@ -276,7 +307,6 @@ final class WcPaymentInvoiceEndpoint {
             );
         }
         WC()->session->set('lkn_partial_shipping_methods', $data);
-        error_log("$tag fallback restored " . count($data) . " shipping item(s) from order");
     }
     
     public function createPartialPayment($request) {
@@ -319,6 +349,13 @@ final class WcPaymentInvoiceEndpoint {
             return new WP_REST_Response(['error' => 'Valor solicitado excede o valor disponível para pagamento.'], 400);
         }
 
+        // Fluxo "pagar restante" do split: vai direto pro checkout sem criar ordem.
+        // O próprio checkout gera o pedido filho, vinculado ao pai via sessão.
+        if ($original_total > 0) {
+            return $this->redirectToCheckoutForRemaining($order_id, $partial_amount);
+        }
+
+        // Modelo antigo: cria ordem parcial pai-filho (mantido pra compatibilidade)
         // Garante que cart está carregado ANTES de criar o partial order
         if (!WC()->cart) {
             wc_load_cart();
@@ -357,7 +394,7 @@ final class WcPaymentInvoiceEndpoint {
         if ( !in_array( $order_id, $invoiceList ) ) {
             $invoiceList[] = $order_id;
         }
-        $invoiceList[] =  $partial_order_id;
+        $invoiceList[] = $partial_order_id;
         
         update_option('lkn_wcip_invoices', $invoiceList);
 
@@ -393,24 +430,16 @@ final class WcPaymentInvoiceEndpoint {
         $order->update_status('wc-partial');
 
         $partialsList = $order->get_meta('_wc_lkn_partials_id', true);
-        // Garante que é array
         if (!is_array($partialsList)) {
             $partialsList = [];
         }
-
-        // Remove qualquer item que não seja ID (int)
         $partialsList = array_map('intval', $partialsList);
-
-        // Adiciona o novo ID, se ainda não estiver na lista
         $partial_id = (int) $partial_order->get_id();
         if (!in_array($partial_id, $partialsList, true)) {
             $partialsList[] = $partial_id;
         }
-
-        // Atualiza apenas com IDs
         $order->update_meta_data('_wc_lkn_partials_id', $partialsList);
 
-        
         $total_peding += $partial_amount;
         
         $order->update_meta_data('_wc_lkn_total_peding', $total_peding);
@@ -426,6 +455,20 @@ final class WcPaymentInvoiceEndpoint {
     public function cancelPartialPayment($request) {
         $params = $request->get_params();
         $partial_order_id = isset($params['partialOrderId']) ? intval($params['partialOrderId']) : 0;
+        $order_id         = isset($params['orderId']) ? intval($params['orderId']) : 0;
+
+        // Cancelamento de pendência (retomada): só limpa a flag no pai
+        if ($order_id && !$partial_order_id) {
+            $parent_order = wc_get_order($order_id);
+            if (!$parent_order) {
+                return new WP_REST_Response(['error' => 'Pedido não encontrado.'], 404);
+            }
+            $parent_order->delete_meta_data('_wc_lkn_pay_remaining_pending');
+            $parent_order->update_status('wc-partial-cancelled');
+            $parent_order->save();
+            error_log("[PayRemaining] CANCEL pending on order #$order_id — user clicked Cancelar");
+            return new WP_REST_Response(['success' => true, 'message' => 'Pagamento parcial pendente cancelado.'], 200);
+        }
     
         if (!$partial_order_id) {
             return new WP_REST_Response(['error' => 'ID da ordem parcial é obrigatório.'], 400);

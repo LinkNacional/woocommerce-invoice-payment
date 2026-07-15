@@ -166,7 +166,7 @@
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
         html += '<div style="font-size:13px;color:#d63638;margin-bottom:4px"><span>Pagamento parcial</span><span style="float:right;font-weight:500">' + formatCurrency(-remaining) + '</span></div>';
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Voce pagara agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
+        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Você pagará agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
 
         if (hasFees) {
             html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">O valor informado de ' + formatCurrency(partialAmount) + ' foi ajustado para ' + formatCurrency(realPaidNow) + ' devido a taxas, juros ou descontos aplicados ao pedido.</p>';
@@ -198,6 +198,29 @@
     // ==========================================================
     // Event delegation
     // ==========================================================
+
+    // Botão "Continuar" na lista de retomada
+    $(document).on('click', '.lkn-wcip-resume-btn', function () {
+        var btn = $(this);
+        btn.prop('disabled', true).text('Processando...');
+        fetch(CONFIG.restUrl || btn.data('rest-url'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': CONFIG.restNonce || btn.data('nonce'),
+            },
+            body: JSON.stringify({
+                orderId: parseInt(btn.data('order-id')),
+                partialAmount: parseFloat(btn.data('amount')),
+                userId: CONFIG.userId || 0
+            })
+        }).then(function (r) { return r.json(); }).then(function (res) {
+            if (res && res.payment_url) window.location.href = res.payment_url;
+        }).catch(function () {
+            alert('Erro ao processar. Tente novamente.');
+            btn.prop('disabled', false).text('Continuar');
+        });
+    });
 
     $(document).on('change', '#lkn-wcip-split-checkbox', function () {
         console.log('[PartialSplit] checkbox CHANGE — checked=' + this.checked);
@@ -374,7 +397,7 @@
         html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Taxas/juros adicionais:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
 
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Voce pagara agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
+        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Você pagará agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
 
         if (hasFees) {
             html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">O valor informado de ' + formatCurrency(partialAmount) + ' foi ajustado para ' + formatCurrency(realPaidNow) + ' devido a taxas, juros ou descontos aplicados ao pedido.</p>';
@@ -437,5 +460,34 @@
             };
         })();
     }
+
+    // ==========================================================
+    // Botão "Cancelar" na lista de retomada
+    // ==========================================================
+    $(document).on('click', '.lkn-wcip-cancel-pending-btn', function () {
+        var btn = $(this);
+        var orderId = btn.data('order-id');
+        var restUrl = btn.data('rest-url');
+        var nonce = btn.data('nonce');
+
+        if (!confirm('Tem certeza que deseja cancelar o pagamento parcial pendente? Você poderá iniciar um novo split depois.')) return;
+
+        btn.prop('disabled', true).text('Cancelando...');
+
+        $.ajax({
+            url: restUrl,
+            method: 'POST',
+            contentType: 'application/json',
+            headers: { 'X-WP-Nonce': nonce || '' },
+            data: JSON.stringify({ orderId: orderId }),
+            success: function () {
+                location.reload();
+            },
+            error: function () {
+                alert('Erro ao cancelar. Tente novamente.');
+                btn.prop('disabled', false).text('Cancelar');
+            }
+        });
+    });
 
 })(window.jQuery);
