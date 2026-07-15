@@ -51,6 +51,33 @@
         return 0;
     }
 
+    /**
+     * Base máxima (sem juros/taxas): subtotal + shipping - discount.
+     * Lê direto da Store API — sem necessidade de AJAX.
+     */
+    function getBaseMax() {
+        try {
+            if (window.wp && window.wp.data && window.wp.data.select) {
+                var totals = window.wp.data.select('wc/store/cart').getCartTotals();
+                if (totals) {
+                    var minorUnit = totals.currency_minor_unit || 2;
+                    var items = parseFloat(totals.total_items) || 0;
+                    var shipping = parseFloat(totals.total_shipping) || 0;
+                    var discount = parseFloat(totals.total_discount) || 0;
+                    return (items + shipping - discount) / Math.pow(10, minorUnit);
+                }
+            }
+        } catch (e) {}
+        return 0;
+    }
+
+    function updateBaseMaxLabel() {
+        var base = getBaseMax();
+        if (base > 0) {
+            getCard().find('.lkn-wcip-base-max-val').text(formatCurrency(base));
+        }
+    }
+
     var calculated = false;
     var splitData = null;
     var _restoring = false; // trava durante restoreState pra evitar loop
@@ -208,6 +235,7 @@
     });
 
     $(document).on('click', '.wc-block-components-checkout-place-order-button', function (e) {
+        if (IS_PAY_REMAINING) return; // Modo "pagar restante" não tem validação
         if (getCheckbox().is(':checked') && !calculated) {
             e.preventDefault();
             e.stopPropagation();
@@ -248,6 +276,11 @@
             }
 
             var promise = originalFetch.apply(this, arguments);
+
+            if (isBatch || isCart || isCheckout) {
+                // Atualiza o "Valor maximo" sempre que o carrinho mudar
+                setTimeout(updateBaseMaxLabel, 400);
+            }
 
             if ((isBatch || isCart || isCheckout) && calculated && splitData && !_restoring) {
                 // Só marca que algo mudou — depois lê do wp.data que sempre tá atualizado
@@ -316,6 +349,93 @@
 
         $inp.val(formatCurrency(partialAmount)).prop('disabled', true);
         $b.text('Cancelar split').css({ opacity: '', pointerEvents: '' });
+    }
+
+    // ==========================================================
+    // Modo "pagar restante" (pay_remaining na URL)
+    // ==========================================================
+    var IS_PAY_REMAINING = !!CONFIG.isPayRemaining;
+
+    function renderPayRemainingResult() {
+        var d = splitData;
+        if (!d) return;
+
+        var partialAmount = parseFloat(d.partial_amount) || 0;
+        var baseMax = parseFloat(d.base_max) || 0;
+        var gatewayFees = parseFloat(d.gateway_fees) || 0;
+        var cartTotal = getCartTotal() || parseFloat(d.cart_total) || 0;
+        var remaining = parseFloat(d.remaining) || 0;
+        var hasFees = Math.abs(gatewayFees) > 0.01;
+        var realPaidNow = hasFees ? cartTotal : partialAmount;
+
+        var html = '<div style="margin-top:12px;padding:14px;background:#fff;border:1px solid #e0e0e0;border-radius:4px">';
+
+        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Valor restante</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Taxas/juros adicionais:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
+
+        html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
+        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Voce pagara agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
+
+        if (hasFees) {
+            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">O valor informado de ' + formatCurrency(partialAmount) + ' foi ajustado para ' + formatCurrency(realPaidNow) + ' devido a taxas, juros ou descontos aplicados ao pedido.</p>';
+        }
+
+        html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
+        html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">Restante pago anteriormente: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
+
+        html += '</div>';
+
+        getResult().html(html).show();
+    }
+
+    function refreshPayRemainingSummary() {
+        if (_restoring) return;
+
+        ajaxPost('lkn_wcip_get_partial_split_state').then(function (res) {
+            if (!res || !res.success || !res.data || !res.data.active) return;
+
+            var cartTotal = getCartTotal();
+            splitData = {
+                partial_amount: res.data.partial_amount,
+                cart_total: cartTotal > 0 ? cartTotal : res.data.cart_total,
+                base_max: res.data.base_max,
+                gateway_fees: res.data.gateway_fees,
+                remaining: res.data.remaining
+            };
+
+            renderPayRemainingResult();
+        });
+    }
+
+    if (IS_PAY_REMAINING) {
+        // Inicial logo ao carregar
+        $(function () {
+            setTimeout(refreshPayRemainingSummary, 300);
+        });
+
+        // Refresca a cada mudança de carrinho
+        (function () {
+            var _origFetch = window.fetch;
+            window.fetch = function () {
+                var urlStr = '';
+                var arg = arguments[0];
+                if (typeof arg === 'string') { urlStr = arg; }
+                else if (arg instanceof Request) { urlStr = arg.url || ''; }
+                else if (arg && typeof arg.url === 'string') { urlStr = arg.url; }
+
+                var promise = _origFetch.apply(this, arguments);
+
+                var isRelevant = urlStr.indexOf('/wc/store/v1/batch') !== -1
+                              || (urlStr.indexOf('/wc/store/v1/cart') !== -1 && urlStr.indexOf('select-shipping-rate') === -1)
+                              || urlStr.indexOf('/wc/store/v1/checkout') !== -1;
+
+                if (isRelevant) {
+                    setTimeout(refreshPayRemainingSummary, 600);
+                }
+
+                return promise;
+            };
+        })();
     }
 
 })(window.jQuery);

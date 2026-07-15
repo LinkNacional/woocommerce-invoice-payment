@@ -168,14 +168,12 @@ final class WcPaymentInvoiceEndpoint {
      */
     private function findPendingPartialOrder($parent_order, $amount) {
         $partials = $parent_order->get_meta('_wc_lkn_partials_id', true);
-        error_log(json_encode($partials));
         if (!is_array($partials)) return null;
 
         foreach ($partials as $pid) {
             $po = wc_get_order((int) $pid);
             if (!$po || $po->get_status() !== 'wc-partial-pend') continue;
             $po_amount = round((float) $po->get_total(), 2);
-            error_log(abs($po_amount - $amount));
             if (abs($po_amount - $amount) < 0.02) return $po;
         }
         return null;
@@ -201,13 +199,84 @@ final class WcPaymentInvoiceEndpoint {
         WC()->session->set('lkn_partial_order_id', $partial_order->get_id());
         WC()->session->set('lkn_partial_parent_order_id', $parent_order_id);
 
+        // Salva o frete do pedido original na sessão para travar no checkout
+        $this->saveShippingToSession($parent_order_id);
+
         WC()->cart->calculate_totals();
+
+        $checkout_url = add_query_arg('pay_remaining', $partial_order->get_id(), wc_get_checkout_url());
 
         return new WP_REST_Response([
             'success'       => true,
             'partial_order' => $partial_order->get_id(),
-            'payment_url'   => wc_get_checkout_url(),
+            'payment_url'   => $checkout_url,
         ], 200);
+    }
+
+    /**
+     * Lê o frete salvo no pedido pai e joga na sessão
+     * para que o checkout "pagar restante" trave o frete.
+     *
+     * Restaura duas chaves na sessão:
+     * - lkn_partial_shipping_rate_ids: rate_ids exatos pra filtrar (ex: ["melhor_envio:5"])
+     * - lkn_partial_shipping_methods: dados legíveis pra exibir aviso
+     *
+     * Também restaura chosen_shipping_methods do WooCommerce pra pré-selecionar.
+     */
+    private function saveShippingToSession($parent_order_id) {
+        $tag = '[LockShipping:restore]';
+        $parent_order = wc_get_order($parent_order_id);
+        if (!$parent_order) {
+            error_log("$tag ABORT: parent order $parent_order_id not found");
+            return;
+        }
+
+        // 1. Rate IDs exatos salvos no meta (prioridade máxima)
+        $rates_json = $parent_order->get_meta('_wc_lkn_chosen_shipping_rates');
+        error_log("$tag parent_id=$parent_order_id rates_json=$rates_json");
+
+        if ($rates_json) {
+            $rate_ids = json_decode($rates_json, true);
+            if (is_array($rate_ids) && !empty($rate_ids)) {
+                WC()->session->set('lkn_partial_shipping_rate_ids', $rate_ids);
+                // Força o WooCommerce a usar esses rate_ids
+                WC()->session->set('chosen_shipping_methods', $rate_ids);
+                error_log("$tag restored rate_ids=[" . implode(', ', $rate_ids) . "] to session");
+            } else {
+                error_log("$tag rates_json decoded to empty/invalid");
+            }
+        } else {
+            error_log("$tag no _wc_lkn_chosen_shipping_rates meta — fallback to shipping methods");
+        }
+
+        // 2. Dados legíveis (method_title, total) pra exibir aviso
+        $shipping_json = $parent_order->get_meta('_wc_lkn_chosen_shipping');
+        if ($shipping_json) {
+            WC()->session->set('lkn_partial_shipping_methods', json_decode($shipping_json, true));
+            error_log("$tag restored shipping_data for notice display");
+            return;
+        }
+
+        error_log("$tag no _wc_lkn_chosen_shipping meta — fallback to order items");
+
+        // Fallback: lê dos itens de frete do pedido pai
+        $shipping_methods = $parent_order->get_shipping_methods();
+        if (empty($shipping_methods)) {
+            error_log("$tag fallback also empty — no shipping in parent order");
+            return;
+        }
+
+        $data = array();
+        foreach ($shipping_methods as $item) {
+            $data[] = array(
+                'method_id'    => $item->get_method_id(),
+                'instance_id'  => $item->get_instance_id(),
+                'method_title' => $item->get_method_title(),
+                'total'        => $item->get_total(),
+            );
+        }
+        WC()->session->set('lkn_partial_shipping_methods', $data);
+        error_log("$tag fallback restored " . count($data) . " shipping item(s) from order");
     }
     
     public function createPartialPayment($request) {
@@ -241,14 +310,10 @@ final class WcPaymentInvoiceEndpoint {
         // Verifica se o cliente pode gerar mais uma fatura com o valor informado
         $max_allowed = round($original_total - $total_peding - $total_confirmed, 2);
 
-        error_log("[createPartialPayment] order_id=$order_id original_total=$original_total total_peding=$total_peding total_confirmed=$total_confirmed max_allowed=$max_allowed partial_amount=$partial_amount");
-
         if ($partial_amount > $max_allowed) {
             // Pode já ter partial order criado de tentativa anterior (ex: crash no cart)
             $existing = $this->findPendingPartialOrder($order, $partial_amount);
-            error_log(json_encode($existing));
             if ($existing) {
-                error_log("[createPartialPayment] reusing existing partial order: {$existing->get_id()}");
                 return $this->buildCheckoutRedirect($existing, $order_id, $partial_amount);
             }
             return new WP_REST_Response(['error' => 'Valor solicitado excede o valor disponível para pagamento.'], 400);

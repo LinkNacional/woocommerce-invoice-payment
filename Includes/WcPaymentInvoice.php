@@ -500,6 +500,8 @@ final class WcPaymentInvoice {
         $this->loader->add_action( 'woocommerce_thankyou', $this->WcPaymentInvoicePartialClass, 'displayPartialRemainingOnThankyou', 5, 1);
         $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'markPartialOrderSession');
         $this->loader->add_filter( 'lkn_wcip_partial_cart_total', $this->WcPaymentInvoicePartialClass, 'overridePartialTotalForGateways');
+        $this->loader->add_filter( 'woocommerce_package_rates', $this->WcPaymentInvoicePartialClass, 'filterShippingForPartialRemaining', 9999);
+        $this->loader->add_action( 'woocommerce_before_checkout_form', $this->WcPaymentInvoicePartialClass, 'addLockedShippingNotice');
         $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart', 999);
         $this->loader->add_action('woocommerce_cart_calculate_fees', $this->WcPaymentInvoicePartialClass, 'applyPartialSplitFee', 1);
