@@ -1,0 +1,80 @@
+/**
+ * Split de Pagamento — Checkout Blocks
+ *
+ * Estilos para o componente de pagamento parcial no checkout.
+ */
+
+/* Container principal */
+.lkn-wcip-split-blocks-container {
+    margin-bottom: 20px;
+}
+
+.lkn-wcip-split-blocks-container input[type="text"]:focus {
+    border-color: #007cba !important;
+    outline: none !important;
+    box-shadow: 0 0 0 1px #007cba !important;
+}
+
+.lkn-wcip-split-blocks-container button:hover {
+    filter: brightness(1.05);
+}
+
+.lkn-wcip-split-blocks-container button:active {
+    transform: scale(0.98);
+}
+
+/* Gateway desabilitado visualmente */
+.lkn-partial-disabled-gateway {
+    position: relative;
+    opacity: 0.4 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    filter: grayscale(30%);
+    transition: opacity 0.2s ease;
+}
+
+.lkn-partial-disabled-gateway::after {
+    content: attr(data-lkn-disabled-msg);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.lkn-partial-disabled-gateway:hover::after {
+    opacity: 1;
+}
+
+/* Card da thank-you page */
+.lkn-wcip-partial-thankyou-card {
+    background: #f8f9fa;
+    border: 2px solid #007cba;
+    border-radius: 8px;
+    padding: 24px;
+    margin: 24px 0;
+    text-align: center;
+}
+
+.lkn-wcip-partial-thankyou-card button#lknWcipPayRemainingBtn:hover {
+    filter: brightness(1.1);
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+    .lkn-wcip-split-blocks-container input[type="text"] {
+        min-width: 100% !important;
+    }
+    .lkn-wcip-split-blocks-container button {
+        width: 100%;
+    }
+}

@@ -4,30 +4,12 @@ document.addEventListener('DOMContentLoaded', function () {
   if (defaultPaymethod) {
     defaultPaymethod = defaultPaymethod.value;
 
-    const listPaymethods = document.getElementsByClassName('wc_payment_method');
-
-    if (wcInvoicePaymentMethods.isPartialOrder === 'yes') {
-      const enabledMethods = wcInvoicePaymentMethods.enabledMethods;
-
-      // Oculta todos os métodos de pagamento que não estão em enabledMethods
-      for (let i = listPaymethods.length - 1; i >= 0; i--) {
-        const methodInput = listPaymethods[i].querySelector('input');
-        const methodId = methodInput ? methodInput.value : null;
-
-        if (!enabledMethods[methodId] || enabledMethods[methodId] !== 'yes') {
-          listPaymethods[i].remove();
-        }
-      }
-
-      return; // Evita execução do restante do script se for pagamento parcial
-    }
-
-    // Caso padrão (não é pagamento parcial)
     if (defaultPaymethod == 'multiplePayment' || !defaultPaymethod) return;
 
     const inputPaymethod = document.getElementById('payment_method_' + defaultPaymethod);
 
     let otherPaymethods = [];
+    const listPaymethods = document.getElementsByClassName('wc_payment_method');
 
     for (let i = 0; i < listPaymethods.length; i++) {
       const methodInput = listPaymethods[i].querySelector('input');

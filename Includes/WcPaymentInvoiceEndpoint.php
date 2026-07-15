@@ -29,13 +29,8 @@ final class WcPaymentInvoiceEndpoint {
         }
 
         $parameters = $request->get_params();
-        $order_id = isset($parameters['orderId']) ? $parameters['orderId'] : 0;
-        $user_id = isset($parameters['userId']) ? intval($parameters['userId']) : 0;
-
-        // Permitir criação de novo pedido
-        if ($order_id === 'newOrder') {
-            return true;
-        }
+        $order_id = isset($parameters['orderId']) ? intval($parameters['orderId']) : 0;
+        $user_id  = isset($parameters['userId']) ? intval($parameters['userId']) : 0;
 
         // Verificar se o pedido existe
         if (!$order_id) {
@@ -167,72 +162,103 @@ final class WcPaymentInvoiceEndpoint {
         // Verificar se há uma sessão válida
         return $this->validateOrderSession($order->get_id(), $order->get_customer_id());
     }
+
+    /**
+     * Encontra uma partial order pendente já criada pra este pedido/valor.
+     */
+    private function findPendingPartialOrder($parent_order, $amount) {
+        $partials = $parent_order->get_meta('_wc_lkn_partials_id', true);
+        error_log(json_encode($partials));
+        if (!is_array($partials)) return null;
+
+        foreach ($partials as $pid) {
+            $po = wc_get_order((int) $pid);
+            if (!$po || $po->get_status() !== 'wc-partial-pend') continue;
+            $po_amount = round((float) $po->get_total(), 2);
+            error_log(abs($po_amount - $amount));
+            if (abs($po_amount - $amount) < 0.02) return $po;
+        }
+        return null;
+    }
+
+    /**
+     * Carrega itens do partial order no carrinho e retorna redirect pra checkout.
+     */
+    private function buildCheckoutRedirect($partial_order, $parent_order_id, $partial_amount) {
+        if (!WC()->cart) wc_load_cart();
+        WC()->cart->empty_cart();
+
+        foreach ($partial_order->get_items() as $item) {
+            $product_id = $item->get_product_id();
+            $variation_id = $item->get_variation_id();
+            $quantity = $item->get_quantity();
+            if ($product_id) {
+                WC()->cart->add_to_cart($product_id, $quantity, $variation_id);
+            }
+        }
+
+        WC()->session->set('lkn_partial_amount', $partial_amount);
+        WC()->session->set('lkn_partial_order_id', $partial_order->get_id());
+        WC()->session->set('lkn_partial_parent_order_id', $parent_order_id);
+
+        WC()->cart->calculate_totals();
+
+        return new WP_REST_Response([
+            'success'       => true,
+            'partial_order' => $partial_order->get_id(),
+            'payment_url'   => wc_get_checkout_url(),
+        ], 200);
+    }
     
     public function createPartialPayment($request) {
         $parameters = $request->get_params();
     
-        $order_id = isset($parameters['orderId']) ? $parameters['orderId'] : 0;
-        $user_id = isset($parameters['userId']) ? intval($parameters['userId']) : 0;
-        $partial_amount = isset($parameters['partialAmount']) ? floatval($parameters['partialAmount']) : 0.0;
+        $order_id = isset($parameters['orderId']) ? intval($parameters['orderId']) : 0;
+        $user_id  = isset($parameters['userId']) ? intval($parameters['userId']) : 0;
+        $partial_amount = round(isset($parameters['partialAmount']) ? floatval($parameters['partialAmount']) : 0.0, 2);
 
-        if($order_id == 'newOrder'){
-            $cart = isset($parameters['cart']) ? $parameters['cart'] : null;
-
-            $order = wc_create_order([
-                'status' => 'pending',
-                'customer_id' => $user_id
-            ]);
-
-            $customer = new WC_Customer($user_id);
-            $first_name = $customer->get_billing_first_name() ?: $customer->get_first_name();
-            $order->set_billing_first_name($first_name);
-
-
-            // Adicionar produtos ao pedido
-            foreach ($cart['cart_contents'] as $item) {
-                if (isset($item['product_id']) && isset($item['quantity'])) {
-                    $product_id = $item['product_id'];
-                    $quantity = $item['quantity'];
-                    $variation_id = isset($item['variation_id']) ? $item['variation_id'] : 0;
-                    $variation = isset($item['variation']) && is_array($item['variation']) ? $item['variation'] : [];
-
-                    try {
-                        $order->add_product(wc_get_product($variation_id > 0 ? $variation_id : $product_id), $quantity, [
-                            'variation' => $variation,
-                        ]);
-                    } catch (Exception $e) {
-                        return new WP_REST_Response(['error' => 'Erro ao adicionar produto: ' . $e->getMessage()], 400);
-                    }
-                }
-            }
-
-            $order->calculate_totals();
-            $order->save();
-
-            $order_id = $order->get_id();
-        }
-        
         if (!$order_id || !$partial_amount) {
             return new WP_REST_Response(['error' => 'Parâmetros inválidos.'], 400);
         }
         
         $order = wc_get_order($order_id);
+
+        if (!$order) {
+            return new WP_REST_Response(['error' => 'Pedido não encontrado.'], 404);
+        }
         
         $order_total = floatval($order->get_total());
         $total_peding = floatval($order->get_meta('_wc_lkn_total_peding')) ?: 0.0;
         $total_confirmed = floatval($order->get_meta('_wc_lkn_total_confirmed')) ?: 0.0;
 
+        // Se a ordem tem _wc_lkn_original_total (split no checkout), usa ele.
+        // Senao, usa o total da ordem (modelo antigo pai-filho).
+        $original_total = floatval($order->get_meta('_wc_lkn_original_total'));
+        if ($original_total <= 0) {
+            $original_total = $order_total;
+        }
+
         // Verifica se o cliente pode gerar mais uma fatura com o valor informado
-        $max_allowed = $order_total - $total_peding - $total_confirmed;
+        $max_allowed = round($original_total - $total_peding - $total_confirmed, 2);
+
+        error_log("[createPartialPayment] order_id=$order_id original_total=$original_total total_peding=$total_peding total_confirmed=$total_confirmed max_allowed=$max_allowed partial_amount=$partial_amount");
 
         if ($partial_amount > $max_allowed) {
-            return new WP_REST_Response(['error' => 'Valor solicitado excede o valor disponível para pagamento.'], 404);
+            // Pode já ter partial order criado de tentativa anterior (ex: crash no cart)
+            $existing = $this->findPendingPartialOrder($order, $partial_amount);
+            error_log(json_encode($existing));
+            if ($existing) {
+                error_log("[createPartialPayment] reusing existing partial order: {$existing->get_id()}");
+                return $this->buildCheckoutRedirect($existing, $order_id, $partial_amount);
+            }
+            return new WP_REST_Response(['error' => 'Valor solicitado excede o valor disponível para pagamento.'], 400);
         }
 
-        if (!$order) {
-            return new WP_REST_Response(['error' => 'Pedido não encontrado.'], 404);
+        // Garante que cart está carregado ANTES de criar o partial order
+        if (!WC()->cart) {
+            wc_load_cart();
         }
-    
+
         // Criar nova ordem parcial
         $partial_order = wc_create_order([
             'customer_id' => $order->get_customer_id(),
@@ -244,19 +270,10 @@ final class WcPaymentInvoiceEndpoint {
         
         // Copia o e-mail do cliente, caso necessário
         $partial_order->set_billing_email($order->get_billing_email());
-        
-        // Copia outros metadados úteis, se necessário
-        $meta_to_copy = [
-            '_customer_ip_address',
-            '_customer_user_agent',
-            '_order_currency',
-        ];
-        foreach ($meta_to_copy as $meta_key) {
-            $meta_value = $order->get_meta($meta_key);
-            if ($meta_value) {
-                $partial_order->update_meta_data($meta_key, $meta_value);
-            }
-        }
+
+        $partial_order->set_customer_ip_address($order->get_customer_ip_address());
+        $partial_order->set_customer_user_agent($order->get_customer_user_agent());
+        $partial_order->set_currency($order->get_currency());
         
         $partial_order->update_meta_data('_wc_lkn_is_partial_order', 'yes');
         $order->update_meta_data('_wc_lkn_is_partial_main_order', 'yes');
@@ -278,15 +295,32 @@ final class WcPaymentInvoiceEndpoint {
         $invoiceList[] =  $partial_order_id;
         
         update_option('lkn_wcip_invoices', $invoiceList);
-    
-        // Adiciona item fictício (ajuste isso conforme necessário)
-        $partial_order->add_product(wc_get_product(0), 1, [
-            'subtotal' => $partial_amount,
-            'total'    => $partial_amount,
-            'name'     => 'Pagamento parcial',
-        ]);
+
+        // Copia os produtos do pedido principal para o filho
+        foreach ($order->get_items() as $item) {
+            $partial_order->add_item(clone $item);
+        }
+
+        // Copia frete
+        foreach ($order->get_shipping_methods() as $shipping_item) {
+            $partial_order->add_item(clone $shipping_item);
+        }
 
         $partial_order->calculate_totals();
+        $child_full_total = (float) $partial_order->get_total();
+
+        // Aplica desconto para reduzir ao valor parcial
+        $discount = $child_full_total - $partial_amount;
+        if ($discount > 0.001) {
+            $discount_fee = new \WC_Order_Item_Fee();
+            $discount_fee->set_name(__('Remaining balance (pay later)', 'wc-invoice-payment'));
+            $discount_fee->set_amount(-$discount);
+            $discount_fee->set_total(-$discount);
+            $partial_order->add_item($discount_fee);
+        }
+
+        $partial_order->calculate_totals();
+        $partial_order->update_meta_data('_wc_lkn_partial_remaining', $discount);
         $order->update_meta_data('lkn_ini_date', gmdate('Y-m-d', time()));
         $partial_order->update_meta_data('lkn_ini_date', gmdate('Y-m-d', time()));
 
@@ -320,15 +354,8 @@ final class WcPaymentInvoiceEndpoint {
         $order->save();
         $partial_order->save();
 
-        // Definir cookie de acesso para usuários não logados
-        $this->setOrderAccessCookie($order_id, $user_id);
-
-        
-        return new WP_REST_Response([
-            'success'       => true,
-            'partial_order' => $partial_order->get_id(),
-            'payment_url'   => $partial_order->get_checkout_payment_url(),
-        ], 200);
+        // Recria o carrinho e redireciona pro checkout
+        return $this->buildCheckoutRedirect($partial_order, $order_id, $partial_amount);
     }
 
     public function cancelPartialPayment($request) {
