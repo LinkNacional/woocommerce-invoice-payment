@@ -331,7 +331,16 @@ final class WcPaymentInvoicePartial
      */
     public static function partialCheckoutUrl($partial_order_id) {
         $order = wc_get_order($partial_order_id);
-        return $order ? $order->get_checkout_payment_url() : '';
+        if (!$order) return '';
+        $parent_id = (int) $order->get_meta('_wc_lkn_parent_id');
+        if ($parent_id) {
+            $parent = wc_get_order($parent_id);
+            if ($parent && $parent->get_meta('_wc_lkn_pay_remaining_pending') !== 'yes') {
+                return $order->get_checkout_order_received_url();
+            }
+            return add_query_arg('pay_remaining', $parent_id, wc_get_checkout_url());
+        }
+        return $order->get_checkout_payment_url();
     }
 
     /**
@@ -423,6 +432,23 @@ final class WcPaymentInvoicePartial
         $order_statuses['wc-partial'] = __('Pagamento parcial', 'wc-invoice-payment');
         $order_statuses['wc-partial-cancelled'] = __('Pagamento parcial cancelado', 'wc-invoice-payment');
         return $order_statuses;
+    }
+
+    public function includeInReports($statuses) {
+        $statuses[] = 'partial';
+        $statuses[] = 'partial-pend';
+        $statuses[] = 'partial-comp';
+        $statuses[] = 'partial-cancelled';
+        return $statuses;
+    }
+
+    public function addStatusesToAnalytics($args) {
+        $args['status_is'] = array_values(array_diff(
+            array_keys(wc_get_order_statuses()),
+            array('trash', 'checkout-draft', 'auto-draft')
+        ));
+        error_log('[Analytics] addStatusesToAnalytics final count=' . count($args['status_is']));
+        return $args;
     }
 
     public function allowStatusPayment($statuses) {
@@ -540,8 +566,26 @@ final class WcPaymentInvoicePartial
     public function statusChanged($orderId, $oldStatus, $newStatus, $order) {
         $order = wc_get_order( $orderId );
 
-        // Se maybeSaveSplitDataToOrder já processou → sai
+        // Se maybeSaveSplitDataToOrder já processou o confirmed/peding
         if ($order->get_meta('_wc_lkn_split_handled') === 'yes') {
+            if ($order->get_meta('_wc_lkn_parent_id')) {
+                $parent_order = wc_get_order($order->get_meta('_wc_lkn_parent_id'));
+                if ($parent_order && $parent_order->get_meta('_wc_lkn_pay_remaining_pending') === 'yes') {
+                    // Só completa se confirmed >= original_total E todos filhos pagaram
+                    $original_total = (float) $parent_order->get_meta('_wc_lkn_original_total');
+                    $confirmed = (float) $parent_order->get_meta('_wc_lkn_total_confirmed');
+                    if ($original_total > 0 && round($confirmed, 2) >= round($original_total, 2)
+                        && $this->allChildrenPaid($parent_order)) {
+                        $complete_status = get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp');
+                        if (empty($complete_status)) $complete_status = 'wc-partial-comp';
+                        $parent_order->delete_meta_data('_wc_lkn_pay_remaining_pending');
+                        $parent_order->set_status($complete_status);
+                        $parent_order->add_order_note('Todos os pagamentos parciais foram concluídos.');
+                        $parent_order->save();
+                        error_log("[statusChanged] Parent #{$parent_order->get_id()} marked complete after child #{$orderId} reached status {$newStatus}");
+                    }
+                }
+            }
             return;
         }
 
@@ -2756,6 +2800,10 @@ final class WcPaymentInvoicePartial
         $order->add_order_note('Pagamento parcial iniciado.');
         $order->save();
 
+        // Força sync com Analytics: insere/atualiza wc_order_stats diretamente.
+        // O sync do WC só funciona pra pedidos via checkout; wc_create_order manual não dispara.
+        $this->syncOrderToAnalytics($order);
+
         error_log("[Partial] Parent #{$order->get_id()} created. base_total={$base_total} original_total_meta=" . $order->get_meta('_wc_lkn_original_total') . " status=" . $order->get_status());
 
         // Salva na sessão pra redirecionar corretamente
@@ -2870,6 +2918,13 @@ final class WcPaymentInvoicePartial
      * Se havia split ativo, salva os dados na ordem e limpa a sessão.
      */
     private function maybeSaveSplitDataToOrder($order) {
+        // Guard: prevent double-processing (both classic & blocks checkout hooks may fire)
+        if ($order->get_meta('_wc_lkn_maybe_save_processed') === 'yes') {
+            error_log("[Partial] maybeSaveSplitDataToOrder SKIP: already processed #{$order->get_id()}");
+            return;
+        }
+        $order->update_meta_data('_wc_lkn_maybe_save_processed', 'yes');
+
         if (!WC()->session) {
             return;
         }
@@ -2981,33 +3036,25 @@ final class WcPaymentInvoicePartial
                 $order->update_meta_data('_wc_lkn_original_total', $original_total);
 
                 $all_paid = ($original_total > 0 && round($confirmed, 2) >= round($original_total, 2));
+
+                // Só considera "all_paid" quando TODOS os filhos atingiram o status configurado como sucesso.
+                // Pagamentos assíncronos (PIX, boleto) podem ter confirmed >= original_total
+                // mas ainda estarem com status "pending" — não devem disparar conclusão.
+                if ($all_paid) {
+                    $all_paid = $this->allChildrenPaid($parent_order);
+                    error_log("[PayRemaining] allChildrenPaid=" . var_export($all_paid, true) . " for parent #{$parent_order_id}");
+                }
                 
                 if ($all_paid) {
                     $complete_status = get_option('lkn_wcip_partial_complete_status', 'wc-partial-comp');
                     if (empty($complete_status)) $complete_status = 'wc-partial-comp';
 
-                    // Usa set_status no lugar de update_status para NÃO disparar auto-save.
-                    // O save único no final preserva os metadados do gateway.
+                    // Só atualiza status do PAI. Nunca força status dos filhos —
+                    // pagamentos assíncronos (PIX, boleto) ainda estão pendentes e o
+                    // statusChanged cuidará de cada um quando o gateway confirmar.
                     if (!in_array($parent_order->get_status(), array(substr($complete_status, 3), 'completed'))) {
                         $parent_order->set_status($complete_status);
                         $parent_order->add_order_note('Todos os pagamentos parciais foram concluídos.');
-                    }
-
-                    // Marca todos os filhos EXISTENTES com o mesmo status (update_status dispara hooks)
-                    $existingChildren = $parent_order->get_meta('_wc_lkn_partials_id', true);
-                    if (is_array($existingChildren)) {
-                        foreach ($existingChildren as $child_id) {
-                            if ((int) $child_id === $order->get_id()) continue; // pula o atual
-                            $child = wc_get_order((int) $child_id);
-                            if ($child && !in_array($child->get_status(), array(substr($complete_status, 3), 'completed'))) {
-                                $child->update_status($complete_status);
-                            }
-                        }
-                    }
-
-                    // Marca o pedido atual (sem auto-save)
-                    if (!in_array($order->get_status(), array(substr($complete_status, 3), 'completed'))) {
-                        $order->set_status($complete_status);
                     }
                 }
 
@@ -3061,11 +3108,13 @@ final class WcPaymentInvoicePartial
                 $order->save();
                 $parent_order->save();
 
-                // Adiciona à lista de invoices
+                // Adiciona à lista de invoices (com dedup extra)
                 $invoiceList = get_option('lkn_wcip_invoices', array());
                 if (!in_array($order->get_id(), $invoiceList, true)) {
                     $invoiceList[] = $order->get_id();
                 }
+                // Remove duplicatas que possam já existir
+                $invoiceList = array_values(array_unique($invoiceList, SORT_NUMERIC));
                 update_option('lkn_wcip_invoices', $invoiceList);
 
                 error_log("[PayRemaining] Child #{$order->get_id()} linked to parent #{$parent_order_id}. all_paid=" . var_export($all_paid, true) . " confirmed=$confirmed original_total=$original_total");
@@ -3266,7 +3315,7 @@ final class WcPaymentInvoicePartial
                 foreach ($partials_ids as $idx => $pid) {
                     $child = wc_get_order($pid);
                     if ($child && $child->get_status() !== 'trash') {
-                        $link = admin_url("admin.php?page=wc-orders&action=edit&id={$child->get_id()}");
+                        $link = admin_url("admin.php?page=edit-invoice&invoice={$child->get_id()}");
                         echo '<span style="font-size:11px">'
                             . esc_html(($idx+1) . '/' . $total) . ' — Filho: <a href="' . esc_url($link) . '" title="' . esc_attr(wc_get_order_status_name($child->get_status())) . '">#' . esc_html($child->get_order_number()) . '</a>'
                             . '</span><br>';
@@ -3288,7 +3337,7 @@ final class WcPaymentInvoicePartial
                 $total = is_array($partials) ? count($partials) : 2;
                 $my_pos = is_array($partials) ? array_search($order->get_id(), array_map('intval', $partials)) : false;
                 $pos = ($my_pos !== false) ? (int) $my_pos + 1 : $total;
-                $link = admin_url("admin.php?page=wc-orders&action=edit&id={$parent_id}");
+                $link = admin_url("admin.php?page=edit-invoice&invoice={$parent_id}");
                 echo '<span style="font-size:11px">'
                     . esc_html("{$pos}/{$total}") . ' — Pai: <a href="' . esc_url($link) . '" title="' . esc_attr(wc_get_order_status_name($parent->get_status())) . '">#' . esc_html($parent->get_order_number()) . '</a>'
                     . '</span>';
@@ -3494,7 +3543,7 @@ final class WcPaymentInvoicePartial
                         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">';
                         html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Restante a pagar:', 'wc-invoice-payment')); ?></span><strong style="color:#d63638">' + formatBrl(stillRemaining) + '</strong></div>';
                         html += '</div>';
-                        html += '<button id="lknWcipPayRemainingBtn" type="button" style="padding:12px 28px;font-size:15px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:4px;cursor:pointer" data-order-id="' + parentId + '" data-amount="' + stillRemaining + '">' + '<?php echo esc_js(__('Pagar restante', 'wc-invoice-payment')); ?> (' + formatBrl(stillRemaining) + ')</button>';
+                        html += '<button id="lknWcipPayRemainingBtn" type="button" style="padding:12px 28px;font-size:15px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:4px;cursor:pointer" data-order-id="' + parentId + '" data-amount="' + stillRemaining + '">' + '<?php echo esc_js(__('Pagar restante', 'wc-invoice-payment')); ?>' + '</button>';
                         html += '</div>';
                     }
 
@@ -3622,7 +3671,7 @@ final class WcPaymentInvoicePartial
                 <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
                 <div style="display:flex;justify-content:space-between;padding:2px 0;font-size:15px;font-weight:600;color:#d63638"><span><?php esc_html_e('Saldo restante:', 'wc-invoice-payment'); ?></span><span><?php echo wc_price($remaining); ?></span></div>
             </div>
-            <button id="lknWcipPayRemainingBtn" type="button" style="padding:12px 28px;font-size:15px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:4px;cursor:pointer" data-order-id="<?php echo esc_attr($pay_target_id); ?>" data-amount="<?php echo esc_attr($remaining); ?>"><?php printf(esc_html__('Pagar restante (%s)', 'wc-invoice-payment'), wc_price($remaining)); ?></button>
+            <button id="lknWcipPayRemainingBtn" type="button" style="padding:12px 28px;font-size:15px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:4px;cursor:pointer" data-order-id="<?php echo esc_attr($pay_target_id); ?>" data-amount="<?php echo esc_attr($remaining); ?>"><?php esc_html_e('Pagar restante', 'wc-invoice-payment'); ?></button>
         </div>
         <?php
     }
@@ -3715,5 +3764,167 @@ final class WcPaymentInvoicePartial
             'child_amount'    => $child_amount > 0 ? $child_amount : $confirmed,
             'children'        => $children,
         ));
+    }
+
+    /**
+     * Exclui pedidos filhos parciais da listagem de pedidos do My Account.
+     */
+    public function excludePartialChildrenFromMyAccount($args) {
+        if (!isset($args['meta_query'])) $args['meta_query'] = array();
+        $args['meta_query'][] = array(
+            'key'     => '_wc_lkn_parent_id',
+            'compare' => 'NOT EXISTS',
+        );
+        return $args;
+    }
+
+    /**
+     * Exclui pedidos filhos parciais da listagem de pedidos do WooCommerce (HPOS).
+     */
+    public function excludePartialChildrenFromOrders($args) {
+        if (!is_admin()) return $args;
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+        if (!$screen || $screen->id !== 'woocommerce_page_wc-orders') return $args;
+
+        if (!isset($args['meta_query'])) $args['meta_query'] = array();
+        $args['meta_query'][] = array(
+            'key'     => '_wc_lkn_parent_id',
+            'compare' => 'NOT EXISTS',
+        );
+        return $args;
+    }
+
+    /**
+     * Exclui pedidos filhos parciais do Analytics (filtro de resultados).
+     */
+    public function excludePartialChildrenFromAnalytics($data, $query) {
+        if (is_object($data) && isset($data->data) && is_array($data->data)) {
+            global $wpdb;
+
+            // Filtra: remove apenas filhos reais (_wc_lkn_parent_id existe)
+            $child_ids = $wpdb->get_col(
+                "SELECT order_id FROM {$wpdb->prefix}wc_orders_meta WHERE meta_key = '_wc_lkn_parent_id' AND meta_value REGEXP '^[0-9]+$'"
+            );
+
+            $before_ids = array();
+            foreach ($data->data as $item) {
+                $before_ids[] = is_array($item) ? (int) ($item['order_id'] ?? 0) : (int) ($item->order_id ?? 0);
+            }
+
+            $all_ids = $wpdb->get_col("SELECT id FROM {$wpdb->prefix}wc_orders WHERE id >= 3990 AND id <= 4000 ORDER BY id DESC");
+            error_log('[Analytics] DB orders 3990-4000: ' . implode(', ', $all_ids) . ' | BEFORE page: ' . implode(', ', $before_ids) . ' | child_ids count=' . count($child_ids ?? array()));
+
+            if (!empty($child_ids)) {
+                $child_ids = array_map('intval', $child_ids);
+                $data->data = array_values(array_filter($data->data, function ($item) use ($child_ids) {
+                    $oid = is_array($item) ? (int) ($item['order_id'] ?? 0) : (int) ($item->order_id ?? 0);
+                    return $oid <= 0 || !in_array($oid, $child_ids, true);
+                }));
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Exclui pedidos filhos parciais da REST API de pedidos.
+     */
+    public function excludePartialChildrenFromRestQuery($args, $request) {
+        if (!isset($args['meta_query'])) $args['meta_query'] = array();
+        $args['meta_query'][] = array(
+            'key'     => '_wc_lkn_parent_id',
+            'compare' => 'NOT EXISTS',
+        );
+        return $args;
+    }
+
+    /**
+     * Insere/atualiza manualmente a tabela wc_order_stats pro pedido pai.
+     * wc_create_order manual não dispara os hooks de analytics.
+     */
+    /**
+     * Verifica se TODOS os filhos do pedido pai atingiram o status de sucesso
+     * configurado (lkn_wcip_partial_complete_status_{gateway}) ou status final (completed/partial-comp).
+     */
+    private function allChildrenPaid($parent_order) {
+        $partials_ids = (array) $parent_order->get_meta('_wc_lkn_partials_id');
+        if (empty($partials_ids)) return false;
+
+        foreach ($partials_ids as $pid) {
+            $child = wc_get_order((int) $pid);
+            if (!$child || $child->get_status() === 'trash') continue;
+
+            $child_status = $child->get_status();
+            $gateway = $child->get_payment_method();
+
+            // Status finais são sempre considerados pagos
+            if (in_array($child_status, array('completed', 'partial-comp', 'partial-pend'), true)) {
+                continue;
+            }
+
+            // Status pendentes: verifica se o gateway já confirmou
+            $per_gateway = get_option('lkn_wcip_partial_complete_status_' . $gateway, null);
+            if ($per_gateway !== null) {
+                $expected = str_replace('wc-', '', $per_gateway);
+                if ($child_status === $expected) continue; // bateu com o configurado
+            }
+
+            // Se não bateu com nenhuma condição, não está pago
+            error_log("[allChildrenPaid] Child #{$pid} NOT paid: status={$child_status} gateway={$gateway} expected=" . (isset($expected) ? $expected : 'none'));
+            return false;
+        }
+        return true;
+    }
+
+    private function syncOrderToAnalytics($order) {
+        global $wpdb;
+        $stats_table = "{$wpdb->prefix}wc_order_stats";
+        $lookup_table = "{$wpdb->prefix}wc_order_product_lookup";
+
+        $order_id = $order->get_id();
+        $status = $order->get_status();
+        $date_created = $order->get_date_created();
+        if (!$date_created) $date_created = new \WC_DateTime();
+        $date_created_local = $date_created->date('Y-m-d H:i:s');
+        $customer_id = $order->get_customer_id() ?: 0;
+        $total = (float) $order->get_total();
+        $num_items = $order->get_item_count();
+
+        $wpdb->replace($stats_table, array(
+            'order_id'       => $order_id,
+            'parent_id'      => 0,
+            'date_created'   => $date_created_local,
+            'date_created_gmt' => $date_created->date('Y-m-d H:i:s'),
+            'num_items_sold' => $num_items,
+            'total_sales'    => $total,
+            'tax_total'      => (float) $order->get_total_tax(),
+            'shipping_total' => (float) $order->get_shipping_total(),
+            'net_total'      => $total,
+            'returning_customer' => 0,
+            'status'         => $status,
+            'customer_id'    => $customer_id,
+        ));
+
+        // Product lookup
+        $wpdb->delete($lookup_table, array('order_id' => $order_id));
+        foreach ($order->get_items('line_item') as $item) {
+            $product_id = $item->get_product_id() ?: 0;
+            $variation_id = $item->get_variation_id() ?: 0;
+            if ($product_id) {
+                $wpdb->insert($lookup_table, array(
+                    'order_item_id'  => $item->get_id(),
+                    'order_id'       => $order_id,
+                    'product_id'     => $product_id,
+                    'variation_id'   => $variation_id,
+                    'customer_id'    => $customer_id,
+                    'date_created'   => $date_created_local,
+                    'product_qty'    => $item->get_quantity(),
+                    'product_net_revenue' => $item->get_total(),
+                    'product_gross_revenue' => $item->get_total(),
+                    'coupon_amount'  => 0,
+                ));
+            }
+        }
+
+        error_log("[Analytics] Manual sync for order #{$order_id} status={$status} total={$total}");
     }
 }

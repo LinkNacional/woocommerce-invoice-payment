@@ -628,7 +628,7 @@ final class WcPaymentInvoiceAdmin
                             <div class="invoice-column-wrap">
                                 <div class="input-row-wrap">
                                     <label
-                                        for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                        for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                     <input
                                         name="lkn_wcip_name"
                                         type="text"
@@ -887,19 +887,12 @@ final class WcPaymentInvoiceAdmin
         $thousandSeparator = wc_get_price_thousand_separator();
         $decimalQtd = wc_get_price_decimals();
 
-        // Get all translated WooCommerce order status
-        $statusWc = array();
-        $statusWc[] = array('status' => 'wc-pending', 'label' => _x('Pending payment', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-processing', 'label' => _x('Processing', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-on-hold', 'label' => _x('On hold', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-completed', 'label' => _x('Completed', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-cancelled', 'label' => _x('Cancelled', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-refunded', 'label' => _x('Refunded', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-failed', 'label' => _x('Failed', 'Order status', 'wc-invoice-payment'));
+        // Get all translated WooCommerce order statuses (including custom partial ones)
+        $statusWc = wc_get_order_statuses();
 
         $c = 0;
         $order = wc_get_order($invoiceId);
-        $parentOrderId = $order->get_meta('_wc_lkn_parent_id', $order);
+        $parentOrderId = $order->get_meta('_wc_lkn_parent_id');
         $parentOrder = wc_get_order($parentOrderId);
         if ($order->get_user_id()) {
             $userId = absint($order->get_user_id());
@@ -1009,12 +1002,9 @@ final class WcPaymentInvoiceAdmin
                                     class="regular-text"
                                     value="<?php echo esc_html('wc-' . $order->get_status()); ?>">
                                     <?php
-                                    for ($i = 0; $i < count($statusWc); ++$i) {
-                                        if (explode('-', $statusWc[$i]['status'])[1] === $orderStatus) {
-                                            echo '<option value="' . esc_attr($statusWc[$i]['status']) . '" selected>' . esc_attr($statusWc[$i]['label']) . '</option>';
-                                        } else {
-                                            echo '<option value="' . esc_attr($statusWc[$i]['status']) . '">' . esc_attr($statusWc[$i]['label']) . '</option>';
-                                        }
+                                    foreach ($statusWc as $status_key => $status_label) {
+                                        $current = (str_replace('wc-', '', $status_key) === $orderStatus);
+                                        echo '<option value="' . esc_attr($status_key) . '"' . ($current ? ' selected' : '') . '>' . esc_html($status_label) . '</option>';
                                     } ?>
                                 </select>
                             </div>
@@ -1123,7 +1113,7 @@ final class WcPaymentInvoiceAdmin
                         <div class="invoice-column-wrap">
                             <div class="input-row-wrap">
                                 <label
-                                    for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                    for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                 <input
                                     name="lkn_wcip_name"
                                     type="text"
@@ -1425,6 +1415,43 @@ final class WcPaymentInvoiceAdmin
                         <?php
                             ++$c;
                         } ?>
+                        <?php
+                        // Shipping + total summary
+                        $shipping_items = $order->get_items('shipping');
+                        $shipping_total = 0.0;
+                        $shipping_label = '';
+                        if (!empty($shipping_items)) {
+                            foreach ($shipping_items as $si) {
+                                $shipping_total += (float) $si->get_total();
+                                $shipping_label = $si->get_method_title();
+                            }
+                        }
+                        $items_subtotal = 0.0;
+                        foreach ($order->get_items('line_item') as $li) {
+                            $items_subtotal += (float) $li->get_total();
+                        }
+                        $grand_total = $items_subtotal + $shipping_total;
+                        ?>
+                        <?php if ($shipping_total > 0): ?>
+                        <?php
+                            $sc = $c;
+                            ++$c;
+                        ?>
+                        <div class="price-row-wrap price-row-<?php echo esc_attr($sc); ?>">
+                            <div class="input-row-wrap">
+                                <label><?php esc_attr_e('Shipping', 'wc-invoice-payment'); ?></label>
+                                <input type="text" class="regular-text" readonly value="<?php echo esc_attr($shipping_label); ?>">
+                            </div>
+                            <div class="input-row-wrap">
+                                <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
+                                <input type="tel" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" readonly value="<?php echo esc_attr(number_format($shipping_total, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>">
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                        <div style="padding:8px 0;font-size:14px;font-weight:700;color:#333">
+                            <?php esc_html_e('Total (products + shipping)', 'wc-invoice-payment'); ?>:
+                            <?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($grand_total, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>
+                        </div>
                     </div>
                     <hr>
                     <?php
@@ -1441,6 +1468,9 @@ final class WcPaymentInvoiceAdmin
                 </div>
                 <?php
                 if ($parentOrder || $order->get_meta('_wc_lkn_is_partial_main_order') == 'yes') {
+                    $partial_amount_paid = (float) $order->get_meta('_wc_lkn_partial_amount_paid');
+                    $order_total = (float) $order->get_total();
+                    $fees = round($order_total - $partial_amount_paid, 2);
                 ?>
                     <div class="wcip-invoice-data wcip-postbox">
                         <h2 class="title">
@@ -1468,12 +1498,89 @@ final class WcPaymentInvoiceAdmin
                             <?php
                             }
                             ?>
+
+                            <?php if ($order->get_meta('_wc_lkn_is_partial_order') === 'yes'): ?>
+                            <div style="font-size:13px;color:#555;line-height:1.8;margin-top:8px;width:100%">
+                                <div style="display:flex;justify-content:space-between">
+                                    <span><?php esc_html_e('Amount (base):', 'wc-invoice-payment'); ?></span>
+                                    <strong><?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($partial_amount_paid, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?></strong>
+                                </div>
+                                <?php if ($fees > 0.01): ?>
+                                <div style="display:flex;justify-content:space-between;color:#007cba">
+                                    <span><?php esc_html_e('Taxes/fees:', 'wc-invoice-payment'); ?></span>
+                                    <span>+ <?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($fees, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
+                                <div style="display:flex;justify-content:space-between;font-weight:700;color:#333">
+                                    <span><?php esc_html_e('Amount paid:', 'wc-invoice-payment'); ?></span>
+                                    <span><?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($order_total, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?></span>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php
                 }
                 ?>
                 <div style="width: 100%;"></div>
+                <?php
+                // Order notes
+                $order_notes = wc_get_order_notes(array('order_id' => $order->get_id()));
+                if (!empty($order_notes)) :
+                ?>
+                <div class="wcip-invoice-data">
+                    <h2 class="title">
+                        <?php esc_attr_e('Order Notes', 'wc-invoice-payment'); ?>
+                    </h2>
+                    <div class="invoice-column-wrap">
+                        <?php foreach ($order_notes as $note): ?>
+                            <div style="padding:10px 14px;margin-bottom:8px;font-size:13px;color:#555;line-height:1.5;background:#f3f3f3;border-radius:0 12px 12px 12px">
+                                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                                    <span style="font-weight:600;color:#555"><?php echo ($note->added_by === 'system') ? esc_html__('System', 'wc-invoice-payment') : esc_html($note->added_by); ?></span>
+                                    <span style="font-size:11px;color:#888"><?php echo esc_html(gmdate('d/m/Y H:i', strtotime($note->date_created))); ?></span>
+                                </div>
+                                <div><?php echo wp_kses_post($note->content); ?></div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                <?php
+                // Custom fields (metadata) as textareas with copy buttons
+                $meta_data = $order->get_meta_data();
+                if (!empty($meta_data)) :
+                    $show_meta = array();
+                    foreach ($meta_data as $md) {
+                        $k = $md->get_data()['key'];
+                        if (strpos($k, 'lkn_') === 0 || strpos($k, 'lknWc') === 0
+                            || strpos($k, '_wc_lkn_') === 0 || strpos($k, 'wcip_') === 0
+                            || $k === '_transaction_id' || $k === '_payment_method'
+                            || $k === '_payment_method_title') {
+                            $v = $md->get_data()['value'];
+                            if (is_array($v) || is_object($v)) $v = wp_json_encode($v, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+                            $show_meta[] = array('key' => $k, 'value' => (string) $v);
+                        }
+                    }
+                    if (!empty($show_meta)) :
+                ?>
+                <div class="wcip-invoice-data">
+                    <h2 class="title">
+                        <?php esc_html_e('Custom Fields', 'wc-invoice-payment'); ?>
+                    </h2>
+                    <div class="invoice-column-wrap" style="padding:8px;background:#fff;border:1px solid #e0e0e0;border-radius:4px">
+                        <?php foreach ($show_meta as $idx => $meta): ?>
+                        <div style="margin-bottom:10px;border-bottom:1px solid #f0f0f0;padding-bottom:10px">
+                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                                <label style="font-weight:600;font-size:13px;color:#333;margin:0"><?php echo esc_html($meta['key']); ?></label>
+                                <button type="button" onclick="(function(){var t=document.getElementById('wcip-meta-<?php echo $idx; ?>');t.select();t.setSelectionRange(0,99999);navigator.clipboard.writeText(t.value);var b=this;b.innerHTML='<span class=dashicons dashicons-yes style=font-size:14px;width:14px;height:14px></span>';setTimeout(function(){b.innerHTML='<span class=dashicons dashicons-clipboard style=font-size:14px;width:14px;height:14px></span>'},1500)})()" style="padding:1px 2px;background:0 0;color:#999;border:none;cursor:pointer;line-height:1" title="<?php esc_attr_e('Copy', 'wc-invoice-payment'); ?>"><span class="dashicons dashicons-clipboard" style="font-size:14px;width:14px;height:14px"></span></button>
+                            </div>
+                            <textarea readonly rows="1" style="width:100%;font-family:monospace;font-size:12px;background:#f8f8f8;border:1px solid #ddd;border-radius:3px;padding:6px;resize:vertical;color:#555" id="wcip-meta-<?php echo $idx; ?>"><?php echo esc_textarea($meta['value']); ?></textarea>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; endif; ?>
                 <div class="wcip-invoice-data">
                     <h2 class="title">
                         <?php esc_attr_e('Footer notes', 'wc-invoice-payment'); ?>
@@ -1493,7 +1600,27 @@ final class WcPaymentInvoiceAdmin
         </div>
         <script type="text/javascript">
             document.addEventListener('DOMContentLoaded', () => {
-                startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit')
+                startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit');
+
+                // Toggle collapse
+                document.querySelectorAll('.wcip-invoice-data').forEach(function(s){
+                    var t=s.querySelector('h2.title');
+                    if(!t)return;
+                    var c=t.nextElementSibling;
+                    if(!c||!c.classList||!c.classList.contains('invoice-column-wrap')&&!c.classList.contains('invoice-row-wrap'))return;
+                    var b=document.createElement('button');
+                    b.type='button';
+                    b.innerHTML='<span class=\"dashicons dashicons-arrow-up-alt2\" style=\"font-size:16px;width:16px;height:16px;display:flex;align-items:center;justify-content:center\"></span>';
+                    b.style.cssText='margin-left:auto;padding:0;background:0 0;border:none;cursor:pointer;color:#666;line-height:1';
+                    t.style.cssText=t.style.cssText+';display:flex;align-items:center;gap:8px';
+                    t.appendChild(b);
+                    b.addEventListener('click',function(){
+                        var h=c.style.display==='none';
+                        c.style.display=h?'':'none';
+                        b.querySelector('.dashicons').className=h?'dashicons dashicons-arrow-up-alt2':'dashicons dashicons-arrow-down-alt2';
+                        t.style.marginBottom=h?'':'0';
+                    });
+                });
             })
         </script>
         <?php
@@ -1591,15 +1718,7 @@ final class WcPaymentInvoiceAdmin
         $thousandSeparator = wc_get_price_thousand_separator();
         $decimalQtd = wc_get_price_decimals();
 
-        // Get all translated WooCommerce order status
-        $statusWc = array();
-        $statusWc[] = array('status' => 'wc-pending', 'label' => _x('Pending payment', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-processing', 'label' => _x('Processing', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-on-hold', 'label' => _x('On hold', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-completed', 'label' => _x('Completed', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-cancelled', 'label' => _x('Cancelled', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-refunded', 'label' => _x('Refunded', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-failed', 'label' => _x('Failed', 'Order status', 'wc-invoice-payment'));
+        $statusWc = wc_get_order_statuses();
 
         $c = 0;
         $order = wc_get_order($invoiceId);
@@ -1730,12 +1849,9 @@ final class WcPaymentInvoiceAdmin
                                     class="regular-text"
                                     value="<?php echo esc_html('wc-' . $order->get_status()); ?>">
                                     <?php
-                                    for ($i = 0; $i < count($statusWc); ++$i) {
-                                        if (explode('-', $statusWc[$i]['status'])[1] === $orderStatus) {
-                                            echo '<option value="' . esc_attr($statusWc[$i]['status']) . '" selected>' . esc_attr($statusWc[$i]['label']) . '</option>';
-                                        } else {
-                                            echo '<option value="' . esc_attr($statusWc[$i]['status']) . '">' . esc_attr($statusWc[$i]['label']) . '</option>';
-                                        }
+                                    foreach ($statusWc as $status_key => $status_label) {
+                                        $current = (str_replace('wc-', '', $status_key) === $orderStatus);
+                                        echo '<option value="' . esc_attr($status_key) . '"' . ($current ? ' selected' : '') . '>' . esc_html($status_label) . '</option>';
                                     } ?>
                                 </select>
                             </div>
@@ -1842,7 +1958,7 @@ final class WcPaymentInvoiceAdmin
                         <div class="invoice-column-wrap">
                             <div class="input-row-wrap">
                                 <label
-                                    for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                    for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                 <input
                                     name="lkn_wcip_name"
                                     type="text"
@@ -2540,7 +2656,7 @@ final class WcPaymentInvoiceAdmin
                                 <div class="invoice-column-wrap">
                                     <div class="input-row-wrap">
                                         <label
-                                            for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                            for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                         <input
                                             name="lkn_wcip_name"
                                             type="text"
@@ -4405,7 +4521,7 @@ final class WcPaymentInvoiceAdmin
                         <div class="invoice-column-wrap">
                             <div class="input-row-wrap">
                                 <label
-                                    for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                    for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                 <input
                                     name="lkn_wcip_name"
                                     type="text"

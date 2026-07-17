@@ -248,6 +248,8 @@ final class WcPaymentInvoice {
         $this->loader->add_action('init', $this, 'manage_quote_gateway_status');
 		$this->loader->add_filter( 'wc_order_statuses', $this->WcPaymentInvoicePartialClass, 'createStatus' );
 		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoicePartialClass, 'registerStatus' );
+		$this->loader->add_filter( 'woocommerce_reports_order_statuses', $this->WcPaymentInvoicePartialClass, 'includeInReports' );
+		$this->loader->add_filter( 'woocommerce_analytics_orders_stats_query_args', $this->WcPaymentInvoicePartialClass, 'addStatusesToAnalytics' );
 		$this->loader->add_action( 'woocommerce_order_status_changed', $this->WcPaymentInvoicePartialClass, 'statusChanged', 10, 4);
         $this->loader->add_action( 'add_meta_boxes', $this->WcPaymentInvoicePartialClass, 'showPartialsPayments', 1);
         $this->loader->add_action( 'admin_footer', $this->WcPaymentInvoicePartialClass, 'injectPaymentLinkButton');
@@ -508,6 +510,13 @@ final class WcPaymentInvoice {
         $this->loader->add_filter( 'woocommerce_package_rates', $this->WcPaymentInvoicePartialClass, 'filterShippingForPartialRemaining', 9999);
         $this->loader->add_action( 'woocommerce_before_checkout_form', $this->WcPaymentInvoicePartialClass, 'addLockedShippingNotice');
         $this->loader->add_filter( 'woocommerce_my_account_my_orders_actions', $this->WcPaymentInvoicePartialClass, 'addPartialActions', 10, 2);
+
+        // Oculta pedidos filhos parciais da lista de pedidos WP (admin + analytics + my account)
+        $this->loader->add_filter( 'woocommerce_order_list_table_prepare_items_query_args', $this->WcPaymentInvoicePartialClass, 'excludePartialChildrenFromOrders');
+        $this->loader->add_filter( 'woocommerce_analytics_orders_select_query', $this->WcPaymentInvoicePartialClass, 'excludePartialChildrenFromAnalytics', 10, 2);
+        $this->loader->add_filter( 'woocommerce_rest_orders_prepare_object_query', $this->WcPaymentInvoicePartialClass, 'excludePartialChildrenFromRestQuery', 10, 2);
+        $this->loader->add_filter( 'woocommerce_my_account_my_orders_query', $this->WcPaymentInvoicePartialClass, 'excludePartialChildrenFromMyAccount');
+
         $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart', 999);
         $this->loader->add_action('woocommerce_cart_calculate_fees', $this->WcPaymentInvoicePartialClass, 'applyPartialSplitFee', 1);
