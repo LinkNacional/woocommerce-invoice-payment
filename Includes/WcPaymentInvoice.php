@@ -250,6 +250,7 @@ final class WcPaymentInvoice {
 		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoicePartialClass, 'registerStatus' );
 		$this->loader->add_action( 'woocommerce_order_status_changed', $this->WcPaymentInvoicePartialClass, 'statusChanged', 10, 4);
         $this->loader->add_action( 'add_meta_boxes', $this->WcPaymentInvoicePartialClass, 'showPartialsPayments', 1);
+        $this->loader->add_action( 'admin_footer', $this->WcPaymentInvoicePartialClass, 'injectPaymentLinkButton');
         $this->loader->add_filter( 'woocommerce_shop_order_list_table_prepare_items_query_args', $this->WcPaymentInvoicePartialClass, 'hidePartialOrdersRequest');
         $this->loader->add_filter( 'woocommerce_shop_order_list_table_order_count', $this->WcPaymentInvoicePartialClass, 'fixTableCount', 10, 2);
         $this->loader->add_action('woocommerce_before_delete_order', $this->WcPaymentInvoicePartialClass, 'deletePartialOrders');
@@ -489,6 +490,12 @@ final class WcPaymentInvoice {
         $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_clear_partial_split', $this->WcPaymentInvoicePartialClass, 'ajaxClearPartialSplit');
         $this->loader->add_action( 'wp_ajax_lkn_wcip_get_partial_split_state', $this->WcPaymentInvoicePartialClass, 'ajaxGetPartialSplitState');
         $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_get_partial_split_state', $this->WcPaymentInvoicePartialClass, 'ajaxGetPartialSplitState');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_initiate_partial', $this->WcPaymentInvoicePartialClass, 'ajaxInitiatePartialPayment');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_initiate_partial', $this->WcPaymentInvoicePartialClass, 'ajaxInitiatePartialPayment');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_toggle_partial_mode', $this->WcPaymentInvoicePartialClass, 'ajaxTogglePartialMode');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_toggle_partial_mode', $this->WcPaymentInvoicePartialClass, 'ajaxTogglePartialMode');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_get_parent_partial_state', $this->WcPaymentInvoicePartialClass, 'ajaxGetParentPartialState');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_get_parent_partial_state', $this->WcPaymentInvoicePartialClass, 'ajaxGetParentPartialState');
 
         // Processamento da ordem: salva remaining como meta + limpa sessão
         $this->loader->add_action( 'woocommerce_checkout_order_processed', $this->WcPaymentInvoicePartialClass, 'savePartialRemainingOnOrder', 10, 1);

@@ -117,9 +117,9 @@
 
     function handleCalculate() {
         var val = parseCurrency(getInput().val());
-        if (!val || val <= 0) return;
+        if (!val || val <= 0) { alert('Digite um valor válido para o pagamento parcial.'); return; }
         if (val >= getCartTotal()) { alert('O valor parcial deve ser menor que o total.'); return; }
-        if (MIN_AMOUNT > 0 && val < MIN_AMOUNT) { alert('Valor abaixo do minimo permitido.'); return; }
+        if (MIN_AMOUNT > 0 && val < MIN_AMOUNT) { alert('Valor abaixo do mínimo permitido.'); return; }
 
         getBtn().prop('disabled', true);
 
@@ -137,6 +137,23 @@
             renderResult();
             invalidateCart();
         }).finally(function () { getBtn().prop('disabled', false); });
+    }
+
+    function handleInitiatePartial() {
+        getBtn().prop('disabled', true).text('Criando pedido...');
+
+        ajaxPost('lkn_wcip_initiate_partial', {}).then(function (res) {
+            if (!res || !res.success || !res.data.redirect_url) {
+                alert(res && res.data && res.data.message ? res.data.message : 'Erro ao iniciar pagamento parcial.');
+                getBtn().prop('disabled', false).text('Iniciar pagamento parcial');
+                return;
+            }
+
+            window.location.href = res.data.redirect_url;
+        }).catch(function () {
+            alert('Erro de rede. Tente novamente.');
+            getBtn().prop('disabled', false).text('Iniciar pagamento parcial');
+        });
     }
 
     function renderResult() {
@@ -225,21 +242,45 @@
     $(document).on('change', '#lkn-wcip-split-checkbox', function () {
         console.log('[PartialSplit] checkbox CHANGE — checked=' + this.checked);
         if (this.checked) {
-            getFields().slideDown(200);
-            getCard().find('.lkn-wcip-base-max-msg').slideDown(200);
-            var hasValue = parseCurrency(getInput().val()) > 0;
-            getBtn().css({ opacity: hasValue ? '' : '0.5', pointerEvents: hasValue ? '' : 'none' });
+            if (!IS_PAY_REMAINING) {
+                // Checkout normal: esconde gateways, recalcula, mostra só o botão centralizado
+                getFields().show();
+                getInput().hide();
+                getBtn().css({ opacity: '1', pointerEvents: '' }).show().parent().css({ justifyContent: 'center' });
+                $('#payment-method').hide();
+                ajaxPost('lkn_wcip_toggle_partial_mode', { active: '1' }).then(invalidateCart);
+            } else {
+                // pay_remaining: mostra input + botão
+                getFields().slideDown(200);
+                getCard().find('.lkn-wcip-base-max-msg').slideDown(200);
+                var hasValue = parseCurrency(getInput().val()) > 0;
+                getBtn().css({ opacity: hasValue ? '' : '0.5', pointerEvents: hasValue ? '' : 'none' });
+            }
         } else {
-            getFields().slideUp(200);
-            getCard().find('.lkn-wcip-base-max-msg').slideUp(200);
-            if (calculated) handleReset();
+            if (!IS_PAY_REMAINING) {
+                // Checkout normal: mostra gateways, esconde tudo
+                getFields().hide();
+                getInput().show(); // restaura pra próxima vez
+                $('#payment-method').show();
+                ajaxPost('lkn_wcip_toggle_partial_mode', { active: '0' }).then(invalidateCart);
+            } else {
+                getFields().slideUp(200);
+                getCard().find('.lkn-wcip-base-max-msg').slideUp(200);
+                if (calculated) handleReset();
+            }
         }
     });
 
     $(document).on('click', '#lkn-wcip-split-btn', function () {
-        console.log('[PartialSplit] btn CLICK — calculated=' + calculated);
-        if (calculated) handleReset();
-        else handleCalculate();
+        console.log('[PartialSplit] btn CLICK — calculated=' + calculated + ' IS_PAY_REMAINING=' + IS_PAY_REMAINING);
+        if (IS_PAY_REMAINING) {
+            // Fluxo pay_remaining (1/2 ou 2/2): calcula split e mostra resultado
+            if (calculated) handleReset();
+            else handleCalculate();
+        } else {
+            // Checkout normal (1ª vez): cria pedido sem pagamento e redireciona
+            handleInitiatePartial();
+        }
     });
 
     $(document).on('input', '#lkn-wcip-split-amount', function () {
@@ -257,15 +298,78 @@
         if (val > 0) $(this).val(formatCurrency(val));
     });
 
-    $(document).on('click', '.wc-block-components-checkout-place-order-button', function (e) {
-        if (IS_PAY_REMAINING) return; // Modo "pagar restante" não tem validação
-        if (getCheckbox().is(':checked') && !calculated) {
-            e.preventDefault();
-            e.stopPropagation();
-            alert('Preencha o valor e clique em Split pagamento antes de finalizar.');
-            return false;
+    // ==========================================================
+    // Bloqueio do botão "Place Order" via MutationObserver.
+    // Inspirado no woo-better: attach direto ao elemento (não delegado)
+    // pra interceptar ANTES do handler nativo do WooCommerce Blocks.
+    // ==========================================================
+    (function () {
+        var placeOrderBound = false;
+
+        function handlePlaceOrderClick(e) {
+            if (IS_PAY_REMAINING) {
+                var $inp = getInput();
+                var $err = $('.lkn-wcip-split-error');
+                if ($inp.length && $inp.is(':visible')) {
+                    var val = parseCurrency($inp.val());
+                    if (!val || val <= 0) {
+                        e.stopImmediatePropagation();
+                        e.preventDefault();
+                        $err.slideDown(200);
+                        $inp[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return false;
+                    }
+                    if (!calculated) {
+                        e.stopImmediatePropagation();
+                        e.preventDefault();
+                        $err.slideDown(200);
+                        $inp[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return false;
+                    }
+                    // Tudo ok, esconde erro
+                    $err.slideUp(200);
+                }
+                return;
+            }
+            if (getCheckbox().is(':checked') && !calculated) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                var $inp = getInput();
+                var $err = $('.lkn-wcip-split-error');
+                $err.slideDown(200);
+                if ($inp.length) $inp[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
         }
-    });
+
+        function bindPlaceOrder() {
+            if (placeOrderBound) return;
+            var btn = document.querySelector('.wc-block-components-checkout-place-order-button');
+            if (!btn) return;
+            placeOrderBound = true;
+            btn.addEventListener('click', handlePlaceOrderClick);
+            console.log('[PartialSplit] Place Order button bound via addEventListener');
+        }
+
+        // Tenta várias vezes (WC Blocks re-renderiza o botão)
+        setInterval(function () {
+            var btn = document.querySelector('.wc-block-components-checkout-place-order-button');
+            if (btn && !placeOrderBound) {
+                bindPlaceOrder();
+            }
+            if (!btn) {
+                placeOrderBound = false;
+            }
+        }, 500);
+
+        // Também via MutationObserver pra ser mais rápido
+        new MutationObserver(function () {
+            var btn = document.querySelector('.wc-block-components-checkout-place-order-button');
+            if (btn && !placeOrderBound) {
+                bindPlaceOrder();
+            }
+        }).observe(document.body, { childList: true, subtree: true });
+    })();
 
     console.log('[PartialSplit] delegated events bound on document');
 
@@ -306,36 +410,48 @@
             }
 
             if ((isBatch || isCart || isCheckout) && calculated && splitData && !_restoring) {
-                // Só marca que algo mudou — depois lê do wp.data que sempre tá atualizado
                 var kind = isCheckout ? 'checkout' : (isBatch ? 'batch' : 'cart');
                 console.log('[PartialSplit] fetch detected (' + kind + ') — will refresh after settle');
-                setTimeout(function () {
-                    if (!calculated || !splitData || _restoring) return;
-                    restoreState();
-                }, isCart ? 2000 : (isCheckout ? 1500 : 600));
+                // Espera a resposta da fetch atual ANTES de restaurar o estado.
+                // CHECKOUT: gateway mudou → totais recalculados → AJAX vai refletir.
+                promise.then(function () {
+                    setTimeout(function () {
+                        if (!calculated || !splitData || _restoring) return;
+                        restoreState();
+                    }, isCart ? 800 : 400);
+                });
             }
 
             return promise;
         };
     })();
 
-    function restoreState() {
+    function restoreState(retryCount) {
+        var retries = retryCount || 0;
         if (!splitData || !splitData.partial_amount) return;
 
         var partialAmount = parseFloat(splitData.partial_amount);
         _restoring = true;
 
-        // getPartialSplitState é read-only — retorna estado atual da sessão + cart
         ajaxPost('lkn_wcip_get_partial_split_state').then(function (res) {
             if (!res || !res.success || !res.data || !res.data.active) {
-                // Gateway atual pode não suportar split ou sessão foi limpa
-                console.log('[PartialSplit] restoreState: split inactive, keeping UI');
+                // Gateway pode ter mudado pra um não suportado, ou race condition.
+                // Tenta de novo uma vez depois de 600ms.
+                if (retries < 2) {
+                    console.log('[PartialSplit] restoreState: inactive (retry ' + (retries+1) + '/2)');
+                    setTimeout(function () {
+                        _restoring = false;
+                        if (!calculated || !splitData) return;
+                        restoreState(retries + 1);
+                    }, 600);
+                    return;
+                }
+                console.log('[PartialSplit] restoreState: split inactive after retries, keeping UI');
                 restoreUI(partialAmount);
                 _restoring = false;
                 return;
             }
 
-            // Dados frescos do PHP + total do wp.data (sempre atualizado)
             var cartTotal = getCartTotal();
             splitData = {
                 partial_amount: res.data.partial_amount,
@@ -348,7 +464,7 @@
             restoreUI(partialAmount);
             renderResult();
             console.log('[PartialSplit] state restored with fresh data');
-            setTimeout(function () { _restoring = false; }, 3000);
+            setTimeout(function () { _restoring = false; }, 800);
         }).catch(function () {
             _restoring = false;
         });
