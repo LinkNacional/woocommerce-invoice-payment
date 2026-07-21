@@ -3274,7 +3274,8 @@ final class WcPaymentInvoicePartial
     public function addPartialActions($actions, $order) {
         // Resolve ao pai se for filho
         $parent_id = (int) $order->get_meta('_wc_lkn_parent_id');
-        $target = $parent_id > 0 ? wc_get_order($parent_id) : $order;
+        $is_child  = $parent_id > 0;
+        $target = $is_child ? wc_get_order($parent_id) : $order;
         if (!$target) return $actions;
 
         if ($target->get_meta('_wc_lkn_is_partial_main_order') !== 'yes') return $actions;
@@ -3282,16 +3283,33 @@ final class WcPaymentInvoicePartial
         $allowed_statuses = array('wc-partial', 'wc-partial-pend');
         if (!in_array('wc-' . $target->get_status(), $allowed_statuses, true)) return $actions;
 
+        // Se o pedido atual é filho e JÁ foi pago (status de sucesso do gateway), esconde ações.
+        // Ex: filho 2 pago → seu próprio pagamento já foi concluído, nada a continuar.
+        $complete_statuses = $this->getPartialCompleteStatuses();
+        if ($is_child && in_array('wc-' . $order->get_status(), $complete_statuses, true)) {
+            return $actions;
+        }
+
+        // Na thank-you page (não My Account), só mostra "Continuar" no primeiro filho.
+        // Filhos posteriores não devem ter ação de continuar na página de agradecimento.
+        $is_my_account = is_wc_endpoint_url('orders');
+        if (!$is_my_account && $is_child) {
+            $partials_ids = $target->get_meta('_wc_lkn_partials_id', true);
+            if (is_array($partials_ids) && !empty($partials_ids)) {
+                $first_child_id = (int) reset($partials_ids);
+                if ($order->get_id() !== $first_child_id) return $actions;
+            }
+        }
+
         $order_id = $target->get_id();
         $original_total = (float) $target->get_meta('_wc_lkn_original_total');
         $confirmed = (float) $target->get_meta('_wc_lkn_total_confirmed');
         $remaining = round($original_total - $confirmed, 2);
 
-        // Botão "Continuar pagamento" — só se ainda tem saldo a pagar OU tem filho pendente
+        // Botão "Continuar pagamento" — só se ainda tem saldo OU tem filho pendente
         $should_show_continue = $remaining > 0;
         $pending_child_id = null;
         if (!$should_show_continue) {
-            $complete_statuses = $this->getPartialCompleteStatuses();
             $partials_ids = $target->get_meta('_wc_lkn_partials_id', true);
             if (is_array($partials_ids)) {
                 foreach ($partials_ids as $cid) {
