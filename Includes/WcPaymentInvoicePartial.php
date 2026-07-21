@@ -2428,7 +2428,11 @@ final class WcPaymentInvoicePartial
                 $original_total = ($parent_order && (float) $parent_order->get_meta('_wc_lkn_original_total') > 0)
                     ? (float) $parent_order->get_meta('_wc_lkn_original_total')
                     : $base_max;
-                $step .= '<p class="lkn-wcip-base-max-msg" style="font-size:13px;color:#666;margin:8px 0 0">Valor máximo permitido: <strong class="lkn-wcip-base-max-val">' . $symbol . '&nbsp;' . number_format($original_total, 2, ',', '.') . '</strong> <span style="font-size:12px;color:#999">(sem taxas ou descontos)</span></p>';
+                $min_amount = (float) get_option('lkn_wcip_partial_interval_minimum', 0);
+                if ($min_amount > 0) {
+                    $step .= '<p class="lkn-wcip-base-min-msg" style="font-size:12px;color:#999;margin:8px 0 0">Valor mínimo por parcela: <strong>' . $symbol . '&nbsp;' . number_format($min_amount, 2, ',', '.') . '</strong></p>';
+                }
+                $step .= '<p class="lkn-wcip-base-max-msg" style="font-size:13px;color:#666;margin:4px 0 0">Valor máximo permitido: <strong class="lkn-wcip-base-max-val">' . $symbol . '&nbsp;' . number_format($original_total, 2, ',', '.') . '</strong> <span style="font-size:12px;color:#999">(sem taxas ou descontos)</span></p>';
             }
         } else {
             // Checkout normal (1ª vez): checkbox desmarcado, apenas ele visível
@@ -2436,7 +2440,11 @@ final class WcPaymentInvoicePartial
             $step .= '<input id="lkn-wcip-split-checkbox" type="checkbox" style="width:18px;height:18px;margin-top:1px;flex-shrink:0">';
             $step .= '<span>Marque para dividir o pagamento.</span>';
             $step .= '</label>';
-            $step .= '<p class="lkn-wcip-base-max-msg" style="font-size:13px;color:#666;margin:8px 0 0;display:none">Valor máximo permitido: <strong class="lkn-wcip-base-max-val">' . $symbol . '&nbsp;' . $base_max_f . '</strong> <span style="font-size:12px;color:#999">(sem taxas ou descontos)</span></p>';
+            $min_amount = (float) get_option('lkn_wcip_partial_interval_minimum', 0);
+            if ($min_amount > 0) {
+                $step .= '<p class="lkn-wcip-base-min-msg" style="font-size:12px;color:#999;margin:8px 0 0;display:none">Valor mínimo por parcela: <strong>' . $symbol . '&nbsp;' . number_format($min_amount, 2, ',', '.') . '</strong></p>';
+            }
+            $step .= '<p class="lkn-wcip-base-max-msg" style="font-size:13px;color:#666;margin:4px 0 0;display:none">Valor máximo permitido: <strong class="lkn-wcip-base-max-val">' . $symbol . '&nbsp;' . $base_max_f . '</strong> <span style="font-size:12px;color:#999">(sem taxas ou descontos)</span></p>';
         }
 
         // Campos (input + botão)
@@ -2668,6 +2676,20 @@ final class WcPaymentInvoicePartial
 
         // Calcula o remaining (pré-fee, pra referência do JS)
         $remaining = $cart_total - $partial_amount;
+        if ($remaining < 0) $remaining = 0;
+
+        // Valida que o restante também não fique abaixo do mínimo
+        if ($min_amount > 0 && $remaining > 0 && $remaining < $min_amount) {
+            WC()->session->__unset('lkn_partial_amount');
+            wp_send_json_error(array(
+                'message' => sprintf(
+                    /* translators: %1$s: minimum amount, %2$s: remaining amount */
+                    __('O valor restante (R$ %2$s) não pode ser menor que o mínimo para pagamento parcial (%1$s). Ajuste o valor informado.', 'wc-invoice-payment'),
+                    wc_price($min_amount),
+                    number_format($remaining, 2, ',', '.')
+                ),
+            ));
+        }
         WC()->session->set('lkn_partial_remaining', $remaining);
 
         // Determina gateways desabilitados (pula se for fluxo "pagar restante")

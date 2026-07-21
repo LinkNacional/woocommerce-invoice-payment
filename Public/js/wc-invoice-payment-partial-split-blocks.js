@@ -115,6 +115,7 @@
                     // pay_remaining: checkbox sempre marcado, reexibe campos zerados
                     getFields().show();
                     getCard().find('.lkn-wcip-base-max-msg').show();
+                    getCard().find('.lkn-wcip-base-min-msg').show();
                     getInput().val('').prop('disabled', false);
                     getBtn().text('Split pagamento').css({ opacity: '0.5', pointerEvents: 'none' });
                 }
@@ -128,6 +129,13 @@
         if (!val || val <= 0) { alert('Digite um valor válido para o pagamento parcial.'); return; }
         if (val >= getCartTotal()) { alert('O valor parcial deve ser menor que o total.'); return; }
         if (MIN_AMOUNT > 0 && val < MIN_AMOUNT) { alert('Valor abaixo do mínimo permitido.'); return; }
+        if (MIN_AMOUNT > 0) {
+            var remaining = getBaseMax() - val;
+            if (remaining > 0 && remaining < MIN_AMOUNT) {
+                alert('O valor restante (R$ ' + remaining.toFixed(2).replace('.', ',') + ') não pode ser menor que o mínimo (R$ ' + MIN_AMOUNT.toFixed(2).replace('.', ',') + '). Ajuste o valor informado.');
+                return;
+            }
+        }
 
         getBtn().prop('disabled', true);
 
@@ -180,7 +188,6 @@
         // remaining recalculado com dados frescos
         var remaining = baseMax + gatewayFees - cartTotal;
         if (remaining < 0) remaining = 0;
-        var totalComTaxas = baseMax + gatewayFees;
         var realPaidNow = Math.abs(gatewayFees) > 0.01 ? cartTotal : partialAmount;
         var hasFees = Math.abs(gatewayFees) > 0.01;
 
@@ -191,8 +198,6 @@
         html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Valor informado</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
         html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Taxas/Descontos adicionais:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
 
-        html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="font-size:13px;color:#d63638;margin-bottom:4px"><span>Pagamento parcial</span><span style="float:right;font-weight:500">' + formatCurrency(-remaining) + '</span></div>';
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
         html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Você pagará agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
 
@@ -256,6 +261,8 @@
                 // Checkout normal: gateway mockado assume, mostra só o botão centralizado
                 getFields().show();
                 getInput().hide();
+                getCard().find('.lkn-wcip-base-max-msg').show();
+                getCard().find('.lkn-wcip-base-min-msg').show();
                 getBtn().css({ opacity: '1', pointerEvents: 'auto' }).show().parent().css({ justifyContent: 'center' });
                 ajaxPost('lkn_wcip_toggle_partial_mode', { active: '1' }).then(invalidateCart);
 
@@ -274,6 +281,7 @@
                 // pay_remaining: mostra input + botão
                 getFields().slideDown(200);
                 getCard().find('.lkn-wcip-base-max-msg').slideDown(200);
+                getCard().find('.lkn-wcip-base-min-msg').slideDown(200);
                 var hasValue = parseCurrency(getInput().val()) > 0;
                 getBtn().css({ opacity: hasValue ? '' : '0.5', pointerEvents: hasValue ? '' : 'none' });
             }
@@ -282,10 +290,13 @@
                 // Checkout normal: restaura gateways, esconde campos
                 getFields().hide();
                 getInput().show();
+                getCard().find('.lkn-wcip-base-max-msg').hide();
+                getCard().find('.lkn-wcip-base-min-msg').hide();
                 ajaxPost('lkn_wcip_toggle_partial_mode', { active: '0' }).then(invalidateCart);
             } else {
                 getFields().slideUp(200);
                 getCard().find('.lkn-wcip-base-max-msg').slideUp(200);
+                getCard().find('.lkn-wcip-base-min-msg').slideUp(200);
                 if (calculated) handleReset();
             }
         }
@@ -483,6 +494,7 @@
         if ($cb.length && !$cb.is(':checked')) $cb.prop('checked', true);
         $f.show();
         $c.find('.lkn-wcip-base-max-msg').show();
+        $c.find('.lkn-wcip-base-min-msg').show();
 
         if (splitData && splitData.base_max) {
             $c.find('.lkn-wcip-base-max-val').text(formatCurrency(parseFloat(splitData.base_max)));
