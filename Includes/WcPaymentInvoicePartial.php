@@ -517,11 +517,13 @@ final class WcPaymentInvoicePartial
 
         // Children details for consolidated view (sorted by id)
         $childrenDetails = array();
+        $totalWithFees = 0.0;
         foreach ($allRelated as $relOrder) {
             if ($relOrder->get_meta('_wc_lkn_parent_id')) { // is child
                 $cb = (float) $relOrder->get_meta('_wc_lkn_partial_amount_paid');
                 $ct = (float) $relOrder->get_total();
                 if ($cb <= 0) $cb = $ct;
+                $totalWithFees += $ct;
                 $childrenDetails[] = array(
                     'base'   => number_format($cb, 2, ',', '.'),
                     'total'  => number_format($ct, 2, ',', '.'),
@@ -544,6 +546,7 @@ final class WcPaymentInvoicePartial
                 'allRelated'   => $allRelated,
                 'symbol'       => get_woocommerce_currency_symbol( $currentOrder->get_currency() ),
                 'childrenDetails' => $childrenDetails,
+                'totalWithFees'   => number_format($totalWithFees, 2, ',', '.'),
                 'originalTotal'   => number_format($originalTotal, 2, ',', '.'),
             ),
             'woocommerce/pix/',
@@ -2290,16 +2293,21 @@ final class WcPaymentInvoicePartial
             }
         }
 
-        // Deduplica: resolve filhos ao pai, mantém pais com filhos pendentes
+        // Deduplica: resolve filhos ao pai, pula pais já concluídos/cancelados
         if (!empty($pending_orders)) {
             $seen_parents = array();
             $deduped = array();
+            $done_statuses = array('wc-partial-comp', 'wc-partial-cancelled', 'wc-completed', 'wc-cancelled');
             foreach ($pending_orders as $po) {
                 $parent_id = (int) $po->get_meta('_wc_lkn_parent_id');
                 $resolved_id = $parent_id > 0 ? $parent_id : $po->get_id();
                 if (in_array($resolved_id, $seen_parents, true)) continue;
+                $parent = $parent_id > 0 ? wc_get_order($parent_id) : $po;
+                if (!$parent) continue;
+                // Pula pais que já estão em status final
+                if (in_array('wc-' . $parent->get_status(), $done_statuses, true)) continue;
                 $seen_parents[] = $resolved_id;
-                $deduped[] = $parent_id > 0 ? wc_get_order($parent_id) : $po;
+                $deduped[] = $parent;
             }
             $pending_orders = array_filter($deduped);
         }
@@ -3281,39 +3289,78 @@ final class WcPaymentInvoicePartial
     }
 
     /**
-     * Adiciona botões "Continuar" e "Cancelar" na coluna de ações
-     * do My Account para pedidos com pagamento parcial pendente.
+     * Adiciona botões "Continuar" e "Cancelar" no My Account e thank-you page.
+     * Resolve filhos ao pai. Status do pai: partial / partial-pend.
+     * "Continuar" só com remaining > 0. "Cancelar" só no My Account.
      */
     public function addPartialActions($actions, $order) {
-        if ($order->get_meta('_wc_lkn_pay_remaining_pending') !== 'yes') return $actions;
+        // Resolve ao pai se for filho
+        $parent_id = (int) $order->get_meta('_wc_lkn_parent_id');
+        $target = $parent_id > 0 ? wc_get_order($parent_id) : $order;
+        if (!$target) return $actions;
 
-        $order_id = $order->get_id();
-        $remaining_raw = (float) $order->get_meta('_wc_lkn_original_total') - (float) $order->get_meta('_wc_lkn_total_confirmed');
-        $remaining = round($remaining_raw, 2);
-        $nonce = wp_create_nonce('lkn_resume_partial_' . $order_id);
+        if ($target->get_meta('_wc_lkn_is_partial_main_order') !== 'yes') return $actions;
 
-        // Botão "Continuar pagamento"
-        $actions['lkn_resume_partial'] = array(
-            'url'  => add_query_arg(array(
-                'lkn_resume_partial' => $order_id,
-                'lkn_amount'         => $remaining,
-                '_wpnonce'           => $nonce,
-            ), wc_get_page_permalink('checkout')),
-            'name' => __('Continuar pagamento parcial', 'wc-invoice-payment'),
-        );
+        $allowed_statuses = array('wc-partial', 'wc-partial-pend');
+        if (!in_array('wc-' . $target->get_status(), $allowed_statuses, true)) return $actions;
 
-        // Botão "Cancelar"
-        $actions['lkn_cancel_partial'] = array(
-            'url'  => add_query_arg(array(
-                'lkn_cancel_pending' => $order_id,
-                '_wpnonce'           => wp_create_nonce('lkn_cancel_pending_' . $order_id),
-            ), wc_get_account_endpoint_url('orders')),
-            'name' => __('Cancelar pagamento parcial', 'wc-invoice-payment'),
-        );
+        $order_id = $target->get_id();
+        $original_total = (float) $target->get_meta('_wc_lkn_original_total');
+        $confirmed = (float) $target->get_meta('_wc_lkn_total_confirmed');
+        $remaining = round($original_total - $confirmed, 2);
 
-        // Remove a ação padrão "Pagar" se existir (pedido não precisa de pagamento normal)
+        // Botão "Continuar pagamento" — só se ainda tem saldo a pagar OU tem filho pendente
+        $should_show_continue = $remaining > 0;
+        $pending_child_id = null;
+        if (!$should_show_continue) {
+            $complete_statuses = $this->getPartialCompleteStatuses();
+            $partials_ids = $target->get_meta('_wc_lkn_partials_id', true);
+            if (is_array($partials_ids)) {
+                foreach ($partials_ids as $cid) {
+                    $child = wc_get_order((int) $cid);
+                    if (!$child || $child->get_status() === 'trash') continue;
+                    if (!in_array('wc-' . $child->get_status(), $complete_statuses, true)) {
+                        $should_show_continue = true;
+                        $pending_child_id = (int) $cid;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ($should_show_continue) {
+            $nonce = wp_create_nonce('lkn_resume_partial_' . $order_id);
+            if ($pending_child_id) {
+                $pending_child = wc_get_order($pending_child_id);
+                $url = add_query_arg(array(
+                    'pay_for_order' => 'true',
+                    'key' => $pending_child->get_order_key(),
+                ), wc_get_checkout_url() . 'order-pay/' . $pending_child_id . '/');
+            } else {
+                $url = add_query_arg(array(
+                    'lkn_resume_partial' => $order_id,
+                    'lkn_amount'         => $remaining,
+                    '_wpnonce'           => $nonce,
+                ), wc_get_page_permalink('checkout'));
+            }
+            $actions['lkn_resume_partial'] = array(
+                'url'  => $url,
+                'name' => __('Continuar pagamento parcial', 'wc-invoice-payment'),
+            );
+        }
+
+        // "Cancelar" só no My Account, não na thank-you
+        if (is_wc_endpoint_url('orders')) {
+            $actions['lkn_cancel_partial'] = array(
+                'url'  => add_query_arg(array(
+                    'lkn_cancel_pending' => $order_id,
+                    '_wpnonce'           => wp_create_nonce('lkn_cancel_pending_' . $order_id),
+                ), wc_get_account_endpoint_url('orders')),
+                'name' => __('Cancelar pagamento parcial', 'wc-invoice-payment'),
+            );
+        }
+
         unset($actions['pay']);
-
         return $actions;
     }
 

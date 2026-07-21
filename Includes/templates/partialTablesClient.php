@@ -15,30 +15,33 @@ if (! defined('ABSPATH')) {
             </td>
         </tr>
         <?php if ($isParent && (float) $restante == 0 && (float) $totalConfirmed > 0): ?>
-            <?php $childPaid = (float) $totalConfirmed - (float) $myPaid; ?>
+            <?php foreach ($childrenDetails as $ci => $cd): ?>
             <tr class="woocommerce-table__line-item order_item">
                 <td class="wc-block-order-confirmation-totals__product">
-                    1ª parcela paga:
+                    <?php echo ($ci + 1) . '° Parcial pago:'; ?>
                 </td>
                 <td class="wc-block-order-confirmation-totals__total">
-                    <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr(number_format((float) $myPaid, 2, ',', '.')); ?></span>
+                    <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($cd['base']); ?></span>
                 </td>
             </tr>
+            <?php if (abs((float) $cd['fees']) > 0.01): ?>
             <tr class="woocommerce-table__line-item order_item">
-                <td class="wc-block-order-confirmation-totals__product">
-                    2ª parcela paga:
+                <td class="wc-block-order-confirmation-totals__product" style="padding-left:16px;font-size:13px;color:#007cba">
+                    + Taxas/Descontos:
                 </td>
-                <td class="wc-block-order-confirmation-totals__total">
-                    <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr(number_format($childPaid, 2, ',', '.')); ?></span>
+                <td class="wc-block-order-confirmation-totals__total" style="font-size:13px;color:#007cba">
+                    <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($cd['fees']); ?></span>
                 </td>
             </tr>
+            <?php endif; ?>
+            <?php endforeach; ?>
         <?php elseif ($isParent): ?>
             <tr class="woocommerce-table__line-item order_item">
                 <td class="wc-block-order-confirmation-totals__product">
                     Valor pago:
                 </td>
                 <td class="wc-block-order-confirmation-totals__total">
-                    <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($myPaid); ?></span>
+                    <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($totalConfirmed); ?></span>
                 </td>
             </tr>
         <?php else: ?>
@@ -80,6 +83,14 @@ if (! defined('ABSPATH')) {
             </td>
             <td class="wc-block-order-confirmation-totals__total">
                 <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($restante); ?></span>
+            </td>
+        </tr>
+        <tr class="woocommerce-table__line-item order_item">
+            <td class="wc-block-order-confirmation-totals__product" style="font-weight:bold">
+                Total pago:
+            </td>
+            <td class="wc-block-order-confirmation-totals__total" style="font-weight:bold">
+                <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($totalWithFees); ?></span>
             </td>
         </tr>
 </table>
