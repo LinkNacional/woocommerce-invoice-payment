@@ -256,7 +256,6 @@ final class WcPaymentInvoiceEndpoint {
         // Marca o pai como "pagamento pendente" pra exibir no checkout
         $parent_order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
         $parent_order->save();
-        error_log("[PayRemaining] SET flag on order #$parent_order_id — customer redirected to checkout");
 
         WC()->cart->calculate_totals();
 
@@ -474,7 +473,6 @@ final class WcPaymentInvoiceEndpoint {
             global $wpdb;
             $wpdb->update("{$wpdb->prefix}wc_order_stats", array('status' => 'wc-cancelled'), array('order_id' => $order_id));
 
-            error_log("[PayRemaining] CANCEL pending on order #$order_id — user clicked Cancelar");
             return new WP_REST_Response(['success' => true, 'message' => 'Pagamento parcial pendente cancelado.'], 200);
         }
     

@@ -111,6 +111,13 @@
                 if (res.data && res.data.cart_total) {
                     getStep().find('.lkn-wcip-base-max-val').text(formatCurrency(parseFloat(res.data.cart_total)));
                 }
+                if (IS_PAY_REMAINING) {
+                    // pay_remaining: checkbox sempre marcado, reexibe campos zerados
+                    getFields().show();
+                    getCard().find('.lkn-wcip-base-max-msg').show();
+                    getInput().val('').prop('disabled', false);
+                    getBtn().text('Split pagamento').css({ opacity: '0.5', pointerEvents: 'none' });
+                }
                 invalidateCart();
             }
         }).finally(function () { getBtn().prop('disabled', false); });
@@ -176,8 +183,6 @@
         var totalComTaxas = baseMax + gatewayFees;
         var realPaidNow = Math.abs(gatewayFees) > 0.01 ? cartTotal : partialAmount;
         var hasFees = Math.abs(gatewayFees) > 0.01;
-
-        console.log('[PartialSplit] renderResult — cartTotal=' + cartTotal + ' remaining=' + remaining + ' fees=' + gatewayFees);
 
         var html = '<div style="margin-top:12px;padding:14px;background:#fff;border:1px solid #e0e0e0;border-radius:4px">';
 
@@ -246,7 +251,6 @@
     });
 
     $(document).on('change', '#lkn-wcip-split-checkbox', function () {
-        console.log('[PartialSplit] checkbox CHANGE — checked=' + this.checked);
         if (this.checked) {
             if (!IS_PAY_REMAINING) {
                 // Checkout normal: gateway mockado assume, mostra só o botão centralizado
@@ -276,7 +280,6 @@
     });
 
     $(document).on('click', '#lkn-wcip-split-btn', function () {
-        console.log('[PartialSplit] btn CLICK — calculated=' + calculated + ' IS_PAY_REMAINING=' + IS_PAY_REMAINING);
         if (IS_PAY_REMAINING) {
             // Fluxo pay_remaining (1/2 ou 2/2): calcula split e mostra resultado
             if (calculated) handleReset();
@@ -350,7 +353,6 @@
             if (!btn) return;
             placeOrderBound = true;
             btn.addEventListener('click', handlePlaceOrderClick);
-            console.log('[PartialSplit] Place Order button bound via addEventListener');
         }
 
         // Tenta várias vezes (WC Blocks re-renderiza o botão)
@@ -372,8 +374,6 @@
             }
         }).observe(document.body, { childList: true, subtree: true });
     })();
-
-    console.log('[PartialSplit] delegated events bound on document');
 
     // ==========================================================
     // Fetch interception — detecta QUALQUER mudança no carrinho
@@ -399,11 +399,6 @@
             var isCart = !isBatch && urlStr.indexOf('/wc/store/v1/cart') !== -1 && urlStr.indexOf('select-shipping-rate') === -1;
             var isCheckout = !isBatch && !isCart && urlStr.indexOf('/wc/store/v1/checkout') !== -1;
 
-            // Debug: log toda requisição pra Store API
-            if (isBatch || isCart || isCheckout) {
-                console.log('[PartialSplit] fetch detected: ' + (isCheckout ? 'CHECKOUT' : (isBatch ? 'BATCH' : 'CART')) + ' url=' + urlStr);
-            }
-
             var promise = originalFetch.apply(this, arguments);
 
             if (isBatch || isCart || isCheckout) {
@@ -411,11 +406,7 @@
                 setTimeout(updateBaseMaxLabel, 400);
             }
 
-            if ((isBatch || isCart || isCheckout) && calculated && splitData && !_restoring) {
-                var kind = isCheckout ? 'checkout' : (isBatch ? 'batch' : 'cart');
-                console.log('[PartialSplit] fetch detected (' + kind + ') — will refresh after settle');
-                // Espera a resposta da fetch atual ANTES de restaurar o estado.
-                // CHECKOUT: gateway mudou → totais recalculados → AJAX vai refletir.
+            if ((isBatch || isCart || isCheckout) && calculated && splitData && !_restoring && !IS_PAY_REMAINING) {
                 promise.then(function () {
                     setTimeout(function () {
                         if (!calculated || !splitData || _restoring) return;
@@ -440,7 +431,6 @@
                 // Gateway pode ter mudado pra um não suportado, ou race condition.
                 // Tenta de novo uma vez depois de 600ms.
                 if (retries < 2) {
-                    console.log('[PartialSplit] restoreState: inactive (retry ' + (retries+1) + '/2)');
                     setTimeout(function () {
                         _restoring = false;
                         if (!calculated || !splitData) return;
@@ -448,7 +438,6 @@
                     }, 600);
                     return;
                 }
-                console.log('[PartialSplit] restoreState: split inactive after retries, keeping UI');
                 restoreUI(partialAmount);
                 _restoring = false;
                 return;
@@ -465,7 +454,6 @@
 
             restoreUI(partialAmount);
             renderResult();
-            console.log('[PartialSplit] state restored with fresh data');
             setTimeout(function () { _restoring = false; }, 800);
         }).catch(function () {
             _restoring = false;
@@ -579,7 +567,10 @@
                               || urlStr.indexOf('/wc/store/v1/checkout') !== -1;
 
                 if (isRelevant) {
-                    setTimeout(refreshPayRemainingSummary, 600);
+                    setTimeout(function () {
+                        updateBaseMaxLabel();
+                        refreshPayRemainingSummary();
+                    }, 600);
                 }
 
                 return promise;

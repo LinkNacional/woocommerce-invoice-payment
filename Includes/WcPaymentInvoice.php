@@ -503,7 +503,8 @@ final class WcPaymentInvoice {
         $this->loader->add_action( 'woocommerce_store_api_checkout_order_processed', $this->WcPaymentInvoicePartialClass, 'savePartialRemainingOnOrderBlocks', 10, 1);
 
         // Thank-you page: exibe card com saldo restante
-        $this->loader->add_action( 'woocommerce_thankyou', $this->WcPaymentInvoicePartialClass, 'displayPartialRemainingOnThankyou', 5, 1);
+        // Card de pagamento parcial na thank-you: dentro da section, após PIX/templates de gateway
+        $this->loader->add_action( 'woocommerce_order_details_before_order_table', $this->WcPaymentInvoicePartialClass, 'displayPartialRemainingBeforeOrderTable', 999);
         $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'restoreCartForPartialInit', 1);
         $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'markPartialOrderSession');
         $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'handleResumePartialFromMyAccount');
