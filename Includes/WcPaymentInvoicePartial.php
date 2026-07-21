@@ -399,6 +399,17 @@ final class WcPaymentInvoicePartial
         return $filtered;
     }
 
+    public function outputStatusIndicatorCss() {
+        ?>
+        <style>
+            .woocommerce-order-status__indicator.is-partial-comp { background: #4ab866; border-color: #93d5a4; }
+            .woocommerce-order-status__indicator.is-partial { background: #f0a020; border-color: #f5c87a; }
+            .woocommerce-order-status__indicator.is-partial-pend { background: #8c8c8c; border-color: #b8b8b8; }
+            .woocommerce-order-status__indicator.is-partial-cancelled { background: #e04545; border-color: #f09999; }
+        </style>
+        <?php
+    }
+
     public function registerStatus( $order_statuses ) {
         $order_statuses['wc-partial-pend'] = array(
             'label' => __('Pagamento parcial pendente', 'wc-invoice-payment'),

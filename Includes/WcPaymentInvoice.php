@@ -532,6 +532,9 @@ final class WcPaymentInvoice {
         $this->loader->add_action('manage_shop_order_posts_custom_column', $this->WcPaymentInvoicePartialClass, 'renderPartialColumnClassic', 10, 2);
         $this->loader->add_action('manage_woocommerce_page_wc-orders_custom_column', $this->WcPaymentInvoicePartialClass, 'renderPartialColumnClassic', 10, 2);
         
+        // CSS para indicadores de status na tabela de pedidos (analytics + lista)
+        $this->loader->add_action('admin_head', $this->WcPaymentInvoicePartialClass, 'outputStatusIndicatorCss');
+        
         // Adiciona preços com fee/discount nas páginas de produto
         $this->loader->add_filter('woocommerce_get_price_html', $feeOrDiscountClass, 'addPaymentMethodPrices', 10, 2);
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoiceQuoteClass, "showQuoteFields");
