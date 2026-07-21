@@ -256,8 +256,20 @@
                 // Checkout normal: gateway mockado assume, mostra só o botão centralizado
                 getFields().show();
                 getInput().hide();
-                getBtn().css({ opacity: '1', pointerEvents: '' }).show().parent().css({ justifyContent: 'center' });
+                getBtn().css({ opacity: '1', pointerEvents: 'auto' }).show().parent().css({ justifyContent: 'center' });
                 ajaxPost('lkn_wcip_toggle_partial_mode', { active: '1' }).then(invalidateCart);
+
+                // Retry: WC Blocks pode não ter pego a mudança de gateway.
+                // Re-envia toggle + invalidate a cada 5s até 2x.
+                var retries = 0;
+                var retryTimer = setInterval(function () {
+                    if (retries >= 2 || !getCheckbox().is(':checked')) {
+                        clearInterval(retryTimer);
+                        return;
+                    }
+                    retries++;
+                    ajaxPost('lkn_wcip_toggle_partial_mode', { active: '1' }).then(invalidateCart);
+                }, 5000);
             } else {
                 // pay_remaining: mostra input + botão
                 getFields().slideDown(200);
