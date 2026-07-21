@@ -147,16 +147,22 @@
     function handleInitiatePartial() {
         getBtn().prop('disabled', true).text('Finalizando...').css({ opacity: '0.5', cursor: 'not-allowed', background: '#999' });
 
-        ajaxPost('lkn_wcip_initiate_partial').then(function (res) {
-            if (res && res.success && res.data && res.data.redirect_url) {
-                window.location.href = res.data.redirect_url;
+        // Classic: ativa modo parcial na sessão e clica no #place_order.
+        // O próprio gateway PartialGateway::process_payment cuida de criar o
+        // pedido pai com todos os metadados customizados intactos.
+        ajaxPost('lkn_wcip_toggle_partial_mode', { active: '1' }).then(function () {
+            var placeOrderBtn = document.getElementById('place_order');
+            if (placeOrderBtn) {
+                placeOrderBtn.click();
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : 'Erro ao iniciar pagamento parcial.');
+                alert('Erro: botão de finalizar pedido não encontrado.');
                 getBtn().prop('disabled', false).text('Iniciar pagamento parcial').css({ opacity: '', cursor: '', background: '' });
             }
-        }).catch(function () {
-            alert('Erro ao processar. Tente novamente.');
-            getBtn().prop('disabled', false).text('Iniciar pagamento parcial').css({ opacity: '', cursor: '', background: '' });
+
+            // Safety: restaura botão após 10s se algo der errado
+            setTimeout(function () {
+                getBtn().prop('disabled', false).text('Iniciar pagamento parcial').css({ opacity: '', cursor: '', background: '' });
+            }, 10000);
         });
     }
 
