@@ -13,6 +13,20 @@ final class WcPaymentInvoiceFeeOrDiscount
         add_action('woocommerce_before_shop_loop_item', array($this, 'collectImageBadgeData'), 5);
         add_action('woocommerce_before_single_product', array($this, 'collectImageBadgeData'), 5);
         add_action('wp_footer', array($this, 'outputImageBadgeScript'), 50);
+        add_filter('woocommerce_available_payment_gateways', array($this, 'reorderGatewaysForBlocks'), 100);
+        add_action('woocommerce_cart_loaded_from_session', array($this, 'enforceSessionGateway'), 100);
+        add_filter('rest_pre_dispatch', array($this, 'beforeStoreApiDispatch'), 10, 3);
+    }
+
+    /**
+     * Roda antes de cada REST dispatch. Se for Store API, força o gateway.
+     */
+    public function beforeStoreApiDispatch($result, $server, $request) {
+        $route = $request->get_route();
+        if (strpos($route, '/wc/store/v1/cart') === 0 || strpos($route, '/wc/store/v1/checkout') === 0) {
+            $this->enforceSessionGateway();
+        }
+        return $result;
     }
 
     public function ajaxSetDefaultGateway() {
@@ -21,7 +35,54 @@ final class WcPaymentInvoiceFeeOrDiscount
         }
         $gateway = sanitize_text_field(wp_unslash($_POST['gateway']));
         WC()->session->set('chosen_payment_method', $gateway);
+        WC()->session->set('_lkn_default_gateway', $gateway);
+        WC()->session->save_data();
+
+        // Blocks: limpa user meta que WC Blocks usa pra persistir escolha
+        if (is_user_logged_in()) {
+            delete_user_meta(get_current_user_id(), 'wc_last_active_payment_method');
+        }
+
         wp_send_json_success();
+    }
+
+    /**
+     * Força chosen_payment_method na sessão antes da Store API /cart responder.
+     * WC Blocks lê chosen_payment_method da sessão; reorderGatewaysForBlocks
+     * posiciona no topo mas o Blocks usa o session value, não a posição.
+     */
+    public function enforceSessionGateway() {
+        if (!WC()->session || !is_checkout()) return;
+        $preferred = WC()->session->get('_lkn_default_gateway');
+        if (!$preferred) return;
+
+        // Força no session. WC Blocks Store API lê da session, não do cart.
+        WC()->session->set('chosen_payment_method', $preferred);
+
+        // WC Blocks também persiste no user meta — limpa para sessão ganhar.
+        if (is_user_logged_in()) {
+            delete_user_meta(get_current_user_id(), 'wc_last_active_payment_method');
+            delete_user_meta(get_current_user_id(), 'default_payment_method');
+        }
+
+        // WC() cart: também força chosen nele pra Store API pegar.
+        if (WC()->cart) {
+            WC()->cart->set_chosen_payment_method($preferred);
+        }
+    }
+
+    /**
+     * Move o gateway escolhido via AJAX para primeira posição no Blocks Checkout.
+     * WC Blocks usa o primeiro gateway disponível como padrão inicial.
+     */
+    public function reorderGatewaysForBlocks($gateways) {
+        if (!WC()->session || !is_checkout()) return $gateways;
+        $preferred = WC()->session->get('_lkn_default_gateway');
+        if (!$preferred || !isset($gateways[$preferred])) return $gateways;
+
+        $preferred_gw = $gateways[$preferred];
+        unset($gateways[$preferred]);
+        return array($preferred => $preferred_gw) + $gateways;
     }
 
     /**
