@@ -2253,11 +2253,10 @@ final class WcPaymentInvoicePartial
         $pending_orders = array();
         if ($pay_remaining <= 0 && get_current_user_id() > 0) {
             $pending_orders = wc_get_orders(array(
-                'limit'       => 1,
-                'meta_query'  => array(
-                    'relation' => 'AND',
+                'limit'        => 10,
+                'customer_id'  => get_current_user_id(),
+                'meta_query'   => array(
                     array('key' => '_wc_lkn_pay_remaining_pending', 'value' => 'yes'),
-                    array('key' => '_customer_user', 'value' => get_current_user_id()),
                 ),
             ));
             if (empty($pending_orders)) {
@@ -2279,13 +2278,18 @@ final class WcPaymentInvoicePartial
             }
         }
 
-        // Filtra pedidos pendentes com remaining > 0 (evita mostrar pai já pago)
+        // Deduplica: resolve filhos ao pai, mantém pais com filhos pendentes
         if (!empty($pending_orders)) {
-            $pending_orders = array_filter($pending_orders, function ($po) {
-                $ot = (float) $po->get_meta('_wc_lkn_original_total');
-                $cf = (float) $po->get_meta('_wc_lkn_total_confirmed');
-                return round($ot - $cf, 2) > 0;
-            });
+            $seen_parents = array();
+            $deduped = array();
+            foreach ($pending_orders as $po) {
+                $parent_id = (int) $po->get_meta('_wc_lkn_parent_id');
+                $resolved_id = $parent_id > 0 ? $parent_id : $po->get_id();
+                if (in_array($resolved_id, $seen_parents, true)) continue;
+                $seen_parents[] = $resolved_id;
+                $deduped[] = $parent_id > 0 ? wc_get_order($parent_id) : $po;
+            }
+            $pending_orders = array_filter($deduped);
         }
 
         $step  = '<div class="wc-block-components-checkout-step lkn-wcip-partial-split-step">';
@@ -2322,10 +2326,50 @@ final class WcPaymentInvoicePartial
                 $confirmed       = (float) $po->get_meta('_wc_lkn_total_confirmed');
                 $remaining       = round($original_total - $confirmed, 2);
 
+                // Encontra filhos com status pendente (não concluído conforme conf do gateway)
+                $cancel_id = $pid;
+                $pending_child_id = null;
+                $partials_ids = $po->get_meta('_wc_lkn_partials_id', true);
+                $complete_statuses = $this->getPartialCompleteStatuses();
+                error_log('[PendingDetect] parent=#' . $pid . ' remaining=' . $remaining . ' partials_ids=' . var_export($partials_ids, true) . ' complete_statuses=' . var_export($complete_statuses, true));
+                if (is_array($partials_ids) && !empty($partials_ids)) {
+                    foreach ($partials_ids as $cid) {
+                        $child = wc_get_order((int) $cid);
+                        if (!$child) continue;
+                        $child_status = $child->get_status();
+                        $child_pending = !in_array($child_status, $complete_statuses, true);
+                        error_log('[PendingDetect] child=#' . $cid . ' status=' . $child_status . ' pending=' . var_export($child_pending, true));
+                        if ($child_pending) {
+                            $cancel_id = (int) $cid;
+                            $pending_child_id = (int) $cid;
+                            break;
+                        }
+                    }
+                }
+
                 // Nome do primeiro produto
                 $items = $po->get_items();
                 $first_item = !empty($items) ? reset($items) : null;
                 $product_name = $first_item ? $first_item->get_name() : __('Pedido', 'wc-invoice-payment');
+
+                // Se remaining=0 mas existe filho pendente, redireciona direto pro pagamento
+                $resume_target_id = $pid;
+                $resume_amount = $remaining;
+                $resume_url = $pay_rest_url;
+                $is_order_pay = false;
+                if ($remaining <= 0 && $pending_child_id) {
+                    $pending_child = wc_get_order($pending_child_id);
+                    if ($pending_child) {
+                        $resume_target_id = $pending_child_id;
+                        $resume_amount = (float) $pending_child->get_total();
+                        $resume_url = add_query_arg(array(
+                            'pay_for_order' => 'true',
+                            'key' => $pending_child->get_order_key(),
+                        ), wc_get_checkout_url() . 'order-pay/' . $pending_child_id . '/');
+                        $is_order_pay = true;
+                        error_log('[PendingDetect] Redirecting to order-pay for child #' . $pending_child_id . ' url=' . $resume_url);
+                    }
+                }
 
                 $step .= '<div style="background:#fff;border:1px solid #e0e0e0;border-radius:4px;padding:10px;margin-bottom:8px">';
                 $step .= '<div style="font-size:13px;color:#333;margin-bottom:4px"><strong>#' . esc_html($po->get_order_number()) . '</strong> — ' . esc_html($product_name) . '</div>';
@@ -2335,8 +2379,13 @@ final class WcPaymentInvoicePartial
                 $step .= esc_html__('Restante:', 'wc-invoice-payment') . ' <strong>' . $symbol . '&nbsp;' . number_format($remaining, 2, ',', '.') . '</strong>';
                 $step .= '</div>';
                 $step .= '<div style="display:flex;gap:6px">';
-                $step .= '<button class="lkn-wcip-resume-btn" type="button" style="padding:6px 12px;font-size:12px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:3px;cursor:pointer" data-order-id="' . $pid . '" data-amount="' . $remaining . '" data-nonce="' . $nonce . '" data-rest-url="' . $pay_rest_url . '">' . esc_html__('Continuar', 'wc-invoice-payment') . '</button>';
-                $step .= '<button class="lkn-wcip-cancel-pending-btn" type="button" style="padding:6px 12px;font-size:12px;background:#fff;color:#d63638;border:1px solid #d63638;border-radius:3px;cursor:pointer" data-order-id="' . $pid . '" data-rest-url="' . $rest_url . '" data-nonce="' . $nonce . '">' . esc_html__('Cancelar', 'wc-invoice-payment') . '</button>';
+                // Se é redirect direto pra order-pay, usa href; senão usa data-attrs pra fetch
+                if ($is_order_pay) {
+                    $step .= '<a class="lkn-wcip-resume-btn" href="' . esc_url($resume_url) . '" style="display:inline-block;padding:6px 12px;font-size:12px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:3px;cursor:pointer;text-decoration:none">' . esc_html__('Pagar agora', 'wc-invoice-payment') . '</a>';
+                } else {
+                    $step .= '<button class="lkn-wcip-resume-btn" type="button" style="padding:6px 12px;font-size:12px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:3px;cursor:pointer" data-order-id="' . $resume_target_id . '" data-amount="' . $resume_amount . '" data-nonce="' . $nonce . '" data-rest-url="' . $resume_url . '">' . esc_html__('Continuar', 'wc-invoice-payment') . '</button>';
+                }
+                $step .= '<button class="lkn-wcip-cancel-pending-btn" type="button" style="padding:6px 12px;font-size:12px;background:#fff;color:#d63638;border:1px solid #d63638;border-radius:3px;cursor:pointer" data-order-id="' . $cancel_id . '" data-rest-url="' . $rest_url . '" data-nonce="' . $nonce . '">' . esc_html__('Cancelar', 'wc-invoice-payment') . '</button>';
                 $step .= '</div></div>';
             }
         } elseif ($pay_remaining > 0) {
@@ -2872,6 +2921,33 @@ final class WcPaymentInvoicePartial
     }
 
     /**
+     * Retorna array de status de WC que são considerados "concluído" para
+     * cada gateway habilitado. Usado pra detectar filho pendente.
+     */
+    private function getPartialCompleteStatuses() {
+        $statuses = array('completed', 'processing');
+        // Status configurado globalmente
+        $complete_status = get_option('lkn_wcip_partial_complete_status', '');
+        if ($complete_status && strpos($complete_status, 'wc-') === 0) {
+            $statuses[] = substr($complete_status, 3);
+        }
+        // Status por gateway
+        $gateways = WC()->payment_gateways()->payment_gateways();
+        foreach ($gateways as $gw_id => $gw) {
+            $opt = get_option('lkn_wcip_partial_payments_method_' . $gw_id, 'no');
+            if ($opt !== 'yes') continue;
+            $gw_status = get_option('lkn_wcip_partial_complete_status_' . $gw_id, '');
+            if ($gw_status && strpos($gw_status, 'wc-') === 0) {
+                $s = substr($gw_status, 3);
+                if (!in_array($s, $statuses, true)) {
+                    $statuses[] = $s;
+                }
+            }
+        }
+        return array_unique($statuses);
+    }
+
+    /**
      * Chamado no checkout clássico: salva o remaining como meta da ordem
      * e limpa a sessão do split.
      */
@@ -3066,9 +3142,19 @@ final class WcPaymentInvoicePartial
                 // Só remove a flag de pendência quando TUDO estiver pago
                 if ($all_paid) {
                     $parent_order->delete_meta_data('_wc_lkn_pay_remaining_pending');
+                    // Limpa flag dos filhos também
+                    foreach ($partialsList as $pid) {
+                        $child = wc_get_order((int) $pid);
+                        if ($child) {
+                            $child->delete_meta_data('_wc_lkn_pay_remaining_pending');
+                            $child->save();
+                        }
+                    }
                 } else {
                     // Garante que a flag continue ativa para o próximo pagamento
                     $parent_order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
+                    // Também marca o filho para que a query de pending orders o encontre
+                    $order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
                     $parent_order->add_order_note(sprintf(
                         'Pagamento parcial concluído. Restante a pagar: %s',
                         wc_price(round($original_total - $confirmed, 2))
