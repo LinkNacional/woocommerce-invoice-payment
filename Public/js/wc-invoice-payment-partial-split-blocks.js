@@ -81,6 +81,7 @@
     var calculated = false;
     var splitData = null;
     var _restoring = false; // trava durante restoreState pra evitar loop
+    var _initiatingPartial = false; // flag: disparo de Place Order via botão 'Iniciar pagamento parcial'
 
     // —— Getters (re-query DOM toda vez — WC Blocks re-renderiza) ——
     function getCard() { return $('.lkn-wcip-split-blocks-container'); }
@@ -140,20 +141,24 @@
     }
 
     function handleInitiatePartial() {
-        getBtn().prop('disabled', true).text('Criando pedido...');
+        getBtn().prop('disabled', true).text('Finalizando...').css({ opacity: '0.5', cursor: 'not-allowed', background: '#999' });
+        _initiatingPartial = true;
 
-        ajaxPost('lkn_wcip_initiate_partial', {}).then(function (res) {
-            if (!res || !res.success || !res.data.redirect_url) {
-                alert(res && res.data && res.data.message ? res.data.message : 'Erro ao iniciar pagamento parcial.');
-                getBtn().prop('disabled', false).text('Iniciar pagamento parcial');
-                return;
+        var safetyTimer = setTimeout(function () {
+            if (_initiatingPartial) {
+                _initiatingPartial = false;
+                getBtn().prop('disabled', false).text('Iniciar pagamento parcial').css({ opacity: '', cursor: '', background: '' });
             }
+        }, 5000);
 
-            window.location.href = res.data.redirect_url;
-        }).catch(function () {
-            alert('Erro de rede. Tente novamente.');
-            getBtn().prop('disabled', false).text('Iniciar pagamento parcial');
-        });
+        var placeOrderBtn = document.querySelector('.wc-block-components-checkout-place-order-button');
+        if (placeOrderBtn) {
+            placeOrderBtn.click();
+        } else {
+            _initiatingPartial = false;
+            alert('Erro: botão de finalizar pedido não encontrado.');
+            getBtn().prop('disabled', false).text('Iniciar pagamento parcial').css({ opacity: '', cursor: '', background: '' });
+        }
     }
 
     function renderResult() {
@@ -176,9 +181,10 @@
 
         var html = '<div style="margin-top:12px;padding:14px;background:#fff;border:1px solid #e0e0e0;border-radius:4px">';
 
-        html += '<div style="font-size:13px;color:#999;margin-bottom:10px"><span>Total original</span><span style="float:right">' + formatCurrency(totalComTaxas) + '</span></div>';
         html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Subtotal + Frete</span><span style="float:right;font-weight:500">' + formatCurrency(baseMax) + '</span></div>';
-        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Taxas/juros adicionais:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
+        html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Valor informado</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Taxas/Descontos adicionais:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
 
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
         html += '<div style="font-size:13px;color:#d63638;margin-bottom:4px"><span>Pagamento parcial</span><span style="float:right;font-weight:500">' + formatCurrency(-remaining) + '</span></div>';
@@ -186,7 +192,7 @@
         html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Você pagará agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
 
         if (hasFees) {
-            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">O valor informado de ' + formatCurrency(partialAmount) + ' foi ajustado para ' + formatCurrency(realPaidNow) + ' devido a taxas, juros ou descontos aplicados ao pedido.</p>';
+            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">O valor informado de ' + formatCurrency(partialAmount) + ' foi ajustado para ' + formatCurrency(realPaidNow) + ' devido a taxas ou descontos aplicados ao pedido.</p>';
         }
 
         html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">Restante para depois: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
@@ -243,11 +249,10 @@
         console.log('[PartialSplit] checkbox CHANGE — checked=' + this.checked);
         if (this.checked) {
             if (!IS_PAY_REMAINING) {
-                // Checkout normal: esconde gateways, recalcula, mostra só o botão centralizado
+                // Checkout normal: gateway mockado assume, mostra só o botão centralizado
                 getFields().show();
                 getInput().hide();
                 getBtn().css({ opacity: '1', pointerEvents: '' }).show().parent().css({ justifyContent: 'center' });
-                $('#payment-method').hide();
                 ajaxPost('lkn_wcip_toggle_partial_mode', { active: '1' }).then(invalidateCart);
             } else {
                 // pay_remaining: mostra input + botão
@@ -258,10 +263,9 @@
             }
         } else {
             if (!IS_PAY_REMAINING) {
-                // Checkout normal: mostra gateways, esconde tudo
+                // Checkout normal: restaura gateways, esconde campos
                 getFields().hide();
-                getInput().show(); // restaura pra próxima vez
-                $('#payment-method').show();
+                getInput().show();
                 ajaxPost('lkn_wcip_toggle_partial_mode', { active: '0' }).then(invalidateCart);
             } else {
                 getFields().slideUp(200);
@@ -307,6 +311,11 @@
         var placeOrderBound = false;
 
         function handlePlaceOrderClick(e) {
+            if (_initiatingPartial) {
+                _initiatingPartial = false;
+                getBtn().prop('disabled', false).text('Iniciar pagamento parcial').css({ opacity: '', cursor: '', background: '' });
+                return;
+            }
             if (IS_PAY_REMAINING) {
                 var $inp = getInput();
                 var $err = $('.lkn-wcip-split-error');
@@ -331,15 +340,8 @@
                 }
                 return;
             }
-            if (getCheckbox().is(':checked') && !calculated) {
-                e.stopImmediatePropagation();
-                e.preventDefault();
-                var $inp = getInput();
-                var $err = $('.lkn-wcip-split-error');
-                $err.slideDown(200);
-                if ($inp.length) $inp[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                return false;
-            }
+            // Checkout normal: Place Order permitido mesmo com checkbox marcado
+            // (usuário pode escolher Iniciar pagamento parcial ou Finalizar pedido)
         }
 
         function bindPlaceOrder() {
@@ -504,23 +506,31 @@
         var gatewayFees = parseFloat(d.gateway_fees) || 0;
         var cartTotal = getCartTotal() || parseFloat(d.cart_total) || 0;
         var remaining = parseFloat(d.remaining) || 0;
+        var isSecondPartial = remaining > partialAmount;
         var hasFees = Math.abs(gatewayFees) > 0.01;
         var realPaidNow = hasFees ? cartTotal : partialAmount;
 
         var html = '<div style="margin-top:12px;padding:14px;background:#fff;border:1px solid #e0e0e0;border-radius:4px">';
 
-        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Valor restante</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
-        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Taxas/juros adicionais:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Subtotal + Frete</span><span style="float:right;font-weight:500">' + formatCurrency(baseMax) + '</span></div>';
+        html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>' + (isSecondPartial ? 'Valor restante' : 'Valor informado') + '</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Taxas/Descontos adicionais:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
 
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
         html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Você pagará agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
 
         if (hasFees) {
-            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">O valor informado de ' + formatCurrency(partialAmount) + ' foi ajustado para ' + formatCurrency(realPaidNow) + ' devido a taxas, juros ou descontos aplicados ao pedido.</p>';
+            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">O valor informado de ' + formatCurrency(partialAmount) + ' foi ajustado para ' + formatCurrency(realPaidNow) + ' devido a taxas ou descontos aplicados ao pedido.</p>';
         }
 
-        html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">Restante pago anteriormente: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
+        if (isSecondPartial) {
+            html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
+            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">Pago anteriormente: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
+        } else {
+            html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
+            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">Saldo a pagar depois: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
+        }
 
         html += '</div>';
 

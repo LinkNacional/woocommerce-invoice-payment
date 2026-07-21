@@ -236,7 +236,6 @@ final class WcPaymentInvoice {
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');
         $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
         $this->loader->add_action('woocommerce_thankyou', $subscription_class, 'validate_product');
-        $this->loader->add_action('woocommerce_thankyou', $subscription_class, 'validate_product');
         // Hook para agendar subscription quando status muda para completed
         $this->loader->add_action('woocommerce_order_status_completed', $subscription_class, 'handle_subscription_on_completed');
         // Hook para verificar assinaturas pendentes como backup do sistema de cron
@@ -248,8 +247,6 @@ final class WcPaymentInvoice {
         $this->loader->add_action('init', $this, 'manage_quote_gateway_status');
 		$this->loader->add_filter( 'wc_order_statuses', $this->WcPaymentInvoicePartialClass, 'createStatus' );
 		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoicePartialClass, 'registerStatus' );
-		$this->loader->add_filter( 'woocommerce_reports_order_statuses', $this->WcPaymentInvoicePartialClass, 'includeInReports' );
-		$this->loader->add_filter( 'woocommerce_analytics_orders_stats_query_args', $this->WcPaymentInvoicePartialClass, 'addStatusesToAnalytics' );
 		$this->loader->add_action( 'woocommerce_order_status_changed', $this->WcPaymentInvoicePartialClass, 'statusChanged', 10, 4);
         $this->loader->add_action( 'add_meta_boxes', $this->WcPaymentInvoicePartialClass, 'showPartialsPayments', 1);
         $this->loader->add_action( 'admin_footer', $this->WcPaymentInvoicePartialClass, 'injectPaymentLinkButton');
@@ -388,6 +385,7 @@ final class WcPaymentInvoice {
     public function add_payment_gateways($gateways)
     {
         $gateways[] = 'LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceQuoteGateway';
+        $gateways[] = 'LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartialGateway';
         return $gateways;
     }
 
@@ -397,6 +395,7 @@ final class WcPaymentInvoice {
         }
 
         $payment_method_registry->register( new WcPaymentInvoiceQuoteGatewayBlocks() );
+        $payment_method_registry->register( new WcPaymentInvoicePartialGatewayBlocks() );
     }
 
     /**
@@ -505,6 +504,7 @@ final class WcPaymentInvoice {
 
         // Thank-you page: exibe card com saldo restante
         $this->loader->add_action( 'woocommerce_thankyou', $this->WcPaymentInvoicePartialClass, 'displayPartialRemainingOnThankyou', 5, 1);
+        $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'restoreCartForPartialInit', 1);
         $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'markPartialOrderSession');
         $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'handleResumePartialFromMyAccount');
         $this->loader->add_filter( 'woocommerce_package_rates', $this->WcPaymentInvoicePartialClass, 'filterShippingForPartialRemaining', 9999);
@@ -519,7 +519,7 @@ final class WcPaymentInvoice {
 
         $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart', 999);
-        $this->loader->add_action('woocommerce_cart_calculate_fees', $this->WcPaymentInvoicePartialClass, 'applyPartialSplitFee', 1);
+        $this->loader->add_action('woocommerce_cart_calculate_fees', $this->WcPaymentInvoicePartialClass, 'applyPartialSplitFee', 9999);
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
         $this->loader->add_action('enqueue_block_assets', $feeOrDiscountClass, 'loadScripts');
 

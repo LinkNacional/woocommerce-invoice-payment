@@ -250,6 +250,9 @@ final class WcPaymentInvoiceEndpoint {
 
         $this->saveShippingToSession($parent_order_id);
 
+        // Limpa gateway anterior — o cliente vai escolher um novo neste checkout
+        WC()->session->__unset('chosen_payment_method');
+
         // Marca o pai como "pagamento pendente" pra exibir no checkout
         $parent_order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
         $parent_order->save();
@@ -464,8 +467,13 @@ final class WcPaymentInvoiceEndpoint {
                 return new WP_REST_Response(['error' => 'Pedido não encontrado.'], 404);
             }
             $parent_order->delete_meta_data('_wc_lkn_pay_remaining_pending');
-            $parent_order->update_status('wc-partial-cancelled');
+            $parent_order->set_status('wc-partial-cancelled');
+            $parent_order->add_order_note('Pagamento parcial cancelado.');
             $parent_order->save();
+
+            global $wpdb;
+            $wpdb->update("{$wpdb->prefix}wc_order_stats", array('status' => 'wc-cancelled'), array('order_id' => $order_id));
+
             error_log("[PayRemaining] CANCEL pending on order #$order_id — user clicked Cancelar");
             return new WP_REST_Response(['success' => true, 'message' => 'Pagamento parcial pendente cancelado.'], 200);
         }

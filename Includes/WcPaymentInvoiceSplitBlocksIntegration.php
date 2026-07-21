@@ -56,7 +56,7 @@ class WcPaymentInvoiceSplitBlocksIntegration implements IntegrationInterface {
             'paidLaterLabel'      => __('Restante para depois:', 'wc-invoice-payment'),
             'gatewayLockedText'   => __('Indisponivel para pagamento parcial', 'wc-invoice-payment'),
             'maxValueLabel'       => __('Valor máximo permitido:', 'wc-invoice-payment'),
-            'feesAddedLabel'      => __('Taxas/juros adicionais:', 'wc-invoice-payment'),
+            'feesAddedLabel'      => __('Taxas/Descontos adicionais:', 'wc-invoice-payment'),
             'initialBaseMax'      => WC()->cart ? (float) WC()->cart->get_subtotal() + (float) WC()->cart->get_shipping_total() - (float) WC()->cart->get_discount_total() : 0,
             'currencyCode'        => get_woocommerce_currency(),
             'priceFormat'         => array(

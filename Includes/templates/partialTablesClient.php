@@ -52,10 +52,10 @@ if (! defined('ABSPATH')) {
                         <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($cd['base']); ?></span>
                     </td>
                 </tr>
-                <?php if ((float) $cd['fees'] > 0.01): ?>
+                <?php if (abs((float) $cd['fees']) > 0.01): ?>
                 <tr class="woocommerce-table__line-item order_item">
                     <td class="wc-block-order-confirmation-totals__product" style="padding-left:16px;font-size:13px;color:#007cba">
-                        + taxas/juros:
+                        + Taxas/Descontos:
                     </td>
                     <td class="wc-block-order-confirmation-totals__total" style="font-size:13px;color:#007cba">
                         <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($cd['fees']); ?></span>
@@ -108,7 +108,7 @@ if (! defined('ABSPATH')) {
                 $total = wc_price((float) $relOrder->get_meta('_wc_lkn_original_total') ?: (float) $relOrder->get_total());
             } else {
                 $parc_num++;
-                $role = $parc_num . 'ª parcela';
+                $role = $parc_num . '° Parcial';
             }
             $link           = add_query_arg('id', $relOrder->get_id(), admin_url('admin.php?page=wc-orders&action=edit'));
         ?>
