@@ -16,20 +16,29 @@ final class WcPaymentInvoicePartial
             $is_blocks = $checkout_page_id && has_block('woocommerce/checkout', $checkout_page_id);
 
             if (! $is_blocks) {
-                // Checkout clássico: script antigo (cria ordem parcial + redirect)
-                wp_enqueue_script( 'wcInvoicePaymentPartialScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-partial.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
-                wp_localize_script('wcInvoicePaymentPartialScript', 'lknWcipPartialVariables', array(
-                    'minPartialAmount' => get_option('lkn_wcip_partial_interval_minimum', 0),
-                    'cartTotal' => WC()->cart->total,
-                    'cartTotalAjaxUrl' => admin_url('admin-ajax.php'),
-                    'cartTotalNonce' => wp_create_nonce('lkn_wcip_cart_total'),
-                    'userId' => get_current_user_id(),
-                    'symbol' => $currency_symbol,
-                    'partialPaymentTitle' => __('Partial Payment', 'wc-invoice-payment'),
-                    'partialPaymentDescription' => __('Enter the amount you want to pay now, the rest can be paid later with other payment methods.', 'wc-invoice-payment'),
-                    'payPartialText' => __('Pay Partial', 'wc-invoice-payment'),
-                    'nonce' => wp_create_nonce('wp_rest'),
-                ));
+                // Checkout clássico: mesmo script de split do Blocks, adaptado.
+                wp_enqueue_script(
+                    'wcInvoicePaymentPartialSplitClassic',
+                    WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-partial-split-classic.js',
+                    array('jquery'),
+                    WC_PAYMENT_INVOICE_VERSION,
+                    true
+                );
+
+                $pay_remaining = isset($_GET['pay_remaining']) ? intval($_GET['pay_remaining']) : 0;
+                $split_config = array(
+                    'ajaxUrl'             => admin_url('admin-ajax.php'),
+                    'nonce'               => wp_create_nonce('lkn_wcip_partial_split'),
+                    'minPartialAmount'    => get_option('lkn_wcip_partial_interval_minimum', 0),
+                    'symbol'              => $currency_symbol,
+                    'isPayRemaining'      => $pay_remaining > 0,
+                    'parentConfirmed'     => ($pay_remaining > 0) ? (float) (wc_get_order($pay_remaining) ? wc_get_order($pay_remaining)->get_meta('_wc_lkn_total_confirmed') : 0) : 0,
+                    'userId'              => get_current_user_id(),
+                    'restUrl'             => rest_url('invoice_payments/create_partial_payment'),
+                    'restNonce'           => wp_create_nonce('wp_rest'),
+                    'isClassic'           => true,
+                );
+                wp_localize_script('wcInvoicePaymentPartialSplitClassic', 'lknWcipSplitBlocksConfig', $split_config);
             } else {
                 // Checkout Blocks: enfileira script que popula o step injetado via render_block
                 $pay_remaining = isset($_GET['pay_remaining']) ? intval($_GET['pay_remaining']) : 0;
@@ -2240,13 +2249,36 @@ final class WcPaymentInvoicePartial
      * Padrao identico ao woo-better-shipping-calculator (entrega agendada).
      */
     public function injectPartialSplitStepIntoCheckout($content, $block) {
-        if (get_option('lkn_wcip_partial_payments_enabled', '') !== 'yes') return $content;
-        if (!is_checkout()) return $content;
-        if (strpos($content, 'lkn-wcip-partial-split-step') !== false) return $content;
-
-        // So processa o bloco principal do checkout
         $blockName = isset($block['blockName']) ? $block['blockName'] : '';
         if ($blockName !== 'woocommerce/checkout') return $content;
+        if (strpos($content, 'lkn-wcip-partial-split-step') !== false) return $content;
+
+        $step_html = $this->buildPartialSplitStepHtml();
+        if (empty($step_html)) return $content;
+
+        $pattern = '/(<div[^>]*data-block-name="woocommerce\/checkout-payment-block"[^>]*><\/div>)/';
+        return preg_replace($pattern, $step_html . '$1', $content, 1);
+    }
+
+    /**
+     * Injeta step de Pagamento Parcial no checkout clássico (shortcode).
+     */
+    public function injectPartialSplitStepClassic() {
+        if (get_option('lkn_wcip_partial_payments_enabled', '') !== 'yes') return;
+
+        $step_html = $this->buildPartialSplitStepHtml();
+        if (empty($step_html)) return;
+
+        echo $step_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — built with esc_* functions
+    }
+
+    /**
+     * Constrói o HTML do step de Pagamento Parcial (compartilhado Blocks + clássico).
+     * Retorna HTML ou string vazia se não aplicável.
+     */
+    private function buildPartialSplitStepHtml() {
+        if (get_option('lkn_wcip_partial_payments_enabled', '') !== 'yes') return '';
+        if (!is_checkout()) return '';
 
         $pay_remaining = isset($_GET['pay_remaining']) ? intval($_GET['pay_remaining']) : 0;
         $title        = esc_html__('Pagamento Parcial', 'wc-invoice-payment');
@@ -2481,9 +2513,7 @@ final class WcPaymentInvoicePartial
         $step .= '</div>'; // .lkn-wcip-partial-split-step-content
         $step .= '</div></div>';
 
-        // Injeta ANTES do bloco de pagamento
-        $pattern = '/(<div[^>]*data-block-name="woocommerce\/checkout-payment-block"[^>]*><\/div>)/';
-        return preg_replace($pattern, $step . '$1', $content, 1);
+        return $step;
     }
 
     /**
@@ -2894,8 +2924,15 @@ final class WcPaymentInvoicePartial
         $order->update_meta_data('lkn_ini_date', gmdate('Y-m-d'));
         $order->update_meta_data('lkn_exp_date', gmdate('Y-m-d'));
 
+        // Status processing garante que o analytics registra o pedido (status nativo).
+        $order->set_status('processing');
+        $order->add_order_note('Pagamento parcial iniciado. Aguardando primeiro pagamento.');
+        $order->save();
+
+        // Migra pra wc-partial (controle interno). O analytics já registrou o
+        // pedido como processing — essa transição não afeta o analytics.
         $order->set_status('wc-partial');
-        $order->add_order_note('Pagamento parcial iniciado.');
+        $order->add_order_note('Status do pedido alterado para Pagamento parcial.');
         $order->save();
 
         WC()->session->set('lkn_partial_amount', 0);

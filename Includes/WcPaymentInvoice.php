@@ -474,6 +474,7 @@ final class WcPaymentInvoice {
 		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoicePartialClass, 'allowStatusCancel');
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
 		$this->loader->add_filter( 'render_block', $this->WcPaymentInvoicePartialClass, 'injectPartialSplitStepIntoCheckout', 9999, 2 );
+        $this->loader->add_action( 'woocommerce_review_order_before_payment', $this->WcPaymentInvoicePartialClass, 'injectPartialSplitStepClassic', 10 );
         $this->loader->add_filter( 'woocommerce_available_payment_gateways', $this->WcPaymentInvoicePartialClass, 'filterGatewaysForPartialOrder');
         $this->loader->add_action( 'wp_ajax_lkn_wcip_cart_total', $this->WcPaymentInvoicePartialClass, 'ajaxGetCartTotal');
         $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_cart_total', $this->WcPaymentInvoicePartialClass, 'ajaxGetCartTotal');

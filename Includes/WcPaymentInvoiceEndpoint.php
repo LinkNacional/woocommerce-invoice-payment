@@ -339,7 +339,25 @@ final class WcPaymentInvoiceEndpoint {
             $original_total = $order_total;
         }
 
-        // Verifica se o cliente pode gerar mais uma fatura com o valor informado
+        // Verifica se o cliente pode gerar mais uma fatura com o valor informado.
+        // total_peding bloqueia apenas quando já existem filhos; no primeiro
+        // pagamento (total_confirmed = 0, sem filhos), permite o valor cheio.
+        if ($total_peding > 0 && $total_confirmed <= 0) {
+            $has_children = false;
+            $partials = $order->get_meta('_wc_lkn_partials_id', true);
+            if (is_array($partials) && !empty($partials)) {
+                foreach ($partials as $pid) {
+                    $c = wc_get_order((int) $pid);
+                    if ($c && $c->get_status() !== 'trash') {
+                        $has_children = true;
+                        break;
+                    }
+                }
+            }
+            if (!$has_children) {
+                $total_peding = 0;
+            }
+        }
         $max_allowed = round($original_total - $total_peding - $total_confirmed, 2);
 
         if ($partial_amount > $max_allowed) {
