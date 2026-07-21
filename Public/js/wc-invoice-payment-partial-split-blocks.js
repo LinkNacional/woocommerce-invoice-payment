@@ -506,7 +506,7 @@
         var gatewayFees = parseFloat(d.gateway_fees) || 0;
         var cartTotal = getCartTotal() || parseFloat(d.cart_total) || 0;
         var remaining = parseFloat(d.remaining) || 0;
-        var isSecondPartial = remaining > partialAmount;
+        var isSecondPartial = (CONFIG.parentConfirmed || 0) > 0;
         var hasFees = Math.abs(gatewayFees) > 0.01;
         var realPaidNow = hasFees ? cartTotal : partialAmount;
 
@@ -526,7 +526,7 @@
 
         if (isSecondPartial) {
             html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">Pago anteriormente: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
+            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">Pago anteriormente: <strong>' + formatCurrency(CONFIG.parentConfirmed || 0) + '</strong></p></div>';
         } else {
             html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
             html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">Saldo a pagar depois: <strong>' + formatCurrency(remaining) + '</strong></p></div>';

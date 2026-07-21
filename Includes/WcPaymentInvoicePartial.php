@@ -64,6 +64,7 @@ final class WcPaymentInvoicePartial
                         'currency_pos'  => get_option('woocommerce_currency_pos', 'left'),
                     ),
                     'isPayRemaining'      => $pay_remaining > 0,
+                    'parentConfirmed'     => ($pay_remaining > 0) ? (float) (wc_get_order($pay_remaining) ? wc_get_order($pay_remaining)->get_meta('_wc_lkn_total_confirmed') : 0) : 0,
                     'userId'              => get_current_user_id(),
                     'restUrl'             => rest_url('invoice_payments/create_partial_payment'),
                     'restNonce'           => wp_create_nonce('wp_rest'),
@@ -2360,14 +2361,32 @@ final class WcPaymentInvoicePartial
                 if ($remaining <= 0 && $pending_child_id) {
                     $pending_child = wc_get_order($pending_child_id);
                     if ($pending_child) {
-                        $resume_target_id = $pending_child_id;
-                        $resume_amount = (float) $pending_child->get_total();
-                        $resume_url = add_query_arg(array(
-                            'pay_for_order' => 'true',
-                            'key' => $pending_child->get_order_key(),
-                        ), wc_get_checkout_url() . 'order-pay/' . $pending_child_id . '/');
-                        $is_order_pay = true;
-                        error_log('[PendingDetect] Redirecting to order-pay for child #' . $pending_child_id . ' url=' . $resume_url);
+                        // Se o filho foi cancelado (ex: timeout PIX), recalcula confirmed e manda pro pay_remaining
+                        if ($pending_child->get_status() === 'cancelled') {
+                            $child_base = (float) $pending_child->get_meta('_wc_lkn_partial_amount_paid');
+                            if ($child_base <= 0) $child_base = (float) $pending_child->get_total();
+                            $new_confirmed = max(0, $confirmed - $child_base);
+                            $po->update_meta_data('_wc_lkn_total_confirmed', $new_confirmed);
+                            $po->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
+                            // Remove filho cancelado da lista de parciais
+                            $partials_ids = array_diff($partials_ids, array($pending_child_id));
+                            $po->update_meta_data('_wc_lkn_partials_id', array_values($partials_ids));
+                            $po->save();
+                            $resume_target_id = $pid;
+                            $resume_amount = round($original_total - $new_confirmed, 2);
+                            $resume_url = $pay_rest_url;
+                            $is_order_pay = false;
+                            error_log('[PendingDetect] Child #' . $pending_child_id . ' cancelled — recalculated confirmed=' . $new_confirmed . ' remaining=' . $resume_amount);
+                        } else {
+                            $resume_target_id = $pending_child_id;
+                            $resume_amount = (float) $pending_child->get_total();
+                            $resume_url = add_query_arg(array(
+                                'pay_for_order' => 'true',
+                                'key' => $pending_child->get_order_key(),
+                            ), wc_get_checkout_url() . 'order-pay/' . $pending_child_id . '/');
+                            $is_order_pay = true;
+                            error_log('[PendingDetect] Redirecting to order-pay for child #' . $pending_child_id . ' url=' . $resume_url);
+                        }
                     }
                 }
 
