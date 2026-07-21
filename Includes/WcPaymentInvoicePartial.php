@@ -2279,6 +2279,15 @@ final class WcPaymentInvoicePartial
             }
         }
 
+        // Filtra pedidos pendentes com remaining > 0 (evita mostrar pai já pago)
+        if (!empty($pending_orders)) {
+            $pending_orders = array_filter($pending_orders, function ($po) {
+                $ot = (float) $po->get_meta('_wc_lkn_original_total');
+                $cf = (float) $po->get_meta('_wc_lkn_total_confirmed');
+                return round($ot - $cf, 2) > 0;
+            });
+        }
+
         $step  = '<div class="wc-block-components-checkout-step lkn-wcip-partial-split-step">';
         $step .= '<div class="wc-block-components-checkout-step__heading" style="margin-bottom:16px">';
         $step .= '<h2 class="wc-block-components-title wc-block-components-checkout-step__title">' . $title . '</h2>';
@@ -2378,11 +2387,11 @@ final class WcPaymentInvoicePartial
         $step .= '</div>';
         // Mensagem de erro (#1/2)
         $step .= '<div class="lkn-wcip-split-error wc-block-components-validation-error" style="display:none;margin-top:8px" role="alert"><p>' . esc_html__('Digite o valor do pagamento parcial e clique em "Split pagamento" antes de finalizar.', 'wc-invoice-payment') . '</p></div>';
-        $step .= '</div>';
         // Texto de espera (apenas checkout normal)
         if ($pay_remaining <= 0) {
         $step .= '<p style="margin:8px 0 0;font-size:12px;color:#999;text-align:center">' . esc_html__('Após marcar, aguarde o gateway "Pagamento Parcial" aparecer antes de prosseguir.', 'wc-invoice-payment') . '</p>';
         }
+        $step .= '</div>'; // .lkn-wcip-split-fields
 
         // Resultado (visível imediatamente no pay_remaining)
         $step .= '<div id="lkn-wcip-split-result" style="' . ($pay_remaining > 0 ? '' : 'display:none') . '"></div>';
@@ -2826,6 +2835,7 @@ final class WcPaymentInvoicePartial
             WC()->session->set('lkn_partial_mode_active', 'yes');
         } else {
             WC()->session->__unset('lkn_partial_mode_active');
+            WC()->session->__unset('chosen_payment_method');
         }
 
         wp_send_json_success(array('active' => $active));
@@ -3042,8 +3052,9 @@ final class WcPaymentInvoicePartial
                 // Nota no pai
                 $child_fees = round($order->get_total() - $partial_amount, 2);
                 $note_parts = array(sprintf('base: %s', wc_price($partial_amount)));
-                if ($child_fees > 0.01) {
-                    $note_parts[] = sprintf('juros: %s', wc_price($child_fees));
+                if (abs($child_fees) > 0.01) {
+                    $sign = $child_fees > 0 ? '+' : '';
+                    $note_parts[] = sprintf('%s %s', $sign, wc_price($child_fees));
                 }
                 $note_parts[] = sprintf('total cobrado: %s', wc_price($order->get_total()));
                 $parent_order->add_order_note(sprintf(
