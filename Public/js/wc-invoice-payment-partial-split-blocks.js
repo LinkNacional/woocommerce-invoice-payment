@@ -256,6 +256,7 @@
     });
 
     $(document).on('change', '#lkn-wcip-split-checkbox', function () {
+        if (IS_PAY_REMAINING) return;
         if (this.checked) {
             if (!IS_PAY_REMAINING) {
                 // Checkout normal: gateway mockado assume, mostra só o botão centralizado

@@ -2452,8 +2452,8 @@ final class WcPaymentInvoicePartial
             $confirmed = $parent_order ? (float) $parent_order->get_meta('_wc_lkn_total_confirmed') : 0;
             $is_first_payment = ($confirmed <= 0);
             
-            $step .= '<label style="display:flex;align-items:flex-start;gap:8px;cursor:default;margin-bottom:0;font-size:14px">';
-            $step .= '<input id="lkn-wcip-split-checkbox" type="checkbox" checked disabled style="width:18px;height:18px;margin-top:1px;flex-shrink:0">';
+            $step .= '<label style="display:flex;align-items:flex-start;gap:8px;cursor:default;margin-bottom:0;font-size:14px;pointer-events:none">';
+            $step .= '<input id="lkn-wcip-split-checkbox" type="checkbox" checked class="lkn-wcip-checkbox-locked" style="width:18px;height:18px;margin-top:1px;flex-shrink:0">';
             $step .= '<span>Marque para dividir o pagamento.</span>';
             $step .= '</label>';
             
@@ -2723,8 +2723,8 @@ final class WcPaymentInvoicePartial
             wp_send_json_error(array(
                 'message' => sprintf(
                     /* translators: %1$s: minimum amount, %2$s: remaining amount */
-                    __('O valor restante (R$ %2$s) não pode ser menor que o mínimo para pagamento parcial (%1$s). Ajuste o valor informado.', 'wc-invoice-payment'),
-                    wc_price($min_amount),
+                    __('O valor restante (R$ %2$s) não pode ser menor que o mínimo para pagamento parcial (R$ %1$s). Ajuste o valor informado.', 'wc-invoice-payment'),
+                    number_format($min_amount, 2, ',', '.'),
                     number_format($remaining, 2, ',', '.')
                 ),
             ));
@@ -3668,6 +3668,27 @@ final class WcPaymentInvoicePartial
         $partial_parent_id = WC()->session->get('lkn_partial_parent_order_id');
         $allowed_ids = WC()->session->get('lkn_partial_shipping_rate_ids');
 
+        // Fallback: se não tem sessão mas tem ?pay_remaining na URL, carrega do pedido pai
+        if ((empty($allowed_ids) || !is_array($allowed_ids)) && !$partial_parent_id) {
+            $pay_remaining = isset($_GET['pay_remaining']) ? intval($_GET['pay_remaining']) : 0;
+            if ($pay_remaining > 0) {
+                $parent = wc_get_order($pay_remaining);
+                if ($parent) {
+                    $rates_json = $parent->get_meta('_wc_lkn_chosen_shipping_rates');
+                    if ($rates_json) {
+                        $rate_ids = json_decode($rates_json, true);
+                        if (is_array($rate_ids) && !empty($rate_ids)) {
+                            $allowed_ids = $rate_ids;
+                            $partial_parent_id = $pay_remaining;
+                            WC()->session->set('lkn_partial_shipping_rate_ids', $rate_ids);
+                            WC()->session->set('lkn_partial_parent_order_id', $pay_remaining);
+                            WC()->session->set('chosen_shipping_methods', $rate_ids);
+                        }
+                    }
+                }
+            }
+        }
+
         if (empty($allowed_ids) || !is_array($allowed_ids)) return $rates;
 
         if (!$partial_order_id && !$partial_parent_id) {
@@ -3700,9 +3721,31 @@ final class WcPaymentInvoicePartial
         if (!WC()->session) return;
 
         $partial_order_id = WC()->session->get('lkn_partial_order_id') ?: WC()->session->get('lkn_partial_parent_order_id');
+
+        // Fallback: carrega do ?pay_remaining na URL se sessão não tem
+        if (!$partial_order_id) {
+            $pay_remaining = isset($_GET['pay_remaining']) ? intval($_GET['pay_remaining']) : 0;
+            if ($pay_remaining > 0) {
+                $partial_order_id = $pay_remaining;
+            }
+        }
         if (!$partial_order_id) return;
 
         $saved_shipping = WC()->session->get('lkn_partial_shipping_methods');
+
+        // Fallback: carrega shipping methods do pedido pai se sessão não tem
+        if (empty($saved_shipping) || !is_array($saved_shipping)) {
+            $parent = wc_get_order($partial_order_id);
+            if ($parent) {
+                $shipping_json = $parent->get_meta('_wc_lkn_chosen_shipping');
+                if ($shipping_json) {
+                    $saved_shipping = json_decode($shipping_json, true);
+                    if (is_array($saved_shipping)) {
+                        WC()->session->set('lkn_partial_shipping_methods', $saved_shipping);
+                    }
+                }
+            }
+        }
         if (empty($saved_shipping) || !is_array($saved_shipping)) return;
 
         foreach ($saved_shipping as $shipping) {
