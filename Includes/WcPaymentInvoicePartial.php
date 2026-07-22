@@ -11,9 +11,9 @@ final class WcPaymentInvoicePartial
             $currency_code =  get_woocommerce_currency();
             $currency_symbol = get_woocommerce_currency_symbol( $currency_code );
 
-            // Detecta se é Checkout Blocks ou clássico
-            $checkout_page_id = wc_get_page_id('checkout');
-            $is_blocks = $checkout_page_id && has_block('woocommerce/checkout', $checkout_page_id);
+            // Detecta se é Checkout Blocks ou clássico — usa a página atual, não a configurada
+            $current_page_id = is_checkout() ? get_queried_object_id() : 0;
+            $is_blocks = $current_page_id && has_block('woocommerce/checkout', $current_page_id);
 
             if (! $is_blocks) {
                 // Checkout clássico: mesmo script de split do Blocks, adaptado.
@@ -2334,7 +2334,9 @@ final class WcPaymentInvoicePartial
             $pending_orders = array_filter($deduped);
         }
 
-        $step  = '<div class="wc-block-components-checkout-step lkn-wcip-partial-split-step">';
+        $step  = '<div class="wc-block-components-checkout-step lkn-wcip-partial-split-step'
+            . ($pay_remaining > 0 ? ' lkn-wcip-pay-remaining' : '')
+            . '">';
         $step .= '<div class="wc-block-components-checkout-step__heading" style="margin-bottom:16px">';
         $step .= '<h2 class="wc-block-components-title wc-block-components-checkout-step__title">' . $title . '</h2>';
         $step .= '</div>';
@@ -2508,6 +2510,13 @@ final class WcPaymentInvoicePartial
 
         // Resultado (visível imediatamente no pay_remaining)
         $step .= '<div id="lkn-wcip-split-result" style="' . ($pay_remaining > 0 ? '' : 'display:none') . '"></div>';
+
+        // Botão "Continuar pagamento" — scroll até opções de pagamento (pay_remaining apenas)
+        if ($pay_remaining > 0) {
+            $step .= '<button type="button" class="lkn-wcip-scroll-to-payment" style="display:none;width:100%;margin-top:10px;padding:10px 20px;font-size:14px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:4px;cursor:pointer">'
+                . esc_html__('Continuar pagamento', 'wc-invoice-payment')
+                . '</button>';
+        }
 
         $step .= '</div>'; // .lkn-wcip-split-blocks-container
         $step .= '</div>'; // .lkn-wcip-partial-split-step-content

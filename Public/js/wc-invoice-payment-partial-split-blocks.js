@@ -97,7 +97,7 @@
         splitData = null;
         getCheckbox().prop('checked', false);
         getInput().val('').prop('disabled', false);
-        getBtn().text('Split pagamento').css({ opacity: '0.5', pointerEvents: 'none' });
+        getBtn().text('Split pagamento').css({ opacity: '0.5', pointerEvents: 'none' }).removeClass('lkn-wcip-btn-cancel');
         getResult().hide().empty();
         getFields().hide();
         getCard().find('.lkn-wcip-base-max-msg').hide();
@@ -149,7 +149,7 @@
             splitData = res.data;
 
             getInput().val(formatCurrency(val)).prop('disabled', true);
-            getBtn().text('Cancelar split').css({ opacity: '', pointerEvents: '' });
+            getBtn().text('Cancelar split').css({ opacity: '', pointerEvents: '' }).addClass('lkn-wcip-btn-cancel');
             renderResult();
             invalidateCart();
         }).finally(function () { getBtn().prop('disabled', false); });
@@ -501,7 +501,7 @@
         }
 
         $inp.val(formatCurrency(partialAmount)).prop('disabled', true);
-        $b.text('Cancelar split').css({ opacity: '', pointerEvents: '' });
+        $b.text('Cancelar split').css({ opacity: '', pointerEvents: '' }).addClass('lkn-wcip-btn-cancel');
     }
 
     // ==========================================================
@@ -547,6 +547,7 @@
         html += '</div>';
 
         getResult().html(html).show();
+        $('.lkn-wcip-scroll-to-payment').show();
     }
 
     function refreshPayRemainingSummary() {
@@ -569,9 +570,23 @@
     }
 
     if (IS_PAY_REMAINING) {
-        // Inicial logo ao carregar
+        // Move step para o topo do checkout
         $(function () {
+            var $step = $('.lkn-wcip-partial-split-step');
+            var $form = $('.wc-block-checkout__form');
+            if ($step.length && $form.length) {
+                $form.prepend($step);
+            }
             setTimeout(refreshPayRemainingSummary, 300);
+        });
+
+        // Scroll to payment on "Continuar pagamento" click
+        $(document).on('click', '.lkn-wcip-scroll-to-payment', function () {
+            var $target = $('#payment-method');
+            if (!$target.length) { $target = $('#payment'); }
+            if ($target.length) {
+                $('html, body').animate({ scrollTop: $target.offset().top - 20 }, 400);
+            }
         });
 
         // Refresca a cada mudança de carrinho

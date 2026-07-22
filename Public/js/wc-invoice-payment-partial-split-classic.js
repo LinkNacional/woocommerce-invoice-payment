@@ -85,7 +85,7 @@
         _cartData = null;
         getCheckbox().prop('checked', false);
         getInput().val('').prop('disabled', false);
-        getBtn().text('Split pagamento').css({ opacity: '0.5', pointerEvents: 'none' });
+        getBtn().text('Split pagamento').css({ opacity: '0.5', pointerEvents: 'none' }).removeClass('lkn-wcip-btn-cancel');
         getResult().hide().empty();
         getFields().hide();
         getCard().find('.lkn-wcip-base-max-msg').hide();
@@ -138,7 +138,7 @@
             _cartData = res.data;
 
             getInput().val(formatCurrency(val)).prop('disabled', true);
-            getBtn().text('Cancelar split').css({ opacity: '', pointerEvents: '' });
+            getBtn().text('Cancelar split').css({ opacity: '', pointerEvents: '' }).addClass('lkn-wcip-btn-cancel');
             renderResult();
             invalidateCart();
         }).finally(function () { getBtn().prop('disabled', false); });
@@ -371,7 +371,14 @@
     var IS_PAY_REMAINING = !!CONFIG.isPayRemaining;
 
     if (IS_PAY_REMAINING) {
+        // Move step para o topo do checkout
         $(function () {
+            var $step = $('.lkn-wcip-partial-split-step');
+            var $form = $('form.checkout');
+            if ($step.length && $form.length) {
+                $form.prepend($step);
+            }
+
             refreshCartData().then(function () {
                 ajaxPost('lkn_wcip_get_partial_split_state').then(function (res) {
                     if (res && res.success && res.data && res.data.active) {
@@ -382,6 +389,14 @@
                     }
                 });
             });
+        });
+
+        // Scroll to payment on "Continuar pagamento" click
+        $(document).on('click', '.lkn-wcip-scroll-to-payment', function () {
+            var $target = $('#payment');
+            if ($target.length) {
+                $('html, body').animate({ scrollTop: $target.offset().top - 20 }, 400);
+            }
         });
     }
 
@@ -423,6 +438,7 @@
         html += '</div>';
 
         getResult().html(html).show();
+        $('.lkn-wcip-scroll-to-payment').show();
     }
 
     // ==========================================================

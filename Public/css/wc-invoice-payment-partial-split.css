@@ -69,6 +69,13 @@
     filter: brightness(1.1);
 }
 
+/* Botão "Cancelar split" — estilo outline vermelho */
+.lkn-wcip-btn-cancel {
+    background: transparent !important;
+    color: #dc3545 !important;
+    border: 2px solid #dc3545 !important;
+}
+
 /* Responsivo */
 @media (max-width: 480px) {
     .lkn-wcip-split-blocks-container input[type="text"] {
