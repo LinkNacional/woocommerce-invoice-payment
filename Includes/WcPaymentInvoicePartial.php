@@ -2461,7 +2461,7 @@ final class WcPaymentInvoicePartial
                 $step .= '<div style="display:flex;gap:6px">';
                 // Botão: replace_pending_partial (filho pendente) ou create_partial_payment (demais casos)
                 if ($pending_child_id && $resume_url !== $pay_rest_url) {
-                    $step .= '<button class="lkn-wcip-replace-pending-btn" type="button" style="padding:6px 12px;font-size:12px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:3px;cursor:pointer" data-order-id="' . $resume_target_id . '" data-pending-child-id="' . $pending_child_id . '" data-nonce="' . $nonce . '" data-rest-url="' . $resume_url . '">' . esc_html__('Substituir pagamento', 'wc-invoice-payment') . '</button>';
+                    $step .= '<button class="lkn-wcip-replace-pending-btn" type="button" style="padding:6px 12px;font-size:12px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:3px;cursor:pointer" data-order-id="' . $resume_target_id . '" data-pending-child-id="' . $pending_child_id . '" data-nonce="' . $nonce . '" data-rest-url="' . $resume_url . '">' . esc_html__('Continuar', 'wc-invoice-payment') . '</button>';
                 } elseif (!$is_order_pay) {
                     $step .= '<button class="lkn-wcip-resume-btn" type="button" style="padding:6px 12px;font-size:12px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:3px;cursor:pointer" data-order-id="' . $resume_target_id . '" data-amount="' . $resume_amount . '" data-nonce="' . $nonce . '" data-rest-url="' . $resume_url . '">' . esc_html__('Continuar', 'wc-invoice-payment') . '</button>';
                 }
@@ -3322,15 +3322,6 @@ final class WcPaymentInvoicePartial
 
         // Salva o frete escolhido para o fluxo "pagar restante"
         $this->saveChosenShippingToOrder($order);
-
-        // Normaliza tax data nos fee items (evita warning WC core: Undefined array key 0)
-        foreach ($order->get_items('fee') as $fee_item) {
-            $taxes = $fee_item->get_taxes();
-            if (empty($taxes['total'])) {
-                $fee_item->set_taxes(array('total' => array()));
-            }
-            $fee_item->save();
-        }
 
         $order->save();
         // Status mantido como definido pelo gateway — não força 'wc-partial'

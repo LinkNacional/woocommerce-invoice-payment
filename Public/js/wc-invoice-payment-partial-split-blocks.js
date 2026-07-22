@@ -274,7 +274,7 @@
             if (res && res.payment_url) window.location.href = res.payment_url;
         }).catch(function () {
             alert('Erro ao processar. Tente novamente.');
-            btn.prop('disabled', false).text('Substituir pagamento');
+            btn.prop('disabled', false).text('Continuar');
         });
     });
 
