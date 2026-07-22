@@ -469,6 +469,11 @@ final class WcPaymentInvoicePartial
         return $statuses;
     }
 
+    public function enqueuePartialTableAssets() {
+        if (is_admin()) return;
+        wp_enqueue_style('wcInvoicePaymentPartialTableStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
+    }
+
     public function showPartialFields($orderId): void {
         $currentOrder = wc_get_order( $orderId );
         if (!$currentOrder) return;
@@ -563,7 +568,6 @@ final class WcPaymentInvoicePartial
         );
         
         wp_enqueue_script( 'wcInvoicePaymentPartialScript', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/js/wc-invoice-payment-partial-table.js', array( 'jquery', 'wp-api' ), WC_PAYMENT_INVOICE_VERSION, false );
-        wp_enqueue_style('wcInvoicePaymentPartialStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         wp_localize_script('wcInvoicePaymentPartialScript', 'lknWcipPartialTableVariables', array(
             'orderId' => $parentOrder->get_id(),
             'totalToPay' => $restante,
@@ -931,7 +935,7 @@ final class WcPaymentInvoicePartial
                 plugin_dir_path( __FILE__ ) . 'templates/'
             );
             
-            wp_enqueue_style('wcInvoicePaymentPartialStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
+        wp_enqueue_style('wcInvoicePaymentPartialTableStyle', WC_PAYMENT_INVOICE_ROOT_URL . 'Public/css/wc-invoice-payment-partial-table.css', array(), WC_PAYMENT_INVOICE_VERSION, 'all');
         }
     }
 

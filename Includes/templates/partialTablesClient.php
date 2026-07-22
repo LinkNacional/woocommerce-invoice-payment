@@ -96,42 +96,34 @@ if (! defined('ABSPATH')) {
 </table>
 
 <h2 class="wp-block-heading" style="font-size:clamp(15.747px, 0.984rem + ((1vw - 3.2px) * 0.809), 24px);">Detalhes de pagamento parcial</h2>
-<table cellspacing="0" class="woocommerce-table woocommerce-table--order-details shop_table order_details wcPaymentInvoiceTable">
-    <thead>
-        <tr>
-            <th>Data</th>
-            <th class="wcPaymentInvoiceCenter">Método</th>
-            <th class="wcPaymentInvoiceCenter">Status</th>
-            <th class="wcPaymentInvoiceCenter">Valor</th>
-            <th class="wcPaymentThActions">Papel</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php $parc_num = 0; foreach ($allRelated as $relOrder) :
-            $created_date   = $relOrder->get_date_created() ? $relOrder->get_date_created()->date_i18n('d/m/Y') : '-';
-            $payment_method = $relOrder->get_payment_method_title() ?: '-';
-            $status         = wc_get_order_status_name($relOrder->get_status());
-            $total          = wc_price($relOrder->get_total());
-            $rel_parent_id  = $relOrder->get_meta('_wc_lkn_parent_id');
-            $is_main        = !$rel_parent_id && $relOrder->get_meta('_wc_lkn_is_partial_main_order') === 'yes';
-            if ($is_main) {
-                $role = __('Principal', 'wc-invoice-payment');
-                $total = wc_price((float) $relOrder->get_meta('_wc_lkn_original_total') ?: (float) $relOrder->get_total());
-            } else {
-                $parc_num++;
-                $role = $parc_num . '° Parcial';
-            }
-            $link           = add_query_arg('id', $relOrder->get_id(), admin_url('admin.php?page=wc-orders&action=edit'));
-        ?>
-            <tr class="woocommerce-table__line-item order_item">
-                <td><?php echo esc_html($created_date); ?></td>
-                <td class="wcPaymentInvoiceCenter"><?php echo esc_html($payment_method); ?></td>
-                <td class="wcPaymentInvoiceCenter"><?php echo esc_html($status); ?></td>
-                <td class="wcPaymentInvoiceCenter"><?php echo wp_kses_post($total); ?></td>
-                <td class="wcPaymentThActions">
-                    <span style="font-size:12px"><?php echo esc_html($role); ?></span>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+<div class="lkn-wcip-partial-details-cards">
+    <?php $parc_num = 0; foreach ($allRelated as $relOrder) :
+        $created_date   = $relOrder->get_date_created() ? $relOrder->get_date_created()->date_i18n('d/m/Y') : '-';
+        $payment_method = $relOrder->get_payment_method_title() ?: '-';
+        $status         = wc_get_order_status_name($relOrder->get_status());
+        $total          = wc_price($relOrder->get_total());
+        $rel_parent_id  = $relOrder->get_meta('_wc_lkn_parent_id');
+        $is_main        = !$rel_parent_id && $relOrder->get_meta('_wc_lkn_is_partial_main_order') === 'yes';
+        if ($is_main) {
+            $role = __('Principal', 'wc-invoice-payment');
+            $total = wc_price((float) $relOrder->get_meta('_wc_lkn_original_total') ?: (float) $relOrder->get_total());
+        } else {
+            $parc_num++;
+            $role = $parc_num . '° Parcial';
+        }
+    ?>
+        <div class="lkn-wcip-detail-card">
+            <div class="lkn-wcip-detail-card__top">
+                <span class="lkn-wcip-detail-card__date"><?php echo esc_html($created_date); ?></span>
+                <span class="lkn-wcip-detail-card__badge <?php echo $is_main ? 'lkn-wcip-detail-card__badge--main' : ''; ?>"><?php echo esc_html($role); ?></span>
+            </div>
+            <div class="lkn-wcip-detail-card__mid">
+                <span class="lkn-wcip-detail-card__method"><?php echo esc_html($payment_method); ?></span>
+            </div>
+            <div class="lkn-wcip-detail-card__bottom">
+                <span class="lkn-wcip-detail-card__status"><?php echo esc_html($status); ?></span>
+                <span class="lkn-wcip-detail-card__total"><?php echo wp_kses_post($total); ?></span>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>

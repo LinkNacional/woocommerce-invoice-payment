@@ -471,6 +471,7 @@ final class WcPaymentInvoice {
         $this->loader->add_action( 'init', $this->WcPaymentInvoicePartialClass, 'initDokanInvoicesSystem' );
         
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoicePartialClass, "showPartialFields");
+        $this->loader->add_action('wp_enqueue_scripts', $this->WcPaymentInvoicePartialClass, 'enqueuePartialTableAssets');
 		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoicePartialClass, 'allowStatusCancel');
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
 		$this->loader->add_filter( 'render_block', $this->WcPaymentInvoicePartialClass, 'injectPartialSplitStepIntoCheckout', 9999, 2 );
