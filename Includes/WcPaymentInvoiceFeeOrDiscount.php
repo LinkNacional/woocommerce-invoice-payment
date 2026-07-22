@@ -736,12 +736,21 @@ final class WcPaymentInvoiceFeeOrDiscount
                 }
             }
 
+            $disclaimer = '<span class="wc-invoice-prices-disclaimer" data-tooltip="'
+                . esc_attr__('Values may vary depending on the selected installment, shipping, and other fees at checkout.', 'wc-invoice-payment')
+                . '">?</span>';
+
+            // Insere o ? dentro do <p class="price">, logo após o valor
+            if (str_ends_with($price_html, '</p>')) {
+                $price_html = substr($price_html, 0, -4) . ' ' . $disclaimer . '</p>';
+            } else {
+                $price_html .= ' ' . $disclaimer;
+            }
+
             $price_html .= '<div class="wc-invoice-payment-method-prices">';
             $price_html .= implode('', $ordered);
             $price_html .= '</div>';
-            $price_html .= '<small class="wc-invoice-prices-disclaimer">'
-                . esc_html__('Values may vary depending on the selected installment, shipping, and other fees at checkout.', 'wc-invoice-payment')
-                . '</small>';
+
         }
 
         return $price_html;
