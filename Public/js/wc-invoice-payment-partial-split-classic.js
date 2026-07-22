@@ -230,6 +230,29 @@
         });
     });
 
+    // Botão "Substituir pagamento" — substitui filho pendente e vai pro checkout
+    $(document).on('click', '.lkn-wcip-replace-pending-btn', function () {
+        var btn = $(this);
+        btn.prop('disabled', true).text('Processando...');
+        fetch(btn.data('rest-url'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': CONFIG.restNonce || btn.data('nonce'),
+            },
+            body: JSON.stringify({
+                orderId: parseInt(btn.data('order-id')),
+                pendingChildId: parseInt(btn.data('pending-child-id')),
+                userId: CONFIG.userId || 0
+            })
+        }).then(function (r) { return r.json(); }).then(function (res) {
+            if (res && res.payment_url) window.location.href = res.payment_url;
+        }).catch(function () {
+            alert('Erro ao processar. Tente novamente.');
+            btn.prop('disabled', false).text('Substituir pagamento');
+        });
+    });
+
     $(document).on('change', '#lkn-wcip-split-checkbox', function () {
         if (IS_PAY_REMAINING) return;
         if (this.checked) {

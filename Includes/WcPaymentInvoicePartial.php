@@ -26,6 +26,12 @@ final class WcPaymentInvoicePartial
                 );
 
                 $pay_remaining = isset($_GET['pay_remaining']) ? intval($_GET['pay_remaining']) : 0;
+                // Fallback via sessão para WC Blocks (AJAX pode não enviar GET params)
+                if ($pay_remaining <= 0 && WC()->session) {
+                    $sp = (int) WC()->session->get('lkn_partial_parent_order_id');
+                    $sa = (float) WC()->session->get('lkn_partial_amount');
+                    if ($sp > 0 && $sa > 0) $pay_remaining = $sp;
+                }
                 $split_config = array(
                     'ajaxUrl'             => admin_url('admin-ajax.php'),
                     'nonce'               => wp_create_nonce('lkn_wcip_partial_split'),
@@ -42,6 +48,12 @@ final class WcPaymentInvoicePartial
             } else {
                 // Checkout Blocks: enfileira script que popula o step injetado via render_block
                 $pay_remaining = isset($_GET['pay_remaining']) ? intval($_GET['pay_remaining']) : 0;
+                // Fallback via sessão para WC Blocks (AJAX pode não enviar GET params)
+                if ($pay_remaining <= 0 && WC()->session) {
+                    $sp = (int) WC()->session->get('lkn_partial_parent_order_id');
+                    $sa = (float) WC()->session->get('lkn_partial_amount');
+                    if ($sp > 0 && $sa > 0) $pay_remaining = $sp;
+                }
 
                 wp_enqueue_script(
                     'wcInvoicePaymentPartialSplitBlocks',
@@ -2285,6 +2297,14 @@ final class WcPaymentInvoicePartial
         if (!is_checkout()) return '';
 
         $pay_remaining = isset($_GET['pay_remaining']) ? intval($_GET['pay_remaining']) : 0;
+        // Fallback via sessão para WC Blocks (AJAX pode não enviar GET params)
+        if ($pay_remaining <= 0 && WC()->session) {
+            $session_parent_id = (int) WC()->session->get('lkn_partial_parent_order_id');
+            $session_amount = (float) WC()->session->get('lkn_partial_amount');
+            if ($session_parent_id > 0 && $session_amount > 0) {
+                $pay_remaining = $session_parent_id;
+            }
+        }
         $title        = esc_html__('Pagamento Parcial', 'wc-invoice-payment');
         $symbol       = get_woocommerce_currency_symbol(get_woocommerce_currency());
         $base_max     = WC()->cart ? (float) WC()->cart->get_subtotal() + (float) WC()->cart->get_shipping_total() - (float) WC()->cart->get_discount_total() : 0;
@@ -2422,13 +2442,11 @@ final class WcPaymentInvoicePartial
                             $resume_url = $pay_rest_url;
                             $is_order_pay = false;
                         } else {
-                            $resume_target_id = $pending_child_id;
+                            // Filho pendente (ex: PIX não pago): botão "Substituir"
+                            $is_order_pay = false;
+                            $resume_target_id = $pid;
                             $resume_amount = (float) $pending_child->get_total();
-                            $resume_url = add_query_arg(array(
-                                'pay_for_order' => 'true',
-                                'key' => $pending_child->get_order_key(),
-                            ), wc_get_checkout_url() . 'order-pay/' . $pending_child_id . '/');
-                            $is_order_pay = true;
+                            $resume_url = esc_url(rest_url('invoice_payments/replace_pending_partial'));
                         }
                     }
                 }
@@ -2441,10 +2459,10 @@ final class WcPaymentInvoicePartial
                 $step .= esc_html__('Restante:', 'wc-invoice-payment') . ' <strong>' . $symbol . '&nbsp;' . number_format($remaining, 2, ',', '.') . '</strong>';
                 $step .= '</div>';
                 $step .= '<div style="display:flex;gap:6px">';
-                // Se é redirect direto pra order-pay, usa href; senão usa data-attrs pra fetch
-                if ($is_order_pay) {
-                    $step .= '<a class="lkn-wcip-resume-btn" href="' . esc_url($resume_url) . '" style="display:inline-block;padding:6px 12px;font-size:12px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:3px;cursor:pointer;text-decoration:none">' . esc_html__('Pagar agora', 'wc-invoice-payment') . '</a>';
-                } else {
+                // Botão: replace_pending_partial (filho pendente) ou create_partial_payment (demais casos)
+                if ($pending_child_id && $resume_url !== $pay_rest_url) {
+                    $step .= '<button class="lkn-wcip-replace-pending-btn" type="button" style="padding:6px 12px;font-size:12px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:3px;cursor:pointer" data-order-id="' . $resume_target_id . '" data-pending-child-id="' . $pending_child_id . '" data-nonce="' . $nonce . '" data-rest-url="' . $resume_url . '">' . esc_html__('Substituir pagamento', 'wc-invoice-payment') . '</button>';
+                } elseif (!$is_order_pay) {
                     $step .= '<button class="lkn-wcip-resume-btn" type="button" style="padding:6px 12px;font-size:12px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:3px;cursor:pointer" data-order-id="' . $resume_target_id . '" data-amount="' . $resume_amount . '" data-nonce="' . $nonce . '" data-rest-url="' . $resume_url . '">' . esc_html__('Continuar', 'wc-invoice-payment') . '</button>';
                 }
                 $step .= '<button class="lkn-wcip-cancel-pending-btn" type="button" style="padding:6px 12px;font-size:12px;background:#fff;color:#d63638;border:1px solid #d63638;border-radius:3px;cursor:pointer" data-order-id="' . $pid . '" data-rest-url="' . $rest_url . '" data-nonce="' . $nonce . '">' . esc_html__('Cancelar', 'wc-invoice-payment') . '</button>';

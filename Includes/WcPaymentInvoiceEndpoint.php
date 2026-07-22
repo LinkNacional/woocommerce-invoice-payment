@@ -16,6 +16,11 @@ final class WcPaymentInvoiceEndpoint {
             'callback' => array($this, 'cancelPartialPayment'),
             'permission_callback' => array($this, 'checkCancelPartialPaymentPermission'),
         ));
+        register_rest_route('invoice_payments', '/replace_pending_partial', array(
+            'methods'  => 'POST',
+            'callback' => array($this, 'replacePendingPartial'),
+            'permission_callback' => array($this, 'checkReplacePendingPartialPermission'),
+        ));
     }
     
     /**
@@ -546,6 +551,102 @@ final class WcPaymentInvoiceEndpoint {
             'message' => 'Pagamento parcial cancelado com sucesso.',
             'new_pending_total' => $new_pending_total,
         ], 200);
+    }
+
+    /**
+     * Verifica permissão para substituir partial pendente.
+     */
+    public function checkReplacePendingPartialPermission($request) {
+        $nonce = $request->get_header('X-WP-Nonce');
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new \WP_Error('invalid_nonce', 'Nonce inválido', array('status' => 403));
+        }
+
+        $params = $request->get_params();
+        $parent_id = isset($params['orderId']) ? intval($params['orderId']) : 0;
+        $pending_child_id = isset($params['pendingChildId']) ? intval($params['pendingChildId']) : 0;
+
+        if (!$parent_id || !$pending_child_id) {
+            return new \WP_Error('invalid_params', 'Parâmetros inválidos', array('status' => 400));
+        }
+
+        $parent = wc_get_order($parent_id);
+        if (!$parent) {
+            return new \WP_Error('order_not_found', 'Pedido não encontrado', array('status' => 404));
+        }
+
+        $current_user_id = get_current_user_id();
+        if ($current_user_id > 0) {
+            if (current_user_can('manage_woocommerce') || $current_user_id == $parent->get_customer_id()) {
+                return true;
+            }
+            return new \WP_Error('insufficient_permission', 'Permissão negada', array('status' => 403));
+        }
+
+        if (!$this->isRecentOrderOrValidSession($parent)) {
+            return new \WP_Error('access_denied', 'Acesso negado', array('status' => 403));
+        }
+
+        return true;
+    }
+
+    /**
+     * Substitui um filho pendente: cancela o filho antigo e redireciona
+     * para o checkout personalizado com pay_remaining.
+     */
+    public function replacePendingPartial($request) {
+        $params = $request->get_params();
+        $parent_id = isset($params['orderId']) ? intval($params['orderId']) : 0;
+        $pending_child_id = isset($params['pendingChildId']) ? intval($params['pendingChildId']) : 0;
+
+        $parent = wc_get_order($parent_id);
+        if (!$parent) {
+            return new WP_REST_Response(['error' => 'Pedido pai não encontrado.'], 404);
+        }
+
+        $pending_child = wc_get_order($pending_child_id);
+        if (!$pending_child) {
+            return new WP_REST_Response(['error' => 'Pedido filho pendente não encontrado.'], 404);
+        }
+
+        // Cancela o filho pendente
+        $pending_child->update_status('cancelled');
+
+        // Remove da lista de parciais
+        $partials_ids = $parent->get_meta('_wc_lkn_partials_id', true);
+        if (is_array($partials_ids)) {
+            $partials_ids = array_diff(array_map('intval', $partials_ids), array($pending_child_id));
+            $parent->update_meta_data('_wc_lkn_partials_id', array_values($partials_ids));
+        }
+
+        // Recalcula confirmed baseado APENAS nos filhos completados (exceto o cancelado)
+        $complete_statuses = array('completed', 'processing');
+        $complete_status_opt = get_option('lkn_wcip_partial_complete_status', '');
+        if ($complete_status_opt && strpos($complete_status_opt, 'wc-') === 0) {
+            $complete_statuses[] = substr($complete_status_opt, 3);
+        }
+        $confirmed = 0.0;
+        foreach ($partials_ids as $pid) {
+            $child = wc_get_order((int) $pid);
+            if (!$child || $child->get_status() === 'trash') continue;
+            if (!in_array($child->get_status(), $complete_statuses, true)) continue;
+            $child_paid = (float) $child->get_meta('_wc_lkn_partial_amount_paid');
+            if ($child_paid <= 0) {
+                $child_paid = (float) $child->get_total();
+            }
+            $confirmed += $child_paid;
+        }
+
+        $original_total = (float) $parent->get_meta('_wc_lkn_original_total');
+        $parent->update_meta_data('_wc_lkn_total_confirmed', $confirmed);
+        $parent->update_meta_data('_wc_lkn_total_peding', 0);
+
+        $parent->save();
+
+        // Valor real restante baseado no confirmed recalculado
+        $real_remaining = max(0, round($original_total - $confirmed, 2));
+
+        return $this->redirectToCheckoutForRemaining($parent_id, $real_remaining);
     }
     
     /**
