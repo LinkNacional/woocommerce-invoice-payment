@@ -1,115 +1,106 @@
+/**
+ * JavaScript para modo orçamento - substitui textos do WooCommerce.
+ * @package WcInvoicePayment
+ */
 (function() {
-  // Function to remove price elements
-  function removePrice() {
-    if(wcInvoiceHidePrice.showPrice == 'no' && wcInvoiceHidePrice.quoteMode == 'yes'){
-        if(!wcInvoiceHidePrice.quoteStatus || wcInvoiceHidePrice.quoteStatus == 'quote-request'){
-          document.querySelectorAll(`
-            .wc-block-components-formatted-money-amount,
-            .wc-block-cart-items__header-total,
-            .wp-block-woocommerce-cart-order-summary-totals-block,
-            .wc-block-components-totals-item__label,
-            .woocommerce-Price-amount.amount
-          `).forEach(el => {
-            if(el.innerHTML !== wcInvoiceHidePrice.reviewText){
-              el.innerHTML = wcInvoiceHidePrice.reviewText;
-              el.style.setProperty('display', 'block', 'important');
-            }
-          });
-        }
-    }
 
-    if(wcInvoiceHidePrice.quoteMode == 'yes'){
-        document.querySelectorAll(`
-            .wc-block-components-button.wp-element-button.wp-block-woocommerce-mini-cart-checkout-button-block.wc-block-mini-cart__footer-checkout.contained,
-            .wc-block-components-button.wp-element-button.wc-block-cart__submit-button.contained
-        `).forEach((el) => {
-            // Check if button has already been replaced to avoid duplicates
-            if (!el.hasAttribute('data-replaced')) {
-                // Create new button
-                const newA = document.createElement('a');
-                newA.href = el.href;
-                newA.className = 'wc-block-components-button wp-element-button wc-block-cart__submit-button contained';
-                newA.innerHTML = '<div class="wc-block-components-button__text">' + wcInvoiceHidePrice.requestQuoteText + '</div>';
-                newA.setAttribute('data-replaced', 'true');
-                
-                el.parentNode.replaceChild(newA, el);
-            }
-        });
-        document.querySelectorAll(`
-            .wp-block-woocommerce-checkout-order-summary-totals-block,
-            .wc-block-checkout__shipping-option.wp-block-woocommerce-checkout-shipping-methods-block.wc-block-components-checkout-step,
-            .wc-block-components-totals-item.wc-block-components-totals-footer-item
-        `).forEach((el) => {
-          el.remove();
-        });
+  var applyScheduled = false;
 
+  function scheduleApply() {
+    if (applyScheduled) return;
+    applyScheduled = true;
+    requestAnimationFrame(function() {
+      applyScheduled = false;
+      applyQuoteTexts();
+      hidePrices();
+    });
+  }
 
-        document.querySelectorAll(`
-          .wc-block-checkout__payment-method.wp-block-woocommerce-checkout-payment-block.wc-block-components-checkout-step,
-          .wc_payment_method.payment_method_lkn_invoice_quote_gateway
-          `)
-        .forEach((el) => {
-            el.querySelectorAll('.wc-block-components-radio-control-accordion-option').forEach((option) => {
-                if(option.firstChild.getAttribute('for') !== 'radio-control-wc-payment-method-options-lkn_invoice_quote_gateway') {
-                  option.remove();
-                }else{
-                  option.firstChild.firstChild.click()
-                }
-            });
-            el.style.display = 'none';
-        });
+  function applyQuoteTexts() {
+    if (wcInvoiceHidePrice.quoteMode !== 'yes') return;
 
-        summaryTitleElement = document.querySelector('.wc-block-components-checkout-order-summary__title-text')
-        orderNotesElement = document.querySelector('#order-notes')
-        finishButton = document.querySelector('.wc-block-components-checkout-place-order-button__text')
-        descriptionsElements = document.querySelectorAll('.wc-block-components-checkout-step__description')
+    // Botões "Ir para finalização" → "Request quote"
+    document.querySelectorAll('.wc-block-mini-cart__footer-checkout, .wc-block-cart__submit-button').forEach(function(el) {
+      if (el.hasAttribute('data-quote-replaced')) return;
+      var a = document.createElement('a');
+      a.href = el.href;
+      a.className = el.className;
+      a.innerHTML = '<div class="wc-block-components-button__text">' + wcInvoiceHidePrice.requestQuoteText + '</div>';
+      a.setAttribute('data-quote-replaced', 'true');
+      el.parentNode.replaceChild(a, el);
+    });
 
-        if(summaryTitleElement && orderNotesElement){
-          //Modify descriptions
-          descriptionsElements[0].innerHTML = wcInvoiceHidePrice.emailDescription || 'We will use this email to send information and updates about your quote.'
-          descriptionsElements[1].innerHTML = wcInvoiceHidePrice.addressDescription || 'Enter the address where you want your quote to be delivered.'
-          summaryTitleElement.innerHTML = wcInvoiceHidePrice.quoteSummaryText
-          finishButton.innerHTML = wcInvoiceHidePrice.requestQuoteText
-          orderNotesElement.remove()
-        }
+    // Títulos "Total no carrinho" / "Total in cart"
+    document.querySelectorAll('.wc-block-cart__totals-title, .cart_totals h2').forEach(function(el) {
+      if (el.hasAttribute('data-quote-title')) return;
+      el.textContent = wcInvoiceHidePrice.totalInQuote;
+      el.setAttribute('data-quote-title', 'true');
+    });
 
-        addCartElement = document.querySelector('.wp-block-button__link.wp-element-button.add_to_cart_button.ajax_add_to_cart');
-        if(addCartElement && addCartElement.innerHTML !== wcInvoiceHidePrice.requestQuoteText) {
-          addCartElement.innerHTML = wcInvoiceHidePrice.requestQuoteText;
-        }
+    // "Continuar para Finalização" (shortcode)
+    document.querySelectorAll('.checkout-button.button.alt.wc-forward').forEach(function(a) {
+      if (a.hasAttribute('data-quote-proceed')) return;
+      a.textContent = wcInvoiceHidePrice.requestQuoteText;
+      a.setAttribute('data-quote-proceed', 'true');
+    });
 
-        cuponElement = document.querySelector(`
-          .wp-block-woocommerce-checkout-order-summary-coupon-form-block.wc-block-components-totals-wrapper,
-          .wp-block-woocommerce-cart-order-summary-coupon-form-block.wc-block-components-totals-wrapper
-          `);
-        if(cuponElement && wcInvoiceHidePrice.showCupon != 'yes') {
-          cuponElement.remove();
-        }
-        if(document.querySelector('.quotesAccount')){
-          tableQuotesThElement = document.querySelector('.quotesAccount')?.parentElement?.parentElement?.querySelector('.nobr');
-          if(tableQuotesThElement && tableQuotesThElement.innerHTML !== wcInvoiceHidePrice.quotesText) {
-            tableQuotesThElement.innerHTML = wcInvoiceHidePrice.quotesText;
-          }
-        }
+    // "Atualizar carrinho" (shortcode)
+    document.querySelectorAll('button[name="update_cart"]').forEach(function(btn) {
+      if (btn.hasAttribute('data-quote-update')) return;
+      btn.value = wcInvoiceHidePrice.updateQuote;
+      btn.textContent = wcInvoiceHidePrice.updateQuote;
+      btn.setAttribute('data-quote-update', 'true');
+    });
+
+    // "O frete será calculado..." / "Shipping will be calculated..."
+    document.querySelectorAll('.wc-block-components-totals-footer-item-shipping').forEach(function(el) {
+      if (el.hasAttribute('data-quote-shipping')) return;
+      el.textContent = wcInvoiceHidePrice.shippingCalcAtQuote;
+      el.setAttribute('data-quote-shipping', 'true');
+    });
+
+    // Notícias: "Carrinho atualizado." / "adicionado ao carrinho" → texto traduzido
+    // Cobre tanto blocos (.wc-block-components-notice-banner__content) quanto shortcode clássico (.woocommerce-message)
+    document.querySelectorAll('.wc-block-components-notice-banner__content:not([data-quote-notice]), .woocommerce-message:not([data-quote-notice])').forEach(function(el) {
+      var p = wcInvoiceHidePrice;
+      el.innerHTML = el.innerHTML
+        .replace(/Carrinho atualizado\./g, p.quoteUpdated)
+        .replace(/Cart updated\./g, p.quoteUpdated)
+        .replace(/(?:foi|foram) adicionad[oa]s? ao seu carrinho\./g, p.addedToQuoteText)
+        .replace(/has been added to your cart\./g, p.addedToQuoteText);
+      el.setAttribute('data-quote-notice', 'true');
+    });
+
+    // Link "Ver carrinho" dentro de notícias → "View quote" traduzido
+    // Cobre tanto blocos quanto shortcode clássico
+    document.querySelectorAll('.wc-block-components-notice-banner__content a.wc-forward:not([data-quote-link]), .woocommerce-message a.wc-forward:not([data-quote-link])').forEach(function(link) {
+      if (link.textContent.trim() === 'Ver carrinho' || link.textContent.trim() === 'View cart') {
+        link.textContent = wcInvoiceHidePrice.viewQuote;
+        link.setAttribute('data-quote-link', 'true');
       }
-    }
+    });
+  }
 
-  // Execute immediately, in case there are already prices on the page
-  removePrice();
+  function hidePrices() {
+    if (wcInvoiceHidePrice.showPrice !== 'no' || wcInvoiceHidePrice.quoteMode !== 'yes') return;
+    if (wcInvoiceHidePrice.quoteStatus && wcInvoiceHidePrice.quoteStatus !== 'wc-quote-request') return;
 
-  // Define the target to be observed: the entire body to capture insertions anywhere
-  const observer = new MutationObserver((mutationsList) => {
-    for (const mutation of mutationsList) {
-      if (mutation.type === 'childList' || mutation.type === 'subtree') {
-        removePrice();
-      }
-    }
+    document.querySelectorAll('.wc-block-components-formatted-money-amount, .wc-block-cart-items__header-total, .wp-block-woocommerce-cart-order-summary-totals-block, .wc-block-components-totals-item__label, .woocommerce-Price-amount.amount').forEach(function(el) {
+      if (el.innerHTML === wcInvoiceHidePrice.reviewText) return;
+      el.innerHTML = wcInvoiceHidePrice.reviewText;
+      el.style.setProperty('display', 'block', 'important');
+    });
+  }
+
+  // Executa imediatamente
+  applyQuoteTexts();
+  hidePrices();
+
+  // Observer com requestAnimationFrame - evita loop em atualizações AJAX
+  var observer = new MutationObserver(function() {
+    scheduleApply();
   });
 
-  // Start the observer
-  observer.observe(document, {
-    childList: true,
-    subtree: true
-  });
+  observer.observe(document, { childList: true, subtree: true });
 
 })();

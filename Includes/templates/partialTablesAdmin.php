@@ -12,6 +12,23 @@ if(isset($invoicePage) && $invoicePage == 'true'){
     <hr>
     <?php
 }
+
+// Se for visualização a partir de um filho, mostra link para o pai
+if (!empty($parentId)) {
+    $parent_order = wc_get_order($parentId);
+    if ($parent_order) {
+        $parent_number = $parent_order->get_order_number();
+        $parent_link = admin_url("admin.php?page=wc-orders&action=edit&id={$parentId}");
+        ?>
+        <p style="margin: 0 0 8px 0; padding: 0; font-weight: 600;">
+            📌 <?php esc_attr_e('Pedido principal:', 'wc-invoice-payment'); ?>
+            <a href="<?php echo esc_url($parent_link); ?>" style="font-weight: 700;">
+                #<?php echo esc_html($parent_number); ?>
+            </a>
+        </p>
+        <?php
+    }
+}
 ?>
 <table class="wp-list-table widefat fixed striped table-view-list orders wc-orders-list-table wc-orders-list-table-shop_order wcPaymentInvoicePartialTableAdmin">
     <thead>

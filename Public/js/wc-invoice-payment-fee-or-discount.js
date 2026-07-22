@@ -13,40 +13,72 @@
                 return;
             }
 
-            const label = document.querySelector(`[for="radio-control-wc-payment-method-options-${methodId}"]`);
-            if (!label) return;
+            // Tenta seletor de bloco (Gutenberg) primeiro, depois clássico (shortcode)
+            const blockLabel = document.querySelector(`[for="radio-control-wc-payment-method-options-${methodId}"]`);
+            const classicLabel = document.querySelector(`[for="payment_method_${methodId}"]`);
 
-            const spanLabel = label.querySelector('.wc-block-components-radio-control__label');
-            if (!spanLabel || spanLabel.dataset.modified === 'true') return;
+            if (blockLabel) {
+                const spanLabel = blockLabel.querySelector('.wc-block-components-radio-control__label');
+                if (!spanLabel || spanLabel.dataset.modified === 'true') return;
 
-            // Captura o nome do método, seja dentro de um span ou texto puro
-            let methodNameEl = spanLabel.querySelector('.wc-block-components-payment-method-label');
-            let methodName;
+                let methodNameEl = spanLabel.querySelector('.wc-block-components-payment-method-label');
+                let methodName = methodNameEl ? methodNameEl.outerHTML : spanLabel.innerHTML.trim();
 
-            if (methodNameEl) {
-                methodName = methodNameEl.outerHTML;
-            } else {
-                methodName = spanLabel.innerHTML.trim();
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.justifyContent = 'space-between';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.width = '100%';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.innerHTML = methodName;
+
+                const textSpan = document.createElement('span');
+                textSpan.innerHTML = labelHtml;
+
+                wrapper.appendChild(nameSpan);
+                wrapper.appendChild(textSpan);
+
+                spanLabel.innerHTML = '';
+                spanLabel.appendChild(wrapper);
+                spanLabel.dataset.modified = 'true';
+            } else if (classicLabel) {
+                if (classicLabel.dataset.modified === 'true') return;
+
+                const li = classicLabel.closest('.wc_payment_method');
+                if (!li) return;
+
+                // Cria wrapper flex para input + label
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.alignItems = 'center';
+                row.style.justifyContent = 'space-between';
+                row.style.gap = '8px';
+                row.style.width = '100%';
+                row.className = 'wc-invoice-payment-row';
+
+                // Move input e label pra dentro do wrapper
+                const input = li.querySelector('input[name="payment_method"]');
+                const leftSide = document.createElement('span');
+                leftSide.style.display = 'inline-flex';
+                leftSide.style.alignItems = 'center';
+                leftSide.style.gap = '4px';
+
+                if (input) {
+                    leftSide.appendChild(input);
+                }
+                leftSide.appendChild(classicLabel);
+                row.appendChild(leftSide);
+
+                // Badge na direita
+                const badgeSpan = document.createElement('span');
+                badgeSpan.innerHTML = labelHtml;
+                row.appendChild(badgeSpan);
+
+                classicLabel.style.display = 'inline';
+                li.insertBefore(row, li.firstChild);
+                classicLabel.dataset.modified = 'true';
             }
-
-            // Monta o novo conteúdo com flexbox
-            const wrapper = document.createElement('span');
-            wrapper.style.display = 'flex';
-            wrapper.style.justifyContent = 'space-between';
-            wrapper.style.width = '100%';
-
-            const nameSpan = document.createElement('span');
-            nameSpan.innerHTML = methodName;
-
-            const textSpan = document.createElement('span');
-            textSpan.innerHTML = labelHtml;
-
-            wrapper.appendChild(nameSpan);
-            wrapper.appendChild(textSpan);
-
-            spanLabel.innerHTML = '';
-            spanLabel.appendChild(wrapper);
-            spanLabel.dataset.modified = 'true';
         });
     };
 

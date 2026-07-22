@@ -1,3 +1,12 @@
+# 2.13.0 - 21/07/2026
+* Refatoração completa do fluxo de pagamento parcial — split em parcela única no checkout, renomeação de nomenclatura.
+* Novo sistema de taxas e descontos por produto no checkout, com indicação visual por método de pagamento.
+* Correções de bugs e ajustes no fluxo de orçamento.
+
+# 2.12.1 - 07/07/2026
+* Ajuste na documentação.
+* Ajuste na validação dos campos do dokan.
+  
 # 2.12.0 - 10/04/2026
 * Adição de compatibilidade para pagamentos recorrentes com a Cielo.
 

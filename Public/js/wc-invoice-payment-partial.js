@@ -1,8 +1,8 @@
 (function ($) {
     $(window).on('load', function () {
         let orderId
-        if(typeof wcSettings != 'undefined'){
-            orderId = wcSettings?.checkoutData?.order_id
+        if(typeof wcSettings != 'undefined' && wcSettings?.checkoutData?.order_id){
+            orderId = wcSettings.checkoutData.order_id
         }else{
             orderId = 'newOrder';
         }
@@ -16,17 +16,7 @@
             }
             if (checkoutForm || cartFlowDiv) {
                 symbol = lknWcipPartialVariables.symbol
-                
-                
-                if(checkoutForm){
-                    totalElement = $('.wc-block-components-totals-footer-item-tax-value');
-                    
-                }else{
-                    totalElement = $('.woocommerce-Price-amount.amount').last();
-                }
-                const totalText = totalElement.text();
-                const numericText = totalText.replace(/[^\d,]/g, '').replace(',', '.');
-                const cartTotal = parseFloat(numericText);
+                const cartTotal = parseFloat(lknWcipPartialVariables.cartTotal);
                 if(cartTotal > parseFloat(lknWcipPartialVariables.minPartialAmount)){
                     if(checkoutForm){
                         partialPaymentHTML = `
@@ -225,31 +215,56 @@
                         formattedInput.val(formatted);
                     });
 
-                    $('.wcPaymentInvoiceButton').on('click', function (e) {
+                    $('.wcPaymentInvoiceButton').on('click', async function (e) {
                         e.preventDefault();
                     
                         const partialValue = parseFloat($('#wcPaymentInvoicePartialAmount').val());
-                        // Verifica se o valor está válido
                         if (partialValue == 0 || isNaN(partialValue)) {
                             alert('Digite um valor válido para pagamento parcial.');
                             return;
                         }
 
-                        if ( partialValue >= cartTotal ) {
-                            alert('Valor solicitado para pagamento parcial não pode ser maior ou igual ao total do pedido.');
+                        this.disabled = true;
+
+                        if (orderId === 'newOrder') {
+                            // Fluxo checkout: usa AJAX que tem o carrinho completo (frete, taxas, cupom)
+                            try {
+                                const fd = new FormData();
+                                fd.append('action', 'lkn_wcip_create_partial');
+                                fd.append('nonce', lknWcipPartialVariables.cartTotalNonce);
+                                fd.append('partialAmount', partialValue);
+                                const res = await fetch(lknWcipPartialVariables.cartTotalAjaxUrl, { method: 'POST', body: fd });
+                                const json = await res.json();
+                                if (!json.success) throw new Error(json.data?.message || 'Erro');
+                                window.location.href = json.data.payment_url;
+                            } catch (err) {
+                                alert(err.message || 'Erro ao criar pagamento parcial.');
+                                this.disabled = false;
+                            }
                             return;
                         }
-                    
-                        // Cria o payload
-                        const data = {
-                            partialAmount: partialValue,
-                            orderId: orderId,
-                            cart: lknWcipPartialVariables.cart,
-                            userId: lknWcipPartialVariables.userId,
-                        };
-                    
-                        // Envia a requisição POST para a REST API
-                        this.disabled = true;
+
+                        // Fluxo pedido existente: valida total e envia via REST
+                        let currentTotal;
+                        try {
+                            const fd = new FormData();
+                            fd.append('action', 'lkn_wcip_cart_total');
+                            fd.append('nonce', lknWcipPartialVariables.cartTotalNonce);
+                            const res = await fetch(lknWcipPartialVariables.cartTotalAjaxUrl, { method: 'POST', body: fd });
+                            const json = await res.json();
+                            if (!json.success) throw new Error(json.data?.message || 'Erro');
+                            currentTotal = parseFloat(json.data.total);
+                        } catch (err) {
+                            alert('Erro ao verificar total.');
+                            this.disabled = false;
+                            return;
+                        }
+
+                        if (partialValue >= currentTotal) {
+                            alert('Valor não pode ser maior ou igual ao total do pedido.');
+                            this.disabled = false;
+                            return;
+                        }
 
                         fetch(`${wpApiSettings.root}invoice_payments/create_partial_payment`, {
                             method: 'POST',
@@ -257,18 +272,15 @@
                                 'Content-Type': 'application/json',
                                 'X-WP-Nonce': lknWcipPartialVariables.nonce || wpApiSettings.nonce,
                             },
-                            body: JSON.stringify(data)
-                        })                        
+                            body: JSON.stringify({
+                                partialAmount: partialValue,
+                                orderId: orderId,
+                                userId: lknWcipPartialVariables.userId,
+                            })
+                        })
                         .then(async response => {
                             const result = await response.json();
-                        
-                            if (!response.ok) {
-                                // Lida com erro retornado pela API
-                                this.disabled = false;
-                                throw new Error(result.message);
-                            }
-                        
-                            // Sucesso: redireciona
+                            if (!response.ok) throw new Error(result.message || result.error);
                             window.location.href = result.payment_url;
                         })
                         .catch(error => {
@@ -292,7 +304,6 @@
                         const data = {
                             partialAmount: partialValue,
                             orderId: orderId,
-                            cart: lknWcipPartialVariables.cart,
                             userId: lknWcipPartialVariables.userId,
                         };
                     

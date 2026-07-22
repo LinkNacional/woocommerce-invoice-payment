@@ -182,6 +182,7 @@ function base64toBlob(base64Data) {
    */
 function handlePreviewPdfTemplate(selectTpl, imgPreview) {
   const optionSelectedTemplate = selectTpl.options[selectTpl.selectedIndex]
+  if (!optionSelectedTemplate?.dataset?.previewUrl) return
   imgPreview.src = optionSelectedTemplate.dataset.previewUrl
 
   selectTpl.addEventListener('change', event => {

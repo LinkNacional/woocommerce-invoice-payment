@@ -80,18 +80,6 @@
 
                 const checkboxRecurringDonate = $('#wcPaymentInvoiceContainerCheckboxRecurringDonate');
                 
-                // Função para capturar mudanças no checkbox (sem lógica de negócio)
-                function handleCheckboxChange() {
-                    // Aqui você pode adicionar lógica futura para doação recorrente
-                    console.log('Recurring donation checkbox changed:', checkboxRecurringDonate.is(':checked'));
-                }
-
-                // Verifica no carregamento inicial
-                handleCheckboxChange();
-
-                // Escuta mudanças no checkbox
-                checkboxRecurringDonate.on('change', handleCheckboxChange);
-
                 // Intercepta as requisições AJAX/REST API do checkout
                 interceptCheckoutRequests();
                 

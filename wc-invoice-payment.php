@@ -15,10 +15,12 @@
  * Plugin Name:       Invoice Payment for WooCommerce
  * Plugin URI:        https://www.linknacional.com/wordpress/plugins/
  * Description:       Invoice payment generation and management for WooCommerce.
- * Version:           2.12.0
+ * Version:           2.13.0
  * Author:            Link Nacional
  * Author URI:        https://www.linknacional.com/
- * Requires Plugins: woocommerce
+ * Requires at least: 6.0
+ * Requires PHP:      8.2
+ * Requires Plugins:  woocommerce
  * License:           GPL-3.0+
  * License URI:       http://www.gnu.org/licenses/gpl-3.0.txt
  * Text Domain:       wc-invoice-payment
@@ -41,7 +43,7 @@ require_once __DIR__ . '/vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('WC_PAYMENT_INVOICE_VERSION', '2.12.0');
+define('WC_PAYMENT_INVOICE_VERSION', '2.13.0');
 define('WC_PAYMENT_INVOICE_TRANSLATION_PATH', plugin_dir_path(__FILE__) . 'languages/');
 define('WC_PAYMENT_INVOICE_ROOT_DIR', plugin_dir_path(__FILE__));
 define('WC_PAYMENT_INVOICE_ROOT_URL', plugin_dir_url(__FILE__));

@@ -26,7 +26,7 @@ final class WcPaymentInvoiceLoaderRest {
             [
                 'methods'  => 'GET',
                 'callback' => function () {
-                    wp_redirect(admin_url('admin.php?page=wc-invoice-payment'));
+                    wp_safe_redirect(admin_url('admin.php?page=wc-invoice-payment'));
                     exit;
                 },
                 'permission_callback' => '__return_true',
@@ -128,6 +128,7 @@ final class WcPaymentInvoiceLoaderRest {
 
         // This is a binary file for download
         // Can't use esc_html here
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $output;
         exit;
     }

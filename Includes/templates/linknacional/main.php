@@ -24,7 +24,9 @@ $invoice_client_name = "{$order->get_billing_first_name()} {$order->get_billing_
 $invoice_client_email = $order->get_billing_email();
 
 $items = $order->get_items();
-$invoice_payment_link = $order->get_checkout_payment_url();
+$invoice_payment_link = ($order->get_meta('_wc_lkn_is_partial_order') === 'yes')
+    ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($order->get_id())
+    : $order->get_checkout_payment_url();
 
 // Generates the HTML rows for the invoice items.
 $invoice_items_html = implode(

@@ -71,7 +71,7 @@ final class WcPaymentInvoiceOtpEmail {
      * Gera um código OTP de 6 dígitos
      */
     private function generate_otp_code() {
-        return sprintf('%06d', mt_rand(0, 999999));
+        return sprintf('%06d', wp_rand(0, 999999));
     }
 
     /**
@@ -169,6 +169,7 @@ final class WcPaymentInvoiceOtpEmail {
      */
     private function send_otp_email($email, $code) {
         $subject = sprintf(
+            /* translators: %s: OTP verification code */
             __('Seu código de acesso: %s', 'wc-invoice-payment'),
             $code
         );
@@ -459,6 +460,7 @@ final class WcPaymentInvoiceOtpEmail {
      */
     public function replace_login_register_forms() {
         // Adiciona formulário OTP
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML estático do plugin já escapado com esc_html_e
         echo $this->get_otp_form_html();
         
     }
@@ -467,6 +469,7 @@ final class WcPaymentInvoiceOtpEmail {
      * Substitui apenas formulário de login
      */
     public function replace_login_form() {
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML estático do plugin já escapado com esc_html_e
         echo $this->get_otp_form_html();
     }
 
@@ -478,19 +481,19 @@ final class WcPaymentInvoiceOtpEmail {
         ?>
         <div class="lkn-otp-auth-wrapper">
             <div class="lkn-otp-form-container">
-                <h2><?php _e('Acesse sua conta', 'wc-invoice-payment'); ?></h2>
-                <p><?php _e('Digite seu email para receber um código de acesso', 'wc-invoice-payment'); ?></p>
+                <h2><?php esc_html_e('Acesse sua conta', 'wc-invoice-payment'); ?></h2>
+                <p><?php esc_html_e('Digite seu email para receber um código de acesso', 'wc-invoice-payment'); ?></p>
                 
                 <!-- Formulário de email -->
                 <form id="lkn-otp-email-form" class="lkn-otp-form" style="display: block;">
                     <div class="form-row">
-                        <label for="lkn_otp_email"><?php _e('Seu email', 'wc-invoice-payment'); ?> <span class="required">*</span></label>
+                        <label for="lkn_otp_email"><?php esc_html_e('Seu email', 'wc-invoice-payment'); ?> <span class="required">*</span></label>
                         <input type="email" id="lkn_otp_email" name="email" class="input-text" required />
                     </div>
                     
                     <div class="form-row">
                         <button type="submit" class="wp-element-button" name="otp_send_code" id="lkn-wc-otp-send-code">
-                            <?php _e('Enviar código', 'wc-invoice-payment'); ?>
+                            <?php esc_html_e('Enviar código', 'wc-invoice-payment'); ?>
                         </button>
                     </div>
                 </form>
@@ -498,17 +501,17 @@ final class WcPaymentInvoiceOtpEmail {
                 <!-- Formulário de código -->
                 <form id="lkn-otp-code-form" class="lkn-otp-form" style="display: none;">
                     <div class="form-row">
-                        <label for="lkn_otp_code"><?php _e('Código de acesso', 'wc-invoice-payment'); ?> <span class="required">*</span></label>
+                        <label for="lkn_otp_code"><?php esc_html_e('Código de acesso', 'wc-invoice-payment'); ?> <span class="required">*</span></label>
                         <input type="text" inputmode="numeric" id="lkn_otp_code" name="code" class="input-text" maxlength="6" pattern="[0-9]{6}" required />
                         <small style="text-align: center;">
-                            <?php _e('Digite o código de 6 dígitos enviado para seu email', 'wc-invoice-payment'); ?><br>
-                            <a href="#" id="lkn-otp-back"><?php _e('Voltar e cancelar.', 'wc-invoice-payment'); ?></a>
+                            <?php esc_html_e('Digite o código de 6 dígitos enviado para seu email', 'wc-invoice-payment'); ?><br>
+                            <a href="#" id="lkn-otp-back"><?php esc_html_e('Voltar e cancelar.', 'wc-invoice-payment'); ?></a>
                         </small>
                     </div>
                     
                     <div class="form-row">
                         <button type="submit" class="wp-element-button" name="otp_verify_code">
-                            <?php _e('Verificar código', 'wc-invoice-payment'); ?>
+                            <?php esc_html_e('Verificar código', 'wc-invoice-payment'); ?>
                         </button>
                     </div>
                 </form>

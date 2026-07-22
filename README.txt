@@ -2,14 +2,14 @@
 Contributors: linknacional
 Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: subscription, invoice, payment, recorrente, faturas
-Requires at least: 5.7
-Tested up to: 6.8
-Stable tag: 2.12.0
-Requires PHP: 7.2
+Requires at least: 6.0
+Tested up to: 7.0
+Stable tag: 2.13.0
+Requires PHP: 8.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Link Invoice Payment plugin is an extension for WooCommerce, designed to simplify online billing. Whether for one-time or subscriptions (recurring invoices) .
+Link Invoice Payment is an extension for WooCommerce, designed to simplify online billing. Whether for one-time or subscriptions (recurring invoices)
 
 == Description ==
 The **Link Invoice Payment** plugin is a powerful and free extension for **WooCommerce**, designed to simplify online billing — whether for one-time or subscription (recurring) invoices. With [Link Invoice Payment](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) plugin for WooCommerce, you can easily generate both **one-time** and **recurring** invoices and send them to your customers via email, WhatsApp, or social networks — complete with a secure payment link. One of its biggest advantages is the ability to offer multiple payment options to settle the invoice.
@@ -117,6 +117,15 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
+= 2.13.0 = *21/07/2026*
+* Refactored partial payment flow — implemented single-installment split at checkout and updated naming conventions.
+* New per-product fee and discount system at checkout, featuring visual indicators based on payment method.
+* General bug fixes and adjustments in the quote flow.
+
+= 2.12.1 = *07/07/2026*
+* Documentation adjustment.
+* Adjustment in Dokan field validation.
+
 = 2.12.0 = *04/10/2026*
 * Added compatibility for recurring payments with Cielo.
 

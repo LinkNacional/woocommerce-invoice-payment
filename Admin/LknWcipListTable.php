@@ -271,7 +271,7 @@ final class LknWcipListTable {
 
         // Redirect if page number is invalid and headers are not already sent.
         if ( ! headers_sent() && ! wp_doing_ajax() && $args['total_pages'] > 0 && $this->get_pagenum() > $args['total_pages']) {
-            wp_redirect(add_query_arg('paged', $args['total_pages']));
+            wp_safe_redirect(add_query_arg('paged', $args['total_pages']));
             exit;
         }
 
@@ -727,8 +727,8 @@ final class LknWcipListTable {
         $current = $this->get_pagenum();
         $removable_query_args = wp_removable_query_args();
 
-        $httpHost = isset($_SERVER['HTTP_HOST']) ? wp_unslash($_SERVER['HTTP_HOST']) : '';
-        $requestURI = isset($_SERVER['REQUEST_URI']) ? wp_unslash($_SERVER['REQUEST_URI']) : '';
+        $httpHost = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
+        $requestURI = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
 
         $sanitizedUrl = sanitize_url('https://' . $httpHost . $requestURI);
         $current_url = $sanitizedUrl;
@@ -1019,8 +1019,8 @@ final class LknWcipListTable {
             return;
         }
 
-        $httpHost = isset($_SERVER['HTTP_HOST']) ? wp_unslash($_SERVER['HTTP_HOST']) : '';
-        $requestURI = isset($_SERVER['REQUEST_URI']) ? wp_unslash($_SERVER['REQUEST_URI']) : '';
+        $httpHost = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
+        $requestURI = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
 
         $sanitizedUrl = sanitize_url('https://' . $httpHost . $requestURI);
         $current_url = sanitize_url($sanitizedUrl);
@@ -1458,13 +1458,17 @@ final class LknWcipListTable {
         $invoice = wc_get_order($invoiceId);
         
         $editUrl = home_url('wp-admin/admin.php?page=edit-invoice&invoice=' . $orderId);
-        $paymentUrl = $order->get_checkout_payment_url();
+        $paymentUrl = ($order->get_meta('_wc_lkn_is_partial_order') === 'yes')
+            ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($orderId)
+            : $order->get_checkout_payment_url();
 
         if($order->get_meta('lkn_is_subscription')) {
             $editUrl = home_url('wp-admin/admin.php?page=edit-subscription&invoice=' . $orderId);
             //Evita erros caso a primeira fatura ainda não foi gerada
             if($invoice) {
-                $paymentUrl = $invoice->get_checkout_payment_url();
+                $paymentUrl = ($invoice->get_meta('_wc_lkn_is_partial_order') === 'yes')
+                    ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($invoiceId)
+                    : $invoice->get_checkout_payment_url();
                 $orderId = $invoiceId;
             }
         }
@@ -1706,9 +1710,9 @@ final class LknWcipListTable {
      * @return void
      */
     public function proccess_bulk_action(): void {
-        if ('delete' === $this->current_action() && isset($_POST['nonce_action_field']) && wp_verify_nonce( $_POST['nonce_action_field'], 'nonce_action' )) {
-            // Since we expect an array it did not need sanitization of the value
-            $invoicesRaw = isset($_POST['invoices']) ? $_POST['invoices'] : array();
+        if ('delete' === $this->current_action() && isset($_POST['nonce_action_field']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce_action_field'])), 'nonce_action')) {
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized by array_map('sanitize_text_field') below
+            $invoicesRaw = isset($_POST['invoices']) ? wp_unslash($_POST['invoices']) : array();
             $invoicesDelete = array_map('sanitize_text_field', $invoicesRaw);
             $invoices = get_option('lkn_wcip_invoices');
 
@@ -1741,7 +1745,7 @@ final class LknWcipListTable {
             update_option('lkn_wcip_invoices', $invoices);
 
             $referer = isset($_SERVER['HTTP_REFERER']) ? sanitize_url(wp_unslash($_SERVER['HTTP_REFERER'])) : '';
-            wp_redirect($referer);
+            wp_safe_redirect($referer);
         }
     }
 }

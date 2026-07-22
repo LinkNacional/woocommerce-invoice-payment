@@ -225,7 +225,7 @@ final class WcPaymentInvoiceSettings
                                     <option value="pix" <?php selected($icon_value, 'pix'); ?>><?php echo esc_html(__('PIX', 'wc-invoice-payment')); ?></option>
                                 </select>
                                 <div class="lkn-icon-preview" data-gateway="<?php echo esc_attr($gateway_id); ?>">
-                                    <img src="<?php echo WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . esc_attr($icon_value) . '.svg'; ?>" alt="<?php echo esc_attr($icon_value); ?>" style="width: 24px; height: 24px;" />
+                                    <img src="<?php echo esc_url(WC_PAYMENT_INVOICE_ROOT_URL . 'Public/images/' . $icon_value . '.svg'); ?>" alt="<?php echo esc_attr($icon_value); ?>" style="width: 24px; height: 24px;" />
                                 </div>
                             </div>
                             <p class="description"><?php echo esc_html(__('Select the icon to be displayed for this payment method.', 'wc-invoice-payment')); ?></p>
@@ -272,6 +272,50 @@ final class WcPaymentInvoiceSettings
                     </div>
                 </fieldset>
                 
+            </td>
+        </tr>
+        <?php
+    }
+
+    public function render_img_badge_config_field()
+    {
+        $slug = 'lkn_wcip_';
+        $enabled = get_option($slug . 'img_badge_enabled', 'no');
+        $position = get_option($slug . 'img_badge_position', 'bottom-right');
+        ?>
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label><?php echo esc_html(__('Badge on product image', 'wc-invoice-payment')); ?></label>
+            </th>
+            <td class="forminp">
+                <fieldset data-section-title="<?php echo esc_attr(__('Badge on product image', 'wc-invoice-payment')); ?>">
+                    <legend class="screen-reader-text">
+                        <span><?php echo esc_html(__('Badge on product image', 'wc-invoice-payment')); ?></span>
+                    </legend>
+
+                    <div style="display: flex;gap: 15px;align-items: flex-start;flex-wrap: wrap;flex-direction: column;">
+                        <!-- Checkbox para habilitar/desabilitar -->
+                        <div>
+                            <input type="checkbox" name="<?php echo esc_attr($slug . 'img_badge_enabled'); ?>" id="<?php echo esc_attr($slug . 'img_badge_enabled'); ?>" value="yes" <?php checked($enabled, 'yes'); ?> />
+                            <label for="<?php echo esc_attr($slug . 'img_badge_enabled'); ?>"><?php echo esc_html(__('Show badge on product image', 'wc-invoice-payment')); ?></label>
+                            <p class="description"><?php echo esc_html(__('Display a fee/discount badge on the product image in the shop and product pages.', 'wc-invoice-payment')); ?></p>
+                        </div>
+
+                        <!-- Posição do badge -->
+                        <div>
+                            <label for="<?php echo esc_attr($slug . 'img_badge_position'); ?>"><?php echo esc_html(__('Badge position', 'wc-invoice-payment')); ?></label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <select name="<?php echo esc_attr($slug . 'img_badge_position'); ?>" id="<?php echo esc_attr($slug . 'img_badge_position'); ?>" class="wc-enhanced-select">
+                                    <option value="bottom-right" <?php selected($position, 'bottom-right'); ?>><?php echo esc_html(__('↘ Bottom Right', 'wc-invoice-payment')); ?></option>
+                                    <option value="bottom-left"  <?php selected($position, 'bottom-left'); ?>><?php echo esc_html(__('↙ Bottom Left', 'wc-invoice-payment')); ?></option>
+                                    <option value="top-right"    <?php selected($position, 'top-right'); ?>><?php echo esc_html(__('↗ Top Right', 'wc-invoice-payment')); ?></option>
+                                    <option value="top-left"     <?php selected($position, 'top-left'); ?>><?php echo esc_html(__('↖ Top Left', 'wc-invoice-payment')); ?></option>
+                                </select>
+                            </div>
+                            <p class="description"><?php echo esc_html(__('Choose where the fee/discount badge appears on the product image.', 'wc-invoice-payment')); ?></p>
+                        </div>
+                    </div>
+                </fieldset>
             </td>
         </tr>
         <?php
@@ -401,7 +445,7 @@ final class WcPaymentInvoiceSettings
             // Processar checkbox de método habilitado
             $method_field = $method_slug . $gateway_id;
             if (isset($_POST[$method_field])) {
-                update_option($method_field, sanitize_text_field($_POST[$method_field]));
+                update_option($method_field, sanitize_text_field(wp_unslash($_POST[$method_field])));
             } else {
                 update_option($method_field, 'no');
             }
@@ -409,7 +453,7 @@ final class WcPaymentInvoiceSettings
             // Processar campo de status
             $status_field = $status_slug . $gateway_id;
             if (isset($_POST[$status_field])) {
-                update_option($status_field, sanitize_text_field($_POST[$status_field]));
+                update_option($status_field, sanitize_text_field(wp_unslash($_POST[$status_field])));
             }
         }
     }
@@ -434,7 +478,7 @@ final class WcPaymentInvoiceSettings
             // Processar checkbox de ativação
             $method_activated_field = $slug . 'method_activated_' . $gateway_id;
             if (isset($_POST[$method_activated_field])) {
-                update_option($method_activated_field, sanitize_text_field($_POST[$method_activated_field]));
+                update_option($method_activated_field, sanitize_text_field(wp_unslash($_POST[$method_activated_field])));
             } else {
                 update_option($method_activated_field, 'no');
             }
@@ -442,7 +486,7 @@ final class WcPaymentInvoiceSettings
             // Processar checkbox de mostrar preço
             $show_price_field = $slug . 'show_price_' . $gateway_id;
             if (isset($_POST[$show_price_field])) {
-                update_option($show_price_field, sanitize_text_field($_POST[$show_price_field]));
+                update_option($show_price_field, sanitize_text_field(wp_unslash($_POST[$show_price_field])));
             } else {
                 update_option($show_price_field, 'no');
             }
@@ -458,7 +502,7 @@ final class WcPaymentInvoiceSettings
             foreach ($fields_to_process as $field) {
                 $full_field_name = $slug . $field;
                 if (isset($_POST[$full_field_name])) {
-                    update_option($full_field_name, sanitize_text_field($_POST[$full_field_name]));
+                    update_option($full_field_name, sanitize_text_field(wp_unslash($_POST[$full_field_name])));
                 }
             }
         }
@@ -711,6 +755,13 @@ final class WcPaymentInvoiceSettings
             );
         }
 
+        $settingsFields[$slug . 'img_badge_config'] = array(
+            'name'     => __('Badge on product image', 'wc-invoice-payment'),
+            'type'     => 'lkn_img_badge_config',
+            'desc'     => __('Display a fee/discount badge on the product image in the shop and product pages.', 'wc-invoice-payment'),
+            'id'       => $slug . 'img_badge_config',
+        );
+
         $settingsFields['sectionEnd'] = array(
             'type' => 'sectionend'
         );
@@ -825,16 +876,17 @@ final class WcPaymentInvoiceSettings
         if ($updated_count > 0) {
             add_action('admin_notices', function() use ($updated_count, $new_minimum_amount) {
                 echo '<div class="notice notice-success is-dismissible">';
-                echo '<p>' . sprintf(
+                echo '<p>' . wp_kses_post(sprintf(
+                    /* translators: %1$d: number of donation products updated, %2$s: formatted minimum amount */
                     _n(
-                        'Updated %d donation product with the new minimum amount of %s.',
-                        'Updated %d donation products with the new minimum amount of %s.',
+                        'Updated %1$d donation product with the new minimum amount of %2$s.',
+                        'Updated %1$d donation products with the new minimum amount of %2$s.',
                         $updated_count,
                         'wc-invoice-payment'
                     ),
                     $updated_count,
                     wc_price($new_minimum_amount)
-                ) . '</p>';
+                )) . '</p>';
                 echo '</div>';
             });
         }
@@ -1121,5 +1173,6 @@ final class WcPaymentInvoiceSettings
         add_action('woocommerce_admin_field_lkn_wp_editor', array($this, 'render_wp_editor_field'));
         add_action('woocommerce_admin_field_lkn_payment_gateway_config', array($this, 'render_payment_gateway_config_field'));
         add_action('woocommerce_admin_field_lkn_partial_payment_gateway_config', array($this, 'render_partial_payment_gateway_config_field'));
+        add_action('woocommerce_admin_field_lkn_img_badge_config', array($this, 'render_img_badge_config_field'));
     }
 }

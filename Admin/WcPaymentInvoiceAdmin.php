@@ -280,7 +280,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-settings',
             function () {
-                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_invoice_settings'));
+                wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_invoice_settings'));
                 exit;
             },
             3
@@ -315,7 +315,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-subscriptions-add',
             function () {
-                wp_redirect(admin_url('admin.php?page=new-invoice&subscription=true'));
+                wp_safe_redirect(admin_url('admin.php?page=new-invoice&subscription=true'));
                 exit;
             },
             2
@@ -328,7 +328,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-subscriptions-settings',
             function () {
-                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_subscription_settings'));
+                wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_subscription_settings'));
                 exit;
             },
             3
@@ -364,7 +364,7 @@ final class WcPaymentInvoiceAdmin
             'manage_woocommerce',
             'wc-invoice-payment-quote-settings',
             function () {
-                wp_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_quote_settings'));
+                wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=wc_payment_quote_settings'));
                 exit;
             },
             4
@@ -384,8 +384,8 @@ final class WcPaymentInvoiceAdmin
         }
 
         if (isset($_GET['message'])) {
-            // Decodifica a mensagem recebida na URL
-            $decoded_message = urldecode(wp_unslash($_GET['message']));
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via sanitize_text_field+urldecode+wp_unslash
+            $decoded_message = sanitize_text_field(urldecode(wp_unslash($_GET['message'])));
 
             echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
         }
@@ -628,7 +628,7 @@ final class WcPaymentInvoiceAdmin
                             <div class="invoice-column-wrap">
                                 <div class="input-row-wrap">
                                     <label
-                                        for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                        for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                     <input
                                         name="lkn_wcip_name"
                                         type="text"
@@ -881,25 +881,18 @@ final class WcPaymentInvoiceAdmin
         wp_enqueue_script('wc-enhanced-select');
         wp_enqueue_style('woocommerce_admin_styles');
 
-        $invoiceId = sanitize_text_field(wp_unslash($_GET['invoice']));
+        $invoiceId = isset($_GET['invoice']) ? sanitize_text_field(wp_unslash($_GET['invoice'])) : 0;
 
         $decimalSeparator = wc_get_price_decimal_separator();
         $thousandSeparator = wc_get_price_thousand_separator();
         $decimalQtd = wc_get_price_decimals();
 
-        // Get all translated WooCommerce order status
-        $statusWc = array();
-        $statusWc[] = array('status' => 'wc-pending', 'label' => _x('Pending payment', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-processing', 'label' => _x('Processing', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-on-hold', 'label' => _x('On hold', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-completed', 'label' => _x('Completed', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-cancelled', 'label' => _x('Cancelled', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-refunded', 'label' => _x('Refunded', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-failed', 'label' => _x('Failed', 'Order status', 'wc-invoice-payment'));
+        // Get all translated WooCommerce order statuses (including custom partial ones)
+        $statusWc = wc_get_order_statuses();
 
         $c = 0;
         $order = wc_get_order($invoiceId);
-        $parentOrderId = $order->get_meta('_wc_lkn_parent_id', $order);
+        $parentOrderId = $order->get_meta('_wc_lkn_parent_id');
         $parentOrder = wc_get_order($parentOrderId);
         if ($order->get_user_id()) {
             $userId = absint($order->get_user_id());
@@ -919,7 +912,9 @@ final class WcPaymentInvoiceAdmin
             $subscription_id = $order->get_meta('lkn_subscription_id');
         }
         $items = $order->get_items();
-        $checkoutUrl = $order->get_checkout_payment_url();
+        $checkoutUrl = ($order->get_meta('_wc_lkn_is_partial_order') === 'yes')
+            ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($order->get_id())
+            : $order->get_checkout_payment_url();
         $orderStatus = $order->get_status();
 
         $invoice_template = $order->get_meta('wcip_select_invoice_template_id') ?? get_option('lkn_wcip_global_pdf_template_id', 'global');
@@ -1007,12 +1002,9 @@ final class WcPaymentInvoiceAdmin
                                     class="regular-text"
                                     value="<?php echo esc_html('wc-' . $order->get_status()); ?>">
                                     <?php
-                                    for ($i = 0; $i < count($statusWc); ++$i) {
-                                        if (explode('-', $statusWc[$i]['status'])[1] === $orderStatus) {
-                                            echo '<option value="' . esc_attr($statusWc[$i]['status']) . '" selected>' . esc_attr($statusWc[$i]['label']) . '</option>';
-                                        } else {
-                                            echo '<option value="' . esc_attr($statusWc[$i]['status']) . '">' . esc_attr($statusWc[$i]['label']) . '</option>';
-                                        }
+                                    foreach ($statusWc as $status_key => $status_label) {
+                                        $current = (str_replace('wc-', '', $status_key) === $orderStatus);
+                                        echo '<option value="' . esc_attr($status_key) . '"' . ($current ? ' selected' : '') . '>' . esc_html($status_label) . '</option>';
                                     } ?>
                                 </select>
                             </div>
@@ -1121,7 +1113,7 @@ final class WcPaymentInvoiceAdmin
                         <div class="invoice-column-wrap">
                             <div class="input-row-wrap">
                                 <label
-                                    for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                    for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                 <input
                                     name="lkn_wcip_name"
                                     type="text"
@@ -1423,6 +1415,43 @@ final class WcPaymentInvoiceAdmin
                         <?php
                             ++$c;
                         } ?>
+                        <?php
+                        // Shipping + total summary
+                        $shipping_items = $order->get_items('shipping');
+                        $shipping_total = 0.0;
+                        $shipping_label = '';
+                        if (!empty($shipping_items)) {
+                            foreach ($shipping_items as $si) {
+                                $shipping_total += (float) $si->get_total();
+                                $shipping_label = $si->get_method_title();
+                            }
+                        }
+                        $items_subtotal = 0.0;
+                        foreach ($order->get_items('line_item') as $li) {
+                            $items_subtotal += (float) $li->get_total();
+                        }
+                        $grand_total = $items_subtotal + $shipping_total;
+                        ?>
+                        <?php if ($shipping_total > 0): ?>
+                        <?php
+                            $sc = $c;
+                            ++$c;
+                        ?>
+                        <div class="price-row-wrap price-row-<?php echo esc_attr($sc); ?>">
+                            <div class="input-row-wrap">
+                                <label><?php esc_attr_e('Shipping', 'wc-invoice-payment'); ?></label>
+                                <input type="text" class="regular-text" readonly value="<?php echo esc_attr($shipping_label); ?>">
+                            </div>
+                            <div class="input-row-wrap">
+                                <label><?php esc_attr_e('Amount', 'wc-invoice-payment'); ?></label>
+                                <input type="tel" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1');" readonly value="<?php echo esc_attr(number_format($shipping_total, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>">
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                        <div style="padding:8px 0;font-size:14px;font-weight:700;color:#333">
+                            <?php esc_html_e('Total (products + shipping)', 'wc-invoice-payment'); ?>:
+                            <?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($grand_total, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>
+                        </div>
                     </div>
                     <hr>
                     <?php
@@ -1439,6 +1468,9 @@ final class WcPaymentInvoiceAdmin
                 </div>
                 <?php
                 if ($parentOrder || $order->get_meta('_wc_lkn_is_partial_main_order') == 'yes') {
+                    $partial_amount_paid = (float) $order->get_meta('_wc_lkn_partial_amount_paid');
+                    $order_total = (float) $order->get_total();
+                    $fees = round($order_total - $partial_amount_paid, 2);
                 ?>
                     <div class="wcip-invoice-data wcip-postbox">
                         <h2 class="title">
@@ -1466,12 +1498,89 @@ final class WcPaymentInvoiceAdmin
                             <?php
                             }
                             ?>
+
+                            <?php if ($order->get_meta('_wc_lkn_is_partial_order') === 'yes'): ?>
+                            <div style="font-size:13px;color:#555;line-height:1.8;margin-top:8px;width:100%">
+                                <div style="display:flex;justify-content:space-between">
+                                    <span><?php esc_html_e('Amount (base):', 'wc-invoice-payment'); ?></span>
+                                    <strong><?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($partial_amount_paid, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?></strong>
+                                </div>
+                                <?php if ($fees > 0.01): ?>
+                                <div style="display:flex;justify-content:space-between;color:#007cba">
+                                    <span><?php esc_html_e('Taxes/fees:', 'wc-invoice-payment'); ?></span>
+                                    <span>+ <?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($fees, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
+                                <div style="display:flex;justify-content:space-between;font-weight:700;color:#333">
+                                    <span><?php esc_html_e('Amount paid:', 'wc-invoice-payment'); ?></span>
+                                    <span><?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($order_total, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?></span>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php
                 }
                 ?>
                 <div style="width: 100%;"></div>
+                <?php
+                // Order notes
+                $order_notes = wc_get_order_notes(array('order_id' => $order->get_id()));
+                if (!empty($order_notes)) :
+                ?>
+                <div class="wcip-invoice-data">
+                    <h2 class="title">
+                        <?php esc_attr_e('Order Notes', 'wc-invoice-payment'); ?>
+                    </h2>
+                    <div class="invoice-column-wrap">
+                        <?php foreach ($order_notes as $note): ?>
+                            <div style="padding:10px 14px;margin-bottom:8px;font-size:13px;color:#555;line-height:1.5;background:#f3f3f3;border-radius:0 12px 12px 12px">
+                                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                                    <span style="font-weight:600;color:#555"><?php echo ($note->added_by === 'system') ? esc_html__('System', 'wc-invoice-payment') : esc_html($note->added_by); ?></span>
+                                    <span style="font-size:11px;color:#888"><?php echo esc_html(gmdate('d/m/Y H:i', strtotime($note->date_created))); ?></span>
+                                </div>
+                                <div><?php echo wp_kses_post($note->content); ?></div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                <?php
+                // Custom fields (metadata) as textareas with copy buttons
+                $meta_data = $order->get_meta_data();
+                if (!empty($meta_data)) :
+                    $show_meta = array();
+                    foreach ($meta_data as $md) {
+                        $k = $md->get_data()['key'];
+                        if (strpos($k, 'lkn_') === 0 || strpos($k, 'lknWc') === 0
+                            || strpos($k, '_wc_lkn_') === 0 || strpos($k, 'wcip_') === 0
+                            || $k === '_transaction_id' || $k === '_payment_method'
+                            || $k === '_payment_method_title') {
+                            $v = $md->get_data()['value'];
+                            if (is_array($v) || is_object($v)) $v = wp_json_encode($v, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+                            $show_meta[] = array('key' => $k, 'value' => (string) $v);
+                        }
+                    }
+                    if (!empty($show_meta)) :
+                ?>
+                <div class="wcip-invoice-data">
+                    <h2 class="title">
+                        <?php esc_html_e('Custom Fields', 'wc-invoice-payment'); ?>
+                    </h2>
+                    <div class="invoice-column-wrap" style="padding:8px;background:#fff;border:1px solid #e0e0e0;border-radius:4px">
+                        <?php foreach ($show_meta as $idx => $meta): ?>
+                        <div style="margin-bottom:10px;border-bottom:1px solid #f0f0f0;padding-bottom:10px">
+                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                                <label style="font-weight:600;font-size:13px;color:#333;margin:0"><?php echo esc_html($meta['key']); ?></label>
+                                <button type="button" onclick="(function(){var t=document.getElementById('wcip-meta-<?php echo $idx; ?>');t.select();t.setSelectionRange(0,99999);navigator.clipboard.writeText(t.value);var b=this;b.innerHTML='<span class=dashicons dashicons-yes style=font-size:14px;width:14px;height:14px></span>';setTimeout(function(){b.innerHTML='<span class=dashicons dashicons-clipboard style=font-size:14px;width:14px;height:14px></span>'},1500)})()" style="padding:1px 2px;background:0 0;color:#999;border:none;cursor:pointer;line-height:1" title="<?php esc_attr_e('Copy', 'wc-invoice-payment'); ?>"><span class="dashicons dashicons-clipboard" style="font-size:14px;width:14px;height:14px"></span></button>
+                            </div>
+                            <textarea readonly rows="1" style="width:100%;font-family:monospace;font-size:12px;background:#f8f8f8;border:1px solid #ddd;border-radius:3px;padding:6px;resize:vertical;color:#555" id="wcip-meta-<?php echo $idx; ?>"><?php echo esc_textarea($meta['value']); ?></textarea>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; endif; ?>
                 <div class="wcip-invoice-data">
                     <h2 class="title">
                         <?php esc_attr_e('Footer notes', 'wc-invoice-payment'); ?>
@@ -1491,7 +1600,27 @@ final class WcPaymentInvoiceAdmin
         </div>
         <script type="text/javascript">
             document.addEventListener('DOMContentLoaded', () => {
-                startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit')
+                startTinyMce('lkn-wc-invoice-payment-footer-notes', 'submit');
+
+                // Toggle collapse
+                document.querySelectorAll('.wcip-invoice-data').forEach(function(s){
+                    var t=s.querySelector('h2.title');
+                    if(!t)return;
+                    var c=t.nextElementSibling;
+                    if(!c||!c.classList||!c.classList.contains('invoice-column-wrap')&&!c.classList.contains('invoice-row-wrap'))return;
+                    var b=document.createElement('button');
+                    b.type='button';
+                    b.innerHTML='<span class=\"dashicons dashicons-arrow-up-alt2\" style=\"font-size:16px;width:16px;height:16px;display:flex;align-items:center;justify-content:center\"></span>';
+                    b.style.cssText='margin-left:auto;padding:0;background:0 0;border:none;cursor:pointer;color:#666;line-height:1';
+                    t.style.cssText=t.style.cssText+';display:flex;align-items:center;gap:8px';
+                    t.appendChild(b);
+                    b.addEventListener('click',function(){
+                        var h=c.style.display==='none';
+                        c.style.display=h?'':'none';
+                        b.querySelector('.dashicons').className=h?'dashicons dashicons-arrow-up-alt2':'dashicons dashicons-arrow-down-alt2';
+                        t.style.marginBottom=h?'':'0';
+                    });
+                });
             })
         </script>
         <?php
@@ -1583,21 +1712,13 @@ final class WcPaymentInvoiceAdmin
         wp_enqueue_editor();
         wp_create_nonce('wp_rest');
 
-        $invoiceId = sanitize_text_field(wp_unslash($_GET['invoice']));
+        $invoiceId = isset($_GET['invoice']) ? sanitize_text_field(wp_unslash($_GET['invoice'])) : 0;
 
         $decimalSeparator = wc_get_price_decimal_separator();
         $thousandSeparator = wc_get_price_thousand_separator();
         $decimalQtd = wc_get_price_decimals();
 
-        // Get all translated WooCommerce order status
-        $statusWc = array();
-        $statusWc[] = array('status' => 'wc-pending', 'label' => _x('Pending payment', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-processing', 'label' => _x('Processing', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-on-hold', 'label' => _x('On hold', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-completed', 'label' => _x('Completed', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-cancelled', 'label' => _x('Cancelled', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-refunded', 'label' => _x('Refunded', 'Order status', 'wc-invoice-payment'));
-        $statusWc[] = array('status' => 'wc-failed', 'label' => _x('Failed', 'Order status', 'wc-invoice-payment'));
+        $statusWc = wc_get_order_statuses();
 
         $c = 0;
         $order = wc_get_order($invoiceId);
@@ -1625,7 +1746,9 @@ final class WcPaymentInvoiceAdmin
         $orders = wc_get_orders($args);
 
         $items = $order->get_items();
-        $checkoutUrl = $order->get_checkout_payment_url();
+        $checkoutUrl = ($order->get_meta('_wc_lkn_is_partial_order') === 'yes')
+            ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($order->get_id())
+            : $order->get_checkout_payment_url();
         $orderStatus = $order->get_status();
 
         $invoice_template = $order->get_meta('wcip_select_invoice_template_id') ?? get_option('lkn_wcip_global_pdf_template_id', 'global');
@@ -1726,12 +1849,9 @@ final class WcPaymentInvoiceAdmin
                                     class="regular-text"
                                     value="<?php echo esc_html('wc-' . $order->get_status()); ?>">
                                     <?php
-                                    for ($i = 0; $i < count($statusWc); ++$i) {
-                                        if (explode('-', $statusWc[$i]['status'])[1] === $orderStatus) {
-                                            echo '<option value="' . esc_attr($statusWc[$i]['status']) . '" selected>' . esc_attr($statusWc[$i]['label']) . '</option>';
-                                        } else {
-                                            echo '<option value="' . esc_attr($statusWc[$i]['status']) . '">' . esc_attr($statusWc[$i]['label']) . '</option>';
-                                        }
+                                    foreach ($statusWc as $status_key => $status_label) {
+                                        $current = (str_replace('wc-', '', $status_key) === $orderStatus);
+                                        echo '<option value="' . esc_attr($status_key) . '"' . ($current ? ' selected' : '') . '>' . esc_html($status_label) . '</option>';
                                     } ?>
                                 </select>
                             </div>
@@ -1838,7 +1958,7 @@ final class WcPaymentInvoiceAdmin
                         <div class="invoice-column-wrap">
                             <div class="input-row-wrap">
                                 <label
-                                    for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                    for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                 <input
                                     name="lkn_wcip_name"
                                     type="text"
@@ -2182,8 +2302,8 @@ final class WcPaymentInvoiceAdmin
         }
 
         if (isset($_GET['message'])) {
-            // Decodifica a mensagem recebida na URL
-            $decoded_message = urldecode(wp_unslash($_GET['message']));
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via sanitize_text_field+urldecode+wp_unslash
+            $decoded_message = sanitize_text_field(urldecode(wp_unslash($_GET['message'])));
 
             echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
         }
@@ -2221,8 +2341,8 @@ final class WcPaymentInvoiceAdmin
         }
 
         if (isset($_GET['message'])) {
-            // Decodifica a mensagem recebida na URL
-            $decoded_message = urldecode($_GET['message']);
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via sanitize_text_field+urldecode+wp_unslash
+            $decoded_message = sanitize_text_field(urldecode(wp_unslash($_GET['message'])));
 
             echo '<div class="lkn_wcip_notice_positive">' . esc_html($decoded_message) . '</div>';
         }
@@ -2536,7 +2656,7 @@ final class WcPaymentInvoiceAdmin
                                 <div class="invoice-column-wrap">
                                     <div class="input-row-wrap">
                                         <label
-                                            for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                            for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                         <input
                                             name="lkn_wcip_name"
                                             type="text"
@@ -2787,6 +2907,7 @@ final class WcPaymentInvoiceAdmin
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_add_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
@@ -2967,19 +3088,20 @@ final class WcPaymentInvoiceAdmin
                     $message = urlencode(__('Subscription successfully saved', 'wc-invoice-payment'));
 
                     // Redireciona para a página desejada com o parâmetro 'message'
-                    wp_redirect(admin_url('admin.php?page=wc-invoice-payment-subscriptions&message=' . $message));
+                    wp_safe_redirect(admin_url('admin.php?page=wc-invoice-payment-subscriptions&message=' . $message));
                     exit;
                 } else {
                     $message = urlencode(__('Invoice successfully saved', 'wc-invoice-payment'));
 
                     // Redireciona para a página desejada com o parâmetro 'message'
-                    wp_redirect(admin_url('admin.php?page=wc-invoice-payment&message=' . $message));
+                    wp_safe_redirect(admin_url('admin.php?page=wc-invoice-payment&message=' . $message));
                     exit;
                 }
             } else {
                 // Error messages
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         }
     }
 
@@ -2992,12 +3114,13 @@ final class WcPaymentInvoiceAdmin
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
 
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             // Validates WP nonce
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_edit_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
-                $invoiceId = sanitize_text_field(wp_unslash($_GET['invoice']));
+                $invoiceId = isset($_GET['invoice']) ? sanitize_text_field(wp_unslash($_GET['invoice'])) : 0;
                 $order = wc_get_order($invoiceId);
                 $order->remove_order_items();
 
@@ -3140,6 +3263,7 @@ final class WcPaymentInvoiceAdmin
                 // Error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         } elseif ('GET' == $method && isset($_GET['lkn_wcip_delete'])) {
             $invoiceDeleteSanitized = sanitize_text_field(wp_unslash($_GET['lkn_wcip_delete']));
             // Validates request for deleting invoice
@@ -3155,7 +3279,7 @@ final class WcPaymentInvoiceAdmin
                 update_option('lkn_wcip_invoices', $invoices);
 
                 // Redirect to invoice list
-                wp_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
+                wp_safe_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
             } else {
                 // Show error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
@@ -3172,6 +3296,7 @@ final class WcPaymentInvoiceAdmin
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
 
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             // Validates WP nonce
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_edit_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
@@ -3348,17 +3473,19 @@ final class WcPaymentInvoiceAdmin
                     // Add order note about the change
                     if ($order->get_status() === 'completed') {
                         $order->add_order_note(sprintf(
-                            __('Subscription interval updated to: %d %s(s). Next invoice scheduled for: %s', 'wc-invoice-payment'),
+                            /* translators: %1$d: interval number, %2$s: interval type (days/weeks/months), %3$s: next invoice date */
+                            __('Subscription interval updated to: %1$d %2$s(s). Next invoice scheduled for: %3$s', 'wc-invoice-payment'),
                             $intervalNumber,
                             $intervalType,
-                            date('Y-m-d H:i:s', $nextInvoiceTime)
+                            gmdate('Y-m-d H:i:s', $nextInvoiceTime)
                         ));
                     } else {
                         $order->add_order_note(sprintf(
-                            __('Subscription interval updated to: %d %s(s). Next invoice will be scheduled when order is completed: %s', 'wc-invoice-payment'),
+                            /* translators: %1$d: interval number, %2$s: interval type (days/weeks/months), %3$s: next invoice date */
+                            __('Subscription interval updated to: %1$d %2$s(s). Next invoice will be scheduled when order is completed: %3$s', 'wc-invoice-payment'),
                             $intervalNumber,
                             $intervalType,
-                            date('Y-m-d H:i:s', $nextInvoiceTime)
+                            gmgmdate('Y-m-d H:i:s', $nextInvoiceTime)
                         ));
                     }
                 }
@@ -3394,6 +3521,7 @@ final class WcPaymentInvoiceAdmin
                 // Error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         } elseif ('GET' == $method && isset($_GET['lkn_wcip_delete'])) {
             // Validates request for deleting invoice
             $invoiceDeleteSanitized = sanitize_text_field(wp_unslash($_GET['lkn_wcip_delete']));
@@ -3434,7 +3562,7 @@ final class WcPaymentInvoiceAdmin
                 }
                 
                 // Redirect to invoice list
-                wp_redirect(home_url('wp-admin/admin.php?page=wc-subscription-payment'));
+                wp_safe_redirect(home_url('wp-admin/admin.php?page=wc-subscription-payment'));
             } else {
                 // Show error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
@@ -3450,12 +3578,14 @@ final class WcPaymentInvoiceAdmin
     public function ajax_get_product_data(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'lkn-wcip-product-data')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'lkn-wcip-product-data')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
-        $product_id = intval($_POST['product_id']);
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval+wp_unslash
+        $product_id = intval(wp_unslash($_POST['product_id']));
 
         if (!$product_id) {
             wp_send_json_error(__('Invalid product ID', 'wc-invoice-payment'));
@@ -3491,11 +3621,13 @@ final class WcPaymentInvoiceAdmin
     public function ajax_approve_quote(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'wp_rest')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'wp_rest')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -3524,11 +3656,13 @@ final class WcPaymentInvoiceAdmin
     public function ajax_approve_quote_only(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'wp_rest')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'wp_rest')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -3568,11 +3702,13 @@ final class WcPaymentInvoiceAdmin
     public function ajax_create_invoice(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'wp_rest')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'wp_rest')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -3615,11 +3751,13 @@ final class WcPaymentInvoiceAdmin
     public function ajax_send_quote_email(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['security'], 'wp_rest')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'wp_rest')) {
             wp_send_json_error(__('Security check failed', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -3661,6 +3799,7 @@ final class WcPaymentInvoiceAdmin
             $exp_date_formatted = date_i18n(get_option('date_format'), strtotime($exp_date));
         }
         
+        /* translators: %s: quote number */
         $subject = sprintf(__('Orçamento #%s - Link para aprovação', 'wc-invoice-payment'), $quote_number);
         
         // Create a beautiful HTML email template
@@ -3698,11 +3837,15 @@ final class WcPaymentInvoiceAdmin
         <body>
             <div class="email-container">
                 <div class="email-header">
-                    <h1>🧾 ' . sprintf(__('Orçamento #%s', 'wc-invoice-payment'), $quote_number) . '</h1>
+                    <h1>🧾 '
+                    /* translators: %s: quote number */
+                    . sprintf(__('Orçamento #%s', 'wc-invoice-payment'), $quote_number) . '</h1>
                 </div>
                 
                 <div class="email-content">
-                    <p style="font-size: 18px; margin-bottom: 20px;">' . sprintf(__('Olá %s!', 'wc-invoice-payment'), '<strong>' . esc_html($customer_name) . '</strong>') . '</p>
+                    <p style="font-size: 18px; margin-bottom: 20px;">'
+                    /* translators: %s: customer name */
+                    . sprintf(__('Olá %s!', 'wc-invoice-payment'), '<strong>' . esc_html($customer_name) . '</strong>') . '</p>
                     
                     <div class="quote-info">
                         <h2>📋 ' . __('Quote Details', 'wc-invoice-payment') . '</h2>
@@ -3746,10 +3889,12 @@ final class WcPaymentInvoiceAdmin
         
         if ($email_sent) {
             // Add order note
+            /* translators: %s: customer email */
             $order->add_order_note(sprintf(__('Email do orçamento enviado para o cliente (%s) com template HTML melhorado', 'wc-invoice-payment'), $customer_email));
             
             wp_send_json_success(array(
                 'message' => __('Email enviado com sucesso!', 'wc-invoice-payment'),
+                /* translators: %s: customer email */
                 'details' => sprintf(__('O orçamento foi enviado para %s com um template profissional', 'wc-invoice-payment'), $customer_email),
                 'email' => $customer_email
             ));
@@ -3765,6 +3910,7 @@ final class WcPaymentInvoiceAdmin
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_add_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
@@ -3911,13 +4057,14 @@ final class WcPaymentInvoiceAdmin
                 $message = urlencode(__('Quote successfully saved', 'wc-invoice-payment'));
 
                 // Redireciona para a página desejada com o parâmetro 'message'
-                wp_redirect(admin_url('admin.php?page=wc-invoice-payment-quotes&message=' . $message));
+                wp_safe_redirect(admin_url('admin.php?page=wc-invoice-payment-quotes&message=' . $message));
 
                 exit;
             } else {
                 // Error messages
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on quote generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         }
     }
 
@@ -3930,12 +4077,13 @@ final class WcPaymentInvoiceAdmin
         $method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
 
         if ('POST' == $method) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput
             // Validates WP nonce
             if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_edit_invoice')) {
                 $decimalSeparator = wc_get_price_decimal_separator();
                 $thousandSeparator = wc_get_price_thousand_separator();
 
-                $invoiceId = sanitize_text_field(wp_unslash($_GET['quote']));
+                $invoiceId = isset($_GET['quote']) ? sanitize_text_field(wp_unslash($_GET['quote'])) : 0;
                 $order = wc_get_order($invoiceId);
                 $order->remove_order_items();
 
@@ -4061,6 +4209,7 @@ final class WcPaymentInvoiceAdmin
                 // Error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput
         } elseif ('GET' == $method && isset($_GET['lkn_wcip_delete'])) {
             $invoiceDeleteSanitized = sanitize_text_field(wp_unslash($_GET['lkn_wcip_delete']));
             // Validates request for deleting invoice
@@ -4076,7 +4225,7 @@ final class WcPaymentInvoiceAdmin
                 update_option('lkn_wcip_invoices', $invoices);
 
                 // Redirect to invoice list
-                wp_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
+                wp_safe_redirect(home_url('wp-admin/admin.php?page=wc-invoice-payment'));
             } else {
                 // Show error message
                 echo '<div class="lkn_wcip_notice_negative">' . esc_html(__('Error on invoice generation', 'wc-invoice-payment')) . '</div>';
@@ -4124,7 +4273,7 @@ final class WcPaymentInvoiceAdmin
         wp_enqueue_script('wc-enhanced-select');
         wp_enqueue_style('woocommerce_admin_styles');
 
-        $invoiceId = sanitize_text_field(wp_unslash($_GET['quote']));
+        $invoiceId = isset($_GET['quote']) ? sanitize_text_field(wp_unslash($_GET['quote'])) : 0;
 
         $decimalSeparator = wc_get_price_decimal_separator();
         $thousandSeparator = wc_get_price_thousand_separator();
@@ -4163,9 +4312,13 @@ final class WcPaymentInvoiceAdmin
         $quoteInvoiceId = $order->get_meta('_wc_lkn_invoice_id');
         $quoteInvoice = wc_get_order($quoteInvoiceId);
         if($quoteInvoice) {
-            $quoteCheckoutUrl = $quoteInvoice->get_checkout_payment_url();
+            $quoteCheckoutUrl = ($quoteInvoice->get_meta('_wc_lkn_is_partial_order') === 'yes')
+                ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($quoteInvoice->get_id())
+                : $quoteInvoice->get_checkout_payment_url();
         }
-        $checkoutUrl = $order->get_checkout_payment_url();
+        $checkoutUrl = ($order->get_meta('_wc_lkn_is_partial_order') === 'yes')
+            ? \LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartial::partialCheckoutUrl($order->get_id())
+            : $order->get_checkout_payment_url();
         $orderStatus = 'wc-' . $order->get_status();
 
         $invoice_template = $order->get_meta('wcip_select_invoice_template_id') ?? get_option('lkn_wcip_global_pdf_template_id', 'global');
@@ -4368,7 +4521,7 @@ final class WcPaymentInvoiceAdmin
                         <div class="invoice-column-wrap">
                             <div class="input-row-wrap">
                                 <label
-                                    for="lkn_wcip_name_input"><?php esc_attr_e('Name', 'wc-invoice-payment'); ?></label>
+                                    for="lkn_wcip_name_input"><?php esc_attr_e('Full name', 'wc-invoice-payment'); ?></label>
                                 <input
                                     name="lkn_wcip_name"
                                     type="text"
@@ -4676,11 +4829,13 @@ final class WcPaymentInvoiceAdmin
      */
     public function ajax_approve_quote_frontend(): void {
         // Verificar nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'lkn_wcip_quote_action')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_quote_action')) {
             wp_send_json_error(__('Falha na verificação de segurança', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -4715,7 +4870,7 @@ final class WcPaymentInvoiceAdmin
             // Obter informações do cliente para a nota
             $current_user = wp_get_current_user();
             $user_email = $current_user->user_email;
-            $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '';
+            $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
             
             // Criar nota detalhada com email e IP
             $note = __('Orçamento aprovado pelo cliente ', 'wc-invoice-payment') . $user_email;
@@ -4764,11 +4919,13 @@ final class WcPaymentInvoiceAdmin
      */
     public function ajax_cancel_quote_frontend(): void {
         // Verificar nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'lkn_wcip_quote_action')) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with sanitize_text_field+wp_unslash
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_wcip_quote_action')) {
             wp_send_json_error(__('Falha na verificação de segurança', 'wc-invoice-payment'));
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized with intval
         $quote_id = intval($_POST['quote_id']);
 
         if (!$quote_id) {
@@ -4796,7 +4953,7 @@ final class WcPaymentInvoiceAdmin
             // Obter informações do cliente para a nota
             $current_user = wp_get_current_user();
             $user_email = $current_user->user_email;
-            $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '';
+            $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
             
             // Criar nota detalhada com email e IP
             $note = __('Orçamento cancelado pelo cliente ', 'wc-invoice-payment') . $user_email;

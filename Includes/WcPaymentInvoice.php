@@ -8,7 +8,6 @@ use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSettings;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceDonation;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceWhatsAppButton;
-use LknWc\WcInvoicePayment\Includes\WcPaymentInvoicei18n;
 use LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceOtpEmail;
 use LknWc\WcInvoicePayment\PublicView\WcPaymentInvoicePublic;
 use WC_Countries;
@@ -167,9 +166,6 @@ final class WcPaymentInvoice {
      * @since    1.0.0
      */
     private function set_locale(): void {
-        $plugin_i18n = new WcPaymentInvoicei18n();
-
-        $this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
     }
 
     /**
@@ -236,7 +232,6 @@ final class WcPaymentInvoice {
         $this->loader->add_filter('woocommerce_product_data_tabs', $subscription_class, 'add_tab');
         $this->loader->add_action('woocommerce_product_data_panels', $subscription_class, 'add_text_field_to_subscription_tab');
         $this->loader->add_action('woocommerce_thankyou', $subscription_class, 'validate_product');
-        $this->loader->add_action('woocommerce_thankyou', $subscription_class, 'validate_product');
         // Hook para agendar subscription quando status muda para completed
         $this->loader->add_action('woocommerce_order_status_completed', $subscription_class, 'handle_subscription_on_completed');
         // Hook para verificar assinaturas pendentes como backup do sistema de cron
@@ -250,6 +245,7 @@ final class WcPaymentInvoice {
 		$this->loader->add_filter( 'woocommerce_register_shop_order_post_statuses', $this->WcPaymentInvoicePartialClass, 'registerStatus' );
 		$this->loader->add_action( 'woocommerce_order_status_changed', $this->WcPaymentInvoicePartialClass, 'statusChanged', 10, 4);
         $this->loader->add_action( 'add_meta_boxes', $this->WcPaymentInvoicePartialClass, 'showPartialsPayments', 1);
+        $this->loader->add_action( 'admin_footer', $this->WcPaymentInvoicePartialClass, 'injectPaymentLinkButton');
         $this->loader->add_filter( 'woocommerce_shop_order_list_table_prepare_items_query_args', $this->WcPaymentInvoicePartialClass, 'hidePartialOrdersRequest');
         $this->loader->add_filter( 'woocommerce_shop_order_list_table_order_count', $this->WcPaymentInvoicePartialClass, 'fixTableCount', 10, 2);
         $this->loader->add_action('woocommerce_before_delete_order', $this->WcPaymentInvoicePartialClass, 'deletePartialOrders');
@@ -343,6 +339,7 @@ final class WcPaymentInvoice {
                 </p>
             </div>";
         
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML estático do plugin, sem input de usuário
             echo $message;
         }
 
@@ -384,6 +381,7 @@ final class WcPaymentInvoice {
     public function add_payment_gateways($gateways)
     {
         $gateways[] = 'LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceQuoteGateway';
+        $gateways[] = 'LknWc\WcInvoicePayment\Includes\WcPaymentInvoicePartialGateway';
         return $gateways;
     }
 
@@ -393,6 +391,7 @@ final class WcPaymentInvoice {
         }
 
         $payment_method_registry->register( new WcPaymentInvoiceQuoteGatewayBlocks() );
+        $payment_method_registry->register( new WcPaymentInvoicePartialGatewayBlocks() );
     }
 
     /**
@@ -445,6 +444,7 @@ final class WcPaymentInvoice {
         $this->loader->add_action('woocommerce_pay_order_before_submit', $plugin_public, 'check_invoice_exp_date', 10, 1);
         $this->loader->add_filter( 'woocommerce_checkout_registration_enabled', $subscription_class, 'forceUserRegistration' );
         $this->loader->add_filter( 'woocommerce_checkout_registration_required', $subscription_class, 'forceUserRegistration' );
+		$this->loader->add_action( 'enqueue_block_assets', $this->WcPaymentInvoicePartialClass, 'clearPartialSplitOnPageLoad', 1);
 		$this->loader->add_action( 'enqueue_block_assets', $this->WcPaymentInvoicePartialClass, 'enqueueCheckoutScripts');
 		$this->loader->add_action( 'enqueue_block_assets', $donation_class, 'enqueueCheckoutScripts');
         if(get_option('lkn_wcip_donation_dokan_compatibility', '') == 'yes'){
@@ -471,12 +471,68 @@ final class WcPaymentInvoice {
         $this->loader->add_action( 'init', $this->WcPaymentInvoicePartialClass, 'initDokanInvoicesSystem' );
         
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->WcPaymentInvoicePartialClass, "showPartialFields");
+        $this->loader->add_action('wp_enqueue_scripts', $this->WcPaymentInvoicePartialClass, 'enqueuePartialTableAssets');
 		$this->loader->add_filter( 'woocommerce_valid_order_statuses_for_cancel', $this->WcPaymentInvoicePartialClass, 'allowStatusCancel');
 		$this->loader->add_action( 'woocommerce_valid_order_statuses_for_payment', $this->WcPaymentInvoicePartialClass, 'allowStatusPayment');
+		$this->loader->add_filter( 'render_block', $this->WcPaymentInvoicePartialClass, 'injectPartialSplitStepIntoCheckout', 9999, 2 );
+        $this->loader->add_action( 'woocommerce_review_order_before_payment', $this->WcPaymentInvoicePartialClass, 'injectPartialSplitStepClassic', 10 );
+        $this->loader->add_filter( 'woocommerce_available_payment_gateways', $this->WcPaymentInvoicePartialClass, 'filterGatewaysForPartialOrder');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_cart_total', $this->WcPaymentInvoicePartialClass, 'ajaxGetCartTotal');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_cart_total', $this->WcPaymentInvoicePartialClass, 'ajaxGetCartTotal');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_create_partial', $this->WcPaymentInvoicePartialClass, 'ajaxCreatePartialPayment');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_create_partial', $this->WcPaymentInvoicePartialClass, 'ajaxCreatePartialPayment');
+
+        // Split de pagamento no checkout (ordem única)
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_set_partial_split', $this->WcPaymentInvoicePartialClass, 'ajaxSetPartialSplit');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_set_partial_split', $this->WcPaymentInvoicePartialClass, 'ajaxSetPartialSplit');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_clear_partial_split', $this->WcPaymentInvoicePartialClass, 'ajaxClearPartialSplit');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_clear_partial_split', $this->WcPaymentInvoicePartialClass, 'ajaxClearPartialSplit');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_get_partial_split_state', $this->WcPaymentInvoicePartialClass, 'ajaxGetPartialSplitState');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_get_partial_split_state', $this->WcPaymentInvoicePartialClass, 'ajaxGetPartialSplitState');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_initiate_partial', $this->WcPaymentInvoicePartialClass, 'ajaxInitiatePartialPayment');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_initiate_partial', $this->WcPaymentInvoicePartialClass, 'ajaxInitiatePartialPayment');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_toggle_partial_mode', $this->WcPaymentInvoicePartialClass, 'ajaxTogglePartialMode');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_toggle_partial_mode', $this->WcPaymentInvoicePartialClass, 'ajaxTogglePartialMode');
+        $this->loader->add_action( 'wp_ajax_lkn_wcip_get_parent_partial_state', $this->WcPaymentInvoicePartialClass, 'ajaxGetParentPartialState');
+        $this->loader->add_action( 'wp_ajax_nopriv_lkn_wcip_get_parent_partial_state', $this->WcPaymentInvoicePartialClass, 'ajaxGetParentPartialState');
+
+        // Processamento da ordem: salva remaining como meta + limpa sessão
+        $this->loader->add_action( 'woocommerce_checkout_order_processed', $this->WcPaymentInvoicePartialClass, 'savePartialRemainingOnOrder', 10, 1);
+        $this->loader->add_action( 'woocommerce_store_api_checkout_order_processed', $this->WcPaymentInvoicePartialClass, 'savePartialRemainingOnOrderBlocks', 10, 1);
+
+        // Thank-you page: exibe card com saldo restante
+        // Card de pagamento parcial na thank-you: dentro da section, após PIX/templates de gateway
+        $this->loader->add_action( 'woocommerce_order_details_before_order_table', $this->WcPaymentInvoicePartialClass, 'displayPartialRemainingBeforeOrderTable', 999);
+        $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'restoreCartForPartialInit', 1);
+        $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'markPartialOrderSession');
+        $this->loader->add_action( 'template_redirect', $this->WcPaymentInvoicePartialClass, 'handleResumePartialFromMyAccount');
+        $this->loader->add_filter( 'woocommerce_package_rates', $this->WcPaymentInvoicePartialClass, 'filterShippingForPartialRemaining', 9999);
+        $this->loader->add_action( 'woocommerce_before_checkout_form', $this->WcPaymentInvoicePartialClass, 'addLockedShippingNotice');
+        $this->loader->add_filter( 'woocommerce_my_account_my_orders_actions', $this->WcPaymentInvoicePartialClass, 'addPartialActions', 10, 2);
+
+        // Oculta pedidos filhos parciais da lista de pedidos WP (admin + analytics + my account)
+        $this->loader->add_filter( 'woocommerce_order_list_table_prepare_items_query_args', $this->WcPaymentInvoicePartialClass, 'excludePartialChildrenFromOrders');
+        $this->loader->add_filter( 'woocommerce_analytics_orders_select_query', $this->WcPaymentInvoicePartialClass, 'excludePartialChildrenFromAnalytics', 10, 2);
+        $this->loader->add_filter( 'woocommerce_rest_orders_prepare_object_query', $this->WcPaymentInvoicePartialClass, 'excludePartialChildrenFromRestQuery', 10, 2);
+        $this->loader->add_filter( 'woocommerce_my_account_my_orders_query', $this->WcPaymentInvoicePartialClass, 'excludePartialChildrenFromMyAccount');
+
         $this->loader->add_action('rest_api_init', $this->WcPaymentInvoiceEndpointClass, 'registerEndpoints');
         $this->loader->add_action('woocommerce_cart_calculate_fees', $feeOrDiscountClass, 'caclulateCart', 999);
+        $this->loader->add_action('woocommerce_cart_calculate_fees', $this->WcPaymentInvoicePartialClass, 'applyPartialSplitFee', 9999);
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
         $this->loader->add_action('enqueue_block_assets', $feeOrDiscountClass, 'loadScripts');
+
+        // Registra namespace para extensionCartUpdate (acorda gateways após split)
+        $this->loader->add_action('woocommerce_init', $this->WcPaymentInvoicePartialClass, 'registerPartialSplitExtensionCallback');
+        
+        // Coluna "P. parcial" na listagem de pedidos (HPOS + clássico)
+        $this->loader->add_filter('manage_edit-shop_order_columns', $this->WcPaymentInvoicePartialClass, 'addPartialColumn');
+        $this->loader->add_filter('manage_woocommerce_page_wc-orders_columns', $this->WcPaymentInvoicePartialClass, 'addPartialColumn');
+        $this->loader->add_action('manage_shop_order_posts_custom_column', $this->WcPaymentInvoicePartialClass, 'renderPartialColumnClassic', 10, 2);
+        $this->loader->add_action('manage_woocommerce_page_wc-orders_custom_column', $this->WcPaymentInvoicePartialClass, 'renderPartialColumnClassic', 10, 2);
+        
+        // CSS para indicadores de status na tabela de pedidos (analytics + lista)
+        $this->loader->add_action('admin_head', $this->WcPaymentInvoicePartialClass, 'outputStatusIndicatorCss');
         
         // Adiciona preços com fee/discount nas páginas de produto
         $this->loader->add_filter('woocommerce_get_price_html', $feeOrDiscountClass, 'addPaymentMethodPrices', 10, 2);
@@ -492,6 +548,8 @@ final class WcPaymentInvoice {
         $this->loader->add_filter('the_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
         $this->loader->add_filter('wp_title', $this->WcPaymentInvoiceQuoteClass, 'changeQuotesPageTitle');
         $this->loader->add_action('wp_enqueue_scripts', $this->WcPaymentInvoiceQuoteClass, 'enqueueQuoteConfirmationScript');
+        $this->loader->add_filter('woocommerce_package_rates', $this->WcPaymentInvoiceQuoteClass, 'disableShippingForQuoteMode', 9999);
+        $this->loader->add_filter('woocommerce_cart_needs_shipping', $this->WcPaymentInvoiceQuoteClass, 'disableCartNeedsShipping', 9999);
         
         // Hook temporário para registrar o endpoint - execute uma vez e comente
         $this->loader->add_action('wp_loaded', $this->WcPaymentInvoiceQuoteClass, 'forceFlushRewriteRules');

@@ -50,8 +50,87 @@
 
 .wcPaymentInvoiceCenter{
     text-align: center !important;
+    white-space: nowrap;
+}
+
+.wcPaymentInvoiceTable td{
+    white-space: nowrap;
+}
+
+.wcPaymentInvoiceTable th{
+    white-space: nowrap;
+    min-width: 60px;
+}
+
+.wcPaymentThActions{
+    min-width: 140px;
 }
 
 .wcPaymentInvoicePartialTableAdmin thead tr th{
     width: 100% !important;
+}
+
+/* ==============================================
+   Cards de detalhes de pagamento parcial (cliente)
+   ============================================== */
+.lkn-wcip-partial-details-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.lkn-wcip-detail-card {
+    border: 1px solid #e0e2e5;
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.lkn-wcip-detail-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.lkn-wcip-detail-card__date {
+    font-size: 13px;
+    color: #6c757d;
+}
+.lkn-wcip-detail-card__badge {
+    font-size: 11px;
+    font-weight: 600;
+    background: #e0e0e0;
+    color: #555;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+.lkn-wcip-detail-card__badge--main {
+    background: #007cba;
+    color: #fff;
+}
+.lkn-wcip-detail-card__mid {
+    display: flex;
+    align-items: center;
+}
+.lkn-wcip-detail-card__method {
+    font-size: 14px;
+    font-weight: 500;
+    color: #212529;
+}
+.lkn-wcip-detail-card__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.lkn-wcip-detail-card__status {
+    font-size: 13px;
+    color: #007cba;
+}
+.lkn-wcip-detail-card__total {
+    font-size: 14px;
+    font-weight: 700;
+    color: #212529;
 }
