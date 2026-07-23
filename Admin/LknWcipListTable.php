@@ -1539,7 +1539,7 @@ final class LknWcipListTable {
         if ($invoiceList) {
             $dateFormat = get_option('date_format');
 
-            foreach ($invoiceList as $invoiceId) {
+            foreach (array_unique($invoiceList) as $invoiceId) {
                 $invoice = wc_get_order($invoiceId);
                 $shouldInclude = false;
                 

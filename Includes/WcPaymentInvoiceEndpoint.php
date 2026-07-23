@@ -21,6 +21,11 @@ final class WcPaymentInvoiceEndpoint {
             'callback' => array($this, 'replacePendingPartial'),
             'permission_callback' => array($this, 'checkReplacePendingPartialPermission'),
         ));
+        register_rest_route('invoice_payments', '/resume_partial/(?P<id>\d+)', array(
+            'methods'  => 'GET',
+            'callback' => array($this, 'resumePartialRedirect'),
+            'permission_callback' => '__return_true',
+        ));
     }
     
     /**
@@ -419,7 +424,9 @@ final class WcPaymentInvoiceEndpoint {
         if ( !in_array( $order_id, $invoiceList ) ) {
             $invoiceList[] = $order_id;
         }
-        $invoiceList[] = $partial_order_id;
+        if ( !in_array( $partial_order_id, $invoiceList ) ) {
+            $invoiceList[] = $partial_order_id;
+        }
         
         update_option('lkn_wcip_invoices', $invoiceList);
 
@@ -664,6 +671,109 @@ final class WcPaymentInvoiceEndpoint {
         $expire = time() + (24 * 60 * 60);
         
         setcookie($cookie_name, $token, $expire, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true);
+    }
+
+    /**
+     * GET /invoice_payments/resume_partial/{id}
+     * Link de pagamento: cancela filho pendente, recalcula confirmed,
+     * popula carrinho e redireciona pro checkout com pay_remaining.
+     */
+    public function resumePartialRedirect($request) {
+        $parent_id = (int) $request->get_param('id');
+        if ($parent_id <= 0) {
+            wp_die('Pedido inválido.');
+        }
+
+        $parent = wc_get_order($parent_id);
+        if (!$parent) {
+            wp_die('Pedido não encontrado.');
+        }
+
+        // Só processa pedidos com split ativo
+        $original_total = (float) $parent->get_meta('_wc_lkn_original_total');
+        if ($original_total <= 0) {
+            $original_total = (float) $parent->get_total();
+        }
+
+        // Status completados
+        $complete_statuses = array('completed', 'processing');
+        $opt = get_option('lkn_wcip_partial_complete_status', '');
+        if ($opt && strpos($opt, 'wc-') === 0) {
+            $complete_statuses[] = substr($opt, 3);
+        }
+
+        // Cancela filhos pendentes
+        $partials_ids = $parent->get_meta('_wc_lkn_partials_id', true);
+        $cleaned = array();
+        if (is_array($partials_ids)) {
+            foreach ($partials_ids as $cid) {
+                $child = wc_get_order((int) $cid);
+                if (!$child || $child->get_status() === 'trash') continue;
+                if (in_array($child->get_status(), $complete_statuses, true)) {
+                    $cleaned[] = (int) $cid;
+                } else {
+                    $child->update_status('cancelled');
+                }
+            }
+            if (count($cleaned) !== count($partials_ids)) {
+                $parent->update_meta_data('_wc_lkn_partials_id', $cleaned);
+            }
+        }
+
+        // Recalcula confirmed
+        $confirmed = 0.0;
+        foreach ($cleaned as $cid) {
+            $child = wc_get_order((int) $cid);
+            if (!$child) continue;
+            $paid = (float) $child->get_meta('_wc_lkn_partial_amount_paid');
+            if ($paid <= 0) $paid = (float) $child->get_total();
+            $confirmed += $paid;
+        }
+
+        $remaining = max(0, round($original_total - $confirmed, 2));
+
+        if ($remaining <= 0.001) {
+            wc_add_notice(__('Este pagamento já foi concluído.', 'wc-invoice-payment'), 'notice');
+            wp_safe_redirect(wc_get_page_permalink('shop'));
+            exit;
+        }
+
+        $parent->update_meta_data('_wc_lkn_total_confirmed', $confirmed);
+        $parent->update_meta_data('_wc_lkn_total_peding', 0);
+        $parent->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
+        $parent->save();
+
+        // Popula carrinho
+        if (!WC()->cart) wc_load_cart();
+        WC()->cart->empty_cart();
+        foreach ($parent->get_items() as $item) {
+            $pid = $item->get_product_id();
+            $vid = $item->get_variation_id();
+            $qty = $item->get_quantity();
+            if ($pid) WC()->cart->add_to_cart($pid, $qty, $vid);
+        }
+        foreach ($parent->get_coupon_codes() as $code) {
+            WC()->cart->apply_coupon($code);
+        }
+
+        WC()->session->set('lkn_partial_amount', $remaining);
+        WC()->session->set('lkn_partial_parent_order_id', $parent_id);
+        WC()->session->__unset('lkn_partial_order_id');
+
+        // Restaura frete
+        $rates_json = $parent->get_meta('_wc_lkn_chosen_shipping_rates');
+        if ($rates_json) {
+            $rate_ids = json_decode($rates_json, true);
+            if (is_array($rate_ids) && !empty($rate_ids)) {
+                WC()->session->set('lkn_partial_shipping_rate_ids', $rate_ids);
+                WC()->session->set('chosen_shipping_methods', $rate_ids);
+            }
+        }
+        WC()->session->__unset('chosen_payment_method');
+        WC()->cart->calculate_totals();
+
+        wp_safe_redirect(add_query_arg('pay_remaining', $parent_id, wc_get_checkout_url()));
+        exit;
     }
     
 }

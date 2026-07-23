@@ -3057,7 +3057,9 @@ final class WcPaymentInvoiceAdmin
                 $invoiceList = get_option('lkn_wcip_invoices');
 
                 if (false !== $invoiceList) {
-                    $invoiceList[] = $orderId;
+                    if (!in_array($orderId, $invoiceList)) {
+                        $invoiceList[] = $orderId;
+                    }
                     update_option('lkn_wcip_invoices', $invoiceList);
                 } else {
                     update_option('lkn_wcip_invoices', array($orderId));
