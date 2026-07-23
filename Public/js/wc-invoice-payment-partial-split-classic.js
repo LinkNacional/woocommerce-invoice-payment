@@ -313,6 +313,7 @@
             var hasValue = parseCurrency(raw) > 0;
             btn.css({ opacity: hasValue ? '' : '0.5', pointerEvents: hasValue ? '' : 'none' });
         }
+        $('.lkn-wcip-split-error').slideUp(200);
     });
 
     $(document).on('blur', '#lkn-wcip-split-amount', function () {
@@ -321,10 +322,11 @@
     });
 
     // ==========================================================
-    // Place Order intercept (classic: #place_order button)
+    // Place Order intercept (classic: #place_order button + form submit)
     // ==========================================================
     (function () {
         var placeOrderBound = false;
+        var formBound = false;
 
         function handlePlaceOrderClick(e) {
             if (IS_PAY_REMAINING) {
@@ -352,24 +354,55 @@
             }
         }
 
+        function handleFormSubmit(e) {
+            if (!IS_PAY_REMAINING) return;
+            var $inp = getInput();
+            var $err = $('.lkn-wcip-split-error');
+            if (!$inp.length || !$inp.is(':visible')) return;
+
+            var val = parseCurrency($inp.val());
+            var invalid = (!val || val <= 0 || !calculated);
+            if (invalid) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                $err.slideDown(200);
+                $inp[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+            $err.slideUp(200);
+        }
+
         function bindPlaceOrder() {
             if (placeOrderBound) return;
-            // Classic: #place_order button
             var btn = document.getElementById('place_order');
             if (!btn) return;
             placeOrderBound = true;
             btn.addEventListener('click', handlePlaceOrderClick, true);
         }
 
+        function bindFormSubmit() {
+            if (formBound) return;
+            var form = document.querySelector('form.checkout');
+            if (!form) return;
+            formBound = true;
+            form.addEventListener('submit', handleFormSubmit, true);
+        }
+
         setInterval(function () {
             var btn = document.getElementById('place_order');
             if (btn && !placeOrderBound) bindPlaceOrder();
             if (!btn) placeOrderBound = false;
+
+            var form = document.querySelector('form.checkout');
+            if (form && !formBound) bindFormSubmit();
+            if (!form) formBound = false;
         }, 500);
 
         new MutationObserver(function () {
             var btn = document.getElementById('place_order');
             if (btn && !placeOrderBound) bindPlaceOrder();
+            var form = document.querySelector('form.checkout');
+            if (form && !formBound) bindFormSubmit();
         }).observe(document.body, { childList: true, subtree: true });
     })();
 

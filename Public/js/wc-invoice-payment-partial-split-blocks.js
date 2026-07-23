@@ -345,6 +345,7 @@
             var hasValue = parseCurrency(raw) > 0;
             btn.css({ opacity: hasValue ? '' : '0.5', pointerEvents: hasValue ? '' : 'none' });
         }
+        $('.lkn-wcip-split-error').slideUp(200);
     });
 
     $(document).on('blur', '#lkn-wcip-split-amount', function () {
