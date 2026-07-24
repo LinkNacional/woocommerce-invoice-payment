@@ -21,7 +21,7 @@
                     if(checkoutForm){
                         partialPaymentHTML = `
                         <div class="wcPaymentInvoiceContainer">
-                            <h1 class="wc-block-components-title wc-block-components-checkout-step__title">Pagamento Parcial</h1>
+                            <h1 class="wc-block-components-title wc-block-components-checkout-step__title">Partial Payment</h1>
                             <div class="wcPaymentInvoiceInner">
                                 <div class="wcPaymentInvoiceCheckboxWrapper">
                                     <div class="wc-block-components-checkbox wc-block-checkout__use-address-for-billing">

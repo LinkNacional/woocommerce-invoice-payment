@@ -183,11 +183,10 @@
         var partialAmount = parseFloat(d.partial_amount) || 0;
         var baseMax = parseFloat(d.base_max) || 0;
         var gatewayFees = parseFloat(d.gateway_fees) || 0;
-        // cartTotal do wp.data (sempre atualizado) c/ fallback pro PHP
-        var cartTotal = getCartTotal() || parseFloat(d.cart_total) || 0;
-        // remaining recalculado com dados frescos
-        var remaining = baseMax + gatewayFees - cartTotal;
-        if (remaining < 0) remaining = 0;
+        // Usa cartTotal do AJAX (pós-calculate_totals, com nosso fee já aplicado).
+        // Store API pode estar desatualizada — getCartTotal() é fallback.
+        var cartTotal = parseFloat(d.cart_total) || getCartTotal() || 0;
+        var remaining = parseFloat(d.remaining) || 0;
         var realPaidNow = Math.abs(gatewayFees) > 0.01 ? cartTotal : partialAmount;
         var hasFees = Math.abs(gatewayFees) > 0.01;
 
@@ -541,7 +540,7 @@
         var partialAmount = parseFloat(d.partial_amount) || 0;
         var baseMax = parseFloat(d.base_max) || 0;
         var gatewayFees = parseFloat(d.gateway_fees) || 0;
-        var cartTotal = getCartTotal() || parseFloat(d.cart_total) || 0;
+        var cartTotal = parseFloat(d.cart_total) || getCartTotal() || 0;
         var remaining = parseFloat(d.remaining) || 0;
         var isSecondPartial = (CONFIG.parentConfirmed || 0) > 0;
         var hasFees = Math.abs(gatewayFees) > 0.01;
@@ -566,7 +565,7 @@
             html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">' + CONFIG.previouslyPaidLabel + ' <strong>' + formatCurrency(CONFIG.parentConfirmed || 0) + '</strong></p></div>';
         } else {
             html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">Saldo a pagar depois: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
+            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">' + CONFIG.balanceToPayLater + ' <strong>' + formatCurrency(remaining) + '</strong></p></div>';
         }
 
         html += '</div>';
@@ -575,37 +574,143 @@
         $('.lkn-wcip-scroll-to-payment').show();
     }
 
+    var _payRemainingRetries = 0;
+    var _payRemainingMaxRetries = 5;
+
     function refreshPayRemainingSummary() {
         if (_restoring) return;
 
+        console.log('[WcIP refreshPayRemainingSummary] calling AJAX...');
         ajaxPost('lkn_wcip_get_partial_split_state').then(function (res) {
-            if (!res || !res.success || !res.data || !res.data.active) return;
+            console.log('[WcIP refreshPayRemainingSummary] AJAX response:', res);
+            console.log('[WcIP-JS] refreshPayRemainingSummary response:', JSON.stringify(res.data));
+            if (!res || !res.success || !res.data || !res.data.active) {
+                console.log('[WcIP refreshPayRemainingSummary] NOT ACTIVE — will retry');
+                retryPayRemaining();
+                return;
+            }
 
-            var cartTotal = getCartTotal();
-            splitData = {
-                partial_amount: res.data.partial_amount,
-                cart_total: cartTotal > 0 ? cartTotal : res.data.cart_total,
-                base_max: res.data.base_max,
-                gateway_fees: res.data.gateway_fees,
-                remaining: res.data.remaining
-            };
-
-            renderPayRemainingResult();
+            _payRemainingRetries = _payRemainingMaxRetries;
+            refreshFromData(res.data);
+            console.log('[WcIP refreshPayRemainingSummary] DONE. Fees=' + res.data.gateway_fees);
+        }).catch(function () {
+            console.log('[WcIP refreshPayRemainingSummary] AJAX FAIL — will retry');
+            retryPayRemaining();
         });
     }
 
+    function refreshFromData(data) {
+        console.log('[WcIP refreshFromData] partial=' + data.partial_amount + ' baseMax=' + data.base_max + ' fees=' + data.gateway_fees + ' remaining=' + data.remaining);
+        // AJAX response has correct values (pós-calculate_totals). Store API is fallback.
+        var phpCartTotal = parseFloat(data.cart_total) || 0;
+        var wpCartTotal = getCartTotal();
+        splitData = {
+            partial_amount: parseFloat(data.partial_amount) || 0,
+            cart_total: phpCartTotal > 0 ? phpCartTotal : (wpCartTotal > 0 ? wpCartTotal : 0),
+            base_max: parseFloat(data.base_max) || 0,
+            gateway_fees: parseFloat(data.gateway_fees) || 0,
+            remaining: parseFloat(data.remaining) || 0
+        };
+        renderPayRemainingResult();
+    }
+
+    function retryPayRemaining() {
+        _payRemainingRetries++;
+        if (_payRemainingRetries < _payRemainingMaxRetries) {
+            setTimeout(refreshPayRemainingSummary, 800 * _payRemainingRetries);
+        }
+    }
+
+    // Bootstrap from server-side data-* attributes (avoids session race on first load)
+    function bootstrapFromServerData() {
+        var $container = $('.lkn-wcip-split-blocks-container');
+        var remaining = parseFloat($container.attr('data-remaining'));
+        console.log('[WcIP bootstrap] data-remaining=' + remaining);
+        if (!remaining || remaining <= 0) {
+            console.log('[WcIP bootstrap] SKIP: no remaining');
+            return false;
+        }
+
+        var origTotal = parseFloat($container.attr('data-original-total')) || 0;
+        var baseMax   = parseFloat($container.attr('data-base-max')) || 0;
+        var confirmed = parseFloat($container.attr('data-confirmed')) || 0;
+
+        console.log('[WcIP bootstrap] origTotal=' + origTotal + ' baseMax=' + baseMax + ' confirmed=' + confirmed);
+
+        // 1/2 (primeiro pagamento): não pré-renderiza — usuário precisa digitar o valor.
+        // 2/2 (confirmed > 0): valor já é conhecido, renderiza imediatamente.
+        if (confirmed <= 0) {
+            console.log('[WcIP bootstrap] SKIP: first payment, wait for user input');
+            return false;
+        }
+
+        var data = {
+            active: true,
+            partial_amount: remaining,
+            cart_total: baseMax,
+            base_max: baseMax,
+            gateway_fees: 0,
+            remaining: Math.max(0, origTotal - confirmed - remaining)
+        };
+        refreshFromData(data);
+        console.log('[WcIP bootstrap] DONE. Waiting for cartReady...');
+        return true;
+    }
+
+    // Wait for Store API cart to be ready, then refresh fees via AJAX
+    function whenCartReady(callback, maxTries, interval) {
+        maxTries = maxTries || 30;
+        interval = interval || 200;
+        var tries = 0;
+
+        function check() {
+            tries++;
+            var ready = false;
+            try {
+                if (window.wp && window.wp.data && window.wp.data.select) {
+                    var store = window.wp.data.select('wc/store/cart');
+                    if (store && typeof store.getCartTotals === 'function') {
+                        var totals = store.getCartTotals();
+                        ready = !!(totals && typeof totals.total_price !== 'undefined');
+                    }
+                }
+            } catch (e) {}
+
+            if (ready) {
+                console.log('[WcIP cartReady] Cart ready after ' + tries + ' tries. Calling AJAX...');
+                callback();
+            } else if (tries < maxTries) {
+                setTimeout(check, interval);
+            } else {
+                console.log('[WcIP cartReady] TIMEOUT after ' + tries + ' tries.');
+            }
+        }
+
+        check();
+    }
+
+    // Only 2/2 (second payment) — 1/2 uses input+button flow
+    var IS_SECOND_PAYMENT = IS_PAY_REMAINING && (CONFIG.parentConfirmed || 0) > 0;
+
     if (IS_PAY_REMAINING) {
-        // Move step para o topo do checkout
         $(function () {
             var $step = $('.lkn-wcip-partial-split-step');
             var $form = $('.wc-block-checkout__form');
             if ($step.length && $form.length) {
                 $form.prepend($step);
             }
-            setTimeout(refreshPayRemainingSummary, 300);
+
+            if (IS_SECOND_PAYMENT) {
+                // 2/2: render from server data, then AJAX for gateway fees
+                bootstrapFromServerData();
+                whenCartReady(function () {
+                    _payRemainingRetries = 0;
+                    refreshPayRemainingSummary();
+                });
+            }
+            // 1/2: nothing to pre-render — user types and clicks "Split payment"
         });
 
-        // Scroll to payment on "Continuar pagamento" click
         $(document).on('click', '.lkn-wcip-scroll-to-payment', function () {
             var $target = $('#payment-method');
             if (!$target.length) { $target = $('#payment'); }
@@ -614,32 +719,34 @@
             }
         });
 
-        // Refresca a cada mudança de carrinho
-        (function () {
-            var _origFetch = window.fetch;
-            window.fetch = function () {
-                var urlStr = '';
-                var arg = arguments[0];
-                if (typeof arg === 'string') { urlStr = arg; }
-                else if (arg instanceof Request) { urlStr = arg.url || ''; }
-                else if (arg && typeof arg.url === 'string') { urlStr = arg.url; }
+        // Refresh on cart changes via Store API (2/2 only)
+        if (IS_SECOND_PAYMENT) {
+            (function () {
+                var _origFetch = window.fetch;
+                window.fetch = function () {
+                    var urlStr = '';
+                    var arg = arguments[0];
+                    if (typeof arg === 'string') { urlStr = arg; }
+                    else if (arg instanceof Request) { urlStr = arg.url || ''; }
+                    else if (arg && typeof arg.url === 'string') { urlStr = arg.url; }
 
-                var promise = _origFetch.apply(this, arguments);
+                    var promise = _origFetch.apply(this, arguments);
 
-                var isRelevant = urlStr.indexOf('/wc/store/v1/batch') !== -1
-                              || (urlStr.indexOf('/wc/store/v1/cart') !== -1 && urlStr.indexOf('select-shipping-rate') === -1)
-                              || urlStr.indexOf('/wc/store/v1/checkout') !== -1;
+                    var isRelevant = urlStr.indexOf('/wc/store/v1/batch') !== -1
+                                  || (urlStr.indexOf('/wc/store/v1/cart') !== -1 && urlStr.indexOf('select-shipping-rate') === -1)
+                                  || urlStr.indexOf('/wc/store/v1/checkout') !== -1;
 
-                if (isRelevant) {
-                    setTimeout(function () {
-                        updateBaseMaxLabel();
-                        refreshPayRemainingSummary();
-                    }, 600);
-                }
+                    if (isRelevant) {
+                        setTimeout(function () {
+                            updateBaseMaxLabel();
+                            refreshPayRemainingSummary();
+                        }, 600);
+                    }
 
-                return promise;
-            };
-        })();
+                    return promise;
+                };
+            })();
+        }
     }
 
     // ==========================================================

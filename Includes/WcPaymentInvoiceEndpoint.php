@@ -710,32 +710,51 @@ final class WcPaymentInvoiceEndpoint {
             $complete_statuses[] = substr($opt, 3);
         }
 
-        // Cancela filhos pendentes
+        // Detecta se há filhos não-concluídos para cancelar
         $partials_ids = $parent->get_meta('_wc_lkn_partials_id', true);
-        $cleaned = array();
+        $has_pending = false;
         if (is_array($partials_ids)) {
             foreach ($partials_ids as $cid) {
                 $child = wc_get_order((int) $cid);
                 if (!$child || $child->get_status() === 'trash') continue;
-                if (in_array($child->get_status(), $complete_statuses, true)) {
-                    $cleaned[] = (int) $cid;
-                } else {
-                    $child->update_status('cancelled');
+                if (!in_array($child->get_status(), $complete_statuses, true)) {
+                    $has_pending = true;
+                    break;
                 }
             }
-            if (count($cleaned) !== count($partials_ids)) {
-                $parent->update_meta_data('_wc_lkn_partials_id', $cleaned);
+        }
+
+        // Só faz limpeza destrutiva se ainda existem filhos pendentes.
+        // Em visitas subsequentes, já estão limpos — comporta-se como link direto.
+        if ($has_pending) {
+            $cleaned = array();
+            if (is_array($partials_ids)) {
+                foreach ($partials_ids as $cid) {
+                    $child = wc_get_order((int) $cid);
+                    if (!$child || $child->get_status() === 'trash') continue;
+                    if (in_array($child->get_status(), $complete_statuses, true)) {
+                        $cleaned[] = (int) $cid;
+                    } else {
+                        $child->update_status('cancelled');
+                    }
+                }
             }
+            if (is_array($partials_ids) && count($cleaned) !== count($partials_ids)) {
+                $parent->update_meta_data('_wc_lkn_partials_id', array_values($cleaned));
+            }
+            $partials_ids = $cleaned;
         }
 
         // Recalcula confirmed
         $confirmed = 0.0;
-        foreach ($cleaned as $cid) {
-            $child = wc_get_order((int) $cid);
-            if (!$child) continue;
-            $paid = (float) $child->get_meta('_wc_lkn_partial_amount_paid');
-            if ($paid <= 0) $paid = (float) $child->get_total();
-            $confirmed += $paid;
+        if (is_array($partials_ids)) {
+            foreach ($partials_ids as $cid) {
+                $child = wc_get_order((int) $cid);
+                if (!$child) continue;
+                $paid = (float) $child->get_meta('_wc_lkn_partial_amount_paid');
+                if ($paid <= 0) $paid = (float) $child->get_total();
+                $confirmed += $paid;
+            }
         }
 
         $remaining = max(0, round($original_total - $confirmed, 2));
@@ -768,6 +787,8 @@ final class WcPaymentInvoiceEndpoint {
         WC()->session->set('lkn_partial_parent_order_id', $parent_id);
         WC()->session->__unset('lkn_partial_order_id');
 
+        error_log('[WcIP resumePartial] SET session: lkn_partial_amount=' . $remaining . ' parent=' . $parent_id . ' session_id=' . (WC()->session ? WC()->session->get_customer_id() : 'none'));
+
         // Restaura frete
         $rates_json = $parent->get_meta('_wc_lkn_chosen_shipping_rates');
         if ($rates_json) {
@@ -779,6 +800,11 @@ final class WcPaymentInvoiceEndpoint {
         }
         WC()->session->__unset('chosen_payment_method');
         WC()->cart->calculate_totals();
+
+        // Persiste a sessão explicitamente — em contexto REST o commit pode
+        // não acontecer antes do exit, e o checkout perderia o lkn_partial_amount.
+        WC()->session->save_data();
+        error_log('[WcIP resumePartial] session saved. Redirecting to checkout...');
 
         wp_safe_redirect(add_query_arg('pay_remaining', $parent_id, wc_get_checkout_url()));
         exit;

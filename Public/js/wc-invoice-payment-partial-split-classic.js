@@ -469,24 +469,24 @@
 
         var html = '<div style="margin-top:12px;padding:14px;background:#fff;border:1px solid #e0e0e0;border-radius:4px">';
 
-        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Subtotal + Frete</span><span style="float:right;font-weight:500">' + formatCurrency(baseMax) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Subtotal + Shipping</span><span style="float:right;font-weight:500">' + formatCurrency(baseMax) + '</span></div>';
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>' + (isSecondPartial ? 'Remaining amount' : 'Entered amount') + '</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
-        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Additional fees/discounts:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>' + (isSecondPartial ? CONFIG.remainingAmountLabel : CONFIG.enteredAmountLabel) + '</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>' + CONFIG.feesDiscountsLabel + '</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
 
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>You will pay now:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
+        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>' + CONFIG.paidNowLabel + '</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
 
         if (hasFees) {
-            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">The entered amount of ' + formatCurrency(partialAmount) + ' was adjusted to ' + formatCurrency(realPaidNow) + ' due to fees or discounts applied to the order.</p>';
+            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">' + CONFIG.feeAdjustmentMsg.replace('%1$s', formatCurrency(partialAmount)).replace('%2$s', formatCurrency(realPaidNow)) + '</p>';
         }
 
         if (isSecondPartial) {
             html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">Previously paid: <strong>' + formatCurrency(CONFIG.parentConfirmed || 0) + '</strong></p></div>';
+            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">' + CONFIG.previouslyPaidLabel + ' <strong>' + formatCurrency(CONFIG.parentConfirmed || 0) + '</strong></p></div>';
         } else {
             html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">Saldo a pagar depois: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
+            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">' + CONFIG.balanceToPayLater + ' <strong>' + formatCurrency(remaining) + '</strong></p></div>';
         }
 
         html += '</div>';

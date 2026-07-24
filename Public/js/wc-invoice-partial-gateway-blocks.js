@@ -6,7 +6,7 @@
 
     const settings = window.wc.wcSettings.getSetting('lkn_wcip_partial_gateway_data', {});
 
-    const label = decodeEntities(settings.title) || __('Pagamento Parcial', 'wc-invoice-payment');
+    const label = decodeEntities(settings.title) || 'Partial Payment';
 
     const Content = () => {
         return createElement('div', {
