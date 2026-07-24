@@ -423,9 +423,9 @@
     // Modo pay_remaining: inicial
     // ==========================================================
     var IS_PAY_REMAINING = !!CONFIG.isPayRemaining;
+    var IS_SECOND_PAYMENT = IS_PAY_REMAINING && (CONFIG.parentConfirmed || 0) > 0;
 
     if (IS_PAY_REMAINING) {
-        // Move step para o topo do checkout
         $(function () {
             var $step = $('.lkn-wcip-partial-split-step');
             var $form = $('form.checkout');
@@ -433,16 +433,19 @@
                 $form.prepend($step);
             }
 
-            refreshCartData().then(function () {
-                ajaxPost('lkn_wcip_get_partial_split_state').then(function (res) {
-                    if (res && res.success && res.data && res.data.active) {
-                        calculated = true;
-                        splitData = res.data;
-                        _cartData = res.data;
-                        renderPayRemainingResult();
-                    }
+            // Only auto-fetch on 2/2. 1/2 waits for user to click "Split payment".
+            if (IS_SECOND_PAYMENT) {
+                refreshCartData().then(function () {
+                    ajaxPost('lkn_wcip_get_partial_split_state').then(function (res) {
+                        if (res && res.success && res.data && res.data.active) {
+                            calculated = true;
+                            splitData = res.data;
+                            _cartData = res.data;
+                            renderPayRemainingResult();
+                        }
+                    });
                 });
-            });
+            }
         });
 
         // Scroll to payment on "Continuar pagamento" click

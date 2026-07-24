@@ -724,9 +724,18 @@ final class WcPaymentInvoiceEndpoint {
             }
         }
 
-        // Só faz limpeza destrutiva se ainda existem filhos pendentes.
-        // Em visitas subsequentes, já estão limpos — comporta-se como link direto.
-        if ($has_pending) {
+        // Conta filhos válidos (não-trash)
+        $valid_count = 0;
+        if (is_array($partials_ids)) {
+            foreach ($partials_ids as $cid) {
+                $child = wc_get_order((int) $cid);
+                if ($child && $child->get_status() !== 'trash') $valid_count++;
+            }
+        }
+
+        // Só faz limpeza destrutiva se existem filhos pendentes E há 2+ filhos.
+        // Com apenas 1 filho, mantém ele pra que o cliente possa pagá-lo.
+        if ($has_pending && $valid_count >= 2) {
             $cleaned = array();
             if (is_array($partials_ids)) {
                 foreach ($partials_ids as $cid) {

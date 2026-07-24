@@ -2434,7 +2434,14 @@ final class WcPaymentInvoicePartial
         if ($pay_remaining > 0) {
             $payload_parent = wc_get_order($pay_remaining);
             $payload_orig   = $payload_parent ? (float) $payload_parent->get_meta('_wc_lkn_original_total') : 0;
-            $payload_conf   = $payload_parent ? $this->recalcConfirmedFromChildren($payload_parent) : 0;
+            $payload_conf   = $payload_parent ? (float) $payload_parent->get_meta('_wc_lkn_total_confirmed') : 0;
+            // Fallback: if confirmed=0 but children exist, mark as has-payment
+            if ($payload_conf <= 0 && $payload_parent) {
+                $partials_ids = (array) $payload_parent->get_meta('_wc_lkn_partials_id');
+                if (!empty(array_filter(array_map('intval', $partials_ids)))) {
+                    $payload_conf = 0.01; // Marker > 0 — bootstrap sees this as 2/2
+                }
+            }
             $payload_rem    = round($payload_orig - $payload_conf, 2);
             $step .= ' data-pay-remaining="' . $pay_remaining . '"';
             $step .= ' data-original-total="' . $payload_orig . '"';
@@ -2546,7 +2553,14 @@ final class WcPaymentInvoicePartial
         } elseif ($pay_remaining > 0) {
             // Determina se é 1/2 (primeiro pagamento) ou 2/2 (segundo)
             $parent_order = wc_get_order($pay_remaining);
-            $confirmed = $parent_order ? $this->recalcConfirmedFromChildren($parent_order) : 0;
+            $confirmed = $parent_order ? (float) $parent_order->get_meta('_wc_lkn_total_confirmed') : 0;
+            // Fallback: check if ANY children exist (covers async payments still pending)
+            if ($confirmed <= 0) {
+                $partials_ids = $parent_order ? (array) $parent_order->get_meta('_wc_lkn_partials_id') : array();
+                if (!empty(array_filter(array_map('intval', $partials_ids)))) {
+                    $confirmed = 1; // Marker: has children — treat as 2/2
+                }
+            }
             $is_first_payment = ($confirmed <= 0);
             
             $step .= '<label style="display:flex;align-items:flex-start;gap:8px;cursor:default;margin-bottom:0;font-size:14px;pointer-events:none">';
@@ -4048,12 +4062,12 @@ final class WcPaymentInvoicePartial
                         html = '<div style="background:#f0f7f0;border:2px solid #008a20;border-radius:8px;padding:24px;text-align:center">';
                         html += '<h3 style="margin:0 0 12px;color:#008a20"><?php echo esc_js(__('Payment Processed', 'wc-invoice-payment')); ?></h3>';
                         html += '<div style="text-align:left;max-width:340px;margin:0 auto 20px;font-size:14px;line-height:1.8;color:#555">';
-                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Subtotal + Frete:', 'wc-invoice-payment')); ?></span><strong>' + formatBrl(original) + '</strong></div>';
+                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Subtotal + Shipping:', 'wc-invoice-payment')); ?></span><strong>' + formatBrl(original) + '</strong></div>';
                         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">';
                         if (d.children && d.children.length) {
                             for (var ci = 0; ci < d.children.length; ci++) {
                                 var c = d.children[ci];
-                                html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>' + (ci+1) + 'ª parcela (base):</span><strong>' + formatBrl(c.base_amount) + '</strong></div>';
+                                html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>#' + (ci+1) + ' ' + '<?php echo esc_js(__('installment (base):', 'wc-invoice-payment')); ?>' + '</span><strong>' + formatBrl(c.base_amount) + '</strong></div>';
                                 if (Math.abs(c.fees) > 0.01) {
                                     var label = '<?php echo esc_js(__('+ Fees/Discounts:', 'wc-invoice-payment')); ?>';
                                     html += '<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:12px;color:#007cba"><span>' + label + '</span><span>' + (c.fees > 0 ? '+' : '') + formatBrl(c.fees) + '</span></div>';
@@ -4078,9 +4092,9 @@ final class WcPaymentInvoicePartial
                         html = '<div style="background:#f8f9fa;border:2px solid #007cba;border-radius:8px;padding:24px;text-align:center">';
                         html += '<h3 style="margin:0 0 12px;color:#007cba"><?php echo esc_js(__('Partial Payment Made', 'wc-invoice-payment')); ?></h3>';
                         html += '<div style="text-align:left;max-width:340px;margin:0 auto 20px;font-size:14px;line-height:1.8;color:#555">';
-                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Subtotal + Frete:', 'wc-invoice-payment')); ?></span><strong>' + formatBrl(original) + '</strong></div>';
+                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Subtotal + Shipping:', 'wc-invoice-payment')); ?></span><strong>' + formatBrl(original) + '</strong></div>';
                         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">';
-                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Pago agora:', 'wc-invoice-payment')); ?></span><strong>' + formatBrl(childAmount) + '</strong></div>';
+                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Paid now:', 'wc-invoice-payment')); ?></span><strong>' + formatBrl(childAmount) + '</strong></div>';
                         if (Math.abs(fees) > 0.01) {
                             var feeLabel = '<?php echo esc_js(__('+ Fees/Discounts:', 'wc-invoice-payment')); ?>';
                             html += '<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:12px;color:#007cba"><span>' + feeLabel + '</span><span>' + (fees > 0 ? '+' : '') + formatBrl(fees) + '</span></div>';
@@ -4204,10 +4218,10 @@ final class WcPaymentInvoicePartial
         <div class="lkn-wcip-partial-thankyou-card" style="background:#f8f9fa;border:2px solid #007cba;border-radius:8px;padding:24px;margin:24px 0;text-align:center">
             <h3 style="margin:0 0 12px;color:#007cba"><?php esc_html_e('Partial Payment Made', 'wc-invoice-payment'); ?></h3>
             <div style="text-align:left;max-width:340px;margin:0 auto 20px;font-size:14px;line-height:1.8;color:#555">
-                <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Subtotal + Frete:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($original_total); ?></strong></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Subtotal + Shipping:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($original_total); ?></strong></div>
                 <?php if ($partial_amount > 0): ?>
                 <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
-                <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Pago agora:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($partial_amount); ?></strong></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Paid now:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($partial_amount); ?></strong></div>
                 <?php if (abs($fees) > 0.01): ?>
                 <div style="display:flex;justify-content:space-between;padding:2px 0;color:#007cba"><span><?php esc_html_e('+ Fees/Discounts:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($fees); ?></strong></div>
                 <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">

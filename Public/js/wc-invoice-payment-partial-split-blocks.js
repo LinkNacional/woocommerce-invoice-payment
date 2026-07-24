@@ -82,6 +82,8 @@
     var splitData = null;
     var _restoring = false; // trava durante restoreState pra evitar loop
     var _initiatingPartial = false; // flag: disparo de Place Order via botão 'Iniciar pagamento parcial'
+    var _cartWatcherActive = false; // fetch interceptor ativo pós-split (1/2)
+    var _watcherTimer = null; // polling timer
 
     // —— Getters (re-query DOM toda vez — WC Blocks re-renderiza) ——
     function getCard() { return $('.lkn-wcip-split-blocks-container'); }
@@ -95,6 +97,7 @@
     function clearState() {
         calculated = false;
         splitData = null;
+        stopCartWatcher();
         getCheckbox().prop('checked', false);
         getInput().val('').prop('disabled', false);
         getBtn().text(CONFIG.calcButtonText).css({ opacity: '0.5', pointerEvents: 'none' }).removeClass('lkn-wcip-btn-cancel');
@@ -152,6 +155,12 @@
             getBtn().text(CONFIG.cancelSplitText).css({ opacity: '', pointerEvents: '' }).addClass('lkn-wcip-btn-cancel');
             renderResult();
             invalidateCart();
+
+            // 1/2: Start listening for cart changes (gateway/installment switch)
+            if (!_cartWatcherActive) {
+                _cartWatcherActive = true;
+                startCartWatcher();
+            }
         }).finally(function () { getBtn().prop('disabled', false); });
     }
 
@@ -687,6 +696,59 @@
         }
 
         check();
+    }
+
+    // 1/2: re-calc watcher — polls Store API every 1.5s after split is active
+    function startCartWatcher() {
+        if (_watcherTimer) return;
+        console.log('[WcIP-WATCH] startCartWatcher — polling every 1500ms');
+
+        function poll() {
+            if (!calculated || !splitData || !_cartWatcherActive) {
+                console.log('[WcIP-WATCH] poll STOP — calculated=' + calculated + ' hasSplitData=' + !!splitData + ' watcherActive=' + _cartWatcherActive);
+                _watcherTimer = null;
+                return;
+            }
+            var storeTotal = getCartTotal();
+            var currentDisplayed = parseFloat(splitData.cart_total) || 0;
+            var currentFees = parseFloat(splitData.gateway_fees) || 0;
+            console.log('[WcIP-WATCH] poll: storeTotal=' + storeTotal + ' current_cart_total=' + currentDisplayed + ' current_fees=' + currentFees);
+
+            // Re-calc from PHP — always uses fresh cart + current gateway fees
+            _restoring = true;
+            ajaxPost('lkn_wcip_get_partial_split_state').then(function (res) {
+                console.log('[WcIP-WATCH] poll AJAX:', res);
+                if (res && res.success && res.data) {
+                    splitData = {
+                        partial_amount: parseFloat(res.data.partial_amount) || 0,
+                        cart_total: parseFloat(res.data.cart_total) || 0,
+                        base_max: parseFloat(res.data.base_max) || 0,
+                        gateway_fees: parseFloat(res.data.gateway_fees) || 0,
+                        remaining: parseFloat(res.data.remaining) || 0
+                    };
+                    console.log('[WcIP-WATCH] poll → updated fees=' + splitData.gateway_fees + ' cart_total=' + splitData.cart_total);
+                    renderResult();
+                }
+            }).finally(function () {
+                _restoring = false;
+                if (calculated && splitData && _cartWatcherActive) {
+                    _watcherTimer = setTimeout(poll, 1500);
+                } else {
+                    _watcherTimer = null;
+                }
+            });
+        }
+
+        _watcherTimer = setTimeout(poll, 1500);
+    }
+
+    function stopCartWatcher() {
+        _cartWatcherActive = false;
+        if (_watcherTimer) {
+            clearTimeout(_watcherTimer);
+            _watcherTimer = null;
+            console.log('[WcIP-WATCH] stopCartWatcher');
+        }
     }
 
     // Only 2/2 (second payment) — 1/2 uses input+button flow
