@@ -3251,12 +3251,8 @@ final class WcPaymentInvoicePartial
         $order = wc_get_order($order_id);
         if (!$order) return;
 
-        // Recarrega do banco para garantir metadados do gateway
-        // (no classic, o pedido pode não ter os fees ainda — fresh copy ajuda)
-        $fresh_order = wc_get_order($order_id);
-        if ($fresh_order) {
-            $this->maybeSaveSplitDataToOrder($fresh_order);
-        }
+
+        $this->maybeSaveSplitDataToOrder($order);
     }
 
     /**
