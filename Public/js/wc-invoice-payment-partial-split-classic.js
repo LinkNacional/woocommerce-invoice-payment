@@ -85,7 +85,7 @@
         _cartData = null;
         getCheckbox().prop('checked', false);
         getInput().val('').prop('disabled', false);
-        getBtn().text('Split pagamento').css({ opacity: '0.5', pointerEvents: 'none' }).removeClass('lkn-wcip-btn-cancel');
+        getBtn().text(CONFIG.calcButtonText).css({ opacity: '0.5', pointerEvents: 'none' }).removeClass('lkn-wcip-btn-cancel');
         getResult().hide().empty();
         getFields().hide();
         getCard().find('.lkn-wcip-base-max-msg').hide();
@@ -102,7 +102,7 @@
                     getCard().find('.lkn-wcip-base-max-msg').show();
                     getCard().find('.lkn-wcip-base-min-msg').show();
                     getInput().val('').prop('disabled', false);
-                    getBtn().text('Split pagamento').css({ opacity: '0.5', pointerEvents: 'none' });
+                    getBtn().text(CONFIG.calcButtonText).css({ opacity: '0.5', pointerEvents: 'none' });
                 }
                 invalidateCart();
             }
@@ -111,16 +111,14 @@
 
     function handleCalculate() {
         var val = parseCurrency(getInput().val());
-        if (!val || val <= 0) { alert('Digite um valor válido para o pagamento parcial.'); return; }
-        // Classic: usa o valor máximo do HTML (já renderizado pelo PHP)
-        // em vez de getCartTotal() que pode não ter carregado ainda.
+        if (!val || val <= 0) { alert(CONFIG.invalidAmountMsg); return; }
         var maxVal = parseCurrency(getCard().find('.lkn-wcip-base-max-val').text());
-        if (maxVal > 0 && val >= maxVal) { alert('O valor parcial deve ser menor que o total (R$ ' + maxVal.toFixed(2).replace('.', ',') + ').'); return; }
-        if (MIN_AMOUNT > 0 && val < MIN_AMOUNT) { alert('Valor abaixo do mínimo permitido.'); return; }
+        if (maxVal > 0 && val >= maxVal) { alert(CONFIG.partialTooHighMsg); return; }
+        if (MIN_AMOUNT > 0 && val < MIN_AMOUNT) { alert(CONFIG.belowMinMsg); return; }
         if (MIN_AMOUNT > 0) {
             var rem = getBaseMax() - val;
             if (rem > 0 && rem < MIN_AMOUNT) {
-                alert('O valor restante (R$ ' + rem.toFixed(2).replace('.', ',') + ') não pode ser menor que o mínimo (R$ ' + MIN_AMOUNT.toFixed(2).replace('.', ',') + '). Ajuste o valor informado.');
+                alert(CONFIG.remainingTooLowMsg);
                 return;
             }
         }
@@ -129,7 +127,7 @@
 
         ajaxPost('lkn_wcip_set_partial_split', { partialAmount: val }).then(function (res) {
             if (!res || !res.success) {
-                alert(res && res.data && res.data.message ? res.data.message : 'Erro.');
+                alert(res && res.data && res.data.message ? res.data.message : CONFIG.serverErrorMsg);
                 return;
             }
 
@@ -138,14 +136,14 @@
             _cartData = res.data;
 
             getInput().val(formatCurrency(val)).prop('disabled', true);
-            getBtn().text('Cancelar split').css({ opacity: '', pointerEvents: '' }).addClass('lkn-wcip-btn-cancel');
+            getBtn().text(CONFIG.cancelSplitText).css({ opacity: '', pointerEvents: '' }).addClass('lkn-wcip-btn-cancel');
             renderResult();
             invalidateCart();
         }).finally(function () { getBtn().prop('disabled', false); });
     }
 
     function handleInitiatePartial() {
-        getBtn().prop('disabled', true).text('Finalizando...').css({ opacity: '0.5', cursor: 'not-allowed', background: '#999' });
+        getBtn().prop('disabled', true).text(CONFIG.finalizingText).css({ opacity: '0.5', cursor: 'not-allowed', background: '#999' });
 
         // Classic: ativa modo parcial na sessão e clica no #place_order.
         // O próprio gateway PartialGateway::process_payment cuida de criar o
@@ -155,13 +153,13 @@
             if (placeOrderBtn) {
                 placeOrderBtn.click();
             } else {
-                alert('Erro: botão de finalizar pedido não encontrado.');
-                getBtn().prop('disabled', false).text('Iniciar pagamento parcial').css({ opacity: '', cursor: '', background: '' });
+                alert(CONFIG.placeOrderNotFoundMsg);
+                getBtn().prop('disabled', false).text(CONFIG.startPartialText).css({ opacity: '', cursor: '', background: '' });
             }
 
-            // Safety: restaura botão após 10s se algo der errado
+            // Safety: restore button after 10s
             setTimeout(function () {
-                getBtn().prop('disabled', false).text('Iniciar pagamento parcial').css({ opacity: '', cursor: '', background: '' });
+                getBtn().prop('disabled', false).text(CONFIG.startPartialText).css({ opacity: '', cursor: '', background: '' });
             }, 10000);
         });
     }
@@ -183,17 +181,17 @@
 
         html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Subtotal + Frete</span><span style="float:right;font-weight:500">' + formatCurrency(baseMax) + '</span></div>';
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Valor informado</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
-        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Taxas/Descontos adicionais:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Entered amount</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Additional fees/discounts:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
 
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Você pagará agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
+        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>You will pay now:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
 
         if (hasFees) {
-            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">O valor informado de ' + formatCurrency(partialAmount) + ' foi ajustado para ' + formatCurrency(realPaidNow) + ' devido a taxas ou descontos aplicados ao pedido.</p>';
+            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">The entered amount of ' + formatCurrency(partialAmount) + ' was adjusted to ' + formatCurrency(realPaidNow) + ' due to fees or discounts applied to the order.</p>';
         }
 
-        html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">Restante para depois: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
+        html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">Remaining for later: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
         html += '</div>';
 
         getResult().html(html).show();
@@ -210,7 +208,7 @@
 
     $(document).on('click', '.lkn-wcip-resume-btn', function () {
         var btn = $(this);
-        btn.prop('disabled', true).text('Processando...');
+        btn.prop('disabled', true).text(CONFIG.processingText);
         fetch(CONFIG.restUrl || btn.data('rest-url'), {
             method: 'POST',
             headers: {
@@ -225,15 +223,14 @@
         }).then(function (r) { return r.json(); }).then(function (res) {
             if (res && res.payment_url) window.location.href = res.payment_url;
         }).catch(function () {
-            alert('Erro ao processar. Tente novamente.');
-            btn.prop('disabled', false).text('Continuar');
+            alert(CONFIG.genericErrorMsg);
+            btn.prop('disabled', false).text(CONFIG.continueText);
         });
     });
 
-    // Botão "Substituir pagamento" — substitui filho pendente e vai pro checkout
     $(document).on('click', '.lkn-wcip-replace-pending-btn', function () {
         var btn = $(this);
-        btn.prop('disabled', true).text('Processando...');
+        btn.prop('disabled', true).text(CONFIG.processingText);
         fetch(btn.data('rest-url'), {
             method: 'POST',
             headers: {
@@ -248,8 +245,8 @@
         }).then(function (r) { return r.json(); }).then(function (res) {
             if (res && res.payment_url) window.location.href = res.payment_url;
         }).catch(function () {
-            alert('Erro ao processar. Tente novamente.');
-            btn.prop('disabled', false).text('Continuar');
+            alert(CONFIG.genericErrorMsg);
+            btn.prop('disabled', false).text(CONFIG.continueText);
         });
     });
 
@@ -474,19 +471,19 @@
 
         html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>Subtotal + Frete</span><span style="float:right;font-weight:500">' + formatCurrency(baseMax) + '</span></div>';
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>' + (isSecondPartial ? 'Valor restante' : 'Valor informado') + '</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
-        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Taxas/Descontos adicionais:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:4px"><span>' + (isSecondPartial ? 'Remaining amount' : 'Entered amount') + '</span><span style="float:right;font-weight:500">' + formatCurrency(partialAmount) + '</span></div>';
+        html += '<div style="font-size:13px;color:#555;margin-bottom:6px"><span>Additional fees/discounts:</span><span style="float:right;font-weight:500;color:' + (hasFees ? '#00a32a' : '#999') + '">' + (gatewayFees > 0.01 ? '+' : '') + formatCurrency(gatewayFees) + '</span></div>';
 
         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>Você pagará agora:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
+        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:' + (hasFees ? '4px' : '12px') + '"><span>You will pay now:</span><span style="float:right">' + formatCurrency(realPaidNow) + '</span></div>';
 
         if (hasFees) {
-            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">O valor informado de ' + formatCurrency(partialAmount) + ' foi ajustado para ' + formatCurrency(realPaidNow) + ' devido a taxas ou descontos aplicados ao pedido.</p>';
+            html += '<p style="font-size:12px;color:#999;margin:0 0 12px;line-height:1.4">The entered amount of ' + formatCurrency(partialAmount) + ' was adjusted to ' + formatCurrency(realPaidNow) + ' due to fees or discounts applied to the order.</p>';
         }
 
         if (isSecondPartial) {
             html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
-            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">Pago anteriormente: <strong>' + formatCurrency(CONFIG.parentConfirmed || 0) + '</strong></p></div>';
+            html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#008a20">Previously paid: <strong>' + formatCurrency(CONFIG.parentConfirmed || 0) + '</strong></p></div>';
         } else {
             html += '<hr style="border:none;border-top:1px dashed #ccc;margin:6px 0">';
             html += '<div style="padding-top:10px;border-top:2px solid #e0e0e0"><p style="margin:0;font-size:14px;color:#d63638">Saldo a pagar depois: <strong>' + formatCurrency(remaining) + '</strong></p></div>';
@@ -507,9 +504,9 @@
         var restUrl = btn.data('rest-url');
         var nonce = btn.data('nonce');
 
-        if (!confirm('Tem certeza que deseja cancelar o pagamento parcial pendente? Você poderá iniciar um novo split depois.')) return;
+        if (!confirm(CONFIG.cancelConfirmMsg)) return;
 
-        btn.prop('disabled', true).text('Cancelando...');
+        btn.prop('disabled', true).text(CONFIG.cancellingText);
 
         $.ajax({
             url: restUrl,
@@ -521,8 +518,8 @@
                 location.reload();
             },
             error: function () {
-                alert('Erro ao cancelar. Tente novamente.');
-                btn.prop('disabled', false).text('Cancelar');
+                alert(CONFIG.cancelErrorMsg);
+                btn.prop('disabled', false).text(CONFIG.cancelText);
             }
         });
     });

@@ -1474,14 +1474,14 @@ final class WcPaymentInvoiceAdmin
                 ?>
                     <div class="wcip-invoice-data wcip-postbox">
                         <h2 class="title">
-                            <?php esc_attr_e('Pagamento Parcial', 'wc-invoice-payment'); ?>
+                            <?php esc_attr_e('Partial Payment', 'wc-invoice-payment'); ?>
                         </h2>
                         <div class="input-column-wrap">
                             <?php
                             if ($parentOrder) {
                             ?>
                                 <h4>
-                                    Pagamento parcial referente ao pedido
+                                    <?php esc_html_e('Partial payment for order', 'wc-invoice-payment'); ?>
                                     <a href="<?php echo esc_attr(admin_url("admin.php?page=wc-orders&action=edit&id={$parentOrderId}")); ?>">#<?php echo esc_attr($parentOrderId); ?></a>
                                 </h4>
                             <?php
@@ -1492,7 +1492,7 @@ final class WcPaymentInvoiceAdmin
                             if ($order->get_meta('_wc_lkn_is_partial_main_order') == 'yes') {
                             ?>
                                 <h4>
-                                    Fatura referente ao pedido
+                                    <?php esc_html_e('Invoice for order', 'wc-invoice-payment'); ?>
                                     <a href="<?php echo esc_attr(admin_url("admin.php?page=wc-orders&action=edit&id={$invoiceId}")); ?>">#<?php echo esc_attr($invoiceId); ?></a>
                                 </h4>
                             <?php

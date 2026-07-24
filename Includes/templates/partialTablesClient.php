@@ -3,12 +3,12 @@ if (! defined('ABSPATH')) {
     exit();
 }
 ?>
-<h2 class="wp-block-heading" style="font-size:clamp(15.747px, 0.984rem + ((1vw - 3.2px) * 0.809), 24px);">Pagamento Parcial</h2>
+<h2 class="wp-block-heading" style="font-size:clamp(15.747px, 0.984rem + ((1vw - 3.2px) * 0.809), 24px);"><?php esc_html_e('Partial Payment', 'wc-invoice-payment'); ?></h2>
 <table cellspacing="0" class="woocommerce-table woocommerce-table--order-details shop_table order_details wcPaymentInvoiceTable">
     <tbody>
         <tr class="woocommerce-table__line-item order_item">
             <td class="wc-block-order-confirmation-totals__product">
-                Valor total:
+                <?php esc_html_e('Total amount:', 'wc-invoice-payment'); ?>
             </td>
             <td class="wc-block-order-confirmation-totals__total">
                 <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($originalTotal ?: $totalConfirmed); ?></span>
@@ -18,7 +18,7 @@ if (! defined('ABSPATH')) {
             <?php foreach ($childrenDetails as $ci => $cd): ?>
             <tr class="woocommerce-table__line-item order_item">
                 <td class="wc-block-order-confirmation-totals__product">
-                    <?php echo ($ci + 1) . '° Parcial pago:'; ?>
+                    <?php printf(esc_html__('#%d partial paid:', 'wc-invoice-payment'), $ci + 1); ?>
                 </td>
                 <td class="wc-block-order-confirmation-totals__total">
                     <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($cd['base']); ?></span>
@@ -27,7 +27,7 @@ if (! defined('ABSPATH')) {
             <?php if (abs((float) $cd['fees']) > 0.01): ?>
             <tr class="woocommerce-table__line-item order_item">
                 <td class="wc-block-order-confirmation-totals__product" style="padding-left:16px;font-size:13px;color:#007cba">
-                    + Taxas/Descontos:
+                    + <?php esc_html_e('Fees/Discounts:', 'wc-invoice-payment'); ?>
                 </td>
                 <td class="wc-block-order-confirmation-totals__total" style="font-size:13px;color:#007cba">
                     <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($cd['fees']); ?></span>
@@ -38,7 +38,7 @@ if (! defined('ABSPATH')) {
         <?php elseif ($isParent): ?>
             <tr class="woocommerce-table__line-item order_item">
                 <td class="wc-block-order-confirmation-totals__product">
-                    Valor pago:
+                    <?php esc_html_e('Amount paid:', 'wc-invoice-payment'); ?>
                 </td>
                 <td class="wc-block-order-confirmation-totals__total">
                     <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($totalConfirmed); ?></span>
@@ -49,7 +49,7 @@ if (! defined('ABSPATH')) {
                 <?php foreach ($childrenDetails as $ci => $cd): ?>
                 <tr class="woocommerce-table__line-item order_item">
                     <td class="wc-block-order-confirmation-totals__product">
-                        <?php echo ($ci + 1) . 'ª parcela (base):'; ?>
+                        <?php printf(esc_html__('#%d installment (base):', 'wc-invoice-payment'), $ci + 1); ?>
                     </td>
                     <td class="wc-block-order-confirmation-totals__total">
                         <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($cd['base']); ?></span>
@@ -58,7 +58,7 @@ if (! defined('ABSPATH')) {
                 <?php if (abs((float) $cd['fees']) > 0.01): ?>
                 <tr class="woocommerce-table__line-item order_item">
                     <td class="wc-block-order-confirmation-totals__product" style="padding-left:16px;font-size:13px;color:#007cba">
-                        + Taxas/Descontos:
+                        + <?php esc_html_e('Fees/Discounts:', 'wc-invoice-payment'); ?>
                     </td>
                     <td class="wc-block-order-confirmation-totals__total" style="font-size:13px;color:#007cba">
                         <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($cd['fees']); ?></span>
@@ -69,7 +69,7 @@ if (! defined('ABSPATH')) {
             <?php else: ?>
             <tr class="woocommerce-table__line-item order_item">
                 <td class="wc-block-order-confirmation-totals__product">
-                    Parcela paga:
+                    <?php esc_html_e('Installment paid:', 'wc-invoice-payment'); ?>
                 </td>
                 <td class="wc-block-order-confirmation-totals__total">
                     <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($myPaid); ?></span>
@@ -79,7 +79,7 @@ if (! defined('ABSPATH')) {
         <?php endif; ?>
         <tr class="woocommerce-table__line-item order_item">
             <td class="wc-block-order-confirmation-totals__product">
-                Restante a pagar:
+                <?php esc_html_e('Remaining to pay:', 'wc-invoice-payment'); ?>
             </td>
             <td class="wc-block-order-confirmation-totals__total">
                 <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($restante); ?></span>
@@ -87,7 +87,7 @@ if (! defined('ABSPATH')) {
         </tr>
         <tr class="woocommerce-table__line-item order_item">
             <td class="wc-block-order-confirmation-totals__product" style="font-weight:bold">
-                Total pago:
+                <?php esc_html_e('Total paid:', 'wc-invoice-payment'); ?>
             </td>
             <td class="wc-block-order-confirmation-totals__total" style="font-weight:bold">
                 <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol"><?php echo esc_attr($symbol); ?></span> <?php echo esc_attr($totalWithFees); ?></span>
@@ -95,7 +95,7 @@ if (! defined('ABSPATH')) {
         </tr>
 </table>
 
-<h2 class="wp-block-heading" style="font-size:clamp(15.747px, 0.984rem + ((1vw - 3.2px) * 0.809), 24px);">Detalhes de pagamento parcial</h2>
+<h2 class="wp-block-heading" style="font-size:clamp(15.747px, 0.984rem + ((1vw - 3.2px) * 0.809), 24px);"><?php esc_html_e('Partial Payment Details', 'wc-invoice-payment'); ?></h2>
 <div class="lkn-wcip-partial-details-cards">
     <?php $parc_num = 0; foreach ($allRelated as $relOrder) :
         $created_date   = $relOrder->get_date_created() ? $relOrder->get_date_created()->date_i18n('d/m/Y') : '-';
@@ -109,7 +109,7 @@ if (! defined('ABSPATH')) {
             $total = wc_price((float) $relOrder->get_meta('_wc_lkn_original_total') ?: (float) $relOrder->get_total());
         } else {
             $parc_num++;
-            $role = $parc_num . '° Parcial';
+            $role = sprintf(__('#%d Partial', 'wc-invoice-payment'), $parc_num);
         }
     ?>
         <div class="lkn-wcip-detail-card">

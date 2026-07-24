@@ -43,6 +43,30 @@ final class WcPaymentInvoicePartial
                     'restUrl'             => rest_url('invoice_payments/create_partial_payment'),
                     'restNonce'           => wp_create_nonce('wp_rest'),
                     'isClassic'           => true,
+                    'invalidAmountMsg'    => __('Enter a valid amount for partial payment.', 'wc-invoice-payment'),
+                    'belowMinMsg'         => __('Amount below minimum allowed.', 'wc-invoice-payment'),
+                    'remainingTooLowMsg'  => __('The remaining amount cannot be less than the minimum. Adjust the entered amount.', 'wc-invoice-payment'),
+                    'placeOrderNotFoundMsg' => __('Error: place order button not found.', 'wc-invoice-payment'),
+                    'calcButtonText'      => __('Split payment', 'wc-invoice-payment'),
+                    'paidNowLabel'        => __('You will pay now:', 'wc-invoice-payment'),
+                    'paidLaterLabel'      => __('Remaining for later:', 'wc-invoice-payment'),
+                    'feesDiscountsLabel'  => __('Additional fees/discounts:', 'wc-invoice-payment'),
+                    'enteredAmountLabel'  => __('Entered amount', 'wc-invoice-payment'),
+                    'remainingAmountLabel' => __('Remaining amount', 'wc-invoice-payment'),
+                    'feeAdjustmentMsg'    => __('The entered amount of %1$s was adjusted to %2$s due to fees or discounts applied to the order.', 'wc-invoice-payment'),
+                    'previouslyPaidLabel' => __('Previously paid:', 'wc-invoice-payment'),
+                    'cancelConfirmMsg'    => __('Are you sure you want to cancel the pending partial payment? You can start a new split later.', 'wc-invoice-payment'),
+                    'partialTooHighMsg'   => __('The partial amount must be less than the cart total.', 'wc-invoice-payment'),
+                    'genericErrorMsg'     => __('Error processing. Please try again.', 'wc-invoice-payment'),
+                    'cancelErrorMsg'      => __('Error cancelling. Please try again.', 'wc-invoice-payment'),
+                    'serverErrorMsg'      => __('Server error.', 'wc-invoice-payment'),
+                    'cancelSplitText'     => __('Cancel split', 'wc-invoice-payment'),
+                    'processingText'      => __('Processing...', 'wc-invoice-payment'),
+                    'cancellingText'      => __('Cancelling...', 'wc-invoice-payment'),
+                    'finalizingText'      => __('Finalizing...', 'wc-invoice-payment'),
+                    'startPartialText'    => __('Start partial payment', 'wc-invoice-payment'),
+                    'continueText'        => __('Continue', 'wc-invoice-payment'),
+                    'cancelText'          => __('Cancel', 'wc-invoice-payment'),
                 );
                 wp_localize_script('wcInvoicePaymentPartialSplitClassic', 'lknWcipSplitBlocksConfig', $split_config);
             } else {
@@ -68,14 +92,34 @@ final class WcPaymentInvoicePartial
                     'nonce'               => wp_create_nonce('lkn_wcip_partial_split'),
                     'minPartialAmount'    => get_option('lkn_wcip_partial_interval_minimum', 0),
                     'symbol'              => $currency_symbol,
-                    'splitTitle'          => __('Pagamento Parcial', 'wc-invoice-payment'),
-                    'splitDescription'    => __('Marque para dividir o pagamento.', 'wc-invoice-payment'),
-                    'calcButtonText'      => __('Split pagamento', 'wc-invoice-payment'),
-                    'paidNowLabel'        => __('Você pagará agora:', 'wc-invoice-payment'),
-                    'paidLaterLabel'      => __('Restante para depois:', 'wc-invoice-payment'),
-                    'gatewayLockedText'   => __('Indisponivel para pagamento parcial', 'wc-invoice-payment'),
-                    'maxValueLabel'       => __('Valor máximo permitido:', 'wc-invoice-payment'),
-                    'feesAddedLabel'      => __('Taxas/Descontos adicionais:', 'wc-invoice-payment'),
+                    'splitTitle'          => __('Partial Payment', 'wc-invoice-payment'),
+                    'splitDescription'    => __('Check to split the payment.', 'wc-invoice-payment'),
+                    'calcButtonText'      => __('Split payment', 'wc-invoice-payment'),
+                    'paidNowLabel'        => __('You will pay now:', 'wc-invoice-payment'),
+                    'paidLaterLabel'      => __('Remaining for later:', 'wc-invoice-payment'),
+                    'gatewayLockedText'   => __('Unavailable for partial payment', 'wc-invoice-payment'),
+                    'maxValueLabel'       => __('Maximum allowed amount:', 'wc-invoice-payment'),
+                    'feesAddedLabel'      => __('Additional fees/discounts:', 'wc-invoice-payment'),
+                    'invalidAmountMsg'    => __('Enter a valid amount for partial payment.', 'wc-invoice-payment'),
+                    'belowMinMsg'         => __('Amount below minimum allowed.', 'wc-invoice-payment'),
+                    'remainingTooLowMsg'  => __('The remaining amount cannot be less than the minimum. Adjust the entered amount.', 'wc-invoice-payment'),
+                    'placeOrderNotFoundMsg' => __('Error: place order button not found.', 'wc-invoice-payment'),
+                    'enteredAmountLabel'  => __('Entered amount', 'wc-invoice-payment'),
+                    'remainingAmountLabel' => __('Remaining amount', 'wc-invoice-payment'),
+                    'feeAdjustmentMsg'    => __('The entered amount of %1$s was adjusted to %2$s due to fees or discounts applied to the order.', 'wc-invoice-payment'),
+                    'previouslyPaidLabel' => __('Previously paid:', 'wc-invoice-payment'),
+                    'cancelConfirmMsg'    => __('Are you sure you want to cancel the pending partial payment? You can start a new split later.', 'wc-invoice-payment'),
+                    'partialTooHighMsg'   => __('The partial amount must be less than the cart total.', 'wc-invoice-payment'),
+                    'genericErrorMsg'     => __('Error processing. Please try again.', 'wc-invoice-payment'),
+                    'cancelErrorMsg'      => __('Error cancelling. Please try again.', 'wc-invoice-payment'),
+                    'serverErrorMsg'      => __('Server error.', 'wc-invoice-payment'),
+                    'cancelSplitText'     => __('Cancel split', 'wc-invoice-payment'),
+                    'processingText'      => __('Processing...', 'wc-invoice-payment'),
+                    'cancellingText'      => __('Cancelling...', 'wc-invoice-payment'),
+                    'finalizingText'      => __('Finalizing...', 'wc-invoice-payment'),
+                    'startPartialText'    => __('Start partial payment', 'wc-invoice-payment'),
+                    'continueText'        => __('Continue', 'wc-invoice-payment'),
+                    'cancelText'          => __('Cancel', 'wc-invoice-payment'),
                     'initialBaseMax'      => (float) WC()->cart->get_subtotal() + (float) WC()->cart->get_shipping_total() - (float) WC()->cart->get_discount_total(),
                     'currencyCode'        => get_woocommerce_currency(),
                     'priceFormat'         => array(
@@ -129,17 +173,17 @@ final class WcPaymentInvoicePartial
         $partial_amount = isset($_POST['partialAmount']) ? floatval(wp_unslash($_POST['partialAmount'])) : 0.0;
 
         if (!$partial_amount) {
-            wp_send_json_error(array('message' => 'Valor inválido.'));
+            wp_send_json_error(array('message' => __('Invalid amount.', 'wc-invoice-payment')));
         }
 
         if (!WC()->cart || WC()->cart->is_empty()) {
-            wp_send_json_error(array('message' => 'Carrinho vazio.'));
+            wp_send_json_error(array('message' => __('Empty cart.', 'wc-invoice-payment')));
         }
 
         // Valida contra o total real do carrinho
         $cart_total = (float) WC()->cart->total;
         if ($partial_amount >= $cart_total) {
-            wp_send_json_error(array('message' => 'Valor não pode ser maior ou igual ao total.'));
+            wp_send_json_error(array('message' => __('Amount cannot be greater than or equal to total.', 'wc-invoice-payment')));
         }
 
         // Cria o pedido principal a partir do carrinho
@@ -219,7 +263,7 @@ final class WcPaymentInvoicePartial
         $total_confirmed = (float) ($order->get_meta('_wc_lkn_total_confirmed') ?: 0);
 
         if ($partial_amount > ($order_total - $total_peding - $total_confirmed)) {
-            wp_send_json_error(array('message' => 'Valor excede o disponível.'));
+            wp_send_json_error(array('message' => __('Amount exceeds available balance.', 'wc-invoice-payment')));
         }
 
         $partial_order = wc_create_order(array('customer_id' => $order->get_customer_id()));
@@ -236,10 +280,18 @@ final class WcPaymentInvoicePartial
         $partial_order->set_payment_method('multiplePayment');
 
         $order_link = admin_url("admin.php?page=edit-invoice&invoice={$order_id}");
-        $partial_order->add_order_note("Pedido parcial criado a partir do pedido <a href=\"{$order_link}\">#{$order_id}</a>", false);
+        $partial_order->add_order_note(sprintf(
+            /* translators: %s: link to parent order */
+            __('Partial order created from order %s', 'wc-invoice-payment'),
+            '<a href="' . esc_url($order_link) . '">#' . esc_html($order_id) . '</a>'
+        ), false);
         $partial_order_id = $partial_order->get_id();
         $order_link2 = admin_url("admin.php?page=edit-invoice&invoice={$partial_order_id}");
-        $order->add_order_note("Pedido parcial criado <a href=\"{$order_link2}\">#{$partial_order_id}</a>", false);
+        $order->add_order_note(sprintf(
+            /* translators: %s: link to partial order */
+            __('Partial order created: %s', 'wc-invoice-payment'),
+            '<a href="' . esc_url($order_link2) . '">#' . esc_html($partial_order_id) . '</a>'
+        ), false);
 
         $inv = get_option('lkn_wcip_invoices', array());
         if (!in_array($order_id, $inv)) $inv[] = $order_id;
@@ -433,28 +485,28 @@ final class WcPaymentInvoicePartial
 
     public function registerStatus( $order_statuses ) {
         $order_statuses['wc-partial-pend'] = array(
-            'label' => __('Pagamento parcial pendente', 'wc-invoice-payment'),
+            'label' => __('Partial payment pending', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
         );
         $order_statuses['wc-partial-comp'] = array(
-            'label' => __('Pagamento parcial completo', 'wc-invoice-payment'),
+            'label' => __('Partial payment complete', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
         );
         $order_statuses['wc-partial'] = array(
-            'label' => __('Pagamento parcial', 'wc-invoice-payment'),
+            'label' => __('Partial payment', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
             'show_in_admin_status_list' => true
         );
         $order_statuses['wc-partial-cancelled'] = array(
-            'label' => __('Pagamento parcial cancelado', 'wc-invoice-payment'),
+            'label' => __('Partial payment cancelled', 'wc-invoice-payment'),
             'public' => true,
             'exclude_from_search' => false,
             'show_in_admin_all_list' => true,
@@ -464,10 +516,10 @@ final class WcPaymentInvoicePartial
 	}
 
     public function createStatus($order_statuses){
-        $order_statuses['wc-partial-pend'] = __('Pagamento parcial pendente', 'wc-invoice-payment');
-        $order_statuses['wc-partial-comp'] = __('Pagamento parcial completo', 'wc-invoice-payment');
-        $order_statuses['wc-partial'] = __('Pagamento parcial', 'wc-invoice-payment');
-        $order_statuses['wc-partial-cancelled'] = __('Pagamento parcial cancelado', 'wc-invoice-payment');
+        $order_statuses['wc-partial-pend'] = __('Partial payment pending', 'wc-invoice-payment');
+        $order_statuses['wc-partial-comp'] = __('Partial payment complete', 'wc-invoice-payment');
+        $order_statuses['wc-partial'] = __('Partial payment', 'wc-invoice-payment');
+        $order_statuses['wc-partial-cancelled'] = __('Partial payment cancelled', 'wc-invoice-payment');
         return $order_statuses;
     }
 
@@ -587,6 +639,8 @@ final class WcPaymentInvoicePartial
             'confirmCancel' => __('Are you sure you want to cancel this partial payment?', 'wc-invoice-payment'),
             'nonce' => wp_create_nonce('wp_rest'),
             'symbol' => get_woocommerce_currency_symbol( $currentOrder->get_currency() ),
+            'invalidAmountMsg' => __('Enter a valid amount for partial payment.', 'wc-invoice-payment'),
+            'requestErrorMsg' => __('Request error.', 'wc-invoice-payment'),
         ));
     }
 
@@ -608,7 +662,7 @@ final class WcPaymentInvoicePartial
                         $parent_order->delete_meta_data('_wc_lkn_pay_remaining_pending');
                         $parent_order->delete_meta_data('_wc_lkn_pay_remaining_pending');
                         $parent_order->set_status($complete_status);
-                        $parent_order->add_order_note('Todos os pagamentos parciais foram concluídos.');
+                        $parent_order->add_order_note(__('All partial payments have been completed.', 'wc-invoice-payment'));
                         $parent_order->save();
 
                         // Sync Analytics
@@ -785,10 +839,10 @@ final class WcPaymentInvoicePartial
         $disabled_attr = $is_complete ? 'disabled' : '';
         $disabled_class = $is_complete ? 'disabled' : '';
         $tooltip = $is_complete
-            ? esc_attr__('Pagamento já concluído.', 'wc-invoice-payment')
+            ? esc_attr__('Payment already completed.', 'wc-invoice-payment')
             : esc_attr__('Copiar link de pagamento para enviar ao cliente.', 'wc-invoice-payment');
         $label = $is_complete
-            ? esc_html__('Pagamento concluído', 'wc-invoice-payment')
+            ? esc_html__('Payment completed', 'wc-invoice-payment')
             : esc_html__('Copiar link de pagamento', 'wc-invoice-payment');
 
         ?>
@@ -1081,7 +1135,7 @@ final class WcPaymentInvoicePartial
             if (function_exists('dokan_get_template_part')) {
                 dokan_get_template_part('global/no-permission');
             } else {
-                echo '<div class="dokan-alert dokan-alert-danger">' . esc_html__('Você não tem permissão para acessar esta página.', 'wc-invoice-payment') . '</div>';
+                echo '<div class="dokan-alert dokan-alert-danger">' . esc_html__('You do not have permission to access this page.', 'wc-invoice-payment') . '</div>';
             }
             return;
         }
@@ -1112,11 +1166,11 @@ final class WcPaymentInvoicePartial
         // Localizar variáveis para o JavaScript
         wp_localize_script('wcInvoicePaymentDokanInvoicesScript', 'lknWcipDokanVars', array(
             'nonce' => wp_create_nonce('wp_rest'),
-            'downloading' => __('Baixando...', 'wc-invoice-payment'),
-            'invoice' => __('Fatura', 'wc-invoice-payment'),
-            'pdfError' => __('Erro ao gerar PDF da fatura', 'wc-invoice-payment'),
-            'itemName' => __('Nome', 'wc-invoice-payment'),
-            'itemAmount' => __('Valor', 'wc-invoice-payment')
+            'downloading' => __('Downloading...', 'wc-invoice-payment'),
+            'invoice' => __('Invoice', 'wc-invoice-payment'),
+            'pdfError' => __('Error generating invoice PDF', 'wc-invoice-payment'),
+            'itemName' => __('Name', 'wc-invoice-payment'),
+            'itemAmount' => __('Amount', 'wc-invoice-payment')
         ));
         
         // Obter faturas do vendedor atual
@@ -1160,7 +1214,7 @@ final class WcPaymentInvoicePartial
                     <form action="" method="POST" class="dokan-right">
                         <div class="dokan-form-group">
                             <a href="<?php echo \esc_url(\dokan_get_navigation_url('nova-fatura')); ?>" class="dokan-btn dokan-btn-sm dokan-btn-theme">
-                                <i class="fas fa-plus"></i> <?php \esc_html_e('Nova Fatura', 'wc-invoice-payment'); ?>
+                                <i class="fas fa-plus"></i> <?php \esc_html_e('New Invoice', 'wc-invoice-payment'); ?>
                             </a>
                         </div>
                     </form>
@@ -1369,7 +1423,7 @@ final class WcPaymentInvoicePartial
 
                     <div class="dokan-new-invoice-dashboard">
                         <div class="dokan-new-invoice-header">
-                            <h1 class="entry-title"><?php esc_html_e('Nova Fatura', 'wc-invoice-payment'); ?></h1>
+                            <h1 class="entry-title"><?php esc_html_e('New Invoice', 'wc-invoice-payment'); ?></h1>
                         </div>
 
                         <form method="post" class="wcip-form-wrap dokan-invoice-form">
@@ -1377,8 +1431,8 @@ final class WcPaymentInvoicePartial
                             
                             <div class="wcip-invoice-data">
                                 <div id="wcPaymentInvoiceTitles">
-                                    <h3 class="title"><?php esc_html_e('Detalhes da fatura', 'wc-invoice-payment'); ?></h3>
-                                    <h3 class="title"><?php esc_html_e('Dados do Pagador', 'wc-invoice-payment'); ?></h3>
+                                    <h3 class="title"><?php esc_html_e('Invoice details', 'wc-invoice-payment'); ?></h3>
+                                    <h3 class="title"><?php esc_html_e('Payer details', 'wc-invoice-payment'); ?></h3>
                                 </div>
                                 <div class="invoice-row-wrap">
                                     <div class="invoice-column-wrap">
@@ -1397,7 +1451,7 @@ final class WcPaymentInvoicePartial
                                         <div class="input-row-wrap">
                                             <label for="lkn_wcip_select_invoice_template"><?php esc_html_e('Template do PDF da fatura', 'wc-invoice-payment'); ?></label>
                                             <select name="lkn_wcip_select_invoice_template" id="lkn_wcip_select_invoice_template" class="regular-text" required>
-                                                <option value="global"><?php esc_html_e('Template padrão', 'wc-invoice-payment'); ?></option>
+                                                <option value="global"><?php esc_html_e('Default template', 'wc-invoice-payment'); ?></option>
                                                 <?php
                                                 // Buscar templates disponíveis
                                                 $templates_dir = WC_PAYMENT_INVOICE_ROOT_DIR . 'Includes/templates/';
@@ -1414,7 +1468,7 @@ final class WcPaymentInvoicePartial
                                             </select>
                                         </div>
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_select_invoice_language"><?php esc_html_e('Idioma do PDF da fatura', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_select_invoice_language"><?php esc_html_e('Invoice PDF language', 'wc-invoice-payment'); ?></label>
                                             <select name="lkn_wcip_select_invoice_language" id="lkn_wcip_select_invoice_language" class="regular-text" required>
                                                 <?php
                                                 $languages = get_available_languages();
@@ -1439,13 +1493,13 @@ final class WcPaymentInvoicePartial
                                             </select>
                                         </div>
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_extra_data"><?php esc_html_e('Dados extra', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_extra_data"><?php esc_html_e('Extra data', 'wc-invoice-payment'); ?></label>
                                             <textarea name="lkn_wcip_extra_data" id="lkn_wcip_extra_data" class="regular-text"></textarea>
                                         </div>    
                                     </div>
                                     <div class="invoice-column-wrap">
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_name_input"><?php esc_html_e('Nome', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_name_input"><?php esc_html_e('Name', 'wc-invoice-payment'); ?></label>
                                             <input name="lkn_wcip_name" type="text" id="lkn_wcip_name_input" class="regular-text" required>
                                         </div>
                                         <div class="input-row-wrap" id="lknWcipEmailInput">
@@ -1453,7 +1507,7 @@ final class WcPaymentInvoicePartial
                                             <input name="lkn_wcip_email" type="email" id="lkn_wcip_email_input" class="regular-text" required>
                                         </div>
                                         <div class="input-row-wrap">
-                                            <label for="lkn_wcip_country_input"><?php esc_html_e('País', 'wc-invoice-payment'); ?></label>
+                                            <label for="lkn_wcip_country_input"><?php esc_html_e('Country', 'wc-invoice-payment'); ?></label>
                                             <select name="lkn_wcip_country" id="lkn_wcip_country_input" class="regular-text">
                                                 <?php
                                                 if (function_exists('WC')) {
@@ -1472,24 +1526,24 @@ final class WcPaymentInvoicePartial
                             </div>
                             
                             <div class="wcip-invoice-data wcip-postbox">
-                                <span class="text-bold"><?php esc_html_e('Ações de fatura', 'wc-invoice-payment'); ?></span>
+                                <span class="text-bold"><?php esc_html_e('Invoice actions', 'wc-invoice-payment'); ?></span>
                                 <hr>
                                 <div class="wcip-row">
                                     <div class="input-row-wrap">
                                         <select name="lkn_wcip_form_actions">
-                                            <option value="no_action" selected><?php esc_html_e('Selecione uma ação...', 'wc-invoice-payment'); ?></option>
-                                            <option value="send_email"><?php esc_html_e('Enviar fatura para o cliente', 'wc-invoice-payment'); ?></option>
+                                            <option value="no_action" selected><?php esc_html_e('Select an action...', 'wc-invoice-payment'); ?></option>
+                                            <option value="send_email"><?php esc_html_e('Send invoice to customer', 'wc-invoice-payment'); ?></option>
                                         </select>
                                     </div>
                                     <div class="input-row-wrap">
-                                        <label for="lkn_wcip_exp_date_input"><?php esc_html_e('Data de vencimento', 'wc-invoice-payment'); ?></label>
+                                        <label for="lkn_wcip_exp_date_input"><?php esc_html_e('Due date', 'wc-invoice-payment'); ?></label>
                                         <input id="lkn_wcip_exp_date_input" type="date" name="lkn_wcip_exp_date" min="<?php echo esc_attr(gmdate('Y-m-d')); ?>" required>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="wcip-invoice-data">
-                                <h3 class="title"><?php esc_html_e('Preço', 'wc-invoice-payment'); ?></h3>
+                                <h3 class="title"><?php esc_html_e('Price', 'wc-invoice-payment'); ?></h3>
                                 <div id="wcip-invoice-price-row" class="invoice-column-wrap">
                                     <div class="price-row-wrap price-row-0">
                                         <div class="input-row-wrap">
@@ -1514,7 +1568,7 @@ final class WcPaymentInvoicePartial
                             </div>
                             
                             <div class="wcip-invoice-data">
-                                <h3 class="title"><?php esc_html_e('Notas do rodapé', 'wc-invoice-payment'); ?></h3>
+                                <h3 class="title"><?php esc_html_e('Footer notes', 'wc-invoice-payment'); ?></h3>
                                 <div id="wcip-invoice-price-row" class="invoice-column-wrap">
                                     <div class="input-row-wrap">
                                         <label><?php esc_html_e('Detalhes em HTML', 'wc-invoice-payment'); ?></label>
@@ -1524,7 +1578,7 @@ final class WcPaymentInvoicePartial
                             </div>
                             
                             <div class="wcip-invoice-actions">
-                                <button type="submit" class="dokan-btn dokan-btn-primary"><?php esc_html_e('Criar Fatura', 'wc-invoice-payment'); ?></button>
+                                <button type="submit" class="dokan-btn dokan-btn-primary"><?php esc_html_e('Create Invoice', 'wc-invoice-payment'); ?></button>
                                 <a href="<?php echo \esc_url(dokan_get_navigation_url('faturas')); ?>" class="dokan-btn dokan-btn-default"><?php esc_html_e('Cancelar', 'wc-invoice-payment'); ?></a>
                             </div>
                         </form>
@@ -1560,11 +1614,11 @@ final class WcPaymentInvoicePartial
                 lkn_wcip_row_counter++;
                 var row = '<div class="price-row-wrap price-row-' + lkn_wcip_row_counter + '">' +
                     '<div class="input-row-wrap">' +
-                        '<label><?php esc_html_e("Nome", "wc-invoice-payment"); ?></label>' +
+                        '<label><?php esc_html_e("Name", "wc-invoice-payment"); ?></label>' +
                         '<input name="lkn_wcip_name_invoice_' + lkn_wcip_row_counter + '" type="text" class="regular-text" required>' +
                     '</div>' +
                     '<div class="input-row-wrap">' +
-                        '<label><?php esc_html_e("Valor", "wc-invoice-payment"); ?></label>' +
+                        '<label><?php esc_html_e("Amount", "wc-invoice-payment"); ?></label>' +
                         '<input name="lkn_wcip_amount_invoice_' + lkn_wcip_row_counter + '" type="tel" class="regular-text lkn_wcip_amount_input" oninput="this.value = this.value.replace(/[^0-9.,]/g, \'\').replace(/(\..*?)\..*/g, \'$1\');" required>' +
                     '</div>' +
                     '<div class="input-row-wrap">' +
@@ -1595,17 +1649,17 @@ final class WcPaymentInvoicePartial
         try {
             // Validar campos obrigatórios
             $required_fields = array(
-                'lkn_wcip_name' => __('Nome', 'wc-invoice-payment'),
+                'lkn_wcip_name' => __('Name', 'wc-invoice-payment'),
                 'lkn_wcip_email' => __('E-mail', 'wc-invoice-payment'),
-                'lkn_wcip_exp_date' => __('Data de vencimento', 'wc-invoice-payment'),
-                'lkn_wcip_name_invoice_0' => __('Nome do item', 'wc-invoice-payment'),
-                'lkn_wcip_amount_invoice_0' => __('Valor do item', 'wc-invoice-payment')
+                'lkn_wcip_exp_date' => __('Due date', 'wc-invoice-payment'),
+                'lkn_wcip_name_invoice_0' => __('Item name', 'wc-invoice-payment'),
+                'lkn_wcip_amount_invoice_0' => __('Item amount', 'wc-invoice-payment')
             );
             
             foreach ($required_fields as $field => $label) {
                 if (empty($_POST[$field])) {
                     /* translators: %s: field label */
-                    throw new Exception(sprintf(__('Campo obrigatório: %s', 'wc-invoice-payment'), $label));
+                    throw new Exception(sprintf(__('Required field: %s', 'wc-invoice-payment'), $label));
                 }
             }
             
@@ -1639,7 +1693,7 @@ final class WcPaymentInvoicePartial
             }
             
             if (empty($invoice_items)) {
-                throw new Exception(__('Pelo menos um item deve ser adicionado à fatura', 'wc-invoice-payment'));
+                throw new Exception(__('At least one item must be added to the invoice.', 'wc-invoice-payment'));
             }
             
             // Criar a fatura
@@ -1864,7 +1918,7 @@ final class WcPaymentInvoicePartial
         }
         
         if (\get_post_meta($order->get_id(), '_lkn_wcip_invoice_data', true)) {
-            return \__('Fatura', 'wc-invoice-payment');
+            return \__('Invoice', 'wc-invoice-payment');
         }
         
         return \__('Pedido', 'wc-invoice-payment');
@@ -2118,20 +2172,20 @@ final class WcPaymentInvoicePartial
         <div class="" style="width:100%; margin-top: 20px;">
             <div class="dokan-panel dokan-panel-default lkn-wcip-invoice-actions">
                 <div class="dokan-panel-heading">
-                    <strong><?php esc_html_e('Ações da Fatura', 'wc-invoice-payment'); ?></strong>
+                    <strong><?php esc_html_e('Invoice Actions', 'wc-invoice-payment'); ?></strong>
                 </div>
                 <div class="dokan-panel-body">
                     <div class="lkn-wcip-invoice-buttons" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                         <button class="dokan-btn dokan-btn-success dokan-btn-sm lkn_wcip_generate_pdf_btn" 
                                 data-invoice-id="<?php echo esc_attr($order_id); ?>" 
                                 type="button">
-                            <i class="fas fa-download"></i> <?php esc_html_e('Baixar Fatura', 'wc-invoice-payment'); ?>
+                            <i class="fas fa-download"></i> <?php esc_html_e('Download Invoice', 'wc-invoice-payment'); ?>
                         </button>
                         
                         <a class="dokan-btn dokan-btn-info dokan-btn-sm" 
                            href="<?php echo esc_url($payment_url); ?>" 
                            target="_blank">
-                            <i class="fas fa-credit-card"></i> <?php esc_html_e('Link de Pagamento da Fatura', 'wc-invoice-payment'); ?>
+                            <i class="fas fa-credit-card"></i> <?php esc_html_e('Invoice Payment Link', 'wc-invoice-payment'); ?>
                         </a>
                         
                         <button class="dokan-btn dokan-btn-default dokan-btn-sm" 
@@ -2382,9 +2436,9 @@ final class WcPaymentInvoicePartial
             $step .= '<label style="font-size:14px;margin-bottom:8px;display:block">';
             $step .= '<span style="font-size:20px">⚠️</span> ';
             if ($plural) {
-                $step .= esc_html__('Você tem pagamentos parciais pendentes:', 'wc-invoice-payment');
+                $step .= esc_html__('You have pending partial payments:', 'wc-invoice-payment');
             } else {
-                $step .= esc_html__('Você iniciou um pagamento parcial e não concluiu:', 'wc-invoice-payment');
+                $step .= esc_html__('You started a partial payment and did not complete it:', 'wc-invoice-payment');
             }
             $step .= '</label>';
 
@@ -2486,9 +2540,9 @@ final class WcPaymentInvoicePartial
                     : $base_max;
                 $min_amount = (float) get_option('lkn_wcip_partial_interval_minimum', 0);
                 if ($min_amount > 0) {
-                    $step .= '<p class="lkn-wcip-base-min-msg" style="font-size:12px;color:#999;margin:8px 0 0">Valor mínimo por parcela: <strong>' . $symbol . '&nbsp;' . number_format($min_amount, 2, ',', '.') . '</strong></p>';
+                    $step .= '<p class="lkn-wcip-base-min-msg" style="font-size:12px;color:#999;margin:8px 0 0">' . esc_html__('Minimum amount per installment:', 'wc-invoice-payment') . ' <strong>' . $symbol . '&nbsp;' . number_format($min_amount, 2, ',', '.') . '</strong></p>';
                 }
-                $step .= '<p class="lkn-wcip-base-max-msg" style="font-size:13px;color:#666;margin:4px 0 0">Valor máximo permitido: <strong class="lkn-wcip-base-max-val">' . $symbol . '&nbsp;' . number_format($original_total, 2, ',', '.') . '</strong> <span style="font-size:12px;color:#999">(sem taxas ou descontos)</span></p>';
+                $step .= '<p class="lkn-wcip-base-max-msg" style="font-size:13px;color:#666;margin:4px 0 0">' . esc_html__('Maximum allowed amount:', 'wc-invoice-payment') . ' <strong class="lkn-wcip-base-max-val">' . $symbol . '&nbsp;' . number_format($original_total, 2, ',', '.') . '</strong> <span style="font-size:12px;color:#999">(' . esc_html__('without fees or discounts', 'wc-invoice-payment') . ')</span></p>';
             }
         } else {
             // Checkout normal (1ª vez): checkbox desmarcado, apenas ele visível
@@ -2507,21 +2561,21 @@ final class WcPaymentInvoicePartial
         // Explicação "Como funciona?" (apenas checkout normal)
         if ($pay_remaining <= 0) {
         $step .= '<div style="padding:12px;background:#f0f6fc;border-left:3px solid #007cba;border-radius:4px;font-size:13px;color:#444;line-height:1.6;margin-bottom:10px">';
-        $step .= '<strong>' . esc_html__('Como funciona?', 'wc-invoice-payment') . '</strong> ' . esc_html__('Você paga uma parte agora e o restante depois. O valor informado será cobrado neste momento, e o saldo restante ficará disponível para pagamento futuro.', 'wc-invoice-payment');
+        $step .= '<strong>' . esc_html__('How it works?', 'wc-invoice-payment') . '</strong> ' . esc_html__('You pay a portion now and the rest later. The amount entered will be charged now, and the remaining balance will be available for future payment.', 'wc-invoice-payment');
         $step .= '</div>';
         }
         $step .= '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">';
         $step .= '<input id="lkn-wcip-split-amount" type="text" placeholder="' . $symbol . ' 0,00" style="flex:1 1 140px;padding:10px 12px;font-size:16px;border:1px solid #ccc;border-radius:4px;min-width:120px">';
         
         // Texto do botão: "Iniciar pagamento parcial" no checkout normal, "Split pagamento" no pay_remaining
-        $btn_text = ($pay_remaining > 0) ? 'Split pagamento' : 'Iniciar pagamento parcial';
+        $btn_text = ($pay_remaining > 0) ? __('Split payment', 'wc-invoice-payment') : __('Start partial payment', 'wc-invoice-payment');
         $step .= '<button id="lkn-wcip-split-btn" type="button" style="padding:10px 20px;font-size:14px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:4px;cursor:pointer">' . esc_html($btn_text) . '</button>';
         $step .= '</div>';
         // Mensagem de erro (#1/2)
-        $step .= '<div class="lkn-wcip-split-error wc-block-components-validation-error" style="display:none;margin-top:8px;color:#cc1818;font-size:14px" role="alert"><p style="margin:0">' . esc_html__('Digite o valor do pagamento parcial e clique em "Split pagamento" antes de finalizar.', 'wc-invoice-payment') . '</p></div>';
+        $step .= '<div class="lkn-wcip-split-error wc-block-components-validation-error" style="display:none;margin-top:8px;color:#cc1818;font-size:14px" role="alert"><p style="margin:0">' . esc_html__('Enter the partial payment amount and click "Split payment" before finalizing.', 'wc-invoice-payment') . '</p></div>';
         // Texto de espera (apenas checkout normal)
         if ($pay_remaining <= 0) {
-        $step .= '<p style="margin:8px 0 0;font-size:12px;color:#999;text-align:center">' . esc_html__('Após marcar, aguarde o gateway "Pagamento Parcial" aparecer antes de prosseguir.', 'wc-invoice-payment') . '</p>';
+        $step .= '<p style="margin:8px 0 0;font-size:12px;color:#999;text-align:center">' . esc_html__('After checking, wait for the "Partial Payment" gateway to appear before proceeding.', 'wc-invoice-payment') . '</p>';
         }
         $step .= '</div>'; // .lkn-wcip-split-fields
 
@@ -2701,7 +2755,7 @@ final class WcPaymentInvoicePartial
             : 0.0;
 
         if ($partial_amount <= 0) {
-            wp_send_json_error(array('message' => __('Digite um valor válido.', 'wc-invoice-payment')));
+            wp_send_json_error(array('message' => __('Enter a valid amount.', 'wc-invoice-payment')));
         }
 
         if (!WC()->cart || WC()->cart->is_empty()) {
@@ -2721,7 +2775,7 @@ final class WcPaymentInvoicePartial
             wp_send_json_error(array(
                 'message' => sprintf(
                     /* translators: %s: minimum partial amount */
-                    __('O valor mínimo para pagamento parcial é %s.', 'wc-invoice-payment'),
+                    __('The minimum amount for partial payment is %s.', 'wc-invoice-payment'),
                     wc_price($min_amount)
                 ),
             ));
@@ -2740,7 +2794,7 @@ final class WcPaymentInvoicePartial
             wp_send_json_error(array(
                 'message' => sprintf(
                     /* translators: %1$s: minimum amount, %2$s: remaining amount */
-                    __('O valor restante (R$ %2$s) não pode ser menor que o mínimo para pagamento parcial (R$ %1$s). Ajuste o valor informado.', 'wc-invoice-payment'),
+                    __('The remaining amount (%2$s) cannot be less than the minimum for partial payment (%1$s). Adjust the entered amount.', 'wc-invoice-payment'),
                     number_format($min_amount, 2, ',', '.'),
                     number_format($remaining, 2, ',', '.')
                 ),
@@ -2817,7 +2871,7 @@ final class WcPaymentInvoicePartial
 
         wp_send_json_success(array(
             'cart_total' => (float) WC()->cart->get_total(),
-            'message'    => __('Pagamento parcial cancelado.', 'wc-invoice-payment'),
+            'message'    => __('Partial payment cancelled.', 'wc-invoice-payment'),
         ));
     }
 
@@ -2952,13 +3006,13 @@ final class WcPaymentInvoicePartial
 
         // Status processing garante que o analytics registra o pedido (status nativo).
         $order->set_status('processing');
-        $order->add_order_note('Pagamento parcial iniciado. Aguardando primeiro pagamento.');
+        $order->add_order_note(__('Partial payment started. Waiting for first payment.', 'wc-invoice-payment'));
         $order->save();
 
         // Migra pra wc-partial (controle interno). O analytics já registrou o
         // pedido como processing — essa transição não afeta o analytics.
         $order->set_status('wc-partial');
-        $order->add_order_note('Status do pedido alterado para Pagamento parcial.');
+        $order->add_order_note(__('Order status changed to Partial payment.', 'wc-invoice-payment'));
         $order->save();
 
         WC()->session->set('lkn_partial_amount', 0);
@@ -3252,7 +3306,7 @@ final class WcPaymentInvoicePartial
 
                     if (!in_array($parent_order->get_status(), array(substr($complete_status, 3), 'completed'))) {
                         $parent_order->set_status($complete_status);
-                        $parent_order->add_order_note('Todos os pagamentos parciais foram concluídos.');
+                        $parent_order->add_order_note(__('All partial payments have been completed.', 'wc-invoice-payment'));
                     }
 
                     // Sync Analytics: set_status não dispara observer do analytics
@@ -3276,7 +3330,7 @@ final class WcPaymentInvoicePartial
                 }
                 $note_parts[] = sprintf('total cobrado: %s', wc_price($order->get_total()));
                 $parent_order->add_order_note(sprintf(
-                    'Pagamento parcial #%s processado — %s',
+                    'Partial payment #%s processed — %s',
                     $order->get_id(),
                     implode(', ', $note_parts)
                 ));
@@ -3298,7 +3352,7 @@ final class WcPaymentInvoicePartial
                     // Também marca o filho para que a query de pending orders o encontre
                     $order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
                     $parent_order->add_order_note(sprintf(
-                        'Pagamento parcial concluído. Restante a pagar: %s',
+                        __('Partial payment completed. Remaining to pay: %s', 'wc-invoice-payment'),
                         wc_price(round($original_total - $confirmed, 2))
                     ));
                 }
@@ -3538,7 +3592,7 @@ final class WcPaymentInvoicePartial
                 if ($order && $order->get_meta('_wc_lkn_pay_remaining_pending') === 'yes') {
                     $order->delete_meta_data('_wc_lkn_pay_remaining_pending');
                     $order->set_status('wc-partial-cancelled');
-                    $order->add_order_note('Pagamento parcial cancelado.');
+                    $order->add_order_note(__('Partial payment cancelled.', 'wc-invoice-payment'));
                     $order->save();
 
                     global $wpdb;
@@ -3830,7 +3884,7 @@ final class WcPaymentInvoicePartial
             // É filho: mostrar card com JS polling que espera os dados do pai atualizarem
             ?>
             <div id="lkn-wcip-thankyou-card-placeholder" style="text-align:center;padding:24px;margin:24px 0">
-                <p style="color:#666"><?php esc_html_e('Carregando informações do pagamento...', 'wc-invoice-payment'); ?></p>
+                <p style="color:#666"><?php esc_html_e('Loading payment information...', 'wc-invoice-payment'); ?></p>
             </div>
             <script type="text/javascript">
             (function() {
@@ -3869,7 +3923,7 @@ final class WcPaymentInvoicePartial
                     if (stillRemaining <= 0) {
                         // Tudo pago — card verde com breakdown
                         html = '<div style="background:#f0f7f0;border:2px solid #008a20;border-radius:8px;padding:24px;text-align:center">';
-                        html += '<h3 style="margin:0 0 12px;color:#008a20"><?php echo esc_js(__('Pagamento Processado', 'wc-invoice-payment')); ?></h3>';
+                        html += '<h3 style="margin:0 0 12px;color:#008a20"><?php echo esc_js(__('Payment Processed', 'wc-invoice-payment')); ?></h3>';
                         html += '<div style="text-align:left;max-width:340px;margin:0 auto 20px;font-size:14px;line-height:1.8;color:#555">';
                         html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Subtotal + Frete:', 'wc-invoice-payment')); ?></span><strong>' + formatBrl(original) + '</strong></div>';
                         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">';
@@ -3878,9 +3932,9 @@ final class WcPaymentInvoicePartial
                                 var c = d.children[ci];
                                 html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>' + (ci+1) + 'ª parcela (base):</span><strong>' + formatBrl(c.base_amount) + '</strong></div>';
                                 if (Math.abs(c.fees) > 0.01) {
-                                    var label = '+ Taxas/Descontos:';
+                                    var label = '<?php echo esc_js(__('+ Fees/Discounts:', 'wc-invoice-payment')); ?>';
                                     html += '<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:12px;color:#007cba"><span>' + label + '</span><span>' + (c.fees > 0 ? '+' : '') + formatBrl(c.fees) + '</span></div>';
-                                    html += '<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:13px;font-weight:500"><span>Total cobrado:</span><span>' + formatBrl(c.total) + '</span></div>';
+                                    html += '<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:13px;font-weight:500"><span><?php echo esc_js(__('Total charged:', 'wc-invoice-payment')); ?></span><span>' + formatBrl(c.total) + '</span></div>';
                                 }
                             }
                         }
@@ -3892,25 +3946,25 @@ final class WcPaymentInvoicePartial
                             }
                         }
                         if (totalWithFees <= 0) totalWithFees = confirmed;
-                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Total pago:', 'wc-invoice-payment')); ?></span><strong style="color:#008a20">' + formatBrl(totalWithFees) + '</strong></div>';
+                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Total paid:', 'wc-invoice-payment')); ?></span><strong style="color:#008a20">' + formatBrl(totalWithFees) + '</strong></div>';
                         html += '</div>';
-                        html += '<p style="font-size:13px;color:#008a20;margin:0"><?php echo esc_js(__('Resumo dos valores pagos nas parcelas do pagamento parcial.', 'wc-invoice-payment')); ?></p>';
+                        html += '<p style="font-size:13px;color:#008a20;margin:0"><?php echo esc_js(__('Summary of amounts paid in partial payment installments.', 'wc-invoice-payment')); ?></p>';
                         html += '</div>';
                     } else {
                         // Ainda falta — card azul com botão
                         html = '<div style="background:#f8f9fa;border:2px solid #007cba;border-radius:8px;padding:24px;text-align:center">';
-                        html += '<h3 style="margin:0 0 12px;color:#007cba"><?php echo esc_js(__('Pagamento Parcial Realizado', 'wc-invoice-payment')); ?></h3>';
+                        html += '<h3 style="margin:0 0 12px;color:#007cba"><?php echo esc_js(__('Partial Payment Made', 'wc-invoice-payment')); ?></h3>';
                         html += '<div style="text-align:left;max-width:340px;margin:0 auto 20px;font-size:14px;line-height:1.8;color:#555">';
                         html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Subtotal + Frete:', 'wc-invoice-payment')); ?></span><strong>' + formatBrl(original) + '</strong></div>';
                         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">';
                         html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Pago agora:', 'wc-invoice-payment')); ?></span><strong>' + formatBrl(childAmount) + '</strong></div>';
                         if (Math.abs(fees) > 0.01) {
-                            var feeLabel = '+ Taxas/Descontos:';
+                            var feeLabel = '<?php echo esc_js(__('+ Fees/Discounts:', 'wc-invoice-payment')); ?>';
                             html += '<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:12px;color:#007cba"><span>' + feeLabel + '</span><span>' + (fees > 0 ? '+' : '') + formatBrl(fees) + '</span></div>';
-                            html += '<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:13px;font-weight:600"><span>Total cobrado:</span><span>' + formatBrl(childTotal) + '</span></div>';
+                            html += '<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:13px;font-weight:600"><span><?php echo esc_js(__('Total charged:', 'wc-invoice-payment')); ?></span><span>' + formatBrl(childTotal) + '</span></div>';
                         }
                         html += '<hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">';
-                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Restante a pagar:', 'wc-invoice-payment')); ?></span><strong style="color:#d63638">' + formatBrl(stillRemaining) + '</strong></div>';
+                        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php echo esc_js(__('Remaining to pay:', 'wc-invoice-payment')); ?></span><strong style="color:#d63638">' + formatBrl(stillRemaining) + '</strong></div>';
                         html += '</div>';
                         html += '<button id="lknWcipPayRemainingBtn" type="button" style="padding:12px 28px;font-size:15px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:4px;cursor:pointer" data-order-id="' + parentId + '" data-amount="' + stillRemaining + '">' + '<?php echo esc_js(__('Pagar restante', 'wc-invoice-payment')); ?>' + '</button>';
                         html += '</div>';
@@ -4025,16 +4079,16 @@ final class WcPaymentInvoicePartial
         $nonce = wp_create_nonce('wp_rest');
         ?>
         <div class="lkn-wcip-partial-thankyou-card" style="background:#f8f9fa;border:2px solid #007cba;border-radius:8px;padding:24px;margin:24px 0;text-align:center">
-            <h3 style="margin:0 0 12px;color:#007cba"><?php esc_html_e('Pagamento Parcial Realizado', 'wc-invoice-payment'); ?></h3>
+            <h3 style="margin:0 0 12px;color:#007cba"><?php esc_html_e('Partial Payment Made', 'wc-invoice-payment'); ?></h3>
             <div style="text-align:left;max-width:340px;margin:0 auto 20px;font-size:14px;line-height:1.8;color:#555">
                 <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Subtotal + Frete:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($original_total); ?></strong></div>
                 <?php if ($partial_amount > 0): ?>
                 <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
                 <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Pago agora:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($partial_amount); ?></strong></div>
                 <?php if (abs($fees) > 0.01): ?>
-                <div style="display:flex;justify-content:space-between;padding:2px 0;color:#007cba"><span><?php esc_html_e('+ Taxas/Descontos:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($fees); ?></strong></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0;color:#007cba"><span><?php esc_html_e('+ Fees/Discounts:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($fees); ?></strong></div>
                 <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
-                <div style="display:flex;justify-content:space-between;padding:2px 0;font-weight:600;color:#333"><span><?php esc_html_e('Total cobrado:', 'wc-invoice-payment'); ?></span><span><?php echo wc_price($paid); ?></span></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0;font-weight:600;color:#333"><span><?php esc_html_e('Total charged:', 'wc-invoice-payment'); ?></span><span><?php echo wc_price($paid); ?></span></div>
                 <?php endif; ?>
                 <?php endif; ?>
                 <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
