@@ -634,17 +634,12 @@ final class WcPaymentInvoiceEndpoint {
             $parent->update_meta_data('_wc_lkn_partials_id', array_values($partials_ids));
         }
 
-        // Recalcula confirmed baseado APENAS nos filhos completados (exceto o cancelado)
-        $complete_statuses = array('completed', 'processing');
-        $complete_status_opt = get_option('lkn_wcip_partial_complete_status', '');
-        if ($complete_status_opt && strpos($complete_status_opt, 'wc-') === 0) {
-            $complete_statuses[] = substr($complete_status_opt, 3);
-        }
+        // Recalcula confirmed baseado em TODOS os filhos restantes (completados OU pendentes).
+        // O valor já está comprometido — o usuário só paga o que falta.
         $confirmed = 0.0;
         foreach ($partials_ids as $pid) {
             $child = wc_get_order((int) $pid);
             if (!$child || $child->get_status() === 'trash') continue;
-            if (!in_array($child->get_status(), $complete_statuses, true)) continue;
             $child_paid = (float) $child->get_meta('_wc_lkn_partial_amount_paid');
             if ($child_paid <= 0) {
                 $child_paid = (float) $child->get_total();
@@ -718,20 +713,46 @@ final class WcPaymentInvoiceEndpoint {
         }
 
         // Cancela filhos pendentes
+        // Cancela filhos pendentes — só se houver 2+ filhos ativos.
+        // Com apenas 1 filho (ex: PIX não pago), mantém ele intacto.
         $partials_ids = $parent->get_meta('_wc_lkn_partials_id', true);
-        $cleaned = array();
+        $cleaned    = array();
+        $valid_count = 0;
+
         if (is_array($partials_ids)) {
             foreach ($partials_ids as $cid) {
                 $child = wc_get_order((int) $cid);
                 if (!$child || $child->get_status() === 'trash') continue;
-                if (in_array($child->get_status(), $complete_statuses, true)) {
-                    $cleaned[] = (int) $cid;
-                } else {
-                    $child->update_status('cancelled');
-                }
+                $valid_count++;
             }
-            if (count($cleaned) !== count($partials_ids)) {
-                $parent->update_meta_data('_wc_lkn_partials_id', $cleaned);
+
+            // Cancela apenas 1 filho pendente por vez, só se houver 2+ ativos.
+            // Com 1 filho só, não cancela nada — o replace_pending_partial cuida.
+            if ($valid_count >= 2) {
+                $cancelled_one = false;
+                foreach ($partials_ids as $cid) {
+                    $child = wc_get_order((int) $cid);
+                    if (!$child || $child->get_status() === 'trash') continue;
+                    if (in_array($child->get_status(), $complete_statuses, true)) {
+                        $cleaned[] = (int) $cid;
+                    } elseif (!$cancelled_one) {
+                        $child->update_status('cancelled');
+                        $cancelled_one = true;
+                    } else {
+                        $cleaned[] = (int) $cid;
+                    }
+                }
+                if (count($cleaned) !== count($partials_ids)) {
+                    $parent->update_meta_data('_wc_lkn_partials_id', array_values($cleaned));
+                }
+            } else {
+                foreach ($partials_ids as $cid) {
+                    $child = wc_get_order((int) $cid);
+                    if (!$child || $child->get_status() === 'trash') continue;
+                    if (in_array($child->get_status(), $complete_statuses, true)) {
+                        $cleaned[] = (int) $cid;
+                    }
+                }
             }
         }
 

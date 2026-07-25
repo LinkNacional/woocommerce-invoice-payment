@@ -449,7 +449,9 @@
         });
 
         // Scroll to payment on "Continuar pagamento" click
-        $(document).on('click', '.lkn-wcip-scroll-to-payment', function () {
+        $(document).on('click', '.lkn-wcip-scroll-to-payment', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
             var $target = $('#payment');
             if ($target.length) {
                 $('html, body').animate({ scrollTop: $target.offset().top - 20 }, 400);

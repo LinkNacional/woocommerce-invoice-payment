@@ -394,7 +394,7 @@
                         $inp[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                         return false;
                     }
-                    // Tudo ok, esconde erro
+                    // Tudo ok, esconde
                     $err.slideUp(200);
                 }
                 return;
@@ -589,27 +589,20 @@
     function refreshPayRemainingSummary() {
         if (_restoring) return;
 
-        console.log('[WcIP refreshPayRemainingSummary] calling AJAX...');
         ajaxPost('lkn_wcip_get_partial_split_state').then(function (res) {
-            console.log('[WcIP refreshPayRemainingSummary] AJAX response:', res);
-            console.log('[WcIP-JS] refreshPayRemainingSummary response:', JSON.stringify(res.data));
             if (!res || !res.success || !res.data || !res.data.active) {
-                console.log('[WcIP refreshPayRemainingSummary] NOT ACTIVE — will retry');
                 retryPayRemaining();
                 return;
             }
 
             _payRemainingRetries = _payRemainingMaxRetries;
             refreshFromData(res.data);
-            console.log('[WcIP refreshPayRemainingSummary] DONE. Fees=' + res.data.gateway_fees);
         }).catch(function () {
-            console.log('[WcIP refreshPayRemainingSummary] AJAX FAIL — will retry');
             retryPayRemaining();
         });
     }
 
     function refreshFromData(data) {
-        console.log('[WcIP refreshFromData] partial=' + data.partial_amount + ' baseMax=' + data.base_max + ' fees=' + data.gateway_fees + ' remaining=' + data.remaining);
         // AJAX response has correct values (pós-calculate_totals). Store API is fallback.
         var phpCartTotal = parseFloat(data.cart_total) || 0;
         var wpCartTotal = getCartTotal();
@@ -634,9 +627,7 @@
     function bootstrapFromServerData() {
         var $container = $('.lkn-wcip-split-blocks-container');
         var remaining = parseFloat($container.attr('data-remaining'));
-        console.log('[WcIP bootstrap] data-remaining=' + remaining);
         if (!remaining || remaining <= 0) {
-            console.log('[WcIP bootstrap] SKIP: no remaining');
             return false;
         }
 
@@ -644,12 +635,9 @@
         var baseMax   = parseFloat($container.attr('data-base-max')) || 0;
         var confirmed = parseFloat($container.attr('data-confirmed')) || 0;
 
-        console.log('[WcIP bootstrap] origTotal=' + origTotal + ' baseMax=' + baseMax + ' confirmed=' + confirmed);
-
         // 1/2 (primeiro pagamento): não pré-renderiza — usuário precisa digitar o valor.
         // 2/2 (confirmed > 0): valor já é conhecido, renderiza imediatamente.
         if (confirmed <= 0) {
-            console.log('[WcIP bootstrap] SKIP: first payment, wait for user input');
             return false;
         }
 
@@ -662,7 +650,6 @@
             remaining: Math.max(0, origTotal - confirmed - remaining)
         };
         refreshFromData(data);
-        console.log('[WcIP bootstrap] DONE. Waiting for cartReady...');
         return true;
     }
 
@@ -686,12 +673,9 @@
             } catch (e) {}
 
             if (ready) {
-                console.log('[WcIP cartReady] Cart ready after ' + tries + ' tries. Calling AJAX...');
                 callback();
             } else if (tries < maxTries) {
                 setTimeout(check, interval);
-            } else {
-                console.log('[WcIP cartReady] TIMEOUT after ' + tries + ' tries.');
             }
         }
 
@@ -701,23 +685,15 @@
     // 1/2: re-calc watcher — polls Store API every 1.5s after split is active
     function startCartWatcher() {
         if (_watcherTimer) return;
-        console.log('[WcIP-WATCH] startCartWatcher — polling every 1500ms');
 
         function poll() {
             if (!calculated || !splitData || !_cartWatcherActive) {
-                console.log('[WcIP-WATCH] poll STOP — calculated=' + calculated + ' hasSplitData=' + !!splitData + ' watcherActive=' + _cartWatcherActive);
                 _watcherTimer = null;
                 return;
             }
-            var storeTotal = getCartTotal();
-            var currentDisplayed = parseFloat(splitData.cart_total) || 0;
-            var currentFees = parseFloat(splitData.gateway_fees) || 0;
-            console.log('[WcIP-WATCH] poll: storeTotal=' + storeTotal + ' current_cart_total=' + currentDisplayed + ' current_fees=' + currentFees);
-
             // Re-calc from PHP — always uses fresh cart + current gateway fees
             _restoring = true;
             ajaxPost('lkn_wcip_get_partial_split_state').then(function (res) {
-                console.log('[WcIP-WATCH] poll AJAX:', res);
                 if (res && res.success && res.data) {
                     splitData = {
                         partial_amount: parseFloat(res.data.partial_amount) || 0,
@@ -726,7 +702,6 @@
                         gateway_fees: parseFloat(res.data.gateway_fees) || 0,
                         remaining: parseFloat(res.data.remaining) || 0
                     };
-                    console.log('[WcIP-WATCH] poll → updated fees=' + splitData.gateway_fees + ' cart_total=' + splitData.cart_total);
                     renderResult();
                 }
             }).finally(function () {
@@ -747,7 +722,6 @@
         if (_watcherTimer) {
             clearTimeout(_watcherTimer);
             _watcherTimer = null;
-            console.log('[WcIP-WATCH] stopCartWatcher');
         }
     }
 
@@ -773,7 +747,9 @@
             // 1/2: nothing to pre-render — user types and clicks "Split payment"
         });
 
-        $(document).on('click', '.lkn-wcip-scroll-to-payment', function () {
+        $(document).on('click', '.lkn-wcip-scroll-to-payment', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
             var $target = $('#payment-method');
             if (!$target.length) { $target = $('#payment'); }
             if ($target.length) {

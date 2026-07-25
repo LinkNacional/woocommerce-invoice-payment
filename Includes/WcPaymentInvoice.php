@@ -498,6 +498,7 @@ final class WcPaymentInvoice {
 
         // Processamento da ordem: salva remaining como meta + limpa sessão
         $this->loader->add_action( 'woocommerce_checkout_order_processed', $this->WcPaymentInvoicePartialClass, 'savePartialRemainingOnOrder', 10, 1);
+        $this->loader->add_action( 'woocommerce_payment_complete', $this->WcPaymentInvoicePartialClass, 'finalizeSplitAfterCheckout', 5, 1);
         $this->loader->add_action( 'woocommerce_store_api_checkout_order_processed', $this->WcPaymentInvoicePartialClass, 'savePartialRemainingOnOrderBlocks', 10, 1);
 
         // Thank-you page: exibe card com saldo restante

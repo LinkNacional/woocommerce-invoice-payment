@@ -40,7 +40,7 @@ final class WcPaymentInvoicePartial
                     'minPartialAmount'    => get_option('lkn_wcip_partial_interval_minimum', 0),
                     'symbol'              => $currency_symbol,
                     'isPayRemaining'      => $pay_remaining > 0,
-                    'parentConfirmed'     => ($pay_remaining > 0) ? (float) (wc_get_order($pay_remaining) ? wc_get_order($pay_remaining)->get_meta('_wc_lkn_total_confirmed') : 0) : 0,
+                    'parentConfirmed'     => $this->getParentConfirmedForJs($pay_remaining),
                     'userId'              => get_current_user_id(),
                     'restUrl'             => rest_url('invoice_payments/create_partial_payment'),
                     'restNonce'           => wp_create_nonce('wp_rest'),
@@ -135,7 +135,7 @@ final class WcPaymentInvoicePartial
                         'currency_pos'  => get_option('woocommerce_currency_pos', 'left'),
                     ),
                     'isPayRemaining'      => $pay_remaining > 0,
-                    'parentConfirmed'     => ($pay_remaining > 0) ? (float) (wc_get_order($pay_remaining) ? wc_get_order($pay_remaining)->get_meta('_wc_lkn_total_confirmed') : 0) : 0,
+                    'parentConfirmed'     => $this->getParentConfirmedForJs($pay_remaining),
                     'userId'              => get_current_user_id(),
                     'restUrl'             => rest_url('invoice_payments/create_partial_payment'),
                     'restNonce'           => wp_create_nonce('wp_rest'),
@@ -2434,14 +2434,7 @@ final class WcPaymentInvoicePartial
         if ($pay_remaining > 0) {
             $payload_parent = wc_get_order($pay_remaining);
             $payload_orig   = $payload_parent ? (float) $payload_parent->get_meta('_wc_lkn_original_total') : 0;
-            $payload_conf   = $payload_parent ? (float) $payload_parent->get_meta('_wc_lkn_total_confirmed') : 0;
-            // Fallback: if confirmed=0 but children exist, mark as has-payment
-            if ($payload_conf <= 0 && $payload_parent) {
-                $partials_ids = (array) $payload_parent->get_meta('_wc_lkn_partials_id');
-                if (!empty(array_filter(array_map('intval', $partials_ids)))) {
-                    $payload_conf = 0.01; // Marker > 0 — bootstrap sees this as 2/2
-                }
-            }
+            $payload_conf   = $this->getParentConfirmedForJs($pay_remaining);
             $payload_rem    = round($payload_orig - $payload_conf, 2);
             $step .= ' data-pay-remaining="' . $pay_remaining . '"';
             $step .= ' data-original-total="' . $payload_orig . '"';
@@ -2473,14 +2466,32 @@ final class WcPaymentInvoicePartial
             foreach ($pending_orders as $po) {
                 $pid             = $po->get_id();
                 $original_total  = (float) $po->get_meta('_wc_lkn_original_total');
-                $confirmed       = $this->recalcConfirmedFromChildren($po);
-                $remaining       = round($original_total - $confirmed, 2);
+
+                // Soma valores dos filhos: separa pagos (completed) de pendentes (não cancelados).
+                $paid_confirmed  = 0.0;
+                $pending_committed = 0.0;
+                $complete_statuses = $this->getPartialCompleteStatuses();
+                $partials_ids = $po->get_meta('_wc_lkn_partials_id', true);
+                if (is_array($partials_ids)) {
+                    foreach ($partials_ids as $cid) {
+                        $c = wc_get_order((int) $cid);
+                        if (!$c || $c->get_status() === 'trash') continue;
+                        if ($c->get_status() === 'cancelled') continue;
+                        $val = (float) $c->get_meta('_wc_lkn_partial_amount_paid');
+                        if ($val <= 0) $val = (float) $c->get_total();
+                        if (in_array($c->get_status(), $complete_statuses, true)) {
+                            $paid_confirmed += $val;
+                        } else {
+                            $pending_committed += $val;
+                        }
+                    }
+                }
+                $committed = $paid_confirmed + $pending_committed;
+                $remaining = round($original_total - $committed, 2);
 
                 // Encontra filhos com status pendente (não concluído conforme conf do gateway)
                 $cancel_id = $pid;
                 $pending_child_id = null;
-                $partials_ids = $po->get_meta('_wc_lkn_partials_id', true);
-                $complete_statuses = $this->getPartialCompleteStatuses();
                 if (is_array($partials_ids) && !empty($partials_ids)) {
                     foreach ($partials_ids as $cid) {
                         $child = wc_get_order((int) $cid);
@@ -2500,35 +2511,60 @@ final class WcPaymentInvoicePartial
                 $first_item = !empty($items) ? reset($items) : null;
                 $product_name = $first_item ? $first_item->get_name() : __('Pedido', 'wc-invoice-payment');
 
-                // Se remaining=0 mas existe filho pendente, redireciona direto pro pagamento
-                $resume_target_id = $pid;
-                $resume_amount = $remaining;
-                $resume_url = $pay_rest_url;
-                $is_order_pay = false;
-                if ($pending_child_id) {
+                // Conta quantos filhos pendentes (não cancelados, não completados) existem.
+                // Só usa replace_pending_partial (cancela 1) se houver 2+ pendentes.
+                // Com 1 pendente, usa create_partial_payment (NÃO cancela, só redireciona).
+                $pending_count = 0;
+                if (is_array($partials_ids)) {
+                    foreach ($partials_ids as $cid) {
+                        $c = wc_get_order((int) $cid);
+                        if (!$c || $c->get_status() === 'trash' || $c->get_status() === 'cancelled') continue;
+                        if (!in_array($c->get_status(), $complete_statuses, true)) {
+                            $pending_count++;
+                        }
+                    }
+                }
+
+                // If remaining=0 but a pending child exists: cancel it and re-pay its amount.
+                // Otherwise the resume_amount would be 0 and create_partial_payment rejects it.
+                if ($remaining <= 0.01 && $pending_child_id) {
                     $pending_child = wc_get_order($pending_child_id);
                     if ($pending_child) {
-                        // Se o filho foi cancelado (ex: timeout PIX), recalcula confirmed e manda pro pay_remaining
-                        if ($pending_child->get_status() === 'cancelled') {
-                            $child_base = (float) $pending_child->get_meta('_wc_lkn_partial_amount_paid');
-                            if ($child_base <= 0) $child_base = (float) $pending_child->get_total();
-                            $new_confirmed = max(0, $confirmed - $child_base);
-                            $po->update_meta_data('_wc_lkn_total_confirmed', $new_confirmed);
-                            $po->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
-                            // Remove filho cancelado da lista de parciais
-                            $partials_ids = array_diff($partials_ids, array($pending_child_id));
-                            $po->update_meta_data('_wc_lkn_partials_id', array_values($partials_ids));
-                            $po->save();
-                            $resume_target_id = $pid;
-                            $resume_amount = round($original_total - $new_confirmed, 2);
-                            $resume_url = $pay_rest_url;
-                            $is_order_pay = false;
-                        } else {
-                            // Filho pendente (ex: PIX não pago): botão "Substituir"
-                            $is_order_pay = false;
-                            $resume_target_id = $pid;
-                            $resume_amount = (float) $pending_child->get_total();
-                            $resume_url = esc_url(rest_url('invoice_payments/replace_pending_partial'));
+                        $resume_target_id = $pid;
+                        $resume_amount = (float) $pending_child->get_total();
+                        $resume_url = esc_url(rest_url('invoice_payments/replace_pending_partial'));
+                        $is_order_pay = false;
+                        // Force replace button even with only 1 pending child.
+                    }
+                } else {
+                    $resume_target_id = $pid;
+                    $resume_amount = $remaining;
+                    $resume_url = $pay_rest_url;
+                    $is_order_pay = false;
+
+                    // replace_pending_partial: só se houver 2+ pendentes — cancela 1, mantém os outros
+                    if ($pending_count >= 2 && $pending_child_id) {
+                        $pending_child = wc_get_order($pending_child_id);
+                        if ($pending_child) {
+                            if ($pending_child->get_status() === 'cancelled') {
+                                $child_base = (float) $pending_child->get_meta('_wc_lkn_partial_amount_paid');
+                                if ($child_base <= 0) $child_base = (float) $pending_child->get_total();
+                                $new_confirmed = max(0, $committed - $child_base);
+                                $po->update_meta_data('_wc_lkn_total_confirmed', $new_confirmed);
+                                $po->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
+                                $partials_ids = array_diff($partials_ids, array($pending_child_id));
+                                $po->update_meta_data('_wc_lkn_partials_id', array_values($partials_ids));
+                                $po->save();
+                                $resume_target_id = $pid;
+                                $resume_amount = round($original_total - $new_confirmed, 2);
+                                $resume_url = $pay_rest_url;
+                                $is_order_pay = false;
+                            } else {
+                                $is_order_pay = false;
+                                $resume_target_id = $pid;
+                                $resume_amount = (float) $pending_child->get_total();
+                                $resume_url = esc_url(rest_url('invoice_payments/replace_pending_partial'));
+                            }
                         }
                     }
                 }
@@ -2536,9 +2572,17 @@ final class WcPaymentInvoicePartial
                 $step .= '<div style="background:#fff;border:1px solid #e0e0e0;border-radius:4px;padding:10px;margin-bottom:8px">';
                 $step .= '<div style="font-size:13px;color:#333;margin-bottom:4px"><strong>#' . esc_html($po->get_order_number()) . '</strong> — ' . esc_html($product_name) . '</div>';
                 $step .= '<div style="font-size:12px;color:#666;margin-bottom:8px">';
-                $step .= esc_html__('Pago:', 'wc-invoice-payment') . ' ' . $symbol . '&nbsp;' . number_format($confirmed, 2, ',', '.');
-                $step .= ' &nbsp;|&nbsp; ';
-                $step .= esc_html__('Restante:', 'wc-invoice-payment') . ' <strong>' . $symbol . '&nbsp;' . number_format($remaining, 2, ',', '.') . '</strong>';
+                $line_parts = array();
+                if ($paid_confirmed > 0) {
+                    $line_parts[] = esc_html__('Paid:', 'wc-invoice-payment') . ' ' . $symbol . '&nbsp;' . number_format($paid_confirmed, 2, ',', '.');
+                }
+                if ($pending_committed > 0) {
+                    $line_parts[] = esc_html__('Pending:', 'wc-invoice-payment') . ' <strong>' . $symbol . '&nbsp;' . number_format($pending_committed, 2, ',', '.') . '</strong>';
+                }
+                if ($remaining > 0.01) {
+                    $line_parts[] = esc_html__('Remaining:', 'wc-invoice-payment') . ' <strong>' . $symbol . '&nbsp;' . number_format($remaining, 2, ',', '.') . '</strong>';
+                }
+                $step .= implode(' &nbsp;|&nbsp; ', $line_parts);
                 $step .= '</div>';
                 $step .= '<div style="display:flex;gap:6px">';
                 // Botão: replace_pending_partial (filho pendente) ou create_partial_payment (demais casos)
@@ -2553,14 +2597,7 @@ final class WcPaymentInvoicePartial
         } elseif ($pay_remaining > 0) {
             // Determina se é 1/2 (primeiro pagamento) ou 2/2 (segundo)
             $parent_order = wc_get_order($pay_remaining);
-            $confirmed = $parent_order ? (float) $parent_order->get_meta('_wc_lkn_total_confirmed') : 0;
-            // Fallback: check if ANY children exist (covers async payments still pending)
-            if ($confirmed <= 0) {
-                $partials_ids = $parent_order ? (array) $parent_order->get_meta('_wc_lkn_partials_id') : array();
-                if (!empty(array_filter(array_map('intval', $partials_ids)))) {
-                    $confirmed = 1; // Marker: has children — treat as 2/2
-                }
-            }
+            $confirmed = $this->getParentConfirmedForJs($pay_remaining);
             $is_first_payment = ($confirmed <= 0);
             
             $step .= '<label style="display:flex;align-items:flex-start;gap:8px;cursor:default;margin-bottom:0;font-size:14px;pointer-events:none">';
@@ -2741,6 +2778,43 @@ final class WcPaymentInvoicePartial
     }
 
     /**
+     * Returns confirmed value for JS CONFIG.parentConfirmed, with fallback:
+     * if _wc_lkn_total_confirmed is 0 but children exist, returns 1 (marker).
+     * Matches the PHP rendering fallback. Consistent between classic+blocks.
+     */
+    private function getParentConfirmedForJs($pay_remaining) {
+        if ($pay_remaining <= 0) return 0;
+        $parent = wc_get_order($pay_remaining);
+        if (!$parent) return 0;
+
+        $partials_ids = (array) $parent->get_meta('_wc_lkn_partials_id');
+
+        // Soma os valores comprometidos de todos os filhos (mesmo não pagos).
+        $committed = 0.0;
+        foreach ($partials_ids as $pid) {
+            $pid = (int) $pid;
+            if ($pid <= 0) continue;
+            $child = wc_get_order($pid);
+            if (!$child) {
+                continue;
+            }
+            $status = $child->get_status();
+            if (in_array($status, array('trash', 'cancelled'), true)) {
+                continue;
+            }
+            $paid = (float) $child->get_meta('_wc_lkn_partial_amount_paid');
+            if ($paid <= 0) $paid = (float) $child->get_total();
+            $committed += $paid;
+        }
+
+        if ($committed > 0) return $committed;
+
+        // Fallback: _wc_lkn_total_confirmed do pai
+        $confirmed = (float) $parent->get_meta('_wc_lkn_total_confirmed');
+        return $confirmed;
+    }
+
+    /**
      * Hook woocommerce_cart_calculate_fees — priority 9999.
      * Aplica um fee negativo (desconto) igual à diferença entre o total
      * já calculado e o valor parcial informado pelo usuário.
@@ -2750,16 +2824,11 @@ final class WcPaymentInvoicePartial
      * como base de cálculo.
      */
     public function applyPartialSplitFee($cart) {
-        error_log('[WcIP-FEE] === START === session=' . (WC()->session ? 'yes' : 'NO'));
-        error_log('[WcIP-FEE] cart fees BEFORE: ' . wp_json_encode(array_map(function($f) { return array('name'=>$f->name,'amount'=>$f->amount); }, $cart->get_fees())));
-
         if (!WC()->session) {
-            error_log('[WcIP-FEE] ABORT: no session');
             return;
         }
 
         $partial_amount = (float) WC()->session->get('lkn_partial_amount', 0);
-        error_log('[WcIP-FEE] session partial_amount=' . $partial_amount);
 
         if ($partial_amount <= 0) {
             $recover_parent_id = 0;
@@ -2770,6 +2839,7 @@ final class WcPaymentInvoicePartial
             }
 
             if ( $recover_parent_id > 0 ) {
+                WC()->session->set( 'lkn_partial_parent_order_id', $recover_parent_id );
                 $parent = wc_get_order( $recover_parent_id );
                 if ( $parent ) {
                     $original_total = (float) $parent->get_meta( '_wc_lkn_original_total' );
@@ -2777,14 +2847,12 @@ final class WcPaymentInvoicePartial
                     if ( $original_total > 0 ) {
                         $partial_amount = round( max( 0, $original_total - $confirmed ), 2 );
                         WC()->session->set( 'lkn_partial_amount', $partial_amount );
-                        error_log( '[WcIP-FEE] RECOVERED from parent #' . $recover_parent_id . ' orig=' . $original_total . ' conf=' . $confirmed . ' => partial=' . $partial_amount );
                     }
                 }
             }
         }
 
         if ($partial_amount <= 0) {
-            error_log('[WcIP-FEE] ABORT: amount <= 0');
             return;
         }
 
@@ -2799,26 +2867,26 @@ final class WcPaymentInvoicePartial
                 $gateway_fees += (float) $fee->amount;
             }
         }
-        error_log('[WcIP-FEE] base=' . $base_total . ' partial=' . $partial_amount . ' gateway_fees=' . $gateway_fees);
         WC()->session->set('lkn_partial_gateway_fees', $gateway_fees);
 
         $remaining = $base_total - $partial_amount;
-        error_log('[WcIP-FEE] remaining=' . $remaining);
 
         if ($remaining <= 0.01) {
-            error_log('[WcIP-FEE] remaining <= 0, cleaning session');
-            WC()->session->__unset('lkn_partial_amount');
-            WC()->session->__unset('lkn_partial_remaining');
-            WC()->session->__unset('lkn_partial_disabled_gateways');
-            WC()->session->__unset('lkn_partial_base_total');
-            WC()->session->__unset('lkn_partial_gateway_fees');
+            $is_pay_remaining = !empty($_REQUEST['pay_remaining'])
+                || (WC()->session && (int) WC()->session->get('lkn_partial_parent_order_id') > 0);
+            if (!$is_pay_remaining) {
+                WC()->session->__unset('lkn_partial_amount');
+                WC()->session->__unset('lkn_partial_remaining');
+                WC()->session->__unset('lkn_partial_disabled_gateways');
+                WC()->session->__unset('lkn_partial_base_total');
+                WC()->session->__unset('lkn_partial_gateway_fees');
+            }
+            WC()->session->set('lkn_partial_remaining', 0);
             return;
         }
 
         $cart->add_fee(__('Partial Payment (remaining balance)', 'wc-invoice-payment'), -$remaining, false);
-        error_log('[WcIP-FEE] fee added: -' . $remaining . ' | cart fees AFTER: ' . wp_json_encode(array_map(function($f) { return array('name'=>$f->name,'amount'=>$f->amount); }, $cart->get_fees())));
         WC()->session->set('lkn_partial_remaining', $remaining);
-        error_log('[WcIP-FEE] === END ===');
     }
 
     /**
@@ -3007,7 +3075,6 @@ final class WcPaymentInvoicePartial
             // e já armazenou gateway_fees/base_total na sessão. Só lemos da sessão.
             $gateway_fees = (float) WC()->session->get('lkn_partial_gateway_fees', 0);
             $cart_total   = (float) $cart->get_total('edit');
-        error_log('[WcIP-AJAX] getPartialSplitState active=' . ($active ? 'yes' : 'no') . ' partial_amount=' . $partial_amount . ' base=' . $base_total . ' gateway_fees=' . $gateway_fees . ' cart_total=' . $cart_total);
         } else {
             $cart_total   = 0;
             $base_total   = 0;
@@ -3244,15 +3311,38 @@ final class WcPaymentInvoicePartial
     }
 
     /**
+     * Static flag: order IDs that need split finalization.
+     * Passes from priority-10 hook to priority-99999 hook in the same request.
+     * @var array<int,bool>
+     */
+    private static $needsFinalize = [];
+
+    /**
      * Chamado no checkout clássico: salva o remaining como meta da ordem
      * e limpa a sessão do split.
      */
     public function savePartialRemainingOnOrder($order_id) {
         $order = wc_get_order($order_id);
         if (!$order) return;
+        try {
+            $this->maybeSaveSplitDataToOrder($order);
+        } catch (\Throwable $e) {
+            // Silently ignore — checkout must not break.
+        }
+    }
 
+    /**
+     * Finaliza o split: salva a ordem + limpa a sessão.
+     * Roda em priority 99999 — DEPOIS do gateway processar o pagamento.
+     */
+    public function finalizeSplitAfterCheckout($order_id) {
+        if (empty(self::$needsFinalize[$order_id])) return;
+        unset(self::$needsFinalize[$order_id]);
 
-        $this->maybeSaveSplitDataToOrder($order);
+        // Session cleanup AFTER payment gateway finished processing.
+        // Must NOT run during checkout_order_processed — gateway needs
+        // session data for cart fee recalculation during process_payment.
+        $this->cleanSplitSession();
     }
 
     /**
@@ -3273,7 +3363,7 @@ final class WcPaymentInvoicePartial
      * Se havia split ativo, salva os dados na ordem e limpa a sessão.
      */
     private function maybeSaveSplitDataToOrder($order) {
-        // Guard: prevent double-processing (save imediato pra evitar race condition)
+        // Guard: prevent double-processing.
         if ($order->get_meta('_wc_lkn_maybe_save_processed') === 'yes') {
             return;
         }
@@ -3324,16 +3414,12 @@ final class WcPaymentInvoicePartial
         $partial_amount = $partial_amount_real;
         // =======================================================================
 
-        error_log('[WcIP-SAVE] order_id=' . $order->get_id() . ' order_total=' . $order->get_total());
-        $all_fees_out = array();
-        foreach ($order->get_items('fee') as $fi) {
-            $all_fees_out[] = array('name' => $fi->get_name(), 'total' => $fi->get_total());
-        }
-        error_log('[WcIP-SAVE] order fees: ' . wp_json_encode($all_fees_out));
-        error_log('[WcIP-SAVE] calculated partial_amount_real=' . $partial_amount_real . ' session_partial=' . (float) WC()->session->get('lkn_partial_amount', 0));
 
         // Fluxo "pagar restante" da thank-you page
         $parent_order_id = (int) WC()->session->get('lkn_partial_parent_order_id');
+        if ($parent_order_id <= 0 && !empty($_REQUEST['pay_remaining'])) {
+            $parent_order_id = absint($_REQUEST['pay_remaining']);
+        }
         if ($parent_order_id > 0) {
             $parent_order = wc_get_order($parent_order_id);
             if ($parent_order) {
@@ -3508,9 +3594,6 @@ final class WcPaymentInvoicePartial
                     $fee_item->save();
                 }
 
-                // ⚠️ Salva o filho PRIMEIRO (com todos os metadados do gateway intactos)
-                // Depois salva o pai. Isso garante que metadados de terceiros (ex: Rede)
-                // não sejam sobrescritos por múltiplos saves em cascata.
                 $order->save();
                 $parent_order->save();
 
@@ -3524,9 +3607,7 @@ final class WcPaymentInvoicePartial
                 update_option('lkn_wcip_invoices', $invoiceList);
 
             }
-            // Limpa o carrinho pra não sobrar produto pro próximo pedido
-            if (WC()->cart) WC()->cart->empty_cart();
-            $this->cleanSplitSession();
+            self::$needsFinalize[$order->get_id()] = true;
             return;
         }
 
@@ -3557,16 +3638,13 @@ final class WcPaymentInvoicePartial
         // Salva o frete escolhido para o fluxo "pagar restante"
         $this->saveChosenShippingToOrder($order);
 
-        $order->save();
-        // Status mantido como definido pelo gateway — não força 'wc-partial'
-
         // Flag para retomada: se o usuário fechar a tela, ao voltar verá o step
         if ($remaining > 0.001) {
             $order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
-            $order->save();
         }
 
-        $this->cleanSplitSession();
+        $order->save();
+        self::$needsFinalize[$order->get_id()] = true;
     }
 
     private function cleanSplitSession() {
