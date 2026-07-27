@@ -15,9 +15,9 @@ final class WcPaymentInvoicePartialGateway extends WC_Payment_Gateway
         $this->id                 = 'lkn_wcip_partial_gateway';
         $this->icon               = '';
         $this->has_fields         = false;
-        $this->method_title       = __('Pagamento Parcial', 'wc-invoice-payment');
-        $this->method_description = __('Gateway interno para iniciar pagamento parcial.', 'wc-invoice-payment');
-        $this->title              = __('Pagamento Parcial', 'wc-invoice-payment');
+        $this->method_title       = __('Partial Payment', 'wc-invoice-payment');
+        $this->method_description = __('Internal gateway to initiate partial payment.', 'wc-invoice-payment');
+        $this->title              = __('Partial Payment', 'wc-invoice-payment');
 
         $this->supports = array('products');
 
@@ -89,7 +89,7 @@ final class WcPaymentInvoicePartialGateway extends WC_Payment_Gateway
         // Status processing garante que o analytics registra o pedido (status nativo).
         // O save() persiste metas + status processing juntos.
         $order->set_status('processing');
-        $order->add_order_note(__('Pagamento parcial iniciado. Aguardando primeiro pagamento.', 'wc-invoice-payment'));
+        $order->add_order_note(__('Partial payment started. Waiting for first payment.', 'wc-invoice-payment'));
         $order->save();
 
         // Migra pra wc-partial (controle interno). O analytics já registrou o

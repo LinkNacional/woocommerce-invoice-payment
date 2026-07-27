@@ -56,7 +56,7 @@ final class WcPaymentInvoiceSettings
         // Aba Pagamento Parcial
         $this->register_settings_tab(
             'wc_payment_partial_settings',
-            __('Pagamento Parcial', 'wc-invoice-payment'),
+            __('Partial Payment', 'wc-invoice-payment'),
             'showPartialPaymentSettingTabContent',
             'savePartialPaymentSettings'
         );

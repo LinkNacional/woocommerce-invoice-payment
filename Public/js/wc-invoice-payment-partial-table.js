@@ -58,7 +58,7 @@
         
             // Verifica se o valor está válido
             if (partialValue == 0 || isNaN(partialValue)) {
-                alert('Digite um valor válido para pagamento parcial.');
+                alert(lknWcipPartialTableVariables.invalidAmountMsg);
                 return;
             }
 
@@ -99,7 +99,7 @@
                     window.location.href = result.payment_url;
                 })
                 .catch(error => {
-                    alert(error.message || 'Erro na requisição');
+                    alert(error.message || lknWcipPartialTableVariables.requestErrorMsg);
                 });
         });
 
@@ -147,14 +147,14 @@
                     window.location.href = result.payment_url;
                 })
                 .catch(error => {
-                    alert(error.message || 'Erro na requisição');
+                    alert(error.message || lknWcipPartialTableVariables.requestErrorMsg);
                     this.disabled = false;
 
                 });
         });
 
         $(document).on('click', '.wcPaymentInvoiceTableInputs .cancel', function (e) {
-            if (!confirm(lknWcipPartialTableVariables.confirmCancel || 'Are you sure you want to cancel this partial payment?')) {
+            if (!confirm(lknWcipPartialTableVariables.confirmCancel)) {
                 e.preventDefault();
             }
         });

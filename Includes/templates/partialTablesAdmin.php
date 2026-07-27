@@ -7,7 +7,7 @@ if(isset($invoicePage) && $invoicePage == 'true'){
     ?>
     <div class="wcip-invoice-data">
     <h2 class="title">
-        Pagamentos parciais                
+        <?php esc_html_e('Partial Payments', 'wc-invoice-payment'); ?>                
     </h2>
     <hr>
     <?php
@@ -33,10 +33,10 @@ if (!empty($parentId)) {
 <table class="wp-list-table widefat fixed striped table-view-list orders wc-orders-list-table wc-orders-list-table-shop_order wcPaymentInvoicePartialTableAdmin">
     <thead>
         <tr>
-            <th scope="col" id="order_number" class="manage-column column-order_number column-primary  "><span>Pedido</span></th>
-            <th scope="col" id="order_date" class="manage-column column-order_date sortable desc"><span>Data</span></th>
-            <th scope="col" id="order_status" class="manage-column column-order_status">Status</th>
-            <th scope="col" id="order_total" class="manage-column column-order_total sortable desc"><span>Total</span></th>
+            <th scope="col" id="order_number" class="manage-column column-order_number column-primary  "><span><?php esc_html_e('Order', 'wc-invoice-payment'); ?></span></th>
+            <th scope="col" id="order_date" class="manage-column column-order_date sortable desc"><span><?php esc_html_e('Date', 'wc-invoice-payment'); ?></span></th>
+            <th scope="col" id="order_status" class="manage-column column-order_status"><?php esc_html_e('Status', 'wc-invoice-payment'); ?></th>
+            <th scope="col" id="order_total" class="manage-column column-order_total sortable desc"><span><?php esc_html_e('Total', 'wc-invoice-payment'); ?></span></th>
         </tr>
     </thead>
 
@@ -62,30 +62,30 @@ if (!empty($parentId)) {
             $order_link = admin_url("admin.php?page=edit-invoice&invoice={$order_id}");
         ?>
             <tr class="type-shop_order status-<?php echo esc_attr($status_slug); ?>">
-                <td class="order_number column-order_number has-row-actions column-primary" data-colname="Pedido">
+                <td class="order_number column-order_number has-row-actions column-primary" data-colname="<?php esc_attr_e('Order', 'wc-invoice-payment'); ?>">
                     <a href="<?php echo esc_url($order_link); ?>" class="order-view">
                         <strong>#<?php echo esc_html($order_number); ?> <?php echo esc_html($customer_name); ?></strong>
                     </a>
                 </td>
-                <td class="order_date column-order_date" data-colname="Data"><?php echo esc_html($created_date); ?></td>
-                <td class="order_status column-order_status" data-colname="Status">
+                <td class="order_date column-order_date" data-colname="<?php esc_attr_e('Date', 'wc-invoice-payment'); ?>"><?php echo esc_html($created_date); ?></td>
+                <td class="order_status column-order_status" data-colname="<?php esc_attr_e('Status', 'wc-invoice-payment'); ?>">
                     <mark class="order-status status-<?php echo esc_attr($status_slug); ?> tips">
                         <span><?php echo esc_html($status_label); ?></span>
                     </mark>
                 </td>
-                <td class="billing_address column-billing_address hidden" data-colname="Cobrança">
-                    <?php echo esc_html($billing); ?><span class="description">via <?php echo esc_html($payment_method); ?></span>
+                <td class="billing_address column-billing_address hidden" data-colname="<?php esc_attr_e('Billing', 'wc-invoice-payment'); ?>">
+                    <?php echo esc_html($billing); ?><span class="description"><?php esc_html_e('via', 'wc-invoice-payment'); ?> <?php echo esc_html($payment_method); ?></span>
                 </td>
-                <td class="shipping_address column-shipping_address hidden" data-colname="Enviar para">
+                <td class="shipping_address column-shipping_address hidden" data-colname="<?php esc_attr_e('Ship to', 'wc-invoice-payment'); ?>">
                     <a target="_blank" href="https://maps.google.com/maps?q=<?php echo urlencode($shipping); ?>&z=16">
                         <?php echo esc_html($shipping); ?>
                     </a>
                 </td>
-                <td class="order_total column-order_total" data-colname="Total"><?php echo wp_kses_post($total); ?></td>
-                <td class="wc_actions column-wc_actions hidden" data-colname="Ações">
+                <td class="order_total column-order_total" data-colname="<?php esc_attr_e('Total', 'wc-invoice-payment'); ?>"><?php echo wp_kses_post($total); ?></td>
+                <td class="wc_actions column-wc_actions hidden" data-colname="<?php esc_attr_e('Actions', 'wc-invoice-payment'); ?>">
                     <p><a class="button wc-action-button wc-action-button-complete complete"
                             href="<?php echo esc_url(admin_url("admin-ajax.php?action=woocommerce_mark_order_status&status=completed&order_id={$order_id}&_wpnonce=" . wp_create_nonce('woocommerce-mark-order-status'))); ?>"
-                            aria-label="Concluído">Concluído</a></p>
+                            aria-label="<?php esc_attr_e('Completed', 'wc-invoice-payment'); ?>"><?php esc_html_e('Completed', 'wc-invoice-payment'); ?></a></p>
                 </td>
             </tr>
         <?php endforeach; ?>

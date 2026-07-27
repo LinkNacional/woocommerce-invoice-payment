@@ -241,7 +241,9 @@ final class WcPaymentInvoiceSubscription
                     if (! $is_subscription_manual) {
                         // Adicionar a nova ordem à lista de faturas
                         $invoice_list = get_option('lkn_wcip_invoices', array());
-                        $invoice_list[] = $order->get_id();
+                        if (!in_array($order->get_id(), $invoice_list)) {
+                            $invoice_list[] = $order->get_id();
+                        }
                         update_option('lkn_wcip_invoices', $invoice_list);
                     }
                 }
@@ -468,7 +470,9 @@ final class WcPaymentInvoiceSubscription
 
         // Adicionar a nova ordem à lista de faturas
         $invoice_list = get_option('lkn_wcip_invoices', array());
-        $invoice_list[] = $new_order->get_id();
+        if (!in_array($new_order->get_id(), $invoice_list)) {
+            $invoice_list[] = $new_order->get_id();
+        }
         update_option('lkn_wcip_invoices', $invoice_list);
         
         // Atualiza a próxima data de geração no schedule para backup do cron

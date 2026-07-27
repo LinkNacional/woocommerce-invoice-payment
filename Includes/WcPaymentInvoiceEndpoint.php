@@ -21,6 +21,11 @@ final class WcPaymentInvoiceEndpoint {
             'callback' => array($this, 'replacePendingPartial'),
             'permission_callback' => array($this, 'checkReplacePendingPartialPermission'),
         ));
+        register_rest_route('invoice_payments', '/resume_partial/(?P<id>\d+)', array(
+            'methods'  => 'GET',
+            'callback' => array($this, 'resumePartialRedirect'),
+            'permission_callback' => '__return_true',
+        ));
     }
     
     /**
@@ -30,7 +35,7 @@ final class WcPaymentInvoiceEndpoint {
         // Verificar nonce para proteção CSRF
         $nonce = $request->get_header('X-WP-Nonce');
         if (empty($nonce) || !wp_verify_nonce($nonce, 'wp_rest')) {
-            return new \WP_Error('invalid_nonce', 'Nonce inválido', array('status' => 403));
+            return new \WP_Error('invalid_nonce', __('Invalid nonce.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         $parameters = $request->get_params();
@@ -39,12 +44,12 @@ final class WcPaymentInvoiceEndpoint {
 
         // Verificar se o pedido existe
         if (!$order_id) {
-            return new \WP_Error('invalid_order', 'ID do pedido é obrigatório', array('status' => 400));
+            return new \WP_Error('invalid_order', __('Order ID is required.', 'wc-invoice-payment'), array('status' => 400));
         }
 
         $order = wc_get_order($order_id);
         if (!$order) {
-            return new \WP_Error('order_not_found', 'Pedido não encontrado', array('status' => 404));
+            return new \WP_Error('order_not_found', __('Order not found.', 'wc-invoice-payment'), array('status' => 404));
         }
 
         $current_user_id = get_current_user_id();
@@ -54,18 +59,18 @@ final class WcPaymentInvoiceEndpoint {
             if (current_user_can('manage_woocommerce') || $current_user_id == $order->get_customer_id()) {
                 return true;
             }
-            return new \WP_Error('insufficient_permission', 'Você não tem permissão para criar pagamentos parciais para este pedido', array('status' => 403));
+            return new \WP_Error('insufficient_permission', __('You do not have permission to create partial payments for this order.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         // Para usuários não logados, validações mais flexíveis
         // Verificar se o user_id fornecido corresponde ao dono do pedido
         if ($user_id != $order->get_customer_id()) {
-            return new \WP_Error('user_mismatch', 'Usuário não corresponde ao dono do pedido', array('status' => 403));
+            return new \WP_Error('user_mismatch', __('User does not match the order owner.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         // Validação adicional: verificar se é um pedido recente (últimas 24 horas) ou há uma sessão válida
         if (!$this->isRecentOrderOrValidSession($order)) {
-            return new \WP_Error('order_access_denied', 'Acesso negado: pedido muito antigo ou sessão inválida', array('status' => 403));
+            return new \WP_Error('order_access_denied', __('Access denied: order too old or invalid session.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         return true;
@@ -78,7 +83,7 @@ final class WcPaymentInvoiceEndpoint {
         // Verificar nonce para proteção CSRF
         $nonce = $request->get_header('X-WP-Nonce');
         if (empty($nonce) || !wp_verify_nonce($nonce, 'wp_rest')) {
-            return new \WP_Error('invalid_nonce', 'Nonce inválido', array('status' => 403));
+            return new \WP_Error('invalid_nonce', __('Invalid nonce.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         $params = $request->get_params();
@@ -87,17 +92,17 @@ final class WcPaymentInvoiceEndpoint {
         $target_id        = $partial_order_id ?: $order_id;
 
         if (!$target_id) {
-            return new \WP_Error('invalid_order_id', 'ID da ordem parcial é obrigatório', array('status' => 400));
+            return new \WP_Error('invalid_order_id', __('Partial order ID is required.', 'wc-invoice-payment'), array('status' => 400));
         }
 
         $partial_order = wc_get_order($target_id);
         if (!$partial_order) {
-            return new \WP_Error('invalid_partial_order', 'Ordem não encontrada', array('status' => 404));
+            return new \WP_Error('invalid_partial_order', __('Order not found.', 'wc-invoice-payment'), array('status' => 404));
         }
         // Aceita tanto partial order antigo quanto ordem com pendência de retomada
         if ($partial_order->get_meta('_wc_lkn_is_partial_order') !== 'yes'
             && $partial_order->get_meta('_wc_lkn_pay_remaining_pending') !== 'yes') {
-            return new \WP_Error('invalid_partial_order', 'Ordem parcial não encontrada ou inválida', array('status' => 404));
+            return new \WP_Error('invalid_partial_order', __('Partial order not found or invalid.', 'wc-invoice-payment'), array('status' => 404));
         }
 
         $current_user_id = get_current_user_id();
@@ -107,13 +112,13 @@ final class WcPaymentInvoiceEndpoint {
             if (current_user_can('manage_woocommerce') || $current_user_id == $partial_order->get_customer_id()) {
                 return true;
             }
-            return new \WP_Error('insufficient_permission', 'Você não tem permissão para cancelar este pagamento parcial', array('status' => 403));
+            return new \WP_Error('insufficient_permission', __('You do not have permission to cancel this partial payment.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         // Para usuários não logados, validação mais flexível
         // Verificar se é um pedido recente ou há sessão válida
         if (!$this->isRecentOrderOrValidSession($partial_order)) {
-            return new \WP_Error('access_denied', 'Acesso negado para cancelar este pagamento', array('status' => 403));
+            return new \WP_Error('access_denied', __('Access denied to cancel this payment.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         return true;
@@ -324,13 +329,13 @@ final class WcPaymentInvoiceEndpoint {
         $partial_amount = round(isset($parameters['partialAmount']) ? floatval($parameters['partialAmount']) : 0.0, 2);
 
         if (!$order_id || !$partial_amount) {
-            return new WP_REST_Response(['error' => 'Parâmetros inválidos.'], 400);
+            return new WP_REST_Response(['error' => __('Invalid parameters.', 'wc-invoice-payment')], 400);
         }
         
         $order = wc_get_order($order_id);
 
         if (!$order) {
-            return new WP_REST_Response(['error' => 'Pedido não encontrado.'], 404);
+            return new WP_REST_Response(['error' => __('Order not found.', 'wc-invoice-payment')], 404);
         }
         
         $order_total = floatval($order->get_total());
@@ -371,7 +376,7 @@ final class WcPaymentInvoiceEndpoint {
             if ($existing) {
                 return $this->buildCheckoutRedirect($existing, $order_id, $partial_amount);
             }
-            return new WP_REST_Response(['error' => 'Valor solicitado excede o valor disponível para pagamento.'], 400);
+            return new WP_REST_Response(['error' => __('Requested amount exceeds available payment amount.', 'wc-invoice-payment')], 400);
         }
 
         // Fluxo "pagar restante" do split: vai direto pro checkout sem criar ordem.
@@ -408,10 +413,18 @@ final class WcPaymentInvoiceEndpoint {
         $partial_order->set_payment_method('multiplePayment');
 
         $order_link = admin_url("admin.php?page=edit-invoice&invoice={$order_id}");
-        $partial_order->add_order_note("Pedido parcial criado a partir do pedido <a href=\"{$order_link}\">#{$order_id}</a>", false);
+        $partial_order->add_order_note(sprintf(
+            /* translators: %s: link to parent order */
+            __('Partial order created from order %s', 'wc-invoice-payment'),
+            '<a href="' . esc_url($order_link) . '">#' . esc_html($order_id) . '</a>'
+        ), false);
         
         $order_link = admin_url("admin.php?page=edit-invoice&invoice={$partial_order_id}");
-        $order->add_order_note("Pedido parcial criado <a href=\"{$order_link}\">#{$partial_order_id}</a>", false);
+        $order->add_order_note(sprintf(
+            /* translators: %s: link to partial order */
+            __('Partial order created: %s', 'wc-invoice-payment'),
+            '<a href="' . esc_url($order_link) . '">#' . esc_html($partial_order_id) . '</a>'
+        ), false);
 
         
         $invoiceList = get_option('lkn_wcip_invoices', array());
@@ -419,7 +432,9 @@ final class WcPaymentInvoiceEndpoint {
         if ( !in_array( $order_id, $invoiceList ) ) {
             $invoiceList[] = $order_id;
         }
-        $invoiceList[] = $partial_order_id;
+        if ( !in_array( $partial_order_id, $invoiceList ) ) {
+            $invoiceList[] = $partial_order_id;
+        }
         
         update_option('lkn_wcip_invoices', $invoiceList);
 
@@ -486,27 +501,27 @@ final class WcPaymentInvoiceEndpoint {
         if ($order_id && !$partial_order_id) {
             $parent_order = wc_get_order($order_id);
             if (!$parent_order) {
-                return new WP_REST_Response(['error' => 'Pedido não encontrado.'], 404);
+                return new WP_REST_Response(['error' => __('Order not found.', 'wc-invoice-payment')], 404);
             }
             $parent_order->delete_meta_data('_wc_lkn_pay_remaining_pending');
             $parent_order->set_status('wc-partial-cancelled');
-            $parent_order->add_order_note('Pagamento parcial cancelado.');
+            $parent_order->add_order_note(__('Partial payment cancelled.', 'wc-invoice-payment'));
             $parent_order->save();
 
             global $wpdb;
             $wpdb->update("{$wpdb->prefix}wc_order_stats", array('status' => 'wc-cancelled'), array('order_id' => $order_id));
 
-            return new WP_REST_Response(['success' => true, 'message' => 'Pagamento parcial pendente cancelado.'], 200);
+            return new WP_REST_Response(['success' => true, 'message' => __('Pending partial payment cancelled.', 'wc-invoice-payment')], 200);
         }
     
         if (!$partial_order_id) {
-            return new WP_REST_Response(['error' => 'ID da ordem parcial é obrigatório.'], 400);
+            return new WP_REST_Response(['error' => __('Partial order ID is required.', 'wc-invoice-payment')], 400);
         }
     
         $partial_order = wc_get_order($partial_order_id);
     
         if (!$partial_order || $partial_order->get_meta('_wc_lkn_is_partial_order') !== 'yes') {
-            return new WP_REST_Response(['error' => 'Ordem parcial não encontrada ou inválida.'], 404);
+            return new WP_REST_Response(['error' => __('Partial order not found or invalid.', 'wc-invoice-payment')], 404);
         }
     
         // Cancela o pedido parcial
@@ -515,12 +530,12 @@ final class WcPaymentInvoiceEndpoint {
         // Obtém o pedido pai
         $parent_id = intval($partial_order->get_meta('_wc_lkn_parent_id'));
         if (!$parent_id) {
-            return new WP_REST_Response(['error' => 'Pedido pai não encontrado.'], 404);
+            return new WP_REST_Response(['error' => __('Parent order not found.', 'wc-invoice-payment')], 404);
         }
     
         $parent_order = wc_get_order($parent_id);
         if (!$parent_order) {
-            return new WP_REST_Response(['error' => 'Pedido pai inválido.'], 404);
+            return new WP_REST_Response(['error' => __('Invalid parent order.', 'wc-invoice-payment')], 404);
         }
     
         // Subtrai o valor parcial do total pendente
@@ -548,7 +563,7 @@ final class WcPaymentInvoiceEndpoint {
     
         return new WP_REST_Response([
             'success' => true,
-            'message' => 'Pagamento parcial cancelado com sucesso.',
+            'message' => __('Partial payment cancelled successfully.', 'wc-invoice-payment'),
             'new_pending_total' => $new_pending_total,
         ], 200);
     }
@@ -559,7 +574,7 @@ final class WcPaymentInvoiceEndpoint {
     public function checkReplacePendingPartialPermission($request) {
         $nonce = $request->get_header('X-WP-Nonce');
         if (empty($nonce) || !wp_verify_nonce($nonce, 'wp_rest')) {
-            return new \WP_Error('invalid_nonce', 'Nonce inválido', array('status' => 403));
+            return new \WP_Error('invalid_nonce', __('Invalid nonce.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         $params = $request->get_params();
@@ -567,12 +582,12 @@ final class WcPaymentInvoiceEndpoint {
         $pending_child_id = isset($params['pendingChildId']) ? intval($params['pendingChildId']) : 0;
 
         if (!$parent_id || !$pending_child_id) {
-            return new \WP_Error('invalid_params', 'Parâmetros inválidos', array('status' => 400));
+            return new \WP_Error('invalid_params', __('Invalid parameters.', 'wc-invoice-payment'), array('status' => 400));
         }
 
         $parent = wc_get_order($parent_id);
         if (!$parent) {
-            return new \WP_Error('order_not_found', 'Pedido não encontrado', array('status' => 404));
+            return new \WP_Error('order_not_found', __('Order not found.', 'wc-invoice-payment'), array('status' => 404));
         }
 
         $current_user_id = get_current_user_id();
@@ -580,11 +595,11 @@ final class WcPaymentInvoiceEndpoint {
             if (current_user_can('manage_woocommerce') || $current_user_id == $parent->get_customer_id()) {
                 return true;
             }
-            return new \WP_Error('insufficient_permission', 'Permissão negada', array('status' => 403));
+            return new \WP_Error('insufficient_permission', __('Permission denied.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         if (!$this->isRecentOrderOrValidSession($parent)) {
-            return new \WP_Error('access_denied', 'Acesso negado', array('status' => 403));
+            return new \WP_Error('access_denied', __('Access denied.', 'wc-invoice-payment'), array('status' => 403));
         }
 
         return true;
@@ -601,12 +616,12 @@ final class WcPaymentInvoiceEndpoint {
 
         $parent = wc_get_order($parent_id);
         if (!$parent) {
-            return new WP_REST_Response(['error' => 'Pedido pai não encontrado.'], 404);
+            return new WP_REST_Response(['error' => __('Parent order not found.', 'wc-invoice-payment')], 404);
         }
 
         $pending_child = wc_get_order($pending_child_id);
         if (!$pending_child) {
-            return new WP_REST_Response(['error' => 'Pedido filho pendente não encontrado.'], 404);
+            return new WP_REST_Response(['error' => __('Pending child order not found.', 'wc-invoice-payment')], 404);
         }
 
         // Cancela o filho pendente
@@ -619,17 +634,12 @@ final class WcPaymentInvoiceEndpoint {
             $parent->update_meta_data('_wc_lkn_partials_id', array_values($partials_ids));
         }
 
-        // Recalcula confirmed baseado APENAS nos filhos completados (exceto o cancelado)
-        $complete_statuses = array('completed', 'processing');
-        $complete_status_opt = get_option('lkn_wcip_partial_complete_status', '');
-        if ($complete_status_opt && strpos($complete_status_opt, 'wc-') === 0) {
-            $complete_statuses[] = substr($complete_status_opt, 3);
-        }
+        // Recalcula confirmed baseado em TODOS os filhos restantes (completados OU pendentes).
+        // O valor já está comprometido — o usuário só paga o que falta.
         $confirmed = 0.0;
         foreach ($partials_ids as $pid) {
             $child = wc_get_order((int) $pid);
             if (!$child || $child->get_status() === 'trash') continue;
-            if (!in_array($child->get_status(), $complete_statuses, true)) continue;
             $child_paid = (float) $child->get_meta('_wc_lkn_partial_amount_paid');
             if ($child_paid <= 0) {
                 $child_paid = (float) $child->get_total();
@@ -664,6 +674,145 @@ final class WcPaymentInvoiceEndpoint {
         $expire = time() + (24 * 60 * 60);
         
         setcookie($cookie_name, $token, $expire, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true);
+    }
+
+    /**
+     * GET /invoice_payments/resume_partial/{id}
+     * Link de pagamento: cancela filho pendente, recalcula confirmed,
+     * popula carrinho e redireciona pro checkout com pay_remaining.
+     */
+    public function resumePartialRedirect($request) {
+        $parent_id = (int) $request->get_param('id');
+        if ($parent_id <= 0) {
+            wp_die(esc_html__('Invalid order.', 'wc-invoice-payment'));
+        }
+
+        $parent = wc_get_order($parent_id);
+        if (!$parent) {
+            wp_die(esc_html__('Order not found.', 'wc-invoice-payment'));
+        }
+
+        // Só processa pedidos com split ativo
+        $original_total = (float) $parent->get_meta('_wc_lkn_original_total');
+        if ($original_total <= 0) {
+            $original_total = (float) $parent->get_total();
+        }
+
+        // Status completados
+        $complete_statuses = array('completed', 'processing');
+        $opt = get_option('lkn_wcip_partial_complete_status', '');
+        if ($opt && strpos($opt, 'wc-') === 0) {
+            $complete_statuses[] = substr($opt, 3);
+        }
+
+        // Status completados
+        $complete_statuses = array('completed', 'processing');
+        $opt = get_option('lkn_wcip_partial_complete_status', '');
+        if ($opt && strpos($opt, 'wc-') === 0) {
+            $complete_statuses[] = substr($opt, 3);
+        }
+
+        // Cancela filhos pendentes
+        // Cancela filhos pendentes — só se houver 2+ filhos ativos.
+        // Com apenas 1 filho (ex: PIX não pago), mantém ele intacto.
+        $partials_ids = $parent->get_meta('_wc_lkn_partials_id', true);
+        $cleaned    = array();
+        $valid_count = 0;
+
+        if (is_array($partials_ids)) {
+            foreach ($partials_ids as $cid) {
+                $child = wc_get_order((int) $cid);
+                if (!$child || $child->get_status() === 'trash') continue;
+                $valid_count++;
+            }
+
+            // Cancela apenas 1 filho pendente por vez, só se houver 2+ ativos.
+            // Com 1 filho só, não cancela nada — o replace_pending_partial cuida.
+            if ($valid_count >= 2) {
+                $cancelled_one = false;
+                foreach ($partials_ids as $cid) {
+                    $child = wc_get_order((int) $cid);
+                    if (!$child || $child->get_status() === 'trash') continue;
+                    if (in_array($child->get_status(), $complete_statuses, true)) {
+                        $cleaned[] = (int) $cid;
+                    } elseif (!$cancelled_one) {
+                        $child->update_status('cancelled');
+                        $cancelled_one = true;
+                    } else {
+                        $cleaned[] = (int) $cid;
+                    }
+                }
+                if (count($cleaned) !== count($partials_ids)) {
+                    $parent->update_meta_data('_wc_lkn_partials_id', array_values($cleaned));
+                }
+            } else {
+                foreach ($partials_ids as $cid) {
+                    $child = wc_get_order((int) $cid);
+                    if (!$child || $child->get_status() === 'trash') continue;
+                    if (in_array($child->get_status(), $complete_statuses, true)) {
+                        $cleaned[] = (int) $cid;
+                    }
+                }
+            }
+        }
+
+        // Recalcula confirmed
+        $confirmed = 0.0;
+        foreach ($cleaned as $cid) {
+            $child = wc_get_order((int) $cid);
+            if (!$child) continue;
+            $paid = (float) $child->get_meta('_wc_lkn_partial_amount_paid');
+            if ($paid <= 0) $paid = (float) $child->get_total();
+            $confirmed += $paid;
+        }
+
+        $remaining = max(0, round($original_total - $confirmed, 2));
+
+        if ($remaining <= 0.001) {
+            wc_add_notice(__('This payment has already been completed.', 'wc-invoice-payment'), 'notice');
+            wp_safe_redirect(wc_get_page_permalink('shop'));
+            exit;
+        }
+
+        $parent->update_meta_data('_wc_lkn_total_confirmed', $confirmed);
+        $parent->update_meta_data('_wc_lkn_total_peding', 0);
+        $parent->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
+        $parent->save();
+
+        // Popula carrinho
+        if (!WC()->cart) wc_load_cart();
+        WC()->cart->empty_cart();
+        foreach ($parent->get_items() as $item) {
+            $pid = $item->get_product_id();
+            $vid = $item->get_variation_id();
+            $qty = $item->get_quantity();
+            if ($pid) WC()->cart->add_to_cart($pid, $qty, $vid);
+        }
+        foreach ($parent->get_coupon_codes() as $code) {
+            WC()->cart->apply_coupon($code);
+        }
+
+        WC()->session->set('lkn_partial_amount', $remaining);
+        WC()->session->set('lkn_partial_parent_order_id', $parent_id);
+        WC()->session->__unset('lkn_partial_order_id');
+
+        // Restaura frete
+        $rates_json = $parent->get_meta('_wc_lkn_chosen_shipping_rates');
+        if ($rates_json) {
+            $rate_ids = json_decode($rates_json, true);
+            if (is_array($rate_ids) && !empty($rate_ids)) {
+                WC()->session->set('lkn_partial_shipping_rate_ids', $rate_ids);
+                WC()->session->set('chosen_shipping_methods', $rate_ids);
+            }
+        }
+        WC()->session->__unset('chosen_payment_method');
+        WC()->cart->calculate_totals();
+
+        // Persiste a sessão explicitamente
+        WC()->session->save_data();
+
+        wp_safe_redirect(add_query_arg('pay_remaining', $parent_id, wc_get_checkout_url()));
+        exit;
     }
     
 }

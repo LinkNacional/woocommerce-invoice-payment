@@ -1539,7 +1539,7 @@ final class LknWcipListTable {
         if ($invoiceList) {
             $dateFormat = get_option('date_format');
 
-            foreach ($invoiceList as $invoiceId) {
+            foreach (array_unique($invoiceList) as $invoiceId) {
                 $invoice = wc_get_order($invoiceId);
                 $shouldInclude = false;
                 
@@ -1570,7 +1570,7 @@ final class LknWcipListTable {
                     }
 
                     if($invoice->get_meta('_wc_lkn_is_partial_order') == "yes" || $invoice->get_meta('_wc_lkn_is_partial_main_order') == "yes") {
-                        $fromSubscription = __('Pagamento Parcial', 'wc-invoice-payment');
+                        $fromSubscription = __('Partial Payment', 'wc-invoice-payment');
                     }
 
                     if(!($invoice->get_meta('_wc_lkn_is_partial_order') == "yes" || 
