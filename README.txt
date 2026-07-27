@@ -117,6 +117,10 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
+# 2.13.1 - 07/27/2026
+* Adjustment to the partial payment link.
+* Adjustment to translation variables.
+
 = 2.13.0 = *21/07/2026*
 * Refactored partial payment flow — implemented single-installment split at checkout and updated naming conventions.
 * New per-product fee and discount system at checkout, featuring visual indicators based on payment method.

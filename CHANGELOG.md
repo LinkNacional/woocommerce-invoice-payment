@@ -1,3 +1,7 @@
+# 2.13.1 - 27/07/2026
+* Ajuste no link de pagamento parcial.
+* Ajuste nas variáveis de tradução.
+
 # 2.13.0 - 21/07/2026
 * Refatoração completa do fluxo de pagamento parcial — split em parcela única no checkout, renomeação de nomenclatura.
 * Novo sistema de taxas e descontos por produto no checkout, com indicação visual por método de pagamento.
