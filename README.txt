@@ -117,11 +117,11 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 6. Edit details of your subscription.
 
 == Changelog ==
-# 2.13.1 - 07/27/2026
+= 2.13.1 = *07/27/2026*
 * Adjustment to the partial payment link.
 * Adjustment to translation variables.
 
-= 2.13.0 = *21/07/2026*
+= 2.13.0 = *07/21/2026*
 * Refactored partial payment flow — implemented single-installment split at checkout and updated naming conventions.
 * New per-product fee and discount system at checkout, featuring visual indicators based on payment method.
 * General bug fixes and adjustments in the quote flow.
@@ -223,23 +223,23 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 * Add hook to process subscription automatically;
 * Add function to force customer registration at checkout.
 
-= 2.2.1 = *31/01/2025*
+= 2.2.1 = *01/31/2025*
 * Compatibility fix with the "Payment Gateway Based Fees for WooCommerce" plugin;
 * Updating plugin description link.
 
-= 2.2.0 = *14/12/2024*
+= 2.2.0 = *12/14/2024*
 * Add subscription reference on the invoice page;
 * Add setting to define the invoice PDF language;
 * Fix cron event deletion.
 
-= 2.0.1 = *18/11/2024*
+= 2.0.1 = *11/18/2024*
 * Bug fix for payment methods that require the order’s country.
 
 = 2.0.0 = *12/11/2024*
 * Complete refactor of class loading (PSR4);
 * Fix vulnerabilities.
 
-= 1.7.2 = *30/10/2024*
+= 1.7.2 = *10/30/2024*
 * Fix errors in PDFs with images;
 * Fix translation errors.
 
@@ -271,13 +271,13 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 * Fix PDF generation.
 * Fix submenu Edit Invoice.
 
-= 1.4.0 = *22/04/2024*
+= 1.4.0 = *04/22/2024*
 * Adjust escape variables and request methods to enhance security
 * Add modal for sharing invoice link
 * Add products with recurring subscriptions
 * Add multiple payment methods option
 
-= 1.3.2 = *14/02/2024*
+= 1.3.2 = *02/14/2024*
 * Substitution of echo to esc_html_e or esc_attr_e, adjust to comply with wordpress regulations
 
 = 1.3.1 = *06/11/23*
@@ -290,16 +290,16 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 * Adjust existing templates to handle the new settings
 * Add new template
 
-= 1.2.1 = *20/10/23*
+= 1.2.1 = *10/20/23*
 * Adjust to get logo with curl, adjust to work in directory installed wordpress.
 
-= 1.2.0 = *18/10/23*
+= 1.2.0 = *10/18/23*
 * Add PDF generation for invoices
 
 = 1.1.4 = *07/06/23*
 * Fix invoices table error when the invoice order is deleted.
 
-= 1.1.3 = *14/03/23*
+= 1.1.3 = *03/14/23*
 * Payment methods bug correction;
 
 = 1.1.2 = *10/03/23*
