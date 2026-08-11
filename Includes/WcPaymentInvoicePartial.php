@@ -2348,7 +2348,7 @@ final class WcPaymentInvoicePartial
         $step_html = $this->buildPartialSplitStepHtml();
         if (empty($step_html)) return;
 
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — built with esc_* functions
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $step_html;
     }
 
@@ -3579,13 +3579,12 @@ final class WcPaymentInvoicePartial
                     $parent_order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
                     // Também marca o filho para que a query de pending orders o encontre
                     $order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
-                    $parent_order->add_order_note(
+                    $note = sprintf(
                         /* translators: %s: remaining amount */
-                        sprintf(
-                            __('Partial payment completed. Remaining to pay: %s', 'wc-invoice-payment'),
-                            wc_price(round($original_total - $confirmed, 2))
-                        )
+                        __('Partial payment completed. Remaining to pay: %s', 'wc-invoice-payment'),
+                        wc_price(round($original_total - $confirmed, 2))
                     );
+                    $parent_order->add_order_note($note);
                 }
 
                 // Marca que este split JÁ foi processado para evitar double-counting
@@ -4071,9 +4070,8 @@ final class WcPaymentInvoicePartial
             $title = isset($shipping['method_title']) ? $shipping['method_title'] : '';
             if ($title) {
                 $total = isset($shipping['total']) ? (float) $shipping['total'] : 0;
-                /* translators: 1: shipping method name, 2: shipping cost */
-                /* translators: %1$s: shipping method title, %2$s: shipping cost */
                 $msg = sprintf(
+                    /* translators: %1$s: shipping method title, %2$s: shipping cost */
                     __('Frete escolhido no pagamento anterior: %1$s (%2$s)', 'wc-invoice-payment'),
                     $title,
                     wc_price($total)

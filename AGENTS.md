@@ -133,6 +133,8 @@ echo wp_kses_post( $html );
 - Text domain: `wc-invoice-payment`.
 - Toda string visível ao usuário: `__()`, `esc_html__()`, `esc_attr__()`.
 - Nunca concatenar strings traduzíveis. Usar placeholders `%s`, `%d`.
+- Strings com placeholders exigem `/* translators: %s: descrição */` **diretamente acima do `__()`**, não acima do `sprintf()` ou de variáveis intermediárias.
+- `// phpcs:ignore` deve ficar **na linha imediatamente acima** do statement, sem linha em branco entre eles. Evitar inline (mesma linha). **Sem comentários adicionais** após a diretiva — apenas o código do sniff.
 
 ### WooCommerce
 - Verificar `class_exists( 'WooCommerce' )` antes de hooks WC.
