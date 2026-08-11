@@ -1418,7 +1418,7 @@ final class WcPaymentInvoiceAdmin
                             ++$c;
                         } ?>
                         <?php
-                        // Shipping + total summary
+                        // Shipping
                         $shipping_items = $order->get_items('shipping');
                         $shipping_total = 0.0;
                         $shipping_label = '';
@@ -1428,11 +1428,7 @@ final class WcPaymentInvoiceAdmin
                                 $shipping_label = $si->get_method_title();
                             }
                         }
-                        $items_subtotal = 0.0;
-                        foreach ($order->get_items('line_item') as $li) {
-                            $items_subtotal += (float) $li->get_total();
-                        }
-                        $grand_total = $items_subtotal + $shipping_total;
+
                         ?>
                         <?php if ($shipping_total > 0): ?>
                         <?php
@@ -1450,10 +1446,7 @@ final class WcPaymentInvoiceAdmin
                             </div>
                         </div>
                         <?php endif; ?>
-                        <div style="padding:8px 0;font-size:14px;font-weight:700;color:#333">
-                            <?php esc_html_e('Total (products + shipping)', 'wc-invoice-payment'); ?>:
-                            <?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($grand_total, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>
-                        </div>
+
                     </div>
                     <hr>
                     <?php
