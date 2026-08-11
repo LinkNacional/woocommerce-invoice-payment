@@ -18,6 +18,7 @@ final class WcPaymentInvoiceSettings
         // Defer tab registration to init so the textdomain is already loaded
         $this->register_all_settings_tabs();
         $this->loader->add_action('admin_head', $this, 'fixSettingsTabs');
+        add_filter('woocommerce_admin_settings_sanitize_option', array($this, 'sanitize_wp_editor_field'), 10, 3);
     }
 
     function fixSettingsTabs() {
@@ -178,6 +179,17 @@ final class WcPaymentInvoiceSettings
             </td>
         </tr>
 <?php
+    }
+
+    /**
+     * Sanitiza campos lkn_wp_editor — preserva HTML e quebras de linha.
+     */
+    public function sanitize_wp_editor_field($value, $option, $raw_value)
+    {
+        if (isset($option['type']) && $option['type'] === 'lkn_wp_editor') {
+            return wp_kses_post($raw_value);
+        }
+        return $value;
     }
 
     public function render_payment_gateway_config_field($value)

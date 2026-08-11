@@ -55,6 +55,7 @@ final class WcPaymentInvoicePartial
                     'feesDiscountsLabel'  => __('Additional fees/discounts:', 'wc-invoice-payment'),
                     'enteredAmountLabel'  => __('Entered amount', 'wc-invoice-payment'),
                     'remainingAmountLabel' => __('Remaining amount', 'wc-invoice-payment'),
+                    /* translators: %1$s: entered amount, %2$s: adjusted amount */
                     'feeAdjustmentMsg'    => __('The entered amount of %1$s was adjusted to %2$s due to fees or discounts applied to the order.', 'wc-invoice-payment'),
                     'previouslyPaidLabel' => __('Previously paid:', 'wc-invoice-payment'),
                     'cancelConfirmMsg'    => __('Are you sure you want to cancel the pending partial payment? You can start a new split later.', 'wc-invoice-payment'),
@@ -110,6 +111,7 @@ final class WcPaymentInvoicePartial
                     'placeOrderNotFoundMsg' => __('Error: place order button not found.', 'wc-invoice-payment'),
                     'enteredAmountLabel'  => __('Entered amount', 'wc-invoice-payment'),
                     'remainingAmountLabel' => __('Remaining amount', 'wc-invoice-payment'),
+                    /* translators: %1$s: entered amount, %2$s: adjusted amount */
                     'feeAdjustmentMsg'    => __('The entered amount of %1$s was adjusted to %2$s due to fees or discounts applied to the order.', 'wc-invoice-payment'),
                     'previouslyPaidLabel' => __('Previously paid:', 'wc-invoice-payment'),
                     'cancelConfirmMsg'    => __('Are you sure you want to cancel the pending partial payment? You can start a new split later.', 'wc-invoice-payment'),
@@ -641,6 +643,7 @@ final class WcPaymentInvoicePartial
         wp_localize_script('wcInvoicePaymentPartialScript', 'lknWcipPartialTableVariables', array(
             'orderId' => $parentOrder->get_id(),
             'totalToPay' => $restante,
+            /* translators: %s: amount to pay */
             'confirmPayment' => __('Are you sure you want to pay %s?', 'wc-invoice-payment'),
             'confirmCancel' => __('Are you sure you want to cancel this partial payment?', 'wc-invoice-payment'),
             'nonce' => wp_create_nonce('wp_rest'),
@@ -2345,7 +2348,8 @@ final class WcPaymentInvoicePartial
         $step_html = $this->buildPartialSplitStepHtml();
         if (empty($step_html)) return;
 
-        echo $step_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — built with esc_* functions
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo $step_html;
     }
 
     /**
@@ -3575,10 +3579,12 @@ final class WcPaymentInvoicePartial
                     $parent_order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
                     // Também marca o filho para que a query de pending orders o encontre
                     $order->update_meta_data('_wc_lkn_pay_remaining_pending', 'yes');
-                    $parent_order->add_order_note(sprintf(
+                    $note = sprintf(
+                        /* translators: %s: remaining amount */
                         __('Partial payment completed. Remaining to pay: %s', 'wc-invoice-payment'),
                         wc_price(round($original_total - $confirmed, 2))
-                    ));
+                    );
+                    $parent_order->add_order_note($note);
                 }
 
                 // Marca que este split JÁ foi processado para evitar double-counting
@@ -4064,8 +4070,8 @@ final class WcPaymentInvoicePartial
             $title = isset($shipping['method_title']) ? $shipping['method_title'] : '';
             if ($title) {
                 $total = isset($shipping['total']) ? (float) $shipping['total'] : 0;
-                /* translators: 1: shipping method name, 2: shipping cost */
                 $msg = sprintf(
+                    /* translators: %1$s: shipping method title, %2$s: shipping cost */
                     __('Frete escolhido no pagamento anterior: %1$s (%2$s)', 'wc-invoice-payment'),
                     $title,
                     wc_price($total)
@@ -4099,8 +4105,8 @@ final class WcPaymentInvoicePartial
             </div>
             <script type="text/javascript">
             (function() {
-                var parentId = <?php echo $parent_id; ?>;
-                var childId = <?php echo $order_id; ?>;
+                var parentId = <?php echo (int) $parent_id; ?>;
+                var childId = <?php echo (int) $order_id; ?>;
                 var attempts = 0;
                 var maxAttempts = 15;
 
@@ -4292,18 +4298,18 @@ final class WcPaymentInvoicePartial
         <div class="lkn-wcip-partial-thankyou-card" style="background:#f8f9fa;border:2px solid #007cba;border-radius:8px;padding:24px;margin:24px 0;text-align:center">
             <h3 style="margin:0 0 12px;color:#007cba"><?php esc_html_e('Partial Payment Made', 'wc-invoice-payment'); ?></h3>
             <div style="text-align:left;max-width:340px;margin:0 auto 20px;font-size:14px;line-height:1.8;color:#555">
-                <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Subtotal + Shipping:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($original_total); ?></strong></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Subtotal + Shipping:', 'wc-invoice-payment'); ?></span><strong><?php echo wp_kses_post(wc_price($original_total)); ?></strong></div>
                 <?php if ($partial_amount > 0): ?>
                 <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
-                <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Paid now:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($partial_amount); ?></strong></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0"><span><?php esc_html_e('Paid now:', 'wc-invoice-payment'); ?></span><strong><?php echo wp_kses_post(wc_price($partial_amount)); ?></strong></div>
                 <?php if (abs($fees) > 0.01): ?>
-                <div style="display:flex;justify-content:space-between;padding:2px 0;color:#007cba"><span><?php esc_html_e('+ Fees/Discounts:', 'wc-invoice-payment'); ?></span><strong><?php echo wc_price($fees); ?></strong></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0;color:#007cba"><span><?php esc_html_e('+ Fees/Discounts:', 'wc-invoice-payment'); ?></span><strong><?php echo wp_kses_post(wc_price($fees)); ?></strong></div>
                 <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
-                <div style="display:flex;justify-content:space-between;padding:2px 0;font-weight:600;color:#333"><span><?php esc_html_e('Total charged:', 'wc-invoice-payment'); ?></span><span><?php echo wc_price($paid); ?></span></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0;font-weight:600;color:#333"><span><?php esc_html_e('Total charged:', 'wc-invoice-payment'); ?></span><span><?php echo wp_kses_post(wc_price($paid)); ?></span></div>
                 <?php endif; ?>
                 <?php endif; ?>
                 <hr style="border:none;border-top:1px dashed #ccc;margin:4px 0">
-                <div style="display:flex;justify-content:space-between;padding:2px 0;font-size:15px;font-weight:600;color:#d63638"><span><?php esc_html_e('Saldo restante:', 'wc-invoice-payment'); ?></span><span><?php echo wc_price($remaining); ?></span></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0;font-size:15px;font-weight:600;color:#d63638"><span><?php esc_html_e('Saldo restante:', 'wc-invoice-payment'); ?></span><span><?php echo wp_kses_post(wc_price($remaining)); ?></span></div>
             </div>
             <button id="lknWcipPayRemainingBtn" type="button" style="padding:12px 28px;font-size:15px;font-weight:600;background:#007cba;color:#fff;border:none;border-radius:4px;cursor:pointer" data-order-id="<?php echo esc_attr($pay_target_id); ?>" data-amount="<?php echo esc_attr($remaining); ?>"><?php esc_html_e('Pagar restante', 'wc-invoice-payment'); ?></button>
         </div>

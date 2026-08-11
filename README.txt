@@ -122,6 +122,7 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 * Tweak: Increased the default OTP expiration time.
 * Fix: Link to download the payment invoice in subscriptions.
 * Fix: Removed the "Total" text in the pricing block.
+* Fix: Line break in the invoice description in the text field.
 
 = 2.13.1 = *07/27/2026*
 * Adjustment to the partial payment link.

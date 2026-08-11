@@ -2,6 +2,7 @@
 * Ajuste: Aumento do tempo de expiração do OTP padrão.
 * Correção: Link para baixar a fatura de pagamento em assinaturas.
 * Correção: Remoção do texto "Total" no bloco de preços.
+* Correção: Quebra de linha na descrição da fatura no campo de texto.
   
 # 2.13.1 - 27/07/2026
 * Ajuste no link de pagamento parcial.
