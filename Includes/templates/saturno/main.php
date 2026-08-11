@@ -41,7 +41,7 @@ $invoice_items_html = implode(
 );
 
 $wcip_extra_data = $order->get_meta('wcip_extra_data');
-$wcip_footer_notes = $order->get_meta('wcip_footer_notes');
+$wcip_footer_notes = $order->get_meta('wcip_footer_notes') ?: get_option('lkn_wcip_default_footer');
 
 // Generates the QR Code as base 64 for the payment link.
 ob_start();

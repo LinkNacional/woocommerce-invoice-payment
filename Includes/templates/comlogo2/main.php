@@ -40,7 +40,7 @@ $invoice_items_html = implode(
 );
 
 $wcip_extra_data = $order->get_meta('wcip_extra_data');
-$wcip_footer_notes = $order->get_meta('wcip_footer_notes');
+$wcip_footer_notes = $order->get_meta('wcip_footer_notes') ?: get_option('lkn_wcip_default_footer');
 
 // Load logo as base 64.
 $logo_url_setting = get_option('lkn_wcip_template_logo_url');

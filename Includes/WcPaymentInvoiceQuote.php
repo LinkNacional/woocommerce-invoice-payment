@@ -285,31 +285,27 @@ final class WcPaymentInvoiceQuote
             return $translation;
         }
 
-        $replacements = array(
-            'Cart'                                     => 'Quote',
-            'Your cart'                                => 'Your quotes',
-            'Products in cart'                         => 'Products in quote',
-            'Your cart is currently empty!'            => 'Your quotes are currently empty!',
-            'Total in cart'                            => 'Total in quote',
-            'items in cart'                            => 'items in quote',
-            'item in cart'                             => 'item in quote',
-            'View cart'                                => 'View quote',
-            'Start shopping'                           => 'Browse products',
-            'Cart updated.'                            => 'Quote updated.',
-            'Cart updated'                             => 'Quote updated',
-            'Update cart'                              => 'Update quote',
-            'Shipping, taxes, and discounts calculated at checkout.'
-                                                       => 'Shipping, taxes, and discounts calculated for the quote.',
-            '%s has been added to your cart.'           => '%s has been added to your quote.',
-            '"%s" has been added to your cart.'         => '"%s" has been added to your quote.',
-            '"%s" has been added to your cart.'         => '"%s" has been added to your quote.',
-        );
-
-        if (isset($replacements[$text])) {
-            return __($replacements[$text], 'wc-invoice-payment');
-        }
-
-        return $translation;
+        return match ($text) {
+                'Cart' => __('Quote', 'wc-invoice-payment'),
+                'Your cart' => __('Your quotes', 'wc-invoice-payment'),
+                'Products in cart' => __('Products in quote', 'wc-invoice-payment'),
+                'Your cart is currently empty!' => __('Your quotes are currently empty!', 'wc-invoice-payment'),
+                'Total in cart' => __('Total in quote', 'wc-invoice-payment'),
+                'items in cart' => __('items in quote', 'wc-invoice-payment'),
+                'item in cart' => __('item in quote', 'wc-invoice-payment'),
+                'View cart' => __('View quote', 'wc-invoice-payment'),
+                'Start shopping' => __('Browse products', 'wc-invoice-payment'),
+                'Cart updated.' => __('Quote updated.', 'wc-invoice-payment'),
+                'Cart updated' => __('Quote updated', 'wc-invoice-payment'),
+                'Update cart' => __('Update quote', 'wc-invoice-payment'),
+                'Shipping, taxes, and discounts calculated at checkout.'
+                    => __('Shipping, taxes, and discounts calculated for the quote.', 'wc-invoice-payment'),
+                /* translators: %s: product name */
+                '%s has been added to your cart.' => __('%s has been added to your quote.', 'wc-invoice-payment'),
+                /* translators: %s: product name */
+                '"%s" has been added to your cart.' => __('"%s" has been added to your quote.', 'wc-invoice-payment'),
+                default => $translation,
+        };
     }
 
     /**
