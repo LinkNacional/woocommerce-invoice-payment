@@ -1115,9 +1115,9 @@ final class WcPaymentInvoiceSettings
             $slug . 'expiration_time' => array(
                 'name'     => __('Tempo de Expiração do Código', 'wc-invoice-payment'),
                 'type'     => 'number',
-                'desc'     => __('Tempo em minutos para expiração do código OTP. Recomendado entre 5 a 15 minutos.', 'wc-invoice-payment'),
+                'desc'     => __('Tempo em minutos para expiração do código OTP. Recomendado entre 10 a 15 minutos.', 'wc-invoice-payment'),
                 'id'       => $slug . 'expiration_time',
-                'default'  => '5',
+                'default'  => '10',
                 'custom_attributes' => array(
                     'min' => '1',
                     'max' => '60',

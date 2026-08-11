@@ -140,6 +140,7 @@ final class WcPaymentInvoiceAdmin
             || 'quotes_page_new-quote' === $hook
             || 'orcamentos_page_new-quote' === $hook
             || 'toplevel_page_wc-invoice-payment-quotes' === $hook
+            || 'toplevel_page_wc-invoice-payment-subscriptions' === $hook
         ) {
             wp_enqueue_style($this->plugin_name . '-admin-style', plugin_dir_url(__FILE__) . 'css/wc-invoice-payment-admin.css', array(), $this->version, 'all');
         }
@@ -176,6 +177,7 @@ final class WcPaymentInvoiceAdmin
             || 'quotes_page_new-quote' === $hook
             || 'orcamentos_page_new-quote' === $hook
             || 'admin_page_edit-quote' == $hook
+            || 'toplevel_page_wc-invoice-payment-subscriptions' === $hook
         ) {
             wp_enqueue_script($this->plugin_name . '-admin-js', plugin_dir_url(__FILE__) . 'js/wc-invoice-payment-admin.js', array('wp-i18n', 'jquery'), $this->version, false);
             wp_set_script_translations($this->plugin_name . '-admin-js', 'wc-invoice-payment', WC_PAYMENT_INVOICE_TRANSLATION_PATH);
@@ -1416,7 +1418,7 @@ final class WcPaymentInvoiceAdmin
                             ++$c;
                         } ?>
                         <?php
-                        // Shipping + total summary
+                        // Shipping
                         $shipping_items = $order->get_items('shipping');
                         $shipping_total = 0.0;
                         $shipping_label = '';
@@ -1426,11 +1428,7 @@ final class WcPaymentInvoiceAdmin
                                 $shipping_label = $si->get_method_title();
                             }
                         }
-                        $items_subtotal = 0.0;
-                        foreach ($order->get_items('line_item') as $li) {
-                            $items_subtotal += (float) $li->get_total();
-                        }
-                        $grand_total = $items_subtotal + $shipping_total;
+
                         ?>
                         <?php if ($shipping_total > 0): ?>
                         <?php
@@ -1448,10 +1446,7 @@ final class WcPaymentInvoiceAdmin
                             </div>
                         </div>
                         <?php endif; ?>
-                        <div style="padding:8px 0;font-size:14px;font-weight:700;color:#333">
-                            <?php esc_html_e('Total (products + shipping)', 'wc-invoice-payment'); ?>:
-                            <?php echo esc_html(get_woocommerce_currency_symbol($order->get_currency()) . ' ' . number_format($grand_total, $decimalQtd, $decimalSeparator, $thousandSeparator)); ?>
-                        </div>
+
                     </div>
                     <hr>
                     <?php

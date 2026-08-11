@@ -78,7 +78,7 @@ final class WcPaymentInvoiceOtpEmail {
      * Obtém o tempo de expiração configurado em minutos
      */
     private function get_otp_expiration_minutes() {
-        $expiration_minutes = get_option('lkn_wcip_otp_email_expiration_time', 5);
+        $expiration_minutes = get_option('lkn_wcip_otp_email_expiration_time', 10);
         
         // Validação: mínimo 1 minuto, máximo 60 minutos
         $expiration_minutes = max(1, min(60, (int) $expiration_minutes));
