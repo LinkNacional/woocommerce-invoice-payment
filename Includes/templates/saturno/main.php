@@ -78,7 +78,7 @@ ob_start();
     <table id="sender-details-table">
         <tr>
             <td>
-                <p><?php echo wp_kses_post(get_option('lkn_wcip_sender_details')); ?>
+                <p><?php echo wp_kses_post(nl2br(get_option('lkn_wcip_sender_details'))); ?>
                 </p>
             </td>
         </tr>
@@ -188,7 +188,7 @@ ob_start();
                 height="230"
             >
             <figcaption>
-                <?php echo wp_kses_post(get_option('lkn_wcip_text_before_payment_link')); ?>
+                <?php echo wp_kses_post(nl2br(get_option('lkn_wcip_text_before_payment_link'))); ?>
                 <span
                     id="payment-link-container"><?php echo esc_url($invoice_payment_link); ?></span>
             </figcaption>
@@ -198,7 +198,7 @@ ob_start();
     <footer id="main-footer">
         <h1><?php esc_html_e('Payment details', 'wc-invoice-payment'); ?>
         </h1>
-        <?php echo wp_kses_post($wcip_footer_notes); ?>
+        <?php echo wp_kses_post(nl2br($wcip_footer_notes)); ?>
 
         <div style="text-align: center; width: 100%; opacity: 0.2; font-size: 0.8em; margin-top: 12px;">
             <a

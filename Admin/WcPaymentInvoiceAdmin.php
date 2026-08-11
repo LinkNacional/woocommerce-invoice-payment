@@ -2947,7 +2947,7 @@ final class WcPaymentInvoiceAdmin
                 $email = sanitize_email(wp_unslash($_POST['lkn_wcip_email']));
                 $expDate = sanitize_text_field(wp_unslash($_POST['lkn_wcip_exp_date']));
                 $iniDate = new DateTime();
-                $extraData = sanitize_text_field(wp_unslash($_POST['lkn_wcip_extra_data']));
+                $extraData = sanitize_textarea_field(wp_unslash($_POST['lkn_wcip_extra_data']));
                 $footerNotes = wp_kses_post(wp_unslash($_POST['lkn-wc-invoice-payment-footer-notes']));
 
                 $order = wc_create_order(
@@ -3951,7 +3951,7 @@ final class WcPaymentInvoiceAdmin
                 $email = sanitize_email(wp_unslash($_POST['lkn_wcip_email']));
                 $expDate = sanitize_text_field(wp_unslash($_POST['lkn_wcip_exp_date']));
                 $iniDate = new DateTime();
-                $extraData = sanitize_text_field(wp_unslash($_POST['lkn_wcip_extra_data']));
+                $extraData = sanitize_textarea_field(wp_unslash($_POST['lkn_wcip_extra_data']));
                 $footerNotes = wp_kses_post(wp_unslash($_POST['lkn-wc-invoice-payment-footer-notes']));
 
                 $order = wc_create_order(
