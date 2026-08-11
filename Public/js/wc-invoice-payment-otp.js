@@ -34,7 +34,7 @@ jQuery(document).ready(function($) {
                 label.html('Código enviado para seu email. <span class="required">*</span>');
                 
                 // Calcula horário de expiração usando configuração dinâmica
-                const expirationMinutes = wcInvoicePaymentOtp.expiration_minutes || 5;
+                const expirationMinutes = wcInvoicePaymentOtp.expiration_minutes || 10;
                 const expirationTime = new Date();
                 expirationTime.setMinutes(expirationTime.getMinutes() + parseInt(expirationMinutes));
                 const expirationTimeString = expirationTime.toLocaleTimeString('pt-BR', {
