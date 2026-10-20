@@ -7,3 +7,5 @@ includes/phpqrcode/cache/*/
 includes/phpqrcode/cache/*.png
 includes/phpqrcode/cache/*.dat
 sftp.json
+.phpunit.cache
+/.phpunit.result.cache

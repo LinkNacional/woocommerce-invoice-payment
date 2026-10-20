@@ -17,24 +17,14 @@ final class WcPaymentInvoiceSubscription
                 return;
             }
 
-            $scheduled_events = _get_cron_array();
-            // verifica todos os eventos agendados
-            foreach ($scheduled_events as $timestamp => $cron_events) {
-                foreach ($cron_events as $hook => $events) {
-                    foreach ($events as $event) {
-                        // Verifique se o evento está associado ao seu gancho (hook)
-                        if ('generate_invoice_event' === $hook) {
-                            // Verifique se os argumentos do evento contêm o ID da ordem que você deseja remover
-                            $event_args = $event['args'];
-                            if (is_array($event_args) && in_array($invoice_id, $event_args)) {
-                                // Remova o evento do WP Cron
-                                wp_unschedule_event($timestamp, $hook, $event_args);
-                            }
-                        }
-                    }
-                }
-            }
             $invoice = wc_get_order($invoice_id);
+
+            if (! $invoice) {
+                wp_die();
+            }
+
+            $this->unschedule_subscription_events((int) $invoice_id);
+
             $invoice->update_status('cancelled');
             $invoice->save();
             
@@ -42,6 +32,35 @@ final class WcPaymentInvoiceSubscription
             $this->remove_subscription_from_schedule($invoice_id);
             
             wp_die();
+        }
+    }
+
+    /**
+     * Remove os eventos de assinatura (single) de um pedido, preservando os recorrentes criados na tela de faturas
+     */
+    public function unschedule_subscription_events($order_id): void
+    {
+        $hooks = array('generate_invoice_event', 'lkn_wcip_cron_hook');
+
+        foreach (_get_cron_array() as $timestamp => $cron_events) {
+            foreach ($cron_events as $hook => $events) {
+                if (! in_array($hook, $hooks, true)) {
+                    continue;
+                }
+
+                foreach ($events as $event) {
+                    // Evento recorrente (daily) da expiração de fatura: não é da assinatura
+                    if (! empty($event['schedule'])) {
+                        continue;
+                    }
+
+                    $event_args = isset($event['args']) ? $event['args'] : array();
+
+                    if (is_array($event_args) && in_array((string) $order_id, array_map('strval', $event_args), true)) {
+                        wp_unschedule_event($timestamp, $hook, $event_args);
+                    }
+                }
+            }
         }
     }
 
@@ -146,7 +165,155 @@ final class WcPaymentInvoiceSubscription
             ?>
         </div>
 <?php
-        wp_enqueue_script('custom-admin-js', plugin_dir_url(__FILE__) . '../Admin/js/wc-invoice-payment-subscription.js', array('jquery'), '1.4.0', true);
+        wp_enqueue_script('lkn-wcip-subscription-admin', plugin_dir_url(__FILE__) . '../Admin/js/wc-invoice-payment-subscription.js', array('jquery'), '1.5.0', true);
+        wp_enqueue_style('lkn-wcip-subscription-admin', plugin_dir_url(__FILE__) . '../Admin/css/wc-invoice-payment-subscription.css', array(), '1.5.0');
+    }
+
+    /**
+     * Campos de assinatura por variação (produto variável)
+     */
+    public function add_variation_fields($loop, $variation_data, $variation): void
+    {
+        $variation_id = isset($variation->ID) ? (int) $variation->ID : 0;
+
+        $mode = get_post_meta($variation_id, 'lkn_wcip_variation_payment_mode', true);
+        $mode = in_array($mode, array('subscription', 'one_time'), true) ? $mode : 'inherit';
+        $is_subscription = 'subscription' === $mode;
+
+        $parent_id = isset($variation->post_parent) ? (int) $variation->post_parent : 0;
+        $parent_inherits = $parent_id && 'on' === get_post_meta($parent_id, '_lkn-wcip-subscription-product', true);
+        $inherit_label = $parent_inherits
+            ? __('Inherit from product (subscription)', 'wc-invoice-payment')
+            : __('Inherit from product (one-time payment)', 'wc-invoice-payment');
+
+        $subscription_number = get_post_meta($variation_id, 'lkn_wcip_subscription_interval_number', true);
+        $subscription_interval = get_post_meta($variation_id, 'lkn_wcip_subscription_interval_type', true);
+        $subscription_limit = get_post_meta($variation_id, 'lkn_wcip_subscription_limit', true);
+
+        $subscription_number = empty($subscription_number) ? 1 : $subscription_number;
+        $subscription_interval = empty($subscription_interval) ? 'month' : $subscription_interval;
+        $subscription_limit = empty($subscription_limit) ? 0 : $subscription_limit;
+
+        $id_mode = 'lkn_wcip_variation_payment_mode_' . $loop;
+        $id_number = 'lkn_wcip_variation_interval_number_' . $loop;
+        $id_type = 'lkn_wcip_variation_interval_type_' . $loop;
+        $id_limit = 'lkn_wcip_variation_interval_limit_' . $loop;
+        ?>
+        <div class="lkn_wcip_variation_subscription options_group">
+            <input
+                type="hidden"
+                name="lkn_wcip_variation_nonce"
+                value="<?php echo esc_attr(wp_create_nonce('lkn_wcip_variation_nonce')); ?>">
+            <p class="form-row form-row-first">
+                <label for="<?php echo esc_attr($id_mode); ?>"><?php esc_html_e('Recurring payment', 'wc-invoice-payment'); ?></label>
+                <select
+                    id="<?php echo esc_attr($id_mode); ?>"
+                    name="lkn_wcip_variation_payment_mode[<?php echo esc_attr($loop); ?>]"
+                    class="lkn_wcip_variation_payment_mode">
+                    <option value="inherit" <?php selected($mode, 'inherit'); ?>><?php echo esc_html($inherit_label); ?></option>
+                    <option value="subscription" <?php selected($mode, 'subscription'); ?>><?php esc_html_e('This variation is a subscription', 'wc-invoice-payment'); ?></option>
+                    <option value="one_time" <?php selected($mode, 'one_time'); ?>><?php esc_html_e('This variation is a one-time payment', 'wc-invoice-payment'); ?></option>
+                </select>
+            </p>
+            <p class="form-row form-row-last lkn_wcip_variation_subscription_field<?php if (! $is_subscription) : ?> lkn_wcip_variation_subscription_hidden<?php endif; ?>">
+                <label for="<?php echo esc_attr($id_number); ?>"><?php esc_html_e('Subscription Interval', 'wc-invoice-payment'); ?></label>
+                <input
+                    type="number"
+                    class="short wc_input_number"
+                    min="1"
+                    id="<?php echo esc_attr($id_number); ?>"
+                    name="lkn_wcip_variation_interval_number[<?php echo esc_attr($loop); ?>]"
+                    value="<?php echo esc_attr($subscription_number); ?>">
+                <select
+                    id="<?php echo esc_attr($id_type); ?>"
+                    name="lkn_wcip_variation_interval_type[<?php echo esc_attr($loop); ?>]"
+                    class="lkn_wcip_subscription_interval_type">
+                    <?php
+                    $options = array(
+                        'day' => __('Days', 'wc-invoice-payment'),
+                        'week' => __('Weeks', 'wc-invoice-payment'),
+                        'month' => __('Months', 'wc-invoice-payment'),
+                        'year' => __('Years', 'wc-invoice-payment'),
+                    );
+
+                    foreach ($options as $key => $label) {
+                        echo '<option value="' . esc_attr($key) . '"';
+                        echo ($subscription_interval == $key) ? ' selected="selected"' : '';
+                        echo '>' . esc_html($label) . '</option>';
+                    }
+                    ?>
+                </select>
+            </p>
+            <p class="form-row form-row-full lkn_wcip_variation_subscription_field<?php if (! $is_subscription) : ?> lkn_wcip_variation_subscription_hidden<?php endif; ?>">
+                <label for="<?php echo esc_attr($id_limit); ?>"><?php esc_html_e('Subscription limit', 'wc-invoice-payment'); ?></label>
+                <input
+                    type="number"
+                    class="short wc_input_number"
+                    min="0"
+                    step="1"
+                    id="<?php echo esc_attr($id_limit); ?>"
+                    name="lkn_wcip_variation_interval_limit[<?php echo esc_attr($loop); ?>]"
+                    value="<?php echo esc_attr($subscription_limit); ?>">
+                <span class="description"><?php esc_html_e('Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit.', 'wc-invoice-payment'); ?></span>
+            </p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Salva os campos de assinatura da variação
+     */
+    public function save_variation_fields($variation_id, $loop = 0): void
+    {
+        if (! isset($_POST['lkn_wcip_variation_nonce'])
+            || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['lkn_wcip_variation_nonce'])), 'lkn_wcip_variation_nonce')
+        ) {
+            return;
+        }
+
+        if (! current_user_can('edit_product', $variation_id)) {
+            return;
+        }
+
+        $modes = array('inherit' => '', 'subscription' => 'subscription', 'one_time' => 'one_time');
+
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitizado na linha seguinte
+        $posted_modes = isset($_POST['lkn_wcip_variation_payment_mode']) && is_array($_POST['lkn_wcip_variation_payment_mode']) ? wp_unslash($_POST['lkn_wcip_variation_payment_mode']) : array();
+        $mode = isset($posted_modes[$loop]) ? sanitize_text_field($posted_modes[$loop]) : 'inherit';
+
+        if (isset($modes[$mode]) && '' !== $modes[$mode]) {
+            update_post_meta($variation_id, 'lkn_wcip_variation_payment_mode', $modes[$mode]);
+        } else {
+            delete_post_meta($variation_id, 'lkn_wcip_variation_payment_mode');
+        }
+
+        // A cadência só existe quando a variação é uma assinatura
+        if ('subscription' !== $mode) {
+            delete_post_meta($variation_id, 'lkn_wcip_subscription_interval_number');
+            delete_post_meta($variation_id, 'lkn_wcip_subscription_interval_type');
+            delete_post_meta($variation_id, 'lkn_wcip_subscription_limit');
+
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitizado na linha seguinte
+        $posted_numbers = isset($_POST['lkn_wcip_variation_interval_number']) && is_array($_POST['lkn_wcip_variation_interval_number']) ? wp_unslash($_POST['lkn_wcip_variation_interval_number']) : array();
+        $subscription_number = max(1, (int) sanitize_text_field($posted_numbers[$loop] ?? ''));
+        update_post_meta($variation_id, 'lkn_wcip_subscription_interval_number', $subscription_number);
+
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitizado na linha seguinte
+        $posted_types = isset($_POST['lkn_wcip_variation_interval_type']) && is_array($_POST['lkn_wcip_variation_interval_type']) ? wp_unslash($_POST['lkn_wcip_variation_interval_type']) : array();
+        $subscription_interval = sanitize_text_field($posted_types[$loop] ?? '');
+        $valid_intervals = array('day', 'week', 'month', 'year');
+
+        if (in_array($subscription_interval, $valid_intervals, true)) {
+            update_post_meta($variation_id, 'lkn_wcip_subscription_interval_type', $subscription_interval);
+        }
+
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitizado na linha seguinte
+        $posted_limits = isset($_POST['lkn_wcip_variation_interval_limit']) && is_array($_POST['lkn_wcip_variation_interval_limit']) ? wp_unslash($_POST['lkn_wcip_variation_interval_limit']) : array();
+        $subscription_limit = max(0, (int) sanitize_text_field($posted_limits[$loop] ?? ''));
+        update_post_meta($variation_id, 'lkn_wcip_subscription_limit', $subscription_limit);
     }
 
     public function save_subscription_fields($post_id): void
@@ -178,6 +345,13 @@ final class WcPaymentInvoiceSubscription
         }
     }
 
+    /**
+     * Registra a fatura (e a assinatura, quando for o caso) de um pedido.
+     *
+     * @param mixed $order_id           ID (ou objeto) do pedido.
+     * @param bool  $manualSubscription Assinatura criada na tela de faturas do admin: processa mesmo em status
+     *                                  de fatura pendente e usa o intervalo salvo no próprio pedido.
+     */
     public function validate_product($order_id, $manualSubscription = false): void
     {
         if (gettype($order_id) == "object") {
@@ -186,6 +360,11 @@ final class WcPaymentInvoiceSubscription
 
         
         $order = wc_get_order($order_id);
+
+        if (! $order) {
+            return;
+        }
+
         $items = $order->get_items();
         $orderStatus = $order->get_status();
         $isRecurringDonation = $order->get_meta('_recurring_donation') == 'yes';
@@ -193,74 +372,196 @@ final class WcPaymentInvoiceSubscription
         $excludedStatuses = array('pending', 'cancelled', 'refunded', 'failed');
         
         if ((! in_array($orderStatus, $excludedStatuses) || $manualSubscription) && ! $order->get_meta('lkn_wcip_subscription_already_processed')) {
-            foreach ($items as $item) {
-                $product_id = $item->get_product_id();
-                $is_subscription_enabled = get_post_meta($product_id, '_lkn-wcip-subscription-product', true);
-                if ($order->get_meta('lkn_is_quote') != 'yes' && (get_option("lkn_wcip_subscription_active_product_invoices") == 'yes' || 'on' == $is_subscription_enabled || $manualSubscription || $isRecurringDonation)) {
-                    $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
-                    $iniDate = new DateTime();
-                    $iniDateFormatted = $iniDate->format('Y-m-d');
-                    $subscription_interval_number = get_post_meta($product_id, 'lkn_wcip_subscription_interval_number', true);
-                    $subscription_interval_type = get_post_meta($product_id, 'lkn_wcip_subscription_interval_type', true);
-                    $subscriptionLimit = get_post_meta($product_id, 'lkn_wcip_subscription_limit', true);
+            $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
 
-                    //Se for uma assinatura adicionada manualmente será preciso pegar os valores de outra forma
-                    if ($is_subscription_manual) {
-                        $is_subscription_enabled = $order->get_meta('lkn_is_subscription');
-                        $subscription_interval_number = $order->get_meta('lkn_wcip_subscription_interval_number');
-                        $subscription_interval_type = $order->get_meta('lkn_wcip_subscription_interval_type');
-                        $subscriptionLimit = $order->get_meta('lkn_wcip_subscription_limit');
-                    };
+            // Procura o item de assinatura do pedido (variação tem prioridade sobre o produto)
+            $subscription = array('enabled' => false, 'number' => '', 'type' => '', 'limit' => '', 'source_id' => 0);
 
-                    $result = $this->calculate_next_due_date($subscription_interval_number, $subscription_interval_type);
-                    $next_due_date = $result['next_due_date'];
+            if ($is_subscription_manual) {
+                //Se for uma assinatura adicionada manualmente será preciso pegar os valores de outra forma
+                $subscription = array(
+                    'enabled' => (bool) $order->get_meta('lkn_is_subscription') || $manualSubscription,
+                    'number' => $order->get_meta('lkn_wcip_subscription_interval_number'),
+                    'type' => $order->get_meta('lkn_wcip_subscription_interval_type'),
+                    'limit' => $order->get_meta('lkn_wcip_subscription_limit'),
+                    'source_id' => 0,
+                );
+            } else {
+                foreach ($items as $item) {
+                    $item_config = $this->get_item_subscription_config($item);
 
-                    //seta data para ver quanto tempo foi removido para ser adicionado depois            
+                    if ($item_config['enabled']) {
+                        $subscription = $item_config;
+                        break;
+                    }
+                }
+            }
+
+            $createInvoice = $order->get_meta('lkn_is_quote') != 'yes'
+                && (get_option("lkn_wcip_subscription_active_product_invoices") == 'yes' || $subscription['enabled'] || $isRecurringDonation);
+
+            if ($createInvoice) {
+
+                $iniDate = new DateTime();
+                $iniDateFormatted = $iniDate->format('Y-m-d');
+
+                $order->add_meta_data('lkn_ini_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
+                $order->add_meta_data('wcip_select_invoice_language', 'pt_BR');
+
+                if (! $order->get_meta('lkn_exp_date')) {
+                    $order->add_meta_data('lkn_exp_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
+                }
+
+                //Dados de assinatura só são gravados quando o item realmente é uma assinatura
+                if ($subscription['enabled']) {
+                    $result = $this->calculate_next_due_date($subscription['number'], $subscription['type']);
+
+                    //seta data para ver quanto tempo foi removido para ser adicionado depois
                     $order->add_meta_data('lkn_time_removed', $result['time_removed']);
-                    $order->add_meta_data('lkn_ini_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
-                    $order->add_meta_data('lkn_wcip_subscription_limit', $subscriptionLimit);
-                    $order->add_meta_data('lkn_wcip_subscription_initial_limit', 0);
-                    $order->add_meta_data('lkn_wcip_subscription_already_processed', true);
-                    $order->add_meta_data('wcip_select_invoice_language', 'pt_BR');
-
-                    if (! $order->get_meta('lkn_exp_date')) {
-                        $order->add_meta_data('lkn_exp_date', gmdate("Y-m-d", strtotime($iniDateFormatted)));
+                    // update_meta_data: a tela de assinaturas do admin já pode ter gravado
+                    // essas metas (add_meta_data criaria linhas duplicadas).
+                    $order->update_meta_data('lkn_wcip_subscription_interval_number', $subscription['number']);
+                    $order->update_meta_data('lkn_wcip_subscription_interval_type', $subscription['type']);
+                    $order->update_meta_data('lkn_wcip_subscription_limit', $subscription['limit']);
+                    // initial_limit é contador: só inicializa quando ainda não existe
+                    if (! $order->get_meta('lkn_wcip_subscription_initial_limit')) {
+                        $order->add_meta_data('lkn_wcip_subscription_initial_limit', 0);
                     }
 
-                    //Caso seja assinatura marca como tal, mas só agenda o cron quando status for completed
-                    $order->save();
-                    if ('on' == $is_subscription_enabled) {
-                        $order->add_meta_data('lkn_is_subscription', true);
-                        // Salvar a data de vencimento para uso posterior quando status for completed
-                        $order->add_meta_data('lkn_wcip_subscription_next_due_date', $next_due_date);
-                        $order->save();
-                        // Não agendar o cron aqui - será agendado quando status for completed
-                    }
+                    //Marca como assinatura; o cron só é agendado quando o pedido estiver pago
+                    $order->update_meta_data('lkn_is_subscription', true);
+                    $order->update_meta_data('lkn_wcip_subscription_next_due_date', $result['next_due_date']);
+                }
 
-                    //Caso não seja uma assinatura manual é preciso atualizar a lista
-                    if (! $is_subscription_manual) {
-                        // Adicionar a nova ordem à lista de faturas
-                        $invoice_list = get_option('lkn_wcip_invoices', array());
-                        if (!in_array($order->get_id(), $invoice_list)) {
-                            $invoice_list[] = $order->get_id();
-                        }
-                        update_option('lkn_wcip_invoices', $invoice_list);
+                $order->add_meta_data('lkn_wcip_subscription_already_processed', true);
+                $order->save();
+
+                //Caso não seja uma assinatura manual é preciso atualizar a lista
+                if (! $is_subscription_manual) {
+                    // Adicionar a nova ordem à lista de faturas
+                    $invoice_list = get_option('lkn_wcip_invoices', array());
+                    if (!in_array($order->get_id(), $invoice_list)) {
+                        $invoice_list[] = $order->get_id();
                     }
+                    update_option('lkn_wcip_invoices', $invoice_list);
                 }
             }
         }
     }
 
     public function order_contains_subscription($order){
-        $items = $order->get_items();
-        foreach ($items as $item) {
-            $product_id = $item->get_product_id();
-            $is_subscription_enabled = get_post_meta($product_id, '_lkn-wcip-subscription-product', true);
-            if ('on' == $is_subscription_enabled) {
-                $have_subscription_items = true;
+        if (! $order instanceof \WC_Order) {
+            return false;
+        }
+
+        foreach ($order->get_items() as $item) {
+            $config = $this->get_item_subscription_config($item);
+            if ($config['enabled']) {
+                return true;
             }
         }
-        return $have_subscription_items ?? false;
+
+        return false;
+    }
+
+    /**
+     * Resolve a configuração de assinatura de um produto/variação (variação > produto pai)
+     */
+    private function get_product_subscription_config($product_id, $variation_id = 0): array
+    {
+        $config = array(
+            'enabled' => false,
+            'number' => '',
+            'type' => '',
+            'limit' => '',
+            'source_id' => 0,
+        );
+
+        // A variação tem prioridade: pode ser assinatura própria ou pagamento único
+        $mode = $variation_id ? get_post_meta($variation_id, 'lkn_wcip_variation_payment_mode', true) : '';
+
+        if ('one_time' === $mode) {
+            return $config;
+        }
+
+        if ('subscription' === $mode) {
+            $number = get_post_meta($variation_id, 'lkn_wcip_subscription_interval_number', true);
+            $type = get_post_meta($variation_id, 'lkn_wcip_subscription_interval_type', true);
+            $limit = get_post_meta($variation_id, 'lkn_wcip_subscription_limit', true);
+
+            // Variação marcada como assinatura sem cadência própria: usa a do produto pai
+            if (empty($number) || empty($type)) {
+                $number = get_post_meta($product_id, 'lkn_wcip_subscription_interval_number', true);
+                $type = get_post_meta($product_id, 'lkn_wcip_subscription_interval_type', true);
+                $limit = '' === $limit ? get_post_meta($product_id, 'lkn_wcip_subscription_limit', true) : $limit;
+            }
+
+            return array(
+                'enabled' => true,
+                'number' => empty($number) ? 1 : $number,
+                'type' => empty($type) ? 'month' : $type,
+                'limit' => $limit,
+                'source_id' => (int) $variation_id,
+            );
+        }
+
+        // Variação sem configuração própria: herda do produto pai
+        if (empty($product_id) || 'on' !== get_post_meta($product_id, '_lkn-wcip-subscription-product', true)) {
+            return $config;
+        }
+
+        $number = get_post_meta($product_id, 'lkn_wcip_subscription_interval_number', true);
+        $type = get_post_meta($product_id, 'lkn_wcip_subscription_interval_type', true);
+
+        return array(
+            'enabled' => true,
+            'number' => empty($number) ? 1 : $number,
+            'type' => empty($type) ? 'month' : $type,
+            'limit' => get_post_meta($product_id, 'lkn_wcip_subscription_limit', true),
+            'source_id' => (int) $product_id,
+        );
+    }
+
+    private function get_item_subscription_config($item): array
+    {
+        if (! $item instanceof \WC_Order_Item_Product) {
+            return $this->get_product_subscription_config(0);
+        }
+
+        return $this->get_product_subscription_config($item->get_product_id(), $item->get_variation_id());
+    }
+
+    /**
+     * Verifica se o pedido é de assinatura: produto marcado, assinatura manual ou doação recorrente
+     */
+    /**
+     * Pedido originado no checkout do cliente (store-api/checkout), não no admin nem por integração
+     */
+    private function is_customer_checkout_order($order): bool
+    {
+        if (! $order instanceof \WC_Order) {
+            return false;
+        }
+
+        return ! in_array($order->get_created_via(), array('', 'admin'), true);
+    }
+
+    private function is_subscription_order($order): bool
+    {
+        if (! $order instanceof \WC_Order) {
+            return false;
+        }
+
+        // Pedido filho de pagamento parcial não é assinatura (os itens são copiados do pedido principal)
+        if ('yes' === $order->get_meta('_wc_lkn_is_partial_order') || $order->get_meta('_wc_lkn_parent_id')) {
+            return false;
+        }
+
+        if ($order->get_meta('lkn_wcip_subscription_is_manual') || 'yes' === $order->get_meta('_recurring_donation')) {
+            return true;
+        }
+
+        return $this->order_contains_subscription($order);
     }
 
     public function calculate_next_due_date($interval_number, $interval_type)
@@ -293,6 +594,9 @@ final class WcPaymentInvoiceSubscription
 
     public function calcule_switch($interval_type, $interval_number, $current_time)
     {
+        $time_removed = '';
+        $next_due_date = '';
+
         switch ($interval_type) {
             case 'day':
                 $next_due_date = strtotime("+{$interval_number} day", $current_time);
@@ -339,7 +643,6 @@ final class WcPaymentInvoiceSubscription
                 }
                 break;
             default:
-                $next_due_date = 0;
                 $next_due_date = '';
                 break;
         }
@@ -352,19 +655,130 @@ final class WcPaymentInvoiceSubscription
 
     public function schedule_next_invoice_generation($order_id, $due_date): void
     {
-        wp_schedule_single_event($due_date, 'generate_invoice_event', array($order_id));
-        wp_schedule_single_event($due_date + 86400, 'lkn_wcip_cron_hook', array($order_id));
-        
+        // Normaliza o ID: o wp-cron devolve os args como string e os eventos são indexados pelo hash dos args
+        $order_id = (int) $order_id;
+
+        $this->schedule_single_event_once($due_date, 'generate_invoice_event', array($order_id));
+        $this->schedule_single_event_once($due_date + 86400, 'lkn_wcip_cron_hook', array($order_id));
+
         // Salva no banco como backup do sistema de cron
         $this->save_subscription_to_schedule($order_id, $due_date);
     }
 
-    public function create_next_invoice($order_id): void
+    /**
+     * Agenda um evento único sem empilhar duplicatas (reagenda quando a data muda)
+     */
+    private function schedule_single_event_once($timestamp, $hook, $args): void
     {
-        $order = wc_get_order($order_id);
-        if('completed' != $order->get_status()) {
+        $timestamp = (int) $timestamp;
+
+        if ($timestamp <= 0) {
             return;
         }
+
+        $scheduled = wp_get_scheduled_event($hook, $args);
+
+        // Evento recorrente (daily, agendado na tela de faturas): não é duplicata, não mexe
+        if ($scheduled && ! empty($scheduled->schedule)) {
+            return;
+        }
+
+        if ($scheduled && (int) $scheduled->timestamp === $timestamp) {
+            return;
+        }
+
+        if ($scheduled) {
+            wp_unschedule_event((int) $scheduled->timestamp, $hook, $args);
+        }
+
+        wp_schedule_single_event($timestamp, $hook, $args);
+    }
+
+    public function create_next_invoice($order_id): void
+    {
+        $order_id = (int) $order_id;
+        $order = wc_get_order($order_id);
+
+        // Só gera fatura de assinatura paga (processing/completed). Pedidos de lojas que
+        // usam "processing" como estado final (produtos virtuais) também contam.
+        if (! $order || ! in_array($order->get_status(), wc_get_is_paid_statuses(), true)) {
+            return;
+        }
+
+        // Trava: dois executores do wp-cron (HTTP + cron do servidor) não podem gerar a mesma fatura
+        if (! $this->acquire_generation_lock($order_id)) {
+            return;
+        }
+
+        try {
+            $this->generate_next_invoice($order);
+        } finally {
+            $this->release_generation_lock($order_id);
+        }
+    }
+
+    /**
+     * Trava por pedido para a geração de fatura (add_option é atômico: a option_name é única)
+     */
+    private function acquire_generation_lock($order_id): bool
+    {
+        $option = 'lkn_wcip_generation_lock_' . $order_id;
+
+        if (add_option($option, time(), '', 'no')) {
+            return true;
+        }
+
+        // Trava órfã (processo morreu no meio): expira depois de 5 minutos
+        $locked_at = (int) get_option($option);
+
+        if ($locked_at && (time() - $locked_at) > 300) {
+            delete_option($option);
+
+            return (bool) add_option($option, time(), '', 'no');
+        }
+
+        return false;
+    }
+
+    private function release_generation_lock($order_id): void
+    {
+        delete_option('lkn_wcip_generation_lock_' . $order_id);
+    }
+
+    private function generate_next_invoice($order): void
+    {
+        $order_id = $order->get_id();
+
+        // Sem cadência resolvível não dá para saber a próxima data: não gera fatura (evita cobrança repetida)
+        $interval = $this->resolve_order_interval($order);
+        if (empty($interval['number']) || empty($interval['type'])) {
+            $order->add_order_note(__('Subscription paused: the recurrence interval could not be resolved (the subscription product may have been deleted). No new invoice was generated.', 'wc-invoice-payment'));
+            $order->save();
+
+            // Sai do backup: sem cadência não há próximo ciclo (evita repetir a nota todo dia)
+            $this->remove_subscription_from_schedule($order_id);
+
+            return;
+        }
+
+        // Já foi gerada uma fatura para este ciclo há poucos minutos (evento duplicado): garante só o próximo ciclo
+        $last_generation = (int) $order->get_meta('lkn_wcip_last_generation');
+        if ($last_generation && (current_time('timestamp') - $last_generation) < 300) {
+            // Já existe próximo ciclo agendado: mantém a data, só garante o evento
+            $scheduled = get_option('lkn_wcip_subscription_schedule', array());
+            $next_due_date = isset($scheduled[$order_id]) ? (int) $scheduled[$order_id] : 0;
+
+            if (! $next_due_date || $next_due_date <= current_time('timestamp')) {
+                $next_due_date = $this->update_next_invoice_schedule($order_id);
+            }
+
+            if ($next_due_date) {
+                $this->schedule_next_invoice_generation($order_id, $next_due_date);
+            }
+
+            return;
+        }
+
         //Valida se a ordem está no limite de faturas
         $initialLimit = $order->get_meta('lkn_wcip_subscription_initial_limit');
         $limit = $order->get_meta('lkn_wcip_subscription_limit');
@@ -389,6 +803,7 @@ final class WcPaymentInvoiceSubscription
             return;
         }
         $order->update_meta_data('lkn_wcip_subscription_initial_limit', $initialLimit + 1);
+        $order->update_meta_data('lkn_wcip_last_generation', current_time('timestamp'));
 
         $customerId = $order->get_customer_id();
         $billing_email = $order->get_billing_email();
@@ -476,7 +891,12 @@ final class WcPaymentInvoiceSubscription
         update_option('lkn_wcip_invoices', $invoice_list);
         
         // Atualiza a próxima data de geração no schedule para backup do cron
-        $this->update_next_invoice_schedule($order_id);
+        $next_due_date = $this->update_next_invoice_schedule($order_id);
+
+        // Reagenda o cron do próximo ciclo (o evento atual é removido ao ser executado)
+        if ($next_due_date) {
+            $this->schedule_next_invoice_generation($order_id, $next_due_date);
+        }
     }
 
     public function forceUserRegistration($forceRegistration)
@@ -485,13 +905,10 @@ final class WcPaymentInvoiceSubscription
 
         if (!empty($cart)) {
             foreach ($cart as $cart_item) {
-                $product_id = $cart_item['product_id'];
+                $product_id = isset($cart_item['product_id']) ? $cart_item['product_id'] : 0;
+                $variation_id = isset($cart_item['variation_id']) ? $cart_item['variation_id'] : 0;
 
-                // Recupera a meta específica do produto
-                $subscription_meta = get_post_meta($product_id, '_lkn-wcip-subscription-product', true);
-
-                // Verifica se a meta está definida como "on"
-                if ($subscription_meta === "on" || (is_array($subscription_meta) && in_array("on", $subscription_meta))) {
+                if ($this->get_product_subscription_config($product_id, $variation_id)['enabled']) {
                     $forceRegistration = true;
                     break;
                 }
@@ -595,36 +1012,135 @@ final class WcPaymentInvoiceSubscription
     /**
      * Calcula e salva a próxima data de geração para a assinatura
      */
-    public function update_next_invoice_schedule($order_id): void
+    /**
+     * Resolve a cadência da assinatura.
+     *
+     * O intervalo gravado no pedido (snapshot da compra, também editável na tela de
+     * assinaturas) é autoritativo: editar o produto/variação no catálogo não pode
+     * mudar a recorrência de assinaturas que já estão rodando.
+     */
+    private function resolve_order_interval($order): array
+    {
+        $stored = array(
+            'number' => $order->get_meta('lkn_wcip_subscription_interval_number'),
+            'type' => $order->get_meta('lkn_wcip_subscription_interval_type'),
+        );
+
+        if (! empty($stored['number']) && ! empty($stored['type'])) {
+            return $stored;
+        }
+
+        // Pedidos anteriores à 2.13.3 (e assinaturas manuais antigas) não têm o intervalo
+        // gravado: resolve pelo item do pedido (variação > produto pai).
+        foreach ($order->get_items() as $item) {
+            $config = $this->get_item_subscription_config($item);
+
+            if ($config['enabled'] && $config['number'] && $config['type']) {
+                return array('number' => $config['number'], 'type' => $config['type']);
+            }
+        }
+
+        // Último recurso: pedido de assinatura cujo produto perdeu o flag (ou loja que usa a
+        // opção global de faturas de produto) mas ainda tem a cadência gravada no item.
+        foreach ($order->get_items() as $item) {
+            $legacy_interval = $this->get_item_stored_interval($item);
+
+            if ($legacy_interval['number'] && $legacy_interval['type']) {
+                return $legacy_interval;
+            }
+        }
+
+        return $stored;
+    }
+
+    public function update_next_invoice_schedule($order_id): ?int
     {
         $order = wc_get_order($order_id);
         if (!$order) {
+            return null;
+        }
+
+        $interval = $this->resolve_order_interval($order);
+        $subscription_interval_number = $interval['number'];
+        $subscription_interval_type = $interval['type'];
+
+        if (empty($subscription_interval_number) || empty($subscription_interval_type)) {
+            return null;
+        }
+
+        $result = $this->calculate_next_due_date($subscription_interval_number, $subscription_interval_type);
+        $next_due_date = (int) $result['next_due_date'];
+
+        if (empty($next_due_date)) {
+            return null;
+        }
+
+        // Assinaturas criadas antes do snapshot: grava a cadência resolvida no pedido para
+        // que edições futuras no produto/variação não alterem esta assinatura.
+        $this->persist_interval_snapshot($order, $interval);
+
+        // Salva a próxima data no schedule
+        $this->save_subscription_to_schedule($order_id, $next_due_date);
+
+        return $next_due_date;
+    }
+
+    /**
+     * Cadência gravada diretamente no item (variação > produto), mesmo sem o flag de
+     * assinatura. Usado apenas como último recurso para assinaturas antigas.
+     */
+    private function get_item_stored_interval($item): array
+    {
+        $empty = array('number' => '', 'type' => '');
+
+        if (! $item instanceof \WC_Order_Item_Product) {
+            return $empty;
+        }
+
+        $variation_id = (int) $item->get_variation_id();
+        $product_id = (int) $item->get_product_id();
+
+        foreach (array($variation_id, $product_id) as $source_id) {
+            if (! $source_id) {
+                continue;
+            }
+
+            $number = get_post_meta($source_id, 'lkn_wcip_subscription_interval_number', true);
+            $type = get_post_meta($source_id, 'lkn_wcip_subscription_interval_type', true);
+
+            if ($number && $type) {
+                return array('number' => $number, 'type' => $type);
+            }
+        }
+
+        return $empty;
+    }
+
+    /**
+     * Grava a cadência resolvida no pedido (snapshot) quando ela ainda veio do catálogo
+     */
+    private function persist_interval_snapshot($order, array $interval): void
+    {
+        if (empty($interval['number']) || empty($interval['type'])) {
             return;
         }
 
-        // Pega os dados da assinatura
-        $items = $order->get_items();
-        foreach ($items as $item) {
-            $product_id = $item->get_product_id();
-            $subscription_interval_number = get_post_meta($product_id, 'lkn_wcip_subscription_interval_number', true);
-            $subscription_interval_type = get_post_meta($product_id, 'lkn_wcip_subscription_interval_type', true);
+        $is_subscription = $order->get_meta('lkn_is_subscription') || $order->get_meta('lkn_wcip_subscription_is_manual');
 
-            // Se for assinatura manual, pega os dados do pedido
-            $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
-            if ($is_subscription_manual) {
-                $subscription_interval_number = $order->get_meta('lkn_wcip_subscription_interval_number');
-                $subscription_interval_type = $order->get_meta('lkn_wcip_subscription_interval_type');
-            }
-
-            if ($subscription_interval_number && $subscription_interval_type) {
-                $result = $this->calculate_next_due_date($subscription_interval_number, $subscription_interval_type);
-                $next_due_date = $result['next_due_date'];
-                
-                // Salva a próxima data no schedule
-                $this->save_subscription_to_schedule($order_id, $next_due_date);
-                break;
-            }
+        if (! $is_subscription) {
+            return;
         }
+
+        $stored_number = $order->get_meta('lkn_wcip_subscription_interval_number');
+        $stored_type = $order->get_meta('lkn_wcip_subscription_interval_type');
+
+        if ($stored_number && $stored_type) {
+            return;
+        }
+
+        $order->update_meta_data('lkn_wcip_subscription_interval_number', $interval['number']);
+        $order->update_meta_data('lkn_wcip_subscription_interval_type', $interval['type']);
+        $order->save();
     }
 
     /**
@@ -665,58 +1181,106 @@ final class WcPaymentInvoiceSubscription
     public function handle_subscription_on_completed($order_id): void
     {
         $order = wc_get_order($order_id);
-        
-        // Verifica se é uma assinatura e se ainda não foi agendado o cron
-        if ($order && $order->get_meta('lkn_is_subscription') && !$this->is_subscription_scheduled($order_id)) {
-            $next_due_date = $order->get_meta('lkn_wcip_subscription_next_due_date');
-            
-            // Se a data de vencimento foi salva anteriormente, agenda o cron
-            if ($next_due_date) {
-                $this->schedule_next_invoice_generation($order_id, $next_due_date);
-                
-                // Adiciona nota na order sobre o agendamento
-                $order->add_order_note(sprintf(
-                    /* translators: %s: scheduled invoice date */
-                    __('Subscription activated and first invoice scheduled for: %s', 'wc-invoice-payment'),
-                    gmdate('Y-m-d H:i:s', $next_due_date)
-                ));
-            } else {
-                // Se não tem a data salva, recalcula
-                $subscription_interval_number = $order->get_meta('lkn_wcip_subscription_interval_number');
-                $subscription_interval_type = $order->get_meta('lkn_wcip_subscription_interval_type');
-                
-                // Se é uma assinatura manual, pega os valores do meta
-                $is_subscription_manual = $order->get_meta('lkn_wcip_subscription_is_manual');
-                if (!$is_subscription_manual) {
-                    // Se não é manual, pega do produto
-                    $items = $order->get_items();
-                    foreach ($items as $item) {
-                        $product_id = $item->get_product_id();
-                        $subscription_interval_number = get_post_meta($product_id, 'lkn_wcip_subscription_interval_number', true);
-                        $subscription_interval_type = get_post_meta($product_id, 'lkn_wcip_subscription_interval_type', true);
-                        break; // Pega do primeiro item
-                    }
-                }
-                
-                if ($subscription_interval_number && $subscription_interval_type) {
-                    $result = $this->calculate_next_due_date($subscription_interval_number, $subscription_interval_type);
-                    $next_due_date = $result['next_due_date'];
-                    
-                    // Salva a data e agenda
-                    $order->update_meta_data('lkn_wcip_subscription_next_due_date', $next_due_date);
-                    $order->save();
-                    
-                    $this->schedule_next_invoice_generation($order_id, $next_due_date);
-                    
-                    // Adiciona nota na order sobre o agendamento
-                    $order->add_order_note(sprintf(
-                        /* translators: %s: scheduled invoice date */
-                        __('Subscription activated and first invoice scheduled for: %s', 'wc-invoice-payment'),
-                        gmdate('Y-m-d H:i:s', $next_due_date)
-                    ));
-                }
-            }
+
+        // Pedido pago sem passar pela assinatura registrada (ex: boleto/pix confirmado depois da página de obrigado).
+        // Faturas criadas no admin ficam de fora: a tela de faturas registra a assinatura por conta própria.
+        if ($order && $this->is_customer_checkout_order($order) && $this->is_subscription_order($order) && !$order->get_meta('lkn_wcip_subscription_already_processed')) {
+            $this->validate_product($order_id);
+            $order = wc_get_order($order_id);
         }
+
+        $this->schedule_subscription($order);
+    }
+
+    /**
+     * Agenda a primeira (ou a próxima) fatura da assinatura.
+     *
+     * Idempotente: se já existe evento para o pedido, não empilha outro.
+     */
+    private function schedule_subscription($order): void
+    {
+        if (! $order instanceof \WC_Order || ! $order->get_meta('lkn_is_subscription')) {
+            return;
+        }
+
+        $order_id = $order->get_id();
+
+        // Verifica se é uma assinatura e se ainda não foi agendado o cron
+        if ($this->is_subscription_scheduled($order_id)) {
+            return;
+        }
+
+        $next_due_date = $order->get_meta('lkn_wcip_subscription_next_due_date');
+
+        // Se a data de vencimento foi salva anteriormente, agenda o cron
+        if ($next_due_date) {
+            $this->schedule_next_invoice_generation($order_id, $next_due_date);
+
+            // Adiciona nota na order sobre o agendamento
+            $order->add_order_note(sprintf(
+                /* translators: %s: scheduled invoice date */
+                __('Subscription activated and first invoice scheduled for: %s', 'wc-invoice-payment'),
+                gmdate('Y-m-d H:i:s', $next_due_date)
+            ));
+
+            return;
+        }
+
+        // Se não tem a data salva, calcula a partir do intervalo (pedido, variação ou produto)
+        $next_due_date = $this->update_next_invoice_schedule($order_id);
+
+        if (! $next_due_date) {
+            return;
+        }
+
+        // Salva a data e agenda
+        $order->update_meta_data('lkn_wcip_subscription_next_due_date', $next_due_date);
+        $order->save();
+
+        $this->schedule_next_invoice_generation($order_id, $next_due_date);
+
+        // Adiciona nota na order sobre o agendamento
+        $order->add_order_note(sprintf(
+            /* translators: %s: scheduled invoice date */
+            __('Subscription activated and first invoice scheduled for: %s', 'wc-invoice-payment'),
+            gmdate('Y-m-d H:i:s', $next_due_date)
+        ));
+    }
+
+    /**
+     * Registra a assinatura quando o pedido é efetivamente pago (pix/boleto confirmam depois da página de obrigado).
+     * O agendamento da primeira fatura fica com handle_subscription_on_completed.
+     */
+    public function handle_subscription_status_change($order_id, $status_from = '', $status_to = '', $order = null): void
+    {
+        // Só registra a assinatura quando o pedido é de fato pago (pending, on-hold, boleto aguardando, parcial... ficam de fora)
+        if (! in_array($status_to, wc_get_is_paid_statuses(), true)) {
+            return;
+        }
+
+        $order = $order instanceof \WC_Order ? $order : wc_get_order($order_id);
+
+        if (! $order) {
+            return;
+        }
+
+        // Pedido criado no admin/por integração não é checkout do cliente: a tela de faturas
+        // já registra a assinatura por conta própria (validate_product com $manualSubscription)
+        if (! $this->is_customer_checkout_order($order)) {
+            return;
+        }
+
+        // Só registra pedidos que realmente são assinatura (produto marcado, manual ou doação recorrente)
+        if (! $this->is_subscription_order($order)) {
+            return;
+        }
+
+        // Registra a assinatura (idempotente via lkn_wcip_subscription_already_processed)
+        $this->validate_product($order_id);
+
+        // Agenda a próxima fatura assim que o pedido estiver pago (processing ou completed):
+        // lojas que usam "processing" como estado final (produtos virtuais) também cobram.
+        $this->schedule_subscription(wc_get_order($order_id));
     }
 
     /**

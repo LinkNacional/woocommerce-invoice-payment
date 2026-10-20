@@ -1,0 +1,38 @@
+# Arquivos de desenvolvimento — nunca vão para o pacote publicado (zip / SVN do wp.org).
+# O staging do zip/SVN é montado explicitamente nos workflows (.github/workflows/main.yml
+# e wordpressRelease.yml), então esta lista serve como contrato do que fica de fora.
+
+# Tooling, dependências de dev e testes
+node_modules/
+vendor/bin/
+.git/
+.gitignore
+.distignore
+.github/
+.reasonix/
+.vscode/
+.devcontainer/
+.phan/
+.eslintrc
+sftp.json
+
+composer.json
+composer.lock
+package.json
+package-lock.json
+phpunit.xml.dist
+.phpunit.cache/
+tests/
+*.sh
+*.zip
+
+# Docs — só o readme.txt (o readme do wp.org) é publicado
+README.md
+CHANGELOG.md
+AGENTS.md
+
+# Traduções — só o template .pot vai no pacote.
+# .po/.mo são geridos no translate.wordpress.org e não são embarcados.
+languages/*.po
+languages/*.mo
+languages/*.json

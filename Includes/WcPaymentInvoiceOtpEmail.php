@@ -6,10 +6,50 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Classe responsável por gerenciar autenticação OTP via email
+ * Autenticação OTP via email.
+ *
+ * Proteções contra força bruta e enumeração de usuários:
+ * - código guardado apenas como hash (nunca em texto plano) em transient (não autoload);
+ * - limite de tentativas de verificação por email, com invalidação do código;
+ * - bloqueio temporário após estourar o limite (aplicado ao envio e à verificação);
+ * - throttle de reenvio e limite de envios por email/IP;
+ * - limite de falhas por IP;
+ * - mensagem neutra no envio quando o email não existe (modo apenas login).
  */
 final class WcPaymentInvoiceOtpEmail {
-    
+
+    /**
+     * Tentativas de verificação antes de invalidar o código.
+     */
+    private const MAX_VERIFY_ATTEMPTS = 5;
+
+    /**
+     * Duração do bloqueio após estourar as tentativas (segundos).
+     */
+    private const LOCKOUT_SECONDS = 900;
+
+    /**
+     * Intervalo mínimo entre reenvios do mesmo email (segundos).
+     */
+    private const RESEND_THROTTLE_SECONDS = 60;
+
+    /**
+     * Envios permitidos por janela.
+     */
+    private const SEND_LIMIT_EMAIL = 10;
+    private const SEND_LIMIT_IP = 20;
+
+    /**
+     * Tamanho da janela de envios (segundos).
+     */
+    private const SEND_WINDOW_SECONDS = 3600;
+
+    /**
+     * Falhas de verificação permitidas por IP na janela.
+     */
+    private const IP_FAIL_LIMIT = 30;
+    private const IP_FAIL_WINDOW_SECONDS = 900;
+
     private $loader;
 
     public function __construct($loader) {
@@ -48,7 +88,7 @@ final class WcPaymentInvoiceOtpEmail {
                 'code' => array(
                     'required' => true,
                     'validate_callback' => function($param) {
-                        return preg_match('/^\d{6}$/', $param);
+                        return (bool) preg_match('/^\d{6}$/', $param);
                     }
                 )
             )
@@ -56,15 +96,17 @@ final class WcPaymentInvoiceOtpEmail {
     }
 
     /**
-     * Verifica permissões para endpoints OTP
+     * Verifica permissões para endpoints OTP.
+     *
+     * As rotas são públicas por natureza (formulário de login), portanto a proteção
+     * contra abuso fica nos limites de tentativa aplicados em cada callback.
      */
     public function checkOtpPermissions($request) {
-        // Verificar se OTP está ativado
         if (!$this->is_otp_enabled()) {
             return new \WP_Error('otp_disabled', 'OTP não está ativado', array('status' => 403));
         }
 
-        return true; // Simplificar temporariamente para teste
+        return true;
     }
 
     /**
@@ -72,6 +114,13 @@ final class WcPaymentInvoiceOtpEmail {
      */
     private function generate_otp_code() {
         return sprintf('%06d', wp_rand(0, 999999));
+    }
+
+    /**
+     * Hash do código OTP (com o salt do site: o banco nunca guarda o código em texto plano)
+     */
+    private function hash_otp_code($code) {
+        return hash_hmac('sha256', (string) $code, wp_salt('auth'));
     }
 
     /**
@@ -87,23 +136,36 @@ final class WcPaymentInvoiceOtpEmail {
     }
 
     /**
-     * Salva código OTP nas options do WordPress
+     * Identificador do email usado nas chaves de option/transient
+     */
+    private function get_email_key($email) {
+        return md5($email);
+    }
+
+    /**
+     * Nome da chave onde o código OTP fica guardado
+     */
+    private function get_otp_option_name($email) {
+        return 'lkn_wcip_otp_' . $this->get_email_key($email);
+    }
+
+    /**
+     * Salva código OTP (transient: expira sozinho e não entra no autoload)
      */
     private function save_otp_code($email, $code) {
         $expiration_minutes = $this->get_otp_expiration_minutes();
-        
+        $now = time();
+
         $otp_data = array(
-            'code' => $code,
+            'hash' => $this->hash_otp_code($code),
             'email' => $email,
-            'expires_at' => time() + ($expiration_minutes * 60),
-            'used' => false,
-            'created_at' => time()
+            'expires_at' => $now + ($expiration_minutes * 60),
+            'attempts' => 0,
+            'created_at' => $now
         );
 
-        // Usar hash do email como chave para evitar conflitos
-        $email_hash = md5($email);
-        update_option('lkn_wcip_otp_' . $email_hash, $otp_data);
-        
+        set_transient($this->get_otp_option_name($email), $otp_data, $expiration_minutes * 60);
+
         return true;
     }
 
@@ -111,17 +173,15 @@ final class WcPaymentInvoiceOtpEmail {
      * Recupera código OTP válido para um email
      */
     private function get_valid_otp_code($email) {
-        $email_hash = md5($email);
-        $otp_data = get_option('lkn_wcip_otp_' . $email_hash);
+        $otp_data = get_transient($this->get_otp_option_name($email));
 
-        if (!$otp_data || !is_array($otp_data)) {
+        if (!$otp_data || !is_array($otp_data) || !isset($otp_data['hash'])) {
             return false;
         }
 
-        // Verifica se não foi usado e não expirou
-        if ($otp_data['used'] || $otp_data['expires_at'] < time()) {
-            // Remove código expirado/usado
-            delete_option('lkn_wcip_otp_' . $email_hash);
+        // Verifica se não expirou
+        if (empty($otp_data['expires_at']) || $otp_data['expires_at'] < time()) {
+            $this->delete_otp_code($email);
             return false;
         }
 
@@ -129,39 +189,118 @@ final class WcPaymentInvoiceOtpEmail {
     }
 
     /**
-     * Marca código como usado
+     * Remove o código OTP (usado após o acerto e ao estourar as tentativas)
      */
-    private function mark_code_as_used($email) {
-        $email_hash = md5($email);
-        $otp_data = get_option('lkn_wcip_otp_' . $email_hash);
-        
-        if ($otp_data && is_array($otp_data)) {
-            $otp_data['used'] = true;
-            update_option('lkn_wcip_otp_' . $email_hash, $otp_data);
-        }
+    private function delete_otp_code($email) {
+        delete_transient($this->get_otp_option_name($email));
     }
 
     /**
-     * Remove códigos expirados (cleanup)
+     * Chave do bloqueio temporário do email
      */
-    private function cleanup_expired_codes() {
+    private function get_lockout_key($email) {
+        return 'lkn_wcip_otp_lockout_' . $this->get_email_key($email);
+    }
+
+    /**
+     * Verifica se o email está bloqueado por excesso de tentativas
+     */
+    private function is_locked_out($email) {
+        return (bool) get_transient($this->get_lockout_key($email));
+    }
+
+    /**
+     * Bloqueia o email por um período (renova o código: o usuário precisa pedir um novo depois)
+     */
+    private function lock_out($email) {
+        set_transient($this->get_lockout_key($email), time(), self::LOCKOUT_SECONDS);
+        $this->delete_otp_code($email);
+    }
+
+    /**
+     * Conta um evento numa janela deslizante simples (option/transient com o TTL restante)
+     *
+     * @return bool false quando o limite da janela já foi atingido
+     */
+    private function register_event($key, $limit, $window) {
+        $entry = get_transient($key);
+        $count = 0;
+        $expires = time() + $window;
+
+        if (is_array($entry) && isset($entry['count'], $entry['expires'])) {
+            $count = (int) $entry['count'];
+            $expires = (int) $entry['expires'];
+        }
+
+        if ($expires < time()) {
+            $count = 0;
+            $expires = time() + $window;
+        }
+
+        if ($count >= $limit) {
+            return false;
+        }
+
+        set_transient($key, array('count' => $count + 1, 'expires' => $expires), max(1, $expires - time()));
+
+        return true;
+    }
+
+    /**
+     * IP do cliente (usado apenas para limitar tentativas; não é persistido)
+     */
+    private function get_client_ip() {
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
+
+        return $ip === '' ? 'unknown' : $ip;
+    }
+
+    /**
+     * Registra falha de verificação por IP
+     */
+    private function register_ip_failure() {
+        $this->register_event('lkn_wcip_otp_fail_ip_' . md5($this->get_client_ip()), self::IP_FAIL_LIMIT, self::IP_FAIL_WINDOW_SECONDS);
+    }
+
+    /**
+     * Verifica se o IP estourou o limite de falhas
+     */
+    private function is_ip_blocked() {
+        $entry = get_transient('lkn_wcip_otp_fail_ip_' . md5($this->get_client_ip()));
+
+        return is_array($entry) && isset($entry['count']) && (int) $entry['count'] >= self::IP_FAIL_LIMIT;
+    }
+
+    /**
+     * Remove códigos salvos por versões anteriores (texto plano em options)
+     */
+    private function cleanup_legacy_codes() {
+        if (get_transient('lkn_wcip_otp_cleanup_done')) {
+            return;
+        }
+
         global $wpdb;
-        
-        // Busca options com o padrão do OTP
-        $results = $wpdb->get_results(
-            "SELECT option_name FROM {$wpdb->options} 
-            WHERE option_name LIKE 'lkn_wcip_otp_%'"
+
+        // Options do formato antigo: lkn_wcip_otp_<md5 do email>, com o código em texto plano.
+        // O REGEXP restrito a 32 caracteres hexadecimais não pega as configurações
+        // (lkn_wcip_otp_email_*) nem os transients usados agora (_transient_*).
+        $legacy_options = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT option_name FROM {$wpdb->options} WHERE option_name REGEXP %s",
+                '^lkn_wcip_otp_[0-9a-f]{32}$'
+            )
         );
 
-        foreach ($results as $row) {
-            $otp_data = get_option($row->option_name);
-            if ($otp_data && is_array($otp_data)) {
-                // Remove se expirado ou usado
-                if ($otp_data['used'] || $otp_data['expires_at'] < time()) {
-                    delete_option($row->option_name);
-                }
+        foreach ($legacy_options as $option_name) {
+            $legacy_data = get_option($option_name);
+
+            // Só remove o que realmente é um código OTP antigo
+            if (is_array($legacy_data) && isset($legacy_data['code'])) {
+                delete_option($option_name);
             }
         }
+
+        set_transient('lkn_wcip_otp_cleanup_done', 1, DAY_IN_SECONDS);
     }
 
     /**
@@ -211,44 +350,89 @@ final class WcPaymentInvoiceOtpEmail {
      */
     public function sendOtpCode($request) {
         $parameters = $request->get_params();
-        $email = sanitize_email($parameters['email']);
+        $email = sanitize_email(isset($parameters['email']) ? $parameters['email'] : '');
 
-        // Limpa códigos expirados
-        $this->cleanup_expired_codes();
-
-        // Verifica se usuário existe (modo apenas login)
-        if ($this->is_login_only_mode() && !email_exists($email)) {
+        if (!$this->is_otp_enabled()) {
             return new \WP_REST_Response(array(
                 'success' => false,
-                'message' => __('Email não cadastrado.', 'wc-invoice-payment')
+                'message' => __('OTP não está ativado', 'wc-invoice-payment')
+            ), 403);
+        }
+
+        if (!$email || !is_email($email)) {
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'message' => __('Informe um email válido.', 'wc-invoice-payment')
             ), 400);
         }
 
-        // Verifica se já existe código válido
-        $existing_code = $this->get_valid_otp_code($email);
-        
-        if ($existing_code) {
-            $code = $existing_code['code'];
-        } else {
-            // Gera novo código
-            $code = $this->generate_otp_code();
-            
-            // Salva novo código
-            $this->save_otp_code($email, $code);
-        }
-        
-        // Envia email
-        if ($this->send_otp_email($email, $code)) {
+        $this->cleanup_legacy_codes();
+
+        if (!$this->check_send_limits($email)) {
             return new \WP_REST_Response(array(
-                'success' => true,
-                'message' => __('Código enviado para seu email.', 'wc-invoice-payment')
-            ), 200);
-        } else {
+                'success' => false,
+                'message' => __('Aguarde alguns instantes antes de solicitar um novo código.', 'wc-invoice-payment')
+            ), 429);
+        }
+
+        // O código é sempre gerado e guardado, inclusive para email sem conta. Assim envio e
+        // verificação se comportam igual em qualquer caso e o formulário não serve para
+        // descobrir se um email (inclusive de administrador) está cadastrado.
+        // O código é guardado apenas como hash: um reenvio emite um código novo (o anterior
+        // deixa de valer) e reinicia o contador de tentativas.
+        $code = $this->generate_otp_code();
+        $this->save_otp_code($email, $code);
+
+        // Modo "apenas login": sem conta não há para quem enviar (o código fica só no storage).
+        $silent = $this->is_login_only_mode() && !email_exists($email);
+
+        if (!$silent && !$this->send_otp_email($email, $code)) {
+            $this->delete_otp_code($email);
+
             return new \WP_REST_Response(array(
                 'success' => false,
                 'message' => __('Erro ao enviar código.', 'wc-invoice-payment')
             ), 500);
         }
+
+        // O throttle de reenvio só é consumido no sucesso (falha de email permite tentar de novo).
+        $this->mark_sent($email);
+
+        return new \WP_REST_Response(array(
+            'success' => true,
+            // A mensagem não pode depender da existência da conta.
+            'message' => $this->is_login_only_mode()
+                ? __('Se este email estiver cadastrado, você receberá um código de acesso.', 'wc-invoice-payment')
+                : __('Código enviado para seu email.', 'wc-invoice-payment')
+        ), 200);
+    }
+
+    /**
+     * Limita o envio de códigos por email e por IP
+     */
+    private function check_send_limits($email) {
+        $email_key = $this->get_email_key($email);
+
+        if (get_transient('lkn_wcip_otp_throttle_' . $email_key)) {
+            return false;
+        }
+
+        if (!$this->register_event('lkn_wcip_otp_sends_' . $email_key, self::SEND_LIMIT_EMAIL, self::SEND_WINDOW_SECONDS)) {
+            return false;
+        }
+
+        if (!$this->register_event('lkn_wcip_otp_sends_ip_' . md5($this->get_client_ip()), self::SEND_LIMIT_IP, self::SEND_WINDOW_SECONDS)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Marca o envio (intervalo mínimo entre reenvios do mesmo email)
+     */
+    private function mark_sent($email) {
+        set_transient('lkn_wcip_otp_throttle_' . $this->get_email_key($email), 1, self::RESEND_THROTTLE_SECONDS);
     }
 
     /**
@@ -256,20 +440,55 @@ final class WcPaymentInvoiceOtpEmail {
      */
     public function verifyOtpCode($request) {
         $parameters = $request->get_params();
-        $email = sanitize_email($parameters['email']);
-        $code = sanitize_text_field($parameters['code']);
+        $email = sanitize_email(isset($parameters['email']) ? $parameters['email'] : '');
+        $code = sanitize_text_field(isset($parameters['code']) ? $parameters['code'] : '');
+
+        if (!$this->is_otp_enabled()) {
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'message' => __('OTP não está ativado', 'wc-invoice-payment')
+            ), 403);
+        }
+
+        if (!$email || !is_email($email)) {
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'message' => __('Informe um email válido.', 'wc-invoice-payment')
+            ), 400);
+        }
+
+        if ($this->is_ip_blocked()) {
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'message' => __('Muitas tentativas inválidas. Tente novamente mais tarde.', 'wc-invoice-payment')
+            ), 429);
+        }
+
+        if ($this->is_locked_out($email)) {
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'message' => __('Muitas tentativas inválidas. Solicite um novo código mais tarde.', 'wc-invoice-payment')
+            ), 429);
+        }
 
         $result = $this->process_otp_login($email, $code);
 
-        if ($result['success']) {
-            return new \WP_REST_Response($result, 200);
-        } else {
-            return new \WP_REST_Response($result, 400);
+        $status = 400;
+
+        if (!empty($result['success'])) {
+            $status = 200;
+        } elseif (!empty($result['locked'])) {
+            $status = 429;
         }
+
+        return new \WP_REST_Response($result, $status);
     }
 
     /**
-     * Valida código OTP
+     * Valida código OTP.
+     *
+     * Cada erro consome uma tentativa; ao atingir o limite o código é invalidado
+     * e o email fica bloqueado por LOCKOUT_SECONDS.
      */
     public function verify_otp_code($email, $code) {
         $otp_data = $this->get_valid_otp_code($email);
@@ -278,13 +497,55 @@ final class WcPaymentInvoiceOtpEmail {
             return false;
         }
 
-        if ($otp_data['code'] === $code && $otp_data['email'] === $email) {
-            // Marca código como usado
-            $this->mark_code_as_used($email);
-            return true;
+        $matches = hash_equals((string) $otp_data['hash'], $this->hash_otp_code($code))
+            && isset($otp_data['email'])
+            && $otp_data['email'] === $email;
+
+        if (!$matches) {
+            $this->register_verify_failure($email, $otp_data);
+            return false;
         }
-        
-        return false;
+
+        // Código de uso único
+        $this->delete_otp_code($email);
+        delete_transient('lkn_wcip_otp_throttle_' . $this->get_email_key($email));
+
+        return true;
+    }
+
+    /**
+     * Contabiliza uma tentativa inválida (invalida o código no limite)
+     */
+    private function register_verify_failure($email, array $otp_data) {
+        $this->register_ip_failure();
+
+        $attempts = isset($otp_data['attempts']) ? (int) $otp_data['attempts'] : 0;
+        $attempts++;
+
+        if ($attempts >= self::MAX_VERIFY_ATTEMPTS) {
+            $this->lock_out($email);
+            return;
+        }
+
+        $otp_data['attempts'] = $attempts;
+        $remaining_seconds = max(1, (int) $otp_data['expires_at'] - time());
+
+        set_transient($this->get_otp_option_name($email), $otp_data, $remaining_seconds);
+    }
+
+    /**
+     * Tentativas restantes antes de invalidar o código
+     */
+    private function get_remaining_attempts($email) {
+        $otp_data = $this->get_valid_otp_code($email);
+
+        if (!$otp_data) {
+            return 0;
+        }
+
+        $attempts = isset($otp_data['attempts']) ? (int) $otp_data['attempts'] : 0;
+
+        return max(0, self::MAX_VERIFY_ATTEMPTS - $attempts);
     }
 
     /**
@@ -410,11 +671,26 @@ final class WcPaymentInvoiceOtpEmail {
      * Processa login/registro OTP
      */
     public function process_otp_login($email, $code) {
-        // Verifica código
-        if (!$this->verify_otp_code($email, $code)) {
+        if ($this->is_locked_out($email)) {
             return array(
                 'success' => false,
-                'message' => \__('Código inválido ou expirado.', 'wc-invoice-payment')
+                'locked' => true,
+                'message' => \__('Muitas tentativas inválidas. Solicite um novo código mais tarde.', 'wc-invoice-payment')
+            );
+        }
+
+        // Verifica código
+        if (!$this->verify_otp_code($email, $code)) {
+            $remaining = $this->get_remaining_attempts($email);
+
+            return array(
+                'success' => false,
+                'locked' => $this->is_locked_out($email),
+                'remaining_attempts' => $remaining,
+                'message' => $remaining > 0
+                    /* translators: %d: número de tentativas restantes */
+                    ? sprintf(\__('Código inválido ou expirado. Tentativas restantes: %d.', 'wc-invoice-payment'), $remaining)
+                    : \__('Código inválido ou expirado.', 'wc-invoice-payment')
             );
         }
 
@@ -539,7 +815,7 @@ final class WcPaymentInvoiceOtpEmail {
             'wc-invoice-payment-otp',
             \plugin_dir_url(__DIR__) . "Public/css/wc-invoice-payment-otp.css",
             array(),
-            '1.0.0'
+            '1.1.0'
         );
 
         // Enfileira JavaScript
@@ -547,7 +823,7 @@ final class WcPaymentInvoiceOtpEmail {
             'wc-invoice-payment-otp',
             \plugin_dir_url(__DIR__) . 'Public/js/wc-invoice-payment-otp.js',
             array('jquery', 'wp-api-fetch'),
-            '1.0.0',
+            '1.1.0',
             true
         );
 

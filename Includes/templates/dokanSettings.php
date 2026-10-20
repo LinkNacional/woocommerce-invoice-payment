@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <div class="show_if_donation dokan_donation_settings">
 	<p>
 		<label for="_donation_type"><?php esc_html_e('Donation type', 'wc-invoice-payment'); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e('Select the donation type.', 'wc-invoice-payment'); ?>"></i></label>

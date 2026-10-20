@@ -1,0 +1,858 @@
+# Translation of Plugins - Link Invoice Payment for WooCommerce - Stable Readme (latest release) in Portuguese (Brazil)
+# This file is distributed under the same license as the Plugins - Link Invoice Payment for WooCommerce - Stable Readme (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-10-20 09:20-0300\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: pt_BR\n"
+"Project-Id-Version: Plugins - Link Invoice Payment for WooCommerce - Stable Readme (latest release)\n"
+
+#. Short description.
+#, gp-priority: high
+msgid "Link Invoice Payment is an extension for WooCommerce, designed to simplify online billing. Whether for one-time or subscriptions (recurring invoices)"
+msgstr "Link Invoice Payment é uma extensão para WooCommerce, criada para simplificar a cobrança on-line. Seja para pagamentos únicos ou assinaturas (faturas recorrentes)"
+
+#. Plugin name.
+#, gp-priority: high
+msgid "Link Invoice Payment for WooCommerce"
+msgstr "Link de Pagamento de Faturas para WooCommerce"
+
+#. Found in description list item.
+msgid "<strong>Dokan Integration</strong> – Enables donations products and invoice issuing by sellers directly from the Dokan dashboard."
+msgstr "<strong>Integração do Dokan</strong> - Ativa produtos de doações e emissão de faturas pelos vendedores diretamente do painel do Dokan."
+
+#. Found in description list item.
+msgid "<strong>Item Donation Marketplace for WooCommerce</strong> – This feature allows your users (donors) to list items they wish to donate (e.g., a sofa, clothes, food). Other users (beneficiaries) can then browse the site and request to receive these items."
+msgstr "<strong>Marketplace de Doação de Itens para WooCommerce</strong> - Este recurso permite que seus usuários (doadores) listem itens que desejam doar (por exemplo, um sofá, roupas, alimentos). Outros usuários (beneficiários) podem então procurar o site e solicitar receber esses itens."
+
+#. Found in description list item.
+msgid "<strong><a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a> Donation Product Type</strong> – Allows you to create a special \"Donation\" product type for receiving open-value monetary donations, where the donor defines the amount they wish to contribute."
+msgstr "<strong>Tipo de Produto de Doação do <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a></strong> - Permite que você crie um tipo de produto especial de \"Doação\" para receber doações monetárias de valor aberto, onde o doador define o valor que deseja contribuir."
+
+#. Found in description list item.
+msgid "<strong>Quotes</strong> – Create custom quotes or allow your customers to request a proposal directly on your site, fully integrated with your store's products."
+msgstr "<strong>Orçamentos</strong> – Crie orçamentos personalizados ou permita que os seus clientes solicitem uma proposta diretamente no site, de forma integrada com os produtos da sua loja."
+
+#. Found in description list item.
+msgid "<strong>Payment Method Fee</strong> – Set a percentage or fixed value to charge an additional amount for each payment type"
+msgstr "<strong>Taxa por método de pagamento</strong> – Defina uma porcentagem ou um valor fixo para cobrar um valor adicional por cada tipo de pagamento"
+
+#. Found in description list item.
+msgid "<strong>Payment Method Discount</strong> – Set a percentage or fixed discount value for each payment type"
+msgstr "<strong>Desconto por método de pagamento</strong> – Defina uma porcentagem ou um valor fixo de desconto para cada tipo de pagamento"
+
+#. Found in description paragraph.
+msgid "And much more!"
+msgstr "E muito mais!"
+
+#. Found in description paragraph.
+msgid "Now enhanced with even more advanced features, <strong>Link Invoice Payment</strong> is the perfect tool for flexible and professional invoicing in your <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a> store."
+msgstr "Agora com recursos ainda mais avançados, o <strong>Link de Pagamento de Faturas</strong> é a ferramenta ideal para uma cobrança flexível e profissional na sua loja <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a>."
+
+#. Found in description paragraph.
+msgid "The <strong>Link Invoice Payment</strong> plugin is a powerful and free extension for <strong><a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a></strong>, designed to simplify online billing — whether for one-time or subscription (recurring) invoices. With <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/faturas/\">Link Invoice Payment</a> plugin for WooCommerce, you can easily generate both <strong>one-time</strong> and <strong>recurring</strong> invoices and send them to your customers via email, WhatsApp, or social networks — complete with a secure payment link. One of its biggest advantages is the ability to offer multiple payment options to settle the invoice."
+msgstr "O plugin <strong>Link Invoice Payment</strong> é uma poderosa e gratuita extensão para o <strong><a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a></strong>, criada para simplificar a cobrança on-line — seja para faturas de uma única vez ou para assinaturas (recorrentes). Com o plugin <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/faturas/\">Link Invoice Payment</a> para WooCommerce, você pode gerar facilmente faturas <strong>de uma única vez</strong> e <strong>recorrentes</strong> e enviá-las aos seus clientes por e-mail, WhatsApp ou redes sociais — com uma link de pagamento seguro incluso. Uma de suas maiores vantagens é a habilidade de oferecer várias opções de pagamento para quitar a fatura."
+
+#. Found in description list item.
+msgid "<strong>Partial Order Payments in <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a></strong> – Allow customers to pay part of an order upfront using multiple payment methods"
+msgstr "<strong>Pagamentos Parciais de Pedidos no <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a></strong> – Permita que os clientes paguem uma parte do pedido antecipadamente utilizando múltiplos métodos de pagamento."
+
+#. Found in description list item.
+msgid "<strong>Multi-language Support</strong> – Display invoices in the language preferred by your customer"
+msgstr "<strong>Suporte multilíngue</strong> – Exibir faturas no idioma preferido pelo seu cliente"
+
+#. Found in description list item.
+msgid "<strong>Multiple or Specific Payment Methods</strong> – Choose which payment gateways appear per invoice"
+msgstr "<strong>Métodos de Pagamento Múltiplos ou Específicos</strong> – Escolha quais gateways de pagamento aparecem por fatura"
+
+#. Found in description list item.
+msgid "<strong>Due Date Management</strong> – Set custom due dates for each invoice"
+msgstr "<strong>Gerenciamento de Prazos</strong> – Defina prazos de vencimento personalizados para cada fatura"
+
+#. Found in description list item.
+msgid "<strong>Multi-currency Invoices</strong> – Issue invoices in different currencies based on customer location"
+msgstr "<strong>Faturas em múltiplas moedas</strong> – Emitir faturas em diferentes moedas com base na localização do cliente"
+
+#. Found in description list item.
+msgid "<strong>Payment Links</strong> – Instantly share payment URLs for quick customer access"
+msgstr "<strong>Links de Pagamento</strong> – Compartilhe instantaneamente URLs de pagamento para acesso rápido do cliente"
+
+#. Found in description list item.
+msgid "<strong>PDF Invoices</strong> – Generate professional downloadable and printable invoice documents"
+msgstr "<strong>Faturas em PDF</strong> – Gere documentos profissionais de fatura para baixar e imprimir"
+
+#. Found in description list item.
+msgid "<strong>Subscription-type Products</strong> – Easily manage recurring billing cycles"
+msgstr "<strong>Produtos do tipo assinatura</strong> – Gerenciar facilmente ciclos de cobrança recorrente"
+
+#. Found in description list item.
+msgid "<strong>Recurring Invoices</strong> – Automate billing for subscriptions or regular payments"
+msgstr "<strong>Faturas Recorrentes</strong> – Automatize a cobrança para assinaturas ou pagamentos regulares"
+
+#. Found in description header.
+msgid "✅ Key Features"
+msgstr "✅ Principais Recursos"
+
+#. Found in description paragraph.
+msgid ""
+"<em>External Libraries used</em>\n"
+"* We use the PHP external library <a href=\"https://github.com/dompdf/dompdf\">DOMPDF</a> for generating PDF invoices.\n"
+"* We use PHP <a href=\"https://phpqrcode.sourceforge.net/\">QR Code encoder</a> for generating the redirect URL page.\n"
+"* We use JS Library <a href=\"https://tailwindcss.com/\">Tailwind</a> for additional CSS and HTML styling."
+msgstr ""
+"<em>Bibliotecas Externas utilizadas</em>  \n"
+"* Utilizamos a biblioteca externa PHP <a href=\"https://github.com/dompdf/dompdf\">DOMPDF</a> para gerar faturas em PDF.  \n"
+"* Utilizamos o encoder PHP <a href=\"https://phpqrcode.sourceforge.net/\">QR Code</a> para gerar a página de URL de redirecionamento.  \n"
+"* Utilizamos a biblioteca JS <a href=\"https://tailwindcss.com/\">Tailwind</a> para estilização adicional de CSS e HTML."
+
+#. Screenshot description.
+msgid "Edit details of your subscription."
+msgstr "Edite os detalhes de sua assinatura."
+
+#. Screenshot description.
+msgid "Customize the settings of your subscriptions."
+msgstr "Personalize as configurações de suas assinaturas."
+
+#. Screenshot description.
+msgid "Customize the settings of your invoices."
+msgstr "Personalize as configurações de suas faturas."
+
+#. Screenshot description.
+msgid "See all generated subscriptions."
+msgstr "Veja todas as assinaturas geradas."
+
+#. Found in description list item.
+msgid "To list invoices click on \"Invoices\" in the <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a> sidebar."
+msgstr "Para listar faturas, clique em \"Faturas\" na barra lateral do <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a>."
+
+#. Found in description list item.
+msgid "To list subscriptions click on \"Subscriptions\" in the <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a> sidebar."
+msgstr "Para listar as assinaturas, clique em \"Assinaturas\" na barra lateral do <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a>."
+
+#. Found in description list item.
+msgid "Choose between standard or recurring invoices, input necessary details, and save."
+msgstr "Escolha entre faturas padrão ou recorrentes, insira os detalhes necessários e salve."
+
+#. Found in description list item.
+msgid "Visit the \"Add Invoice\" page to manually create invoices."
+msgstr "Visite a página \"Adicionar Fatura\" para criar faturas manualmente."
+
+#. Found in description list item.
+msgid "To manually add an invoice, visit the \"Add Invoice\" page, where both standard and recurring invoices can be created."
+msgstr "Para adicionar faturas manualmente, visite a página \"Adicionar Fatura\", onde você pode criar tanto faturas padrão quanto recorrentes."
+
+#. Found in description list item.
+msgid "Configure default settings such as PDF template, logo URL, footer, sender details, and text preceding the payment link."
+msgstr "Configure as configurações padrão, como o modelo de PDF, URL do logo, rodapé, detalhes do remetente e o texto que precede o link de pagamento."
+
+#. Found in description list item.
+msgid "In the <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a> sidebar, find and click on \"Invoices\"."
+msgstr "Na barra lateral do <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a>, encontre e clique em \"Faturas\"."
+
+#. Found in description list item.
+msgid "Specify the frequency of invoice generation according to your preferences."
+msgstr "Especifique a frequência de geração de faturas de acordo com suas preferências."
+
+#. Found in description list item.
+msgid "Within the product editing or creating page, enable the subscription option to configure recurring invoices."
+msgstr "Na página de edição ou criação de produto, habilite a opção de assinatura para configurar faturas recorrentes."
+
+#. Found in description header.
+msgid "Subscription and Invoice Lists"
+msgstr "Listas de Assinaturas e Faturas"
+
+#. Found in description header.
+msgid "Manual Invoice Creation"
+msgstr "Criação Manual de Fatura"
+
+#. Found in description header.
+msgid "Invoices Settings"
+msgstr "Configurações das Faturas"
+
+#. Found in description header.
+msgid "Product Settings"
+msgstr "Configurações do Produto"
+
+#. Found in description header.
+msgid "Usage"
+msgstr "Utilização"
+
+#. Found in faq list item.
+msgid "<a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a> version 4.0 or latter installed and active."
+msgstr "Necessita ter o <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a> 4.0 ou mais recente instalado e ativo."
+
+#. Found in faq list item.
+msgid "This plugin is released under a GPL license."
+msgstr "O plugin está lançado sob a licença GPL."
+
+#. Found in faq header.
+msgid "What is needed to use this plugin?"
+msgstr "O que eu preciso para usar este plugin?"
+
+#. Found in faq header.
+msgid "What is the plugin license?"
+msgstr "Qual é a licença utilizada pelo plugin?"
+
+#. Found in installation paragraph.
+msgid "The Invoice Payment for WooCommerce plugin is now live and working."
+msgstr "O plugin Emissão de Faturas para WooCommerce está devidamente ativo e funcionando."
+
+#. Found in installation paragraph.
+msgid "Click on the 'install now' button and then activate the installed plugin;"
+msgstr "Clique no botão 'instalar agora' e então ative o plugin instalado;"
+
+#. Found in installation paragraph.
+msgid "Click on the 'submit plugin' option in the page title and upload the woocommerce-invoice-payment-main.zip plugin;"
+msgstr "Clique na opção 'enviar plugin' no topo da página e faça o upload do plugin woocommerce-invoice-payment-main.zip;"
+
+#. Found in installation paragraph.
+msgid "In installed plugins look for the 'add new' option in the header;"
+msgstr "Em plugins instalados procure por 'adicionar novo' no topo da página;"
+
+#. Found in installation paragraph.
+msgid "Look in the sidebar for the <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a> plugins area;"
+msgstr "Procure na barra lateral pela área de plugin do <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a>;"
+
+#. Found in description paragraph.
+msgid "You have created your first invoice with the Invoice Payment for WooCommerce plugin."
+msgstr "Você emitiu sua primeira fatura com o plugin Emissão de Faturas para WooCommerce."
+
+#. Found in description paragraph.
+msgid "Click save;"
+msgstr "Clique em salvar;"
+
+#. Found in description paragraph.
+msgid "If you want to send the invoice to the customer's email, select the 'Send invoice to customer' option in the invoice actions;"
+msgstr "Caso deseje enviar a fatura ao e-mail do cliente, seleciona a opção 'Enviar fatura ao cliente' na área de ações da fatura;"
+
+#. Found in description paragraph.
+msgid "Fill in the customer data, currency, payment method and add the charges;"
+msgstr "Preencha com os dados do cliente, moeda, método de pagamento e adicione as cobranças;"
+
+#. Found in description paragraph.
+msgid "In the plugin options look for 'Add invoice';"
+msgstr "Nas opções do plugin procure por 'Adicionar fatura';"
+
+#. Found in description paragraph.
+msgid "Search the <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a> sidebar for 'Invoice Payment for WooCommerce';"
+msgstr "Procure na barra lateral do <a href=\"https://www.linknacional.com.br/wordpress/\">WordPress</a> por 'Invoice Payment for WooCommerce';"
+
+#. Found in description paragraph.
+msgid "<strong>User instructions</strong>"
+msgstr "<strong>Instruções do usuário</strong>"
+
+#. Found in description paragraph.
+msgid "Link Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, please make sure <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a> is installed and properly configured before starting Invoice Payment for WooCommerce installation."
+msgstr "O plugin Link de Pagamento de Faturas para WooCommerce depende do plugin WooCommerce. Por favor, certifique-se de que o <a href=\"https://www.linknacional.com.br/wordpress/woocommerce/\">WooCommerce</a> está instalado e devidamente configurado antes de iniciar a instalação do Link Invoice Payment para WooCommerce."
+
+#. Found in description paragraph.
+msgid "<strong>Dependencies</strong>"
+msgstr "<strong>Dependências</strong>"
+
+#. Screenshot description.
+msgid "See all generated invoices and their status."
+msgstr "Veja todas as faturas geradas e seus status."
+
+#. Screenshot description.
+msgid "Add new invoice utilizing our convenient invoice builder."
+msgstr "Adicione uma nova fatura utilizando nosso conveniente gerador de faturas."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>10/20/2026</em>\n"
+"* Tweak: Subscriptions for variable products (per-variation interval and invoice limit).\n"
+"* Tweak: Subscriptions are scheduled and charged on paid orders (processing), not only on completed ones.\n"
+"* Tweak: The interval stored in the order is preserved — editing the product/variation no longer changes running subscriptions.\n"
+"* Fix: Fatal error when changing the interval of a subscription whose order is not completed yet.\n"
+"* Fix: Email OTP security (attempt limit, temporary lockout, hashed codes and neutral response on send).\n"
+"* Tweak: Complete pt_BR translation (code and readme) and WooCommerce/WordPress links in the readme."
+msgstr ""
+"`<em>20/10/2026</em>`  \n"
+"* Ajuste: Assinaturas em produtos variáveis (cadência e limite de faturas por variação).  \n"
+"* Ajuste: Assinatura agendada e cobrada em pedidos pagos (processing), não só em pedidos concluídos.  \n"
+"* Ajuste: A cadência gravada no pedido é preservada — editar o produto/variação não altera assinaturas em andamento.  \n"
+"* Correção: Erro fatal ao alterar o intervalo de uma assinatura em pedido ainda não concluído.  \n"
+"* Correção: Segurança do OTP por email (limite de tentativas, bloqueio temporário, código com hash e resposta neutra no envio).  \n"
+"* Ajuste: Tradução pt_BR completa (código e readme) e links de WooCommerce/WordPress no readme."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>08/11/2026</em>\n"
+"* Tweak: Increased the default OTP expiration time.\n"
+"* Fix: Link to download the payment invoice in subscriptions.\n"
+"* Fix: Removed the \"Total\" text in the pricing block.\n"
+"* Fix: Line break in the invoice description in the text field."
+msgstr ""
+"`<em>11/08/2026</em>`  \n"
+"* Ajuste: Aumento do tempo de expiração do OTP padrão.  \n"
+"* Correção: Link para baixar a fatura de pagamento em assinaturas.  \n"
+"* Correção: Remoção do texto \"Total\" no bloco de preços.  \n"
+"* Correção: Quebra de linha na descrição da fatura no campo de texto."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>07/27/2026</em>\n"
+"* Adjustment to the partial payment link.\n"
+"* Adjustment to translation variables."
+msgstr ""
+"`<em>27/07/2026</em>`  \n"
+"* Ajuste no link de pagamento parcial.  \n"
+"* Ajuste nas variáveis de tradução."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>07/07/2026</em>\n"
+"* Documentation adjustment.\n"
+"* Adjustment in Dokan field validation."
+msgstr ""
+"<em>07/07/2026</em>\n"
+"* Ajuste na documentação.\n"
+"* Ajuste na validação do campo Dokan."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>07/21/2026</em>\n"
+"* Refactored partial payment flow — implemented single-installment split at checkout and updated naming conventions.\n"
+"* New per-product fee and discount system at checkout, featuring visual indicators based on payment method.\n"
+"* General bug fixes and adjustments in the quote flow."
+msgstr ""
+"<em>21/07/2026</em>\n"
+"* Reestruturamos o fluxo de pagamento parcial — implementamos a divisão em uma única parcela na finalização de compra e atualizamos as convenções de nomenclatura.\n"
+"* Novo sistema de taxas e descontos por produto na finalização de compra, com indicadores visuais com base no método de pagamento.\n"
+"* Correções de erros gerais e ajustes no fluxo de Citação."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>03/19/2026</em>\n"
+"* Add function to edit active subscriptions.\n"
+"* Add secondary function to generate invoices if Cron is disabled."
+msgstr ""
+"<em>19/03/2026</em>\n"
+"* Adicionar função para editar assinaturas ativas.\n"
+"* Adicionar função secundária para gerar faturas se o Cron estiver desativado."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>04/10/2026</em>\n"
+"* Added compatibility for recurring payments with Cielo."
+msgstr ""
+"<em>10/04/2026</em>\n"
+"* Adicionado suporte à compatibilidade para pagamentos recorrentes com a Cielo."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>01/13/2026</em>\n"
+"* Add configuration to set OTP code expiration time;\n"
+"* Add configuration to set minimum donation value.\n"
+"* Fix percentage discount calculation."
+msgstr ""
+"<em>13/01/2026</em>  \n"
+"* Adicionar configuração para definir o tempo de expiração do código OTP;  \n"
+"* Adicionar configuração para definir o valor mínimo de doação.  \n"
+"* Correção no cálculo do desconto percentual."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>09/03/2026</em>\n"
+"* Fix OTP css."
+msgstr ""
+"<em>09/03/2026</em>  \n"
+"* Correção do CSS do OTP."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>06/04/2026</em>\n"
+"* Fix donation fields interfering with variable product fields."
+msgstr ""
+"<em>06/04/2026</em>  \n"
+"* Correção nos campos de doação interferindo com os campos de produtos variáveis."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>12/29/2025</em>\n"
+"* Add OTP for user registration and login."
+msgstr ""
+"<em>29/12/2025</em>  \n"
+"* Adicionar OTP para cadastro e acesso do usuário."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>01/06/2026</em>\n"
+"* Fix error in invoice product values.\n"
+"* Fix quote script loading."
+msgstr ""
+"<em>06/01/2026</em>\n"
+"* Correção de erro nos valores dos produtos da fatura.\n"
+"* Correção no carregamento do script da Citação."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>12/22/2025</em>\n"
+"* Fix for errors found by wordfence.\n"
+"* Fix in partial payments creation script."
+msgstr ""
+"<em>22/12/2025</em>\n"
+"* Correção para erros encontrados pelo wordfence.\n"
+"* Correção no script de criação de pagamentos parciais."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>12/10/2025</em>\n"
+"* Add configuration to display \"Buy via WhatsApp\" button.\n"
+"* Add configuration to display price alongside payment method."
+msgstr ""
+"<em>12/10/2025</em>\n"
+"* Adicionar configuração para exibir o botão “Comprar via WhatsApp”.\n"
+"* Adicionar configuração para exibir o preço ao lado do método de pagamento."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>11/12/2025</em>\n"
+"* Add plugin images."
+msgstr ""
+"<em>11/12/2025</em>\n"
+"* Adicionar imagens de plugin."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>11/12/2025</em>\n"
+"* CSS loading fix;\n"
+"* Add of read-only on selected product in the invoice."
+msgstr ""
+"<em>11/12/2025</em>  \n"
+"* Correção para o carregamento do CSS;  \n"
+"* Adição de somente leitura no produto selecionado na fatura."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>10/23/2025</em>\n"
+"* Add donation product type."
+msgstr ""
+"<em>23/10/2025</em>  \n"
+"* Adicionar tipo de produto de doação."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>09/30/2025</em>\n"
+"* Fix payment gateway validation."
+msgstr ""
+"<em>30/09/2025</em>\n"
+"* Correção da validação do gateway de pagamento."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>09/23/2025</em>\n"
+"* Fix discount settings."
+msgstr ""
+"<em>23/09/2025</em>`  \n"
+"* Correção das configurações de desconto."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>09/19/2025</em>\n"
+"* Fix quote logic."
+msgstr ""
+"<em>19/09/2025</em>\n"
+"* Correção da lógica da orçamento."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>09/15/2025</em>\n"
+"* README changes."
+msgstr ""
+"<em>15/09/2025</em>  \n"
+"* Alterações no README."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>07/23/2025</em>\n"
+"* Add configuration to set fees or discounts for payment methods."
+msgstr ""
+"<em>23/07/2025</em>\n"
+"* Adicionar configuração para definir taxas ou descontos para métodos de pagamento."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>08/29/2025</em>\n"
+"* Add quotes functionality."
+msgstr ""
+"<em>29/08/2025</em>\n"
+"* Adicionar funcionalidade de orçamento."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>07/21/2025</em>\n"
+"* Add configuration to set fees or discounts for payment methods."
+msgstr ""
+"<em>21/07/2025</em>  \n"
+"* Adicionar configuração para definir taxas ou descontos para métodos de pagamento."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>07/11/2025</em>\n"
+"* Fix for adding products to orders created with CartFlows."
+msgstr ""
+"<em>11/07/2025</em>  \n"
+"* Correção para adicionar produtos a pedidos criados com o CartFlows."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>06/12/2025</em>\n"
+"* Add partial payments for all payment methods."
+msgstr ""
+"<em>12/06/2025</em>  \n"
+"* Adicionar pagamentos parciais para todos os métodos de pagamento."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>07/02/2025</em>\n"
+"* Fix partial payment script."
+msgstr ""
+"<em>02/07/2025</em>\n"
+"* Correção do script de pagamento parcial."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>07/03/2025</em>\n"
+"* Fix script and CSS for partial payment."
+msgstr ""
+"<em>03/07/2025</em>\n"
+"* Correção do script e do CSS para pagamento parcial."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>05/29/2025</em>\n"
+"* Fix fatal error when editing page."
+msgstr ""
+"<em>29/05/2025</em>  \n"
+"* Correção do erro fatal ao editar a página."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>05/27/2025</em>\n"
+"* Update description."
+msgstr ""
+"<em>27/05/2025</em>\n"
+"* Atualizar descrição."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>05/27/2025</em>\n"
+"* Update description and fixed icons."
+msgstr ""
+"<em>27/05/2025</em>\n"
+"* Atualizar a descrição e corrigir os ícones."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>02/14/2025</em>\n"
+"* Add field to search for user email;\n"
+"* Add hook to process subscription automatically;\n"
+"* Add function to force customer registration at checkout."
+msgstr ""
+"<em>14/02/2025</em>\n"
+"* Adicionar campo para pesquisar e-mail do usuário;\n"
+"* Adicionar um gancho para processar a assinatura automaticamente;\n"
+"* Adicionar função para forçar o cadastro do cliente na finalização de compra."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>05/27/2025</em>\n"
+"* Add blueprint to the WordPress page."
+msgstr ""
+"<em>27/05/2025</em>  \n"
+"* Adicionar blueprint à página do WordPress."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>01/31/2025</em>\n"
+"* Compatibility fix with the \"Payment Gateway Based Fees for WooCommerce\" plugin;\n"
+"* Updating plugin description link."
+msgstr ""
+"<em>31/01/2025</em>\n"
+"* Correção de compatibilidade com o plugin “Payment Gateway Based Fees for WooCommerce”;\n"
+"* Atualizando o link da descrição do plugin."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>12/14/2024</em>\n"
+"* Add subscription reference on the invoice page;\n"
+"* Add setting to define the invoice PDF language;\n"
+"* Fix cron event deletion."
+msgstr ""
+"<em>14/12/2024</em>  \n"
+"* Adicionar referência de assinatura na página da fatura;  \n"
+"* Adicionar uma configuração para definir o idioma do PDF da fatura;  \n"
+"* Correção na exclusão do evento cron."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>11/18/2024</em>\n"
+"* Bug fix for payment methods that require the order’s country."
+msgstr ""
+"<em>18/11/2024</em>\n"
+"* Correção de erro para métodos de pagamento que exigem o país do pedido."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>12/11/2024</em>\n"
+"* Complete refactor of class loading (PSR4);\n"
+"* Fix vulnerabilities."
+msgstr ""
+"<em>12/11/2024</em>  \n"
+"* Refatoração completa do carregamento de classes (PSR4);  \n"
+"* Correção de vulnerabilidades."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>10/30/2024</em>\n"
+"* Fix errors in PDFs with images;\n"
+"* Fix translation errors."
+msgstr ""
+"<em>30/10/2024</em>\n"
+"* Correção de erros em PDFs com imagens;\n"
+"* Correção de erros de tradução."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>04/07/2024</em>\n"
+"* Fix line break bug in invoice extra information;\n"
+"* Change text in email verification settings."
+msgstr ""
+"<em>04/07/2024</em>\n"
+"* Correção de erro de quebra de linha nas informações extras da fatura;\n"
+"* Alterado o texto nas configurações de verificação de e-mail."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>06/06/2024</em>\n"
+"* Add visual feedback when clicking the download invoices button;\n"
+"* Add alert on subscription creation;\n"
+"* Add button to create invoice on the list invoices page;\n"
+"* Add button to create subscription on the list subscriptions page;\n"
+"* Fix currency listing in invoice settings;\n"
+"* Fix bug when clicking on the edit invoices section;\n"
+"* Fix bug in template select showing the same image;\n"
+"* Fix function to add and delete cron events;\n"
+"* Fix label to enable login page for invoices."
+msgstr ""
+"<em>06/06/2024</em>\n"
+"* Adicione feedback visual ao clicar no botão de baixar faturas;\n"
+"* Adicionar alerta na criação de assinatura;\n"
+"* Adicionar botão para criar fatura na página listar faturas;\n"
+"* Adicionar botão para criar assinatura na página de assinaturas de lista;\n"
+"* Corrigir listagem de moedas nas configurações da fatura;\n"
+"* Corrigir erro ao clicar na seção editar faturas;\n"
+"* Corrigir erro na seleção de modelo mostrando a mesma imagem;\n"
+"* Corrigir função para adicionar e excluir eventos cron;\n"
+"* Corrigir rótulo para ativar a página de acesso para faturas."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>04/07/2024</em>\n"
+"* Add setting to set a limit on invoices generated per subscription;\n"
+"* Add card to display IDs of invoices generated by the subscription;\n"
+"* Add \"Subscription\" column in the invoices table;\n"
+"* Add configuration that allows the administrator to define the lead time for invoice generation;\n"
+"* Change in PDF image setting to use the WordPress modal."
+msgstr ""
+"<em>07/04/2024</em>\n"
+"* Adicionar configuração para definir limite de faturas geradas por assinatura;\n"
+"* Adicionar cartão para exibir ID de faturas geradas pela assinatura;\n"
+"* Adicionar coluna “Assinatura” na tabela de faturas;\n"
+"* Adicionar configuração que permite ao administrador definir o prazo de geração da fatura;\n"
+"* Alteração na configuração da imagem PDF para usar o modal WordPress."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>08/05/2024</em>\n"
+"* Add the due date to the invoice PDF.\n"
+"* Add configuration to enable and disable email verification.\n"
+"* Fix PDF generation.\n"
+"* Fix submenu Edit Invoice."
+msgstr ""
+"<em>08/05/2024</em>\n"
+"* Adicionado a data de vencimento ao PDF da fatura.\n"
+"* Adicionado configuração para habilitar e desabilitar a verificação de e-mail.\n"
+"* Corrigido a geração de PDFs.\n"
+"* Corrigido o submenu \"Editar Fatura\"."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>01/06/22</em>\n"
+"* Plugin launch."
+msgstr ""
+"<em>01/06/22</em>\n"
+"* Lançamento do Plugin."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>02/09/22</em>\n"
+"* Implemented invoice due date;\n"
+"* On invoice payment page load the defined payment method is open;\n"
+"* Users with shop_manager permission can generate and edit invoices;\n"
+"* Optimized JS and CSS load."
+msgstr ""
+"<em>02/09/22</em>\n"
+"* Implementado data de vencimento da fatura;\n"
+"* Na página de pagamento da fatura, o método de pagamento definido é aberto no carregamento;\n"
+"* Usuários com permissão de shop_manager podem gerar e editar faturas;\n"
+"* Otimização de carregamento de JS e CSS."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>10/03/23</em>\n"
+"* Links update;\n"
+"* Setting title change;\n"
+"* Addition of description;\n"
+"* Dev Container configuration."
+msgstr ""
+"<em>10/03/23</em>\n"
+"* Atualização de links;\n"
+"* Alteração de título de configuração;\n"
+"* Adição de descrição;\n"
+"* Configuração do Dev Container."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>10/03/23</em>\n"
+"* Bug corrections;"
+msgstr ""
+"<em>10/03/23</em>\n"
+"* Correção de Bug;"
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>03/14/23</em>\n"
+"* Payment methods bug correction;"
+msgstr ""
+"<em>14/03/23</em>\n"
+"* Correção de bug nos métodos de pagamento;"
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>07/06/23</em>\n"
+"* Fix invoices table error when the invoice order is deleted."
+msgstr ""
+"<em>07/06/23</em>\n"
+"* Corrigido erro na tabela de faturas quando o pedido da fatura é excluído."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>10/18/23</em>\n"
+"* Add PDF generation for invoices"
+msgstr ""
+"<em>18/10/23</em>  \n"
+"* Adicionar geração de PDF para faturas"
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>10/20/23</em>\n"
+"* Adjust to get logo with curl, adjust to work in directory installed wordpress."
+msgstr ""
+"<em>20/10/23</em>  \n"
+"* Ajuste para obter o logo com curl; ajuste para funcionar no diretório onde o WordPress foi instalado."
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>01/11/23</em>\n"
+"* Add default footer setting\n"
+"* Add text_before_payment_link setting\n"
+"* Add setting for sender details\n"
+"* Adjust existing templates to handle the new settings\n"
+"* Add new template"
+msgstr ""
+"<em>01/11/23</em>\n"
+"* Adicionado configuração padrão para o rodapé\n"
+"* Adicionado configuração para texto antes do link de pagamento\n"
+"* Adicionada configuração para detalhes do remetente\n"
+"* Ajustado os modelos existentes para lidar com as novas configurações\n"
+"* Adicionado novo modelo"
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>06/11/23</em>\n"
+"* add cache no-store attribute to the PDF generation request"
+msgstr ""
+"<em>06/11/23</em>\n"
+"* Adicionado atributo de cache no-store à solicitação de geração de PDF"
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>02/14/2024</em>\n"
+"* Substitution of echo to esc_html_e or esc_attr_e, adjust to comply with wordpress regulations"
+msgstr ""
+"<em>14/02/2024</em>  \n"
+"* Substituição de echo por esc_html_e ou esc_attr_e, ajustar para cumprir as regulamentações do WordPress"
+
+#. Found in changelog paragraph.
+#, gp-priority: low
+msgid ""
+"<em>04/22/2024</em>\n"
+"* Adjust escape variables and request methods to enhance security\n"
+"* Add modal for sharing invoice link\n"
+"* Add products with recurring subscriptions\n"
+"* Add multiple payment methods option"
+msgstr ""
+"<em>22/04/2024</em>\n"
+"* Ajustar variáveis de escape e métodos de solicitação para aprimorar a segurança\n"
+"* Adicionar modal para compartilhar o link da fatura\n"
+"* Adicionar produtos com assinaturas recorrentes\n"
+"* Adicionar opção de métodos de pagamento múltiplos"
