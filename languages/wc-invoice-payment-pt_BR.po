@@ -445,8 +445,6 @@ msgstr "Tem certeza que deseja gerar uma fatura para este orçamento?"
 msgid "Are you sure you want to send the quote to the customer's email?"
 msgstr "Tem certeza que deseja enviar o orçamento para o email do cliente?"
 
-msgid "Creating Invoice..."
-msgstr "Gerando Fatura..."
 
 msgid "Processing..."
 msgstr "Processando..."
@@ -508,8 +506,10 @@ msgstr "Orçamento Recebido"
 msgid "Your quote has been received and is being analyzed."
 msgstr "Seu orçamento foi recebido e está sendo analisado."
 
+msgid "Your quote has been cancelled."
 msgstr "Seu orçamento foi cancelado."
 
+msgid "Your quote has expired."
 msgstr "Seu orçamento expirou."
 
 msgid "Under Review"
@@ -770,8 +770,6 @@ msgstr "O período de doações terminou. Obrigado pelo seu interesse!"
 msgid "Time remaining:"
 msgstr "Tempo restante:"
 
-msgid "Days"
-msgstr "Dias"
 
 msgid "Hours"
 msgstr "Horas"
@@ -796,3 +794,21 @@ msgstr "Restante:"
 
 msgid "This donation goal has been reached! Thank you to everyone who contributed."
 msgstr "Esta meta de doação foi atingida! Obrigado a todos que contribuíram."
+
+msgid "Recurring payment"
+msgstr "Pagamento recorrente"
+
+msgid "Inherit from product (subscription)"
+msgstr "Herdar do produto (assinatura)"
+
+msgid "Inherit from product (one-time payment)"
+msgstr "Herdar do produto (pagamento único)"
+
+msgid "This variation is a subscription"
+msgstr "Esta variação é uma assinatura"
+
+msgid "This variation is a one-time payment"
+msgstr "Esta variação é um pagamento único"
+
+msgid "Subscription paused: the recurrence interval could not be resolved (the subscription product may have been deleted). No new invoice was generated."
+msgstr "Assinatura pausada: não foi possível resolver o intervalo de recorrência (o produto da assinatura pode ter sido excluído). Nenhuma nova fatura foi gerada."

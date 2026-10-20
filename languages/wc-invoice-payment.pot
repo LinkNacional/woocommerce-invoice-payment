@@ -1,3 +1,19 @@
+# Copyright (C) 2026 Link Nacional
+# This file is distributed under the GPL-3.0+ license.
+msgid ""
+msgstr ""
+"Project-Id-Version: Invoice Payment for WooCommerce 2.13.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-invoice-payment\n"
+"POT-Creation-Date: 2026-10-19T15:35:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wc-invoice-payment\n"
+
 # Invoice Payment for WooCommerce tradução pt_BR
 msgid "Link Invoice Payment plugin is a powerful extension for WooCommerce, designed to simplify online billing. Whether for one-time or recurring invoices."
 msgstr ""
@@ -204,8 +220,6 @@ msgstr ""
 msgid "Edit subscription"
 msgstr ""
 
-msgid "Invoice successfully saved"
-msgstr ""
 
 msgid "Subscription actions"
 msgstr ""
@@ -232,7 +246,7 @@ msgid "Subscription limit"
 msgstr ""
 
 msgid "Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit."
-msgstr "
+msgstr ""
 
 msgid "Generated invoices"
 msgstr ""
@@ -513,4 +527,22 @@ msgid "Money"
 msgstr ""
 
 msgid "PIX"
+msgstr ""
+
+msgid "Recurring payment"
+msgstr ""
+
+msgid "Inherit from product (subscription)"
+msgstr ""
+
+msgid "Inherit from product (one-time payment)"
+msgstr ""
+
+msgid "This variation is a subscription"
+msgstr ""
+
+msgid "This variation is a one-time payment"
+msgstr ""
+
+msgid "Subscription paused: the recurrence interval could not be resolved (the subscription product may have been deleted). No new invoice was generated."
 msgstr ""

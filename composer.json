@@ -17,9 +17,20 @@
     ],
     "minimum-stability": "stable",
     "require-dev": {
-        "phan/phan": "5.4.1"
+        "phan/phan": "5.4.1",
+        "phpunit/phpunit": "^9.6",
+        "wp-phpunit/wp-phpunit": "^7.0",
+        "yoast/phpunit-polyfills": "^4.0"
     },
     "require": {
         "dompdf/dompdf": "^3.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LknWc\\WcInvoicePayment\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }

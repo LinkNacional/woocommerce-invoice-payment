@@ -1762,10 +1762,9 @@ final class WcPaymentInvoiceAdmin
 
         $currencies = get_woocommerce_currencies();
         $currency_codes = array_keys($currencies);
-        $limit = '/' . $order->get_meta('lkn_wcip_subscription_limit');
-        if ($order->get_meta('lkn_wcip_subscription_limit') == 0) {
-            $limit = '';
-        }
+        // Cast: faturas que não são assinatura não têm meta de limite (exibe "0" em vez de "0/")
+        $subscription_limit = (int) $order->get_meta('lkn_wcip_subscription_limit');
+        $limit = 0 === $subscription_limit ? '' : '/' . $subscription_limit;
         sort($currency_codes);
 
         $countries = WC()->countries->get_countries(); // Pega os países
@@ -2144,7 +2143,7 @@ final class WcPaymentInvoiceAdmin
                     id="lknListGeneratedInvoicesPostBox">
                     <span
                         class="text-bold"><?php esc_attr_e('Generated invoices', 'wc-invoice-payment'); ?></span>
-                    <span><?php echo esc_attr($order->get_meta('lkn_wcip_subscription_initial_limit')) ?><?php echo esc_attr($limit) ?></span>
+                    <span><?php echo esc_attr((int) $order->get_meta('lkn_wcip_subscription_initial_limit')) ?><?php echo esc_attr($limit) ?></span>
                     <hr>
                     <div class="wcip-row">
                         <div
@@ -3423,23 +3422,9 @@ final class WcPaymentInvoiceAdmin
 
                 // Handle subscription interval changes - reschedule cron and update backup schedule
                 if ($intervalChanged) {
-                    // Remove ALL old cron jobs related to this subscription (robust cleanup)
-                    $scheduled_events = _get_cron_array();
-                    foreach ($scheduled_events as $timestamp => $cron_events) {
-                        foreach ($cron_events as $hook => $events) {
-                            foreach ($events as $event) {
-                                // Check if the event is associated with subscription hooks
-                                if ("generate_invoice_event" === $hook || 'lkn_wcip_cron_hook' === $hook) {
-                                    // Check if event args contain the invoiceId we want to remove
-                                    $event_args = $event['args'];
-                                    if (is_array($event_args) && in_array($invoiceId, $event_args)) {
-                                        // Remove the event from WP Cron
-                                        wp_unschedule_event($timestamp, $hook, $event_args);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    // Remove os eventos da assinatura (os diários de expiração de fatura são preservados)
+                    $subscription_handler = new \LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription();
+                    $subscription_handler->unschedule_subscription_events((int) $invoiceId);
 
                     // Calculate next invoice date with new interval
                     $nextInvoiceTime = strtotime("+{$intervalNumber} {$intervalType}");
@@ -3447,28 +3432,20 @@ final class WcPaymentInvoiceAdmin
                     // Update the saved next due date
                     $order->update_meta_data('lkn_wcip_subscription_next_due_date', $nextInvoiceTime);
                     
-                    // Only schedule new cron if the order is already completed
-                    if ($order->get_status() === 'completed') {
-                        // Schedule new cron job using single event (like original subscription system)
-                        wp_schedule_single_event($nextInvoiceTime, 'generate_invoice_event', array($invoiceId));
-                        
-                        // Update backup schedule
-                        $subscription_handler = new \LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription('wc-invoice-payment', '1.0.0');
-                        
-                        // Remove old schedule
-                        $subscription_handler->remove_subscription_from_schedule($invoiceId);
-                        
-                        // Add new schedule with updated date
-                        $subscription_handler->save_subscription_to_schedule($invoiceId, $nextInvoiceTime);
-                    } else {
-                        // If not completed yet, just update the backup schedule
-                        $subscription_handler = new \LknWc\WcInvoicePayment\Includes\WcPaymentInvoiceSubscription('wc-invoice-payment', '1.0.0');
-                        $subscription_handler->remove_subscription_from_schedule($invoiceId);
-                        $subscription_handler->save_subscription_to_schedule($invoiceId, $nextInvoiceTime);
+                    // Só agenda o cron novo se o pedido já estiver pago (processing/completed)
+                    $isPaidStatus = in_array($order->get_status(), wc_get_is_paid_statuses(), true);
+
+                    if ($isPaidStatus) {
+                        // Agenda o evento único da próxima fatura (mesmo formato do motor de assinaturas)
+                        wp_schedule_single_event((int) $nextInvoiceTime, 'generate_invoice_event', array((int) $invoiceId));
                     }
+
+                    // Backup do cron: remove a data antiga e grava a nova
+                    $subscription_handler->remove_subscription_from_schedule($invoiceId);
+                    $subscription_handler->save_subscription_to_schedule($invoiceId, $nextInvoiceTime);
                     
                     // Add order note about the change
-                    if ($order->get_status() === 'completed') {
+                    if ($isPaidStatus) {
                         $order->add_order_note(sprintf(
                             /* translators: %1$d: interval number, %2$s: interval type (days/weeks/months), %3$s: next invoice date */
                             __('Subscription interval updated to: %1$d %2$s(s). Next invoice scheduled for: %3$s', 'wc-invoice-payment'),
@@ -3479,10 +3456,10 @@ final class WcPaymentInvoiceAdmin
                     } else {
                         $order->add_order_note(sprintf(
                             /* translators: %1$d: interval number, %2$s: interval type (days/weeks/months), %3$s: next invoice date */
-                            __('Subscription interval updated to: %1$d %2$s(s). Next invoice will be scheduled when order is completed: %3$s', 'wc-invoice-payment'),
+                            __('Subscription interval updated to: %1$d %2$s(s). Next invoice will be scheduled when the order is paid: %3$s', 'wc-invoice-payment'),
                             $intervalNumber,
                             $intervalType,
-                            gmgmdate('Y-m-d H:i:s', $nextInvoiceTime)
+                            gmdate('Y-m-d H:i:s', $nextInvoiceTime)
                         ));
                     }
                 }

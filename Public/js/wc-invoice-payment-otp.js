@@ -6,6 +6,13 @@
 jQuery(document).ready(function($) {
     let currentEmail = '';
 
+    // Mensagens vindas do servidor entram como texto (nunca como HTML).
+    const showError = (message) => {
+        $('#lkn-otp-messages')
+            .empty()
+            .append($('<div class="woocommerce-error"></div>').text(message));
+    };
+
     // Enviar código
     $('#lkn-otp-email-form').on('submit', function(e) {
         e.preventDefault();
@@ -50,8 +57,8 @@ jQuery(document).ready(function($) {
                 $('#lkn-otp-messages').html('<div class="woocommerce-error">' + response.message + '</div>');
             }
         }).catch(function(error) {
-            console.error('Error:', error);
-            $('#lkn-otp-messages').html('<div class="woocommerce-error">Erro de conexão.</div>');
+            // wp.apiFetch rejeita com {code, message, data} em respostas 4xx/5xx
+            showError((error && error.message) ? error.message : 'Erro de conexão.');
         });
     });
 
@@ -87,11 +94,8 @@ jQuery(document).ready(function($) {
                 submitButton.prop('disabled', false);
             }
         }).catch(function(error) {
-            if(error.success == false){
-                $('#lkn-otp-messages').html('<div class="woocommerce-error">' + error.message + '</div>');
-            }else{
-                $('#lkn-otp-messages').html('<div class="woocommerce-error">Erro de conexão.</div>');
-            }
+            // wp.apiFetch rejeita com {code, message, data} em respostas 4xx/5xx
+            showError((error && error.message) ? error.message : 'Erro de conexão.');
             // Reabilita o botão em caso de erro
             submitButton.prop('disabled', false);
         });

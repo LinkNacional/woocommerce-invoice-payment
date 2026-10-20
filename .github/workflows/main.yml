@@ -1,6 +1,7 @@
 name: Generate new release for plugin
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [ closed ]
     branches: [ main ]
@@ -8,9 +9,10 @@ on:
 env:
   PLUGIN_NAME: invoice-payment-for-woocommerce
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "2.13.2"
+  DEPLOY_TAG: "2.13.3"
 jobs:
   release-build:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -26,6 +28,12 @@ jobs:
         args: --ignore-platform-reqs
         command: install
         dev: no
+
+    # Gera o body da release (metadados + resumo do changelog) — mesmo conteúdo do PR
+    - name: Generate release body
+      run: |
+        mkdir -p dist
+        bash .github/scripts/generate-release-body.sh > dist/release-body.md
 
     #- name: Executar Plugin Check com configurações personalizadas
     #  uses: wordpress/plugin-check-action@v1
@@ -54,7 +62,10 @@ jobs:
       run: |
         mkdir -p dist
         mkdir -p build/${{ env.PLUGIN_NAME }}
-        mv ./Admin ./Includes ./languages ./Public *.php *.txt ./build/${{ env.PLUGIN_NAME }}
+        mv ./Admin ./Includes ./Public *.php *.txt ./build/${{ env.PLUGIN_NAME }}
+        # Só o template .pot vai no pacote; .po/.mo são geridos no translate.wordpress.org.
+        mkdir -p ./build/${{ env.PLUGIN_NAME }}/languages
+        cp ./languages/*.pot ./build/${{ env.PLUGIN_NAME }}/languages/
         cp -r vendor build/${{ env.PLUGIN_NAME }}/vendor
         find ./build -type f -exec chmod 0644 {} +
         find ./build -type d -exec chmod 0755 {} +
@@ -85,6 +96,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "dist/${{ env.PLUGIN_NAME }}.zip"
+        bodyFile: "dist/release-body.md"
         token: ${{ secrets.GITHUB_TOKEN }}
         commit: "main"
         draft: true
