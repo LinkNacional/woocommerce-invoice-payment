@@ -156,9 +156,12 @@ echo wp_kses_post( $html );
 ## 🧪 Testes
 
 - Análise estática: `vendor/bin/phan` (config: `.phan/config.php`).
-- Sem suíte PHPUnit no momento — adicionar em `tests/` com bootstrap se necessário.
+- Testes integrados (wp-phpunit + WooCommerce real): `tests/` — ver `tests/README.md`.
+  Rodar com o PHP do Local: `composer test` (precisa de `WP_TESTS_DB_SOCKET`).
 - Classe de teste deve estender `WP_UnitTestCase` (via `yoast/phpunit-polyfills`).
 - Métodos de teste: prefixo `test_`, tipagem `void`.
+- Traduções: `.po`/`.mo` ficam no git (import no translate.wordpress.org); o **pacote**
+  leva só o `.pot`. Não commitar `.json` de tradução de JS (vêm do pacote de idioma).
 
 ---
 

@@ -92,7 +92,16 @@ A versão aparece em **7 locais** espalhados por **5 arquivos**:
 O zip do release e o deploy wp.org montam `build/invoice-payment-for-woocommerce/` copiando **Admin, Includes, languages (*.pot), Public, *.php, *.txt + vendor**. Conferir:
 
 - `tests/`, `phpunit.xml.dist`, `.reasonix/`, `.github/`, `composer.json`, `composer.lock`, `package.json` **não** entram no zip.
-- `languages/` leva **só** o `*.pot` (`*.po`/`*.mo` vivem no git, mas não no pacote).
+- `languages/` leva **só** o `*.pot` (`*.po`/`*.mo`/`*.json` vivem no git, mas não no pacote).
+
+Traduções (ficam no git, **nunca** no pacote — são importadas no translate.wordpress.org):
+
+- `languages/wc-invoice-payment-pt_BR.po/.mo` — strings do código (skill `i18n`:
+  `~/.reasonix/skills/i18n/scripts/lkn-i18n.sh <plugin> pt_BR full|apply|compile`).
+- `languages/wc-invoice-payment-readme-pt_BR.po` — tradução do `readme.txt` (export do
+  GlotPress: `https://translate.wordpress.org/projects/wp-plugins/invoice-payment-for-woocommerce/stable-readme/pt-br/default/export-translations/?format=po`).
+  **Se o readme mudar** (inclusive os links de WooCommerce/WordPress), os `msgid`
+  mudam: atualize as entradas correspondentes antes da release.
 
 ## 5. Validação final
 

@@ -1,11 +1,16 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**  @var WC_Order $order */
 
 use Give\Framework\FieldsAPI\Date;
 
 /**  @var int $invoice_id */
 require_once WC_PAYMENT_INVOICE_ROOT_DIR . 'Includes/libs/phpqrcode.php';
+
 
 function to_wc_monetary_format(float $amount): string {
     return number_format(

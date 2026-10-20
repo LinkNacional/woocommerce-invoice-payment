@@ -35,3 +35,4 @@ AGENTS.md
 # .po/.mo são geridos no translate.wordpress.org e não são embarcados.
 languages/*.po
 languages/*.mo
+languages/*.json

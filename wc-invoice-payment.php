@@ -12,7 +12,7 @@
  * @since             1.0.0
  *
  * @wordpress-plugin
- * Plugin Name:       Invoice Payment for WooCommerce
+ * Plugin Name:       Link Invoice Payment for WooCommerce
  * Plugin URI:        https://www.linknacional.com/wordpress/plugins/
  * Description:       Invoice payment generation and management for WooCommerce.
  * Version:           2.13.3

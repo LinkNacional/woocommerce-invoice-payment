@@ -4,6 +4,7 @@
 * Ajuste: A cadência gravada no pedido é preservada — editar o produto/variação no catálogo não altera assinaturas em andamento.
 * Correção: Erro fatal ao alterar o intervalo de uma assinatura em pedido ainda não concluído.
 * Correção: Segurança do OTP por email (limite de tentativas, bloqueio temporário, código com hash e resposta neutra no envio).
+* Ajuste: Tradução pt_BR completa (código e readme) e links de WooCommerce/WordPress no readme.
 
 # 2.13.2 - 11/08/2026
 * Ajuste: Aumento do tempo de expiração do OTP padrão.

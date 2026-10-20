@@ -3,16 +3,16 @@ Contributors: linknacional
 Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: subscription, invoice, payment, recorrente, faturas
 Requires at least: 6.0
-Tested up to: 7.0
+Tested up to: 7.1
 Stable tag: 2.13.3
 Requires PHP: 8.2
-License: GPLv3 or later
-License URI: https://www.gnu.org/licenses/gpl-3.0.html
+License: GPL-3.0+
+License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 
 Link Invoice Payment is an extension for WooCommerce, designed to simplify online billing. Whether for one-time or subscriptions (recurring invoices)
 
 == Description ==
-The **Link Invoice Payment** plugin is a powerful and free extension for **WooCommerce**, designed to simplify online billing — whether for one-time or subscription (recurring) invoices. With [Link Invoice Payment](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) plugin for WooCommerce, you can easily generate both **one-time** and **recurring** invoices and send them to your customers via email, WhatsApp, or social networks — complete with a secure payment link. One of its biggest advantages is the ability to offer multiple payment options to settle the invoice.
+The **Link Invoice Payment** plugin is a powerful and free extension for **[WooCommerce](https://www.linknacional.com.br/wordpress/woocommerce/)**, designed to simplify online billing — whether for one-time or subscription (recurring) invoices. With [Link Invoice Payment](https://www.linknacional.com.br/wordpress/woocommerce/faturas/) plugin for WooCommerce, you can easily generate both **one-time** and **recurring** invoices and send them to your customers via email, WhatsApp, or social networks — complete with a secure payment link. One of its biggest advantages is the ability to offer multiple payment options to settle the invoice.
 
 Now enhanced with even more advanced features, **Link Invoice Payment** is the perfect tool for flexible and professional invoicing in your [WooCommerce](https://www.linknacional.com.br/wordpress/woocommerce/) store.
 
@@ -26,11 +26,11 @@ Now enhanced with even more advanced features, **Link Invoice Payment** is the p
 - **Due Date Management** – Set custom due dates for each invoice  
 - **Multiple or Specific Payment Methods** – Choose which payment gateways appear per invoice  
 - **Multi-language Support** – Display invoices in the language preferred by your customer  
-- **Partial Order Payments in WooCommerce** – Allow customers to pay part of an order upfront using multiple payment methods
+- **Partial Order Payments in [WooCommerce](https://www.linknacional.com.br/wordpress/woocommerce/)** – Allow customers to pay part of an order upfront using multiple payment methods
 - **Payment Method Discount** – Set a percentage or fixed discount value for each payment type
 - **Payment Method Fee** – Set a percentage or fixed value to charge an additional amount for each payment type
 - **Quotes** – Create custom quotes or allow your customers to request a proposal directly on your site, fully integrated with your store's products.
-- **WooCommerce Donation Product Type** – Allows you to create a special "Donation" product type for receiving open-value monetary donations, where the donor defines the amount they wish to contribute.
+- **[WooCommerce](https://www.linknacional.com.br/wordpress/woocommerce/) Donation Product Type** – Allows you to create a special "Donation" product type for receiving open-value monetary donations, where the donor defines the amount they wish to contribute.
 - **Item Donation Marketplace for WooCommerce** – This feature allows your users (donors) to list items they wish to donate (e.g., a sofa, clothes, food). Other users (beneficiaries) can then browse the site and request to receive these items.
 - **Dokan Integration** – Enables donations products and invoice issuing by sellers directly from the Dokan dashboard.
 
@@ -40,7 +40,7 @@ And much more!
 
 **Dependencies**
 
-Link Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Invoice Payment for WooCommerce installation.
+Link Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, please make sure [WooCommerce](https://www.linknacional.com.br/wordpress/woocommerce/) is installed and properly configured before starting Invoice Payment for WooCommerce installation.
 
 *External Libraries used*
 * We use the PHP external library [DOMPDF](https://github.com/dompdf/dompdf) for generating PDF invoices.
@@ -49,7 +49,7 @@ Link Invoice Payment for WooCommerce plugin is dependent on WooCommerce plugin, 
 
 **User instructions**
 
-1. Search the WordPress sidebar for 'Invoice Payment for WooCommerce';
+1. Search the [WordPress](https://www.linknacional.com.br/wordpress/) sidebar for 'Invoice Payment for WooCommerce';
 
 2. In the plugin options look for 'Add invoice';
 
@@ -63,7 +63,7 @@ You have created your first invoice with the Invoice Payment for WooCommerce plu
 
 == Installation ==
 
-1. Look in the sidebar for the WordPress plugins area;
+1. Look in the sidebar for the [WordPress](https://www.linknacional.com.br/wordpress/) plugins area;
 
 2. In installed plugins look for the 'add new' option in the header;
 
@@ -82,7 +82,7 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 
 = Invoices Settings =
 
-1. In the WordPress sidebar, find and click on "Invoices".
+1. In the [WordPress](https://www.linknacional.com.br/wordpress/) sidebar, find and click on "Invoices".
 2. Configure default settings such as PDF template, logo URL, footer, sender details, and text preceding the payment link.
 3. To manually add an invoice, visit the "Add Invoice" page, where both standard and recurring invoices can be created.
 
@@ -93,8 +93,8 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 
 = Subscription and Invoice Lists =
 
-1. To list subscriptions click on "Subscriptions" in the WordPress sidebar.
-2. To list invoices click on "Invoices" in the WordPress sidebar.
+1. To list subscriptions click on "Subscriptions" in the [WordPress](https://www.linknacional.com.br/wordpress/) sidebar.
+2. To list invoices click on "Invoices" in the [WordPress](https://www.linknacional.com.br/wordpress/) sidebar.
 
 
 == Frequently Asked Questions ==
@@ -105,7 +105,7 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 
 = What is needed to use this plugin? =
 
-* WooCommerce version 4.0 or latter installed and active.
+* [WooCommerce](https://www.linknacional.com.br/wordpress/woocommerce/) version 4.0 or latter installed and active.
 
 == Screenshots ==
 
@@ -124,6 +124,7 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 * Tweak: The interval stored in the order is preserved — editing the product/variation no longer changes running subscriptions.
 * Fix: Fatal error when changing the interval of a subscription whose order is not completed yet.
 * Fix: Email OTP security (attempt limit, temporary lockout, hashed codes and neutral response on send).
+* Tweak: Complete pt_BR translation (code and readme) and WooCommerce/WordPress links in the readme.
 
 = 2.13.2 = *08/11/2026*
 * Tweak: Increased the default OTP expiration time.

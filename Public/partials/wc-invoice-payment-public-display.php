@@ -8,6 +8,11 @@
  * @see       https://www.linknacional.com/
  * @since      1.0.0
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->

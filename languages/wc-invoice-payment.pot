@@ -1,548 +1,3430 @@
 # Copyright (C) 2026 Link Nacional
-# This file is distributed under the GPL-3.0+ license.
+# This file is distributed under the GPL-3.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Invoice Payment for WooCommerce 2.13.2\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-invoice-payment\n"
-"POT-Creation-Date: 2026-10-19T15:35:00+00:00\n"
+"Project-Id-Version: Link Invoice Payment for WooCommerce 2.13.3\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/invoice-payment-for-woocommerce\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2026-10-20T12:08:04+00:00\n"
+"PO-Revision-Date: 2026-10-20 09:10-0300\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wc-invoice-payment\n"
 
-# Invoice Payment for WooCommerce tradução pt_BR
-msgid "Link Invoice Payment plugin is a powerful extension for WooCommerce, designed to simplify online billing. Whether for one-time or recurring invoices."
+#. Plugin Name of the plugin
+#: wc-invoice-payment.php
+msgid "Link Invoice Payment for WooCommerce"
 msgstr ""
 
-
-msgid "List invoices"
+#. Plugin URI of the plugin
+#: wc-invoice-payment.php
+msgid "https://www.linknacional.com/wordpress/plugins/"
 msgstr ""
 
-msgid "Invoices"
+#. Description of the plugin
+#: wc-invoice-payment.php
+msgid "Invoice payment generation and management for WooCommerce."
 msgstr ""
 
-msgid "Invoice"
+#. Author of the plugin
+#: wc-invoice-payment.php
+msgid "Link Nacional"
 msgstr ""
 
-msgid "Edit invoice"
+#. Author URI of the plugin
+#: wc-invoice-payment.php
+msgid "https://www.linknacional.com/"
 msgstr ""
 
-msgid "Invoice successfully saved"
+#: Admin/LknWcipListTable.php:160
+msgid "Compact view"
 msgstr ""
 
-msgid "Error on invoice generation"
+#: Admin/LknWcipListTable.php:161
+msgid "Extended view"
 msgstr ""
 
-msgid "Invoices successfully deleted"
+#: Admin/LknWcipListTable.php:319
+msgid "No items found."
 msgstr ""
 
-msgid "Error on invoice deletion"
+#: Admin/LknWcipListTable.php:413
+#: Includes/WcPaymentInvoicePartial.php:1233
+msgid "Select bulk action"
 msgstr ""
 
-msgid "Invoice details"
+#: Admin/LknWcipListTable.php:415
+msgid "Bulk actions"
 msgstr ""
 
+#: Admin/LknWcipListTable.php:436
+#: Includes/WcPaymentInvoicePartial.php:1245
+msgid "Apply"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:499
+msgid "Show more details"
+msgstr ""
+
+#. translators: %s: Number of comments.
+#: Admin/LknWcipListTable.php:557
+#, php-format
+msgid "%s comment"
+msgid_plural "%s comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: Number of comments.
+#: Admin/LknWcipListTable.php:563
+#, php-format
+msgid "%s approved comment"
+msgid_plural "%s approved comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: Number of comments.
+#: Admin/LknWcipListTable.php:569
+#, php-format
+msgid "%s pending comment"
+msgid_plural "%s pending comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: Admin/LknWcipListTable.php:577
+#: Admin/LknWcipListTable.php:607
+#: Admin/LknWcipListTable.php:630
+msgid "No comments"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:607
+msgid "No approved comments"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:630
+msgid "No pending comments"
+msgstr ""
+
+#. translators: %s: Number of items.
+#. translators: Number of items.
+#: Admin/LknWcipListTable.php:723
+#: Admin/LknWcipListTable.php:1350
+#, php-format
+msgid "%s item"
+msgid_plural "%s items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: Admin/LknWcipListTable.php:761
+msgid "First page"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:772
+msgid "Previous page"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:779
+#: Admin/LknWcipListTable.php:783
+msgid "Current Page"
+msgstr ""
+
+#. translators: 1: Current page, 2: Total pages.
+#: Admin/LknWcipListTable.php:791
+#, php-format
+msgctxt "paging"
+msgid "%1$s of %2$s"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:802
+msgid "Next page"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:813
+msgid "Last page"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1042
+msgid "Select All"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1415
+#: Admin/WcPaymentInvoiceAdmin.php:509
+#: Admin/WcPaymentInvoiceAdmin.php:1000
+#: Admin/WcPaymentInvoiceAdmin.php:1839
+#: Admin/WcPaymentInvoiceAdmin.php:2529
+#: Admin/WcPaymentInvoiceAdmin.php:4377
+#: Includes/templates/partialTablesAdmin.php:38
+#: Includes/templates/partialTablesAdmin.php:71
+#: Includes/WcPaymentInvoicePartial.php:1257
+#: Includes/WcPaymentInvoicePartial.php:1294
+#: Includes/WcPaymentInvoicePartial.php:1449
 msgid "Status"
 msgstr ""
 
-msgid "Default payment method"
+#: Admin/LknWcipListTable.php:1416
+#: Admin/WcPaymentInvoiceAdmin.php:1218
+#: Includes/WcPaymentInvoiceQuote.php:289
+msgid "Quote"
 msgstr ""
 
-msgid "Currency"
+#: Admin/LknWcipListTable.php:1435
+#: Admin/WcPaymentInvoiceAdmin.php:1193
+#: Admin/WcPaymentInvoiceAdmin.php:2135
+#: Admin/WcPaymentInvoiceAdmin.php:4571
+msgid "Delete"
 msgstr ""
 
-msgid "Name"
+#: Admin/LknWcipListTable.php:1481
+msgid "Edit"
 msgstr ""
 
-msgid "Amount"
-msgstr ""
-
-msgid "Add line"
-msgstr ""
-
-msgid "Email"
-msgstr ""
-
-msgid "Invoice actions"
-msgstr ""
-
-msgid "Select an action..."
-msgstr ""
-
-msgid "Send invoice to customer"
-msgstr ""
-
-msgid "Price"
-msgstr ""
-
-msgid "Add invoice"
-msgstr ""
-
-msgid "Payment status"
-msgstr ""
-
-msgid "Total"
-msgstr ""
-
-msgid "depends on the last version of WooCommerce to work!"
-msgstr ""
-
-msgid "Active WooCommerce"
-msgstr ""
-
-msgid "Install WooCommerce"
-msgstr ""
-
-msgid "Invoice payment link"
-msgstr ""
-
+#: Admin/LknWcipListTable.php:1483
 msgid "Payment link"
 msgstr ""
 
-msgid "Due date"
-msgstr ""
-
-msgid "Payment details"
-msgstr ""
-
-msgid "Payment method"
-msgstr "Date"
-
-msgid "Description"
-msgstr ""
-
-msgid "Bill To"
-msgstr ""
-
-msgid "Date"
-msgstr ""
-
+#: Admin/LknWcipListTable.php:1484
+#: Admin/WcPaymentInvoiceAdmin.php:188
+#: Admin/WcPaymentInvoiceAdmin.php:1201
+#: Admin/WcPaymentInvoiceAdmin.php:2079
 msgid "Download invoice"
 msgstr ""
 
-msgid "Unable to generate the PDF. Please, contact support."
+#: Admin/LknWcipListTable.php:1511
+#: Admin/WcPaymentInvoiceAdmin.php:2415
+#: Admin/WcPaymentInvoiceAdmin.php:2416
+msgid "Add quote"
 msgstr ""
 
-msgid "Settings"
+#: Admin/LknWcipListTable.php:1521
+#: Admin/WcPaymentInvoiceAdmin.php:2373
+#: Admin/WcPaymentInvoiceAdmin.php:2374
+msgid "Add invoice"
 msgstr ""
 
-msgid "Default PDF template for invoices"
-msgstr ""
-
-msgid "Invoice PDF template"
-msgstr ""
-
-msgid "Extra data"
-msgstr ""
-
-msgid "Footer notes"
-msgstr ""
-
-msgid "Details in HTML"
-msgstr ""
-
-msgid "Default template"
-msgstr ""
-
-msgid "Logo URL"
-msgstr ""
-
-msgid "Invoice By Link Nacional"
-msgstr ""
-
-msgid "Invoice settings"
-msgstr ""
-
-msgid "Default footer"
-msgstr ""
-
-msgid "Sender details"
-msgstr ""
-
-msgid "Text before payment link"
-msgstr ""
-
-msgid "Multiple payment option"
-msgstr ""
-
-msgid "Share payment link"
-msgstr ""
-
-msgid "Share with"
-msgstr ""
-
-msgid "Or copy link"
-msgstr ""
-
-msgid "Start date"
-msgstr ""
-
-msgid "Subscription"
-msgstr ""
-
-msgid "This is a subscription product."
-msgstr ""
-
-msgid "Subscription Interval"
-msgstr ""
-
-msgid "Days"
-msgstr ""
-
-msgid "Weeks"
-msgstr ""
-
-msgid "Months"
-msgstr ""
-
-msgid "Years"
-msgstr ""
-
-msgid "Subscriptions"
-msgstr ""
-
-msgid "List Subscriptions"
-msgstr ""
-
-msgid "Activate invoices"
-msgstr ""
-
-msgid "Create an invoice whenever a product is purchased"
-msgstr ""
-
-msgid "Create invoices for products"
-msgstr ""
-
-msgid "Edit subscription"
-msgstr ""
-
-
-msgid "Subscription actions"
-msgstr ""
-
-msgid "Subscription details"
-msgstr ""
-
-msgid "Cancel subscription"
-msgstr ""
-
-msgid "Enable/Disable email verification."
-msgstr ""
-
-msgid "Your download will begin shortly. Please wait a moment."
-msgstr ""
-
-msgid "Select the checkbox to enable email verification."
-msgstr ""
-
+#: Admin/LknWcipListTable.php:1531
+#: Admin/WcPaymentInvoiceAdmin.php:315
+#: Admin/WcPaymentInvoiceAdmin.php:316
 msgid "Add subscription"
 msgstr ""
 
-msgid "Subscription limit"
+#: Admin/LknWcipListTable.php:1567
+#: Admin/WcPaymentInvoiceAdmin.php:2749
+#: Includes/WcPaymentInvoiceSubscription.php:77
+#: Includes/WcPaymentInvoiceSubscription.php:89
+msgid "Subscription"
 msgstr ""
 
-msgid "Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit."
-msgstr ""
-
-msgid "Generated invoices"
-msgstr ""
-
-msgid "Subscription settings"
-msgstr ""
-
-msgid "Set the lead time for invoice generation relative to the due date."
-msgstr ""
-
-msgid "Invoice issuance lead time"
-msgstr ""
-
-msgid "Maximum recommended width of 460 pixels"
-msgstr ""
-
-msgid "Upload image"
-msgstr ""
-
-msgid "Downloading..."
-msgstr ""
-
-msgid "Create an invoice whenever a product is purchased."
-msgstr ""
-
-msgid "Limit number of invoices"
-msgstr ""
-
-msgid "By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store."
-msgstr ""
-
-msgid "Are you sure you want to delete the invoice?"
-msgstr ""
-
-msgid "Are you sure you want to cancel the invoice?"
-msgstr ""
-
-msgid "Payer Data"
-msgstr ""
-
-msgid "Country"
-msgstr ""
-
-msgid "Invoice PDF language"
-msgstr ""
-
-msgid "To add other languages, install the language in your WordPress."
-msgstr ""
-
-msgid "Feature available for registered user"
-msgstr ""
-
-msgid "Create user"
-msgstr ""
-
-msgid "Feature available for registered user."
-msgstr ""
-
-msgid "To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic."
-msgstr ""
-
-msgid "Select a user to generate subscriptions. Guests cannot process automatic charges."
-msgstr ""
-
-msgid "Customer"
-msgstr ""
-
-msgid "Type"
-msgstr ""
-msgid "Add Product(s)"
-msgstr ""
-
-msgid "Search Products"
-msgstr ""
-
-msgid "Type to search for products..."
-msgstr ""
-
-msgid "Selected Products"
-msgstr ""
-
-msgid "Quantity"
-msgstr ""
-
-msgid "Cancel"
-msgstr ""
-
-msgid "Add to Invoice"
-msgstr ""
-
-msgid "No products selected"
-msgstr ""
-
-msgid "Security check failed"
-msgstr ""
-
-msgid "Invalid product ID"
-msgstr ""
-
-msgid "Product not found"
-msgstr ""
-
-msgid "Approving..."
-msgstr ""
-
-msgid "Creating Invoice..."
-msgstr ""
-
-msgid "Create Invoice"
-msgstr ""
-
-msgid "Sending..."
-msgstr ""
-
-msgid "Error"
-msgstr ""
-
-msgid "Server communication error"
-msgstr ""
-
-msgid "Quote locked for editing. To edit, update the quote status to Pending."
-msgstr ""
-
-msgid "Donation type"
-msgstr ""
-
-msgid "Select the donation type."
-msgstr ""
-
-msgid "Fixed Amount (Donate item with fixed value item)"
-msgstr ""
-
-msgid "Variable Amount (Receive monetary donations)"
-msgstr ""
-
-msgid "Free (Donate an item)"
-msgstr ""
-
-msgid "Donation amount (%s)"
-msgstr ""
-
-msgid "Set the fixed donation amount."
-msgstr ""
-
-msgid "Preset button values"
-msgstr ""
-
-msgid "Enter the preset button values separated by comma. E.g.: 10, 20, 25"
-msgstr ""
-
-msgid "Hide custom amount field"
-msgstr ""
-
-msgid "Check this option to hide the custom amount field and show only the preset buttons."
-msgstr ""
-
-msgid "Text"
-msgstr ""
-
-msgid "Text to be displayed for free donation."
-msgstr ""
-
-msgid "Free"
-msgstr ""
-
-msgid "Anonymous donation."
-msgstr ""
-
-msgid "Add to cart"
-msgstr ""
-
-msgid "Donation"
-msgstr ""
-
-msgid "Make a donation"
-msgstr ""
-
-msgid "Please enter a donation amount."
-msgstr ""
-
-msgid "The donation amount must be greater than zero."
-msgstr ""
-
+#: Admin/LknWcipListTable.php:1573
+#: Admin/WcPaymentInvoiceAdmin.php:1472
+#: Includes/templates/partialTablesClient.php:6
+#: Includes/WcPaymentInvoiceDonation.php:230
+#: Includes/WcPaymentInvoiceDonation.php:251
+#: Includes/WcPaymentInvoicePartial.php:100
+#: Includes/WcPaymentInvoicePartial.php:1926
+#: Includes/WcPaymentInvoicePartial.php:2372
+#: Includes/WcPaymentInvoicePartialGateway.php:18
+#: Includes/WcPaymentInvoicePartialGateway.php:20
+#: Includes/WcPaymentInvoiceSettings.php:60
+#: Includes/WcPaymentInvoiceSplitBlocksIntegration.php:52
 msgid "Partial Payment"
 msgstr ""
 
+#: Admin/LknWcipListTable.php:1586
+msgid "Active"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1586
+msgid "Inactive"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1625
+#: Admin/WcPaymentInvoiceAdmin.php:198
+#: Admin/WcPaymentInvoiceAdmin.php:4593
+#: Includes/templates/comlogo2/main.php:57
+#: Includes/templates/comlogo2/main.php:85
+#: Includes/templates/linknacional/main.php:60
+#: Includes/templates/linknacional/main.php:133
+#: Includes/templates/saturno/main.php:54
+#: Includes/templates/saturno/main.php:118
+#: Includes/WcPaymentInvoiceLoaderRest.php:121
+#: Includes/WcPaymentInvoicePartial.php:1179
+#: Includes/WcPaymentInvoicePartial.php:1255
+#: Includes/WcPaymentInvoicePartial.php:1284
+#: Includes/WcPaymentInvoicePartial.php:1930
+msgid "Invoice"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1626
+#: Admin/WcPaymentInvoiceAdmin.php:190
+#: Admin/WcPaymentInvoiceAdmin.php:787
+#: Admin/WcPaymentInvoiceAdmin.php:1357
+#: Admin/WcPaymentInvoiceAdmin.php:1381
+#: Admin/WcPaymentInvoiceAdmin.php:2198
+#: Admin/WcPaymentInvoiceAdmin.php:2222
+#: Admin/WcPaymentInvoiceAdmin.php:2836
+#: Admin/WcPaymentInvoiceAdmin.php:4676
+#: Admin/WcPaymentInvoiceAdmin.php:4700
+#: Includes/WcPaymentInvoicePartial.php:1181
+#: Includes/WcPaymentInvoicePartial.php:1511
+#: Includes/WcPaymentInvoicePartial.php:1626
+#: Includes/WcPaymentInvoicePartial.php:1661
+msgid "Name"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1627
+msgid "Payment status"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1628
+#: Includes/templates/comlogo2/main.php:159
+#: Includes/templates/linknacional/main.php:180
+#: Includes/templates/partialTablesAdmin.php:39
+#: Includes/templates/partialTablesAdmin.php:84
+#: Includes/templates/saturno/main.php:174
+#: Includes/WcPaymentInvoiceQuote.php:978
+#: Includes/WcPaymentInvoiceQuote.php:1099
+msgid "Total"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1629
+msgid "Tipo"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1630
+msgid "Start date"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1631
+#: Admin/WcPaymentInvoiceAdmin.php:700
+#: Admin/WcPaymentInvoiceAdmin.php:1237
+#: Admin/WcPaymentInvoiceAdmin.php:2066
+#: Admin/WcPaymentInvoiceAdmin.php:2732
+#: Admin/WcPaymentInvoiceAdmin.php:4605
+#: Includes/WcPaymentInvoicePartial.php:1548
+#: Includes/WcPaymentInvoicePartial.php:1663
+msgid "Due date"
+msgstr ""
+
+#: Admin/LknWcipListTable.php:1645
+msgid "Subscription Status"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:96
+msgid "Invoice expired"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:132
+#: Admin/WcPaymentInvoiceAdmin.php:133
+#: Admin/WcPaymentInvoiceAdmin.php:134
+#: Admin/WcPaymentInvoiceAdmin.php:170
+#: Admin/WcPaymentInvoiceAdmin.php:171
+#: Admin/WcPaymentInvoiceAdmin.php:172
+#: Admin/WcPaymentInvoiceAdmin.php:207
+#: Admin/WcPaymentInvoiceAdmin.php:259
+#: Admin/WcPaymentInvoiceAdmin.php:271
+msgid "Invoices"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:189
+#: Includes/WcPaymentInvoicePartial.php:1178
+msgid "Downloading..."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:191
+#: Admin/WcPaymentInvoiceAdmin.php:796
+#: Admin/WcPaymentInvoiceAdmin.php:1367
+#: Admin/WcPaymentInvoiceAdmin.php:1392
+#: Admin/WcPaymentInvoiceAdmin.php:1444
+#: Admin/WcPaymentInvoiceAdmin.php:2208
+#: Admin/WcPaymentInvoiceAdmin.php:2232
+#: Admin/WcPaymentInvoiceAdmin.php:2845
+#: Admin/WcPaymentInvoiceAdmin.php:4686
+#: Admin/WcPaymentInvoiceAdmin.php:4711
+#: Includes/WcPaymentInvoicePartial.php:1182
+#: Includes/WcPaymentInvoicePartial.php:1630
+msgid "Amount"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:192
+msgid "Are you sure you want to delete the invoice?"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:193
+msgid "Are you sure you want to delete the quote?"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:194
+#: Admin/WcPaymentInvoiceAdmin.php:862
+#: Admin/WcPaymentInvoiceAdmin.php:863
+#: Admin/WcPaymentInvoiceAdmin.php:1688
+#: Admin/WcPaymentInvoiceAdmin.php:1689
+#: Admin/WcPaymentInvoiceAdmin.php:4226
+#: Admin/WcPaymentInvoiceAdmin.php:4227
+#: Includes/WcPaymentInvoiceQuote.php:515
+msgid "Are you sure you want to approve this quote?"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:195
+#: Admin/WcPaymentInvoiceAdmin.php:864
+#: Admin/WcPaymentInvoiceAdmin.php:1690
+#: Admin/WcPaymentInvoiceAdmin.php:4228
+msgid "Are you sure you want to create an invoice for this quote?"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:196
+#: Admin/WcPaymentInvoiceAdmin.php:865
+#: Admin/WcPaymentInvoiceAdmin.php:1691
+#: Admin/WcPaymentInvoiceAdmin.php:4229
+msgid "Are you sure you want to send the quote to the customer's email?"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:197
+#: Admin/WcPaymentInvoiceAdmin.php:867
+#: Admin/WcPaymentInvoiceAdmin.php:1693
+#: Admin/WcPaymentInvoiceAdmin.php:4231
+msgid "Creating Invoice..."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:199
+msgid "Unable to generate the PDF. Please, contact support."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:200
+msgid "Are you sure you want to cancel the invoice?"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:235
+msgid "Add Product(s)"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:236
+msgid "Search Products"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:237
+msgid "Type to search for products..."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:238
+msgid "Selected Products"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:239
+msgid "Quantity"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:240
+#: Includes/WcPaymentInvoicePartial.php:72
+#: Includes/WcPaymentInvoicePartial.php:128
+#: Includes/WcPaymentInvoiceQuote.php:518
+msgid "Cancel"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:241
+msgid "Add to Invoice"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:242
+msgid "No products selected"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:258
+#: Admin/WcPaymentInvoiceAdmin.php:270
+msgid "List invoices"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:280
+#: Admin/WcPaymentInvoiceAdmin.php:281
+#: Admin/WcPaymentInvoiceAdmin.php:328
+#: Admin/WcPaymentInvoiceAdmin.php:329
+#: Admin/WcPaymentInvoiceAdmin.php:364
+#: Admin/WcPaymentInvoiceAdmin.php:365
+msgid "Settings"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:293
+#: Admin/WcPaymentInvoiceAdmin.php:305
+msgid "List Subscriptions"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:294
+#: Admin/WcPaymentInvoiceAdmin.php:306
+msgid "Subscriptions"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:341
+#: Admin/WcPaymentInvoiceAdmin.php:353
+msgid "List Quotes"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:342
+#: Admin/WcPaymentInvoiceAdmin.php:354
+#: Includes/WcPaymentInvoiceQuote.php:774
+#: Includes/WcPaymentInvoiceQuote.php:815
+msgid "Quotes"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:499
+#: Admin/WcPaymentInvoiceAdmin.php:4370
+msgid "Quote details"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:502
+#: Admin/WcPaymentInvoiceAdmin.php:2522
+msgid "Payer Data"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:515
+msgid "Orçamento Rascunho"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:518
+msgid "Orçamento Pendente"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:521
+msgid "Orçamento Solicitado Pelo Cliente"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:524
+msgid "Orçamento Aguardando Aprovação"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:527
+msgid "Orçamento Aprovado"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:530
+msgid "Orçamento Cancelado"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:533
+msgid "Orçamento Vencido"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:539
+#: Admin/WcPaymentInvoiceAdmin.php:1015
+#: Admin/WcPaymentInvoiceAdmin.php:1854
+#: Admin/WcPaymentInvoiceAdmin.php:2559
+#: Admin/WcPaymentInvoiceAdmin.php:4395
+msgid "Default payment method"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:543
+#: Admin/WcPaymentInvoiceAdmin.php:1019
+#: Admin/WcPaymentInvoiceAdmin.php:1858
+#: Admin/WcPaymentInvoiceAdmin.php:2563
+#: Admin/WcPaymentInvoiceAdmin.php:4399
+msgid "To automate charges, choose a compatible payment method (e.g., Cielo Pro Plugin). If multiple payments are selected, the charge will not be automatic."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:554
+#: Admin/WcPaymentInvoiceAdmin.php:1030
+#: Admin/WcPaymentInvoiceAdmin.php:1869
+#: Admin/WcPaymentInvoiceAdmin.php:2574
+#: Admin/WcPaymentInvoiceAdmin.php:4410
+msgid "Multiple payment option"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:564
+#: Admin/WcPaymentInvoiceAdmin.php:1044
+#: Admin/WcPaymentInvoiceAdmin.php:1883
+#: Admin/WcPaymentInvoiceAdmin.php:2584
+#: Admin/WcPaymentInvoiceAdmin.php:4424
+msgid "Currency"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:582
+msgid "Quote PDF template"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:590
+#: Admin/WcPaymentInvoiceAdmin.php:1073
+#: Admin/WcPaymentInvoiceAdmin.php:1912
+#: Admin/WcPaymentInvoiceAdmin.php:2610
+#: Admin/WcPaymentInvoiceAdmin.php:4453
+#: Includes/WcPaymentInvoicePartial.php:1463
+msgid "Default template"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:603
+msgid "Quote PDF language"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:607
+#: Admin/WcPaymentInvoiceAdmin.php:1090
+#: Admin/WcPaymentInvoiceAdmin.php:1929
+#: Admin/WcPaymentInvoiceAdmin.php:2627
+#: Admin/WcPaymentInvoiceAdmin.php:4470
+msgid "To add other languages, install the language in your WordPress."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:633
+#: Admin/WcPaymentInvoiceAdmin.php:1118
+#: Admin/WcPaymentInvoiceAdmin.php:1955
+#: Admin/WcPaymentInvoiceAdmin.php:2653
+#: Admin/WcPaymentInvoiceAdmin.php:4498
+msgid "Full name"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:644
+#: Admin/WcPaymentInvoiceAdmin.php:1130
+#: Admin/WcPaymentInvoiceAdmin.php:1967
+#: Admin/WcPaymentInvoiceAdmin.php:2664
+#: Admin/WcPaymentInvoiceAdmin.php:4510
+#: Includes/WcPaymentInvoicePartial.php:1258
+#: Includes/WcPaymentInvoicePartial.php:1297
+msgid "Customer"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:648
+#: Admin/WcPaymentInvoiceAdmin.php:1134
+#: Admin/WcPaymentInvoiceAdmin.php:1971
+#: Admin/WcPaymentInvoiceAdmin.php:2668
+#: Admin/WcPaymentInvoiceAdmin.php:4514
+msgid "Select a user to generate subscriptions. Guests cannot process automatic charges."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:652
+#: Admin/WcPaymentInvoiceAdmin.php:1138
+#: Admin/WcPaymentInvoiceAdmin.php:1975
+#: Admin/WcPaymentInvoiceAdmin.php:2672
+#: Admin/WcPaymentInvoiceAdmin.php:4518
+msgid "Create user"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:659
+#: Admin/WcPaymentInvoiceAdmin.php:1146
+#: Admin/WcPaymentInvoiceAdmin.php:1983
+#: Admin/WcPaymentInvoiceAdmin.php:2679
+#: Admin/WcPaymentInvoiceAdmin.php:4526
+msgid "Email"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:669
+#: Admin/WcPaymentInvoiceAdmin.php:1158
+#: Admin/WcPaymentInvoiceAdmin.php:1995
+#: Admin/WcPaymentInvoiceAdmin.php:2689
+#: Admin/WcPaymentInvoiceAdmin.php:4538
+#: Includes/WcPaymentInvoicePartial.php:1519
+msgid "Country"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:684
+#: Admin/WcPaymentInvoiceAdmin.php:1174
+#: Admin/WcPaymentInvoiceAdmin.php:2011
+#: Admin/WcPaymentInvoiceAdmin.php:2704
+#: Admin/WcPaymentInvoiceAdmin.php:4554
+#: Includes/WcPaymentInvoicePartial.php:1505
+msgid "Extra data"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:695
+#: Admin/WcPaymentInvoiceAdmin.php:4566
+msgid "Quote actions"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:713
+#: Admin/WcPaymentInvoiceAdmin.php:2028
+#: Admin/WcPaymentInvoiceAdmin.php:2762
+#: Includes/WcPaymentInvoiceSubscription.php:115
+#: Includes/WcPaymentInvoiceSubscription.php:219
+msgid "Subscription Interval"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:723
+#: Admin/WcPaymentInvoiceAdmin.php:2040
+#: Admin/WcPaymentInvoiceAdmin.php:2772
+#: Includes/WcPaymentInvoiceDonation.php:1162
+#: Includes/WcPaymentInvoiceSettings.php:630
+#: Includes/WcPaymentInvoiceSubscription.php:134
+#: Includes/WcPaymentInvoiceSubscription.php:233
+msgid "Days"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:726
+#: Admin/WcPaymentInvoiceAdmin.php:2041
+#: Admin/WcPaymentInvoiceAdmin.php:2775
+#: Includes/WcPaymentInvoiceSettings.php:631
+#: Includes/WcPaymentInvoiceSubscription.php:135
+#: Includes/WcPaymentInvoiceSubscription.php:234
+msgid "Weeks"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:731
+#: Admin/WcPaymentInvoiceAdmin.php:2042
+#: Admin/WcPaymentInvoiceAdmin.php:2780
+#: Includes/WcPaymentInvoiceSettings.php:632
+#: Includes/WcPaymentInvoiceSubscription.php:136
+#: Includes/WcPaymentInvoiceSubscription.php:235
+msgid "Months"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:734
+#: Admin/WcPaymentInvoiceAdmin.php:2043
+#: Admin/WcPaymentInvoiceAdmin.php:2783
+#: Includes/WcPaymentInvoiceSubscription.php:137
+#: Includes/WcPaymentInvoiceSubscription.php:236
+msgid "Years"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:745
+#: Admin/WcPaymentInvoiceAdmin.php:2794
+msgid "Limit number of invoices"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:753
+#: Admin/WcPaymentInvoiceAdmin.php:2802
+#: Includes/WcPaymentInvoiceSubscription.php:154
+#: Includes/WcPaymentInvoiceSubscription.php:248
+msgid "Subscription limit"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:766
+#: Admin/WcPaymentInvoiceAdmin.php:2815
+#: Includes/WcPaymentInvoiceSubscription.php:156
+#: Includes/WcPaymentInvoiceSubscription.php:257
+msgid "Set a limit for the number of invoices that will be generated for the subscription, by default,  there is no limit."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:775
+#: Admin/WcPaymentInvoiceAdmin.php:2824
+msgid "Save"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:780
+#: Admin/WcPaymentInvoiceAdmin.php:1343
+#: Admin/WcPaymentInvoiceAdmin.php:2184
+#: Admin/WcPaymentInvoiceAdmin.php:2829
+#: Admin/WcPaymentInvoiceAdmin.php:4647
+#: Includes/templates/comlogo2/main.php:148
+#: Includes/templates/linknacional/main.php:169
+#: Includes/templates/saturno/main.php:163
+#: Includes/WcPaymentInvoicePartial.php:1555
+msgid "Price"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:818
+#: Admin/WcPaymentInvoiceAdmin.php:1459
+#: Admin/WcPaymentInvoiceAdmin.php:2867
+#: Admin/WcPaymentInvoiceAdmin.php:4752
+msgid "Add line"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:824
+#: Admin/WcPaymentInvoiceAdmin.php:1581
+#: Admin/WcPaymentInvoiceAdmin.php:2265
+#: Admin/WcPaymentInvoiceAdmin.php:2873
+#: Admin/WcPaymentInvoiceAdmin.php:4760
+#: Includes/WcPaymentInvoicePartial.php:1580
+msgid "Footer notes"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:830
+#: Admin/WcPaymentInvoiceAdmin.php:1587
+#: Admin/WcPaymentInvoiceAdmin.php:2271
+#: Admin/WcPaymentInvoiceAdmin.php:2879
+#: Admin/WcPaymentInvoiceAdmin.php:4766
+msgid "Details in HTML"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:866
+#: Admin/WcPaymentInvoiceAdmin.php:1692
+#: Admin/WcPaymentInvoiceAdmin.php:4230
+msgid "Approving..."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:868
+#: Admin/WcPaymentInvoiceAdmin.php:1694
+#: Admin/WcPaymentInvoiceAdmin.php:4232
+#: Includes/WcPaymentInvoicePartial.php:1590
+msgid "Create Invoice"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:869
+#: Admin/WcPaymentInvoiceAdmin.php:1695
+#: Admin/WcPaymentInvoiceAdmin.php:4233
+msgid "Sending..."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:870
+#: Admin/WcPaymentInvoiceAdmin.php:1696
+#: Admin/WcPaymentInvoiceAdmin.php:4234
+msgid "Error"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:871
+#: Admin/WcPaymentInvoiceAdmin.php:1697
+#: Admin/WcPaymentInvoiceAdmin.php:4235
+msgid "Server communication error"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:976
+#: Admin/WcPaymentInvoiceAdmin.php:2385
+#: Admin/WcPaymentInvoiceAdmin.php:2386
+msgid "Edit invoice"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:993
+#: Admin/WcPaymentInvoiceAdmin.php:2519
+#: Includes/WcPaymentInvoicePartial.php:1443
+msgid "Invoice details"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1064
+#: Admin/WcPaymentInvoiceAdmin.php:1903
+#: Admin/WcPaymentInvoiceAdmin.php:2602
+#: Admin/WcPaymentInvoiceAdmin.php:4444
+msgid "Invoice PDF template"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1086
+#: Admin/WcPaymentInvoiceAdmin.php:1925
+#: Admin/WcPaymentInvoiceAdmin.php:2623
+#: Admin/WcPaymentInvoiceAdmin.php:4466
+#: Includes/WcPaymentInvoicePartial.php:1480
+msgid "Invoice PDF language"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1187
+#: Admin/WcPaymentInvoiceAdmin.php:2715
+#: Includes/WcPaymentInvoicePartial.php:1538
+msgid "Invoice actions"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1208
+msgid "Invoice payment link"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1229
+#: Admin/WcPaymentInvoiceAdmin.php:2723
+#: Includes/WcPaymentInvoicePartial.php:1543
+msgid "Select an action..."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1232
+#: Admin/WcPaymentInvoiceAdmin.php:2726
+#: Includes/WcPaymentInvoicePartial.php:1544
+msgid "Send invoice to customer"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1252
+#: Admin/WcPaymentInvoiceAdmin.php:2108
+msgid "Share with"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1273
+msgid "Or copy link"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1296
+msgid "Share payment link"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1298
+#: Admin/WcPaymentInvoiceAdmin.php:2137
+#: Admin/WcPaymentInvoiceAdmin.php:4572
+msgid "Update"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1309
+msgid "Assinatura"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1440
+msgid "Shipping"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1479
+msgid "Partial payment for order"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1490
+msgid "Invoice for order"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1500
+msgid "Amount (base):"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1505
+msgid "Taxes/fees:"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1511
+#: Includes/templates/partialTablesClient.php:41
+msgid "Amount paid:"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1529
+msgid "Order Notes"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1535
+msgid "System"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1564
+msgid "Custom Fields"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1571
+msgid "Copy"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1806
+#: Admin/WcPaymentInvoiceAdmin.php:2397
+#: Admin/WcPaymentInvoiceAdmin.php:2398
+msgid "Edit subscription"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1822
+msgid "Subscription details"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1827
+msgid "Subscription Active"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:1830
+msgid "Complete status keeps the subscription active."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2023
+msgid "Subscription settings"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2059
+msgid "Subscription actions"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2095
+msgid "Cancel subscription"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2145
+msgid "Generated invoices"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2427
+#: Admin/WcPaymentInvoiceAdmin.php:2428
+#: Admin/WcPaymentInvoiceAdmin.php:4353
+msgid "Edit quote"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2535
+msgctxt "Order status"
+msgid "Pending payment"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2538
+msgctxt "Order status"
+msgid "Processing"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2541
+msgctxt "Order status"
+msgid "On hold"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2544
+msgctxt "Order status"
+msgid "Completed"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2547
+msgctxt "Order status"
+msgid "Cancelled"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2550
+msgctxt "Order status"
+msgid "Refunded"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2553
+msgctxt "Order status"
+msgid "Failed"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:2754
+msgid "Feature available for registered user."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3080
+#: Admin/WcPaymentInvoiceAdmin.php:3253
+#: Admin/WcPaymentInvoiceAdmin.php:3489
+#: Admin/WcPaymentInvoiceAdmin.php:4028
+#: Admin/WcPaymentInvoiceAdmin.php:4177
+msgid "Order details manually sent to customer."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3084
+msgid "Subscription successfully saved"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3090
+#: Admin/WcPaymentInvoiceAdmin.php:3257
+#: Admin/WcPaymentInvoiceAdmin.php:3493
+#: Admin/WcPaymentInvoiceAdmin.php:4181
+msgid "Invoice successfully saved"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3098
+#: Admin/WcPaymentInvoiceAdmin.php:3260
+#: Admin/WcPaymentInvoiceAdmin.php:3281
+#: Admin/WcPaymentInvoiceAdmin.php:3496
+#: Admin/WcPaymentInvoiceAdmin.php:3542
+#: Admin/WcPaymentInvoiceAdmin.php:4184
+#: Admin/WcPaymentInvoiceAdmin.php:4205
+msgid "Error on invoice generation"
+msgstr ""
+
+#. translators: %1$d: interval number, %2$s: interval type (days/weeks/months), %3$s: next invoice date
+#: Admin/WcPaymentInvoiceAdmin.php:3451
+#, php-format
+msgid "Subscription interval updated to: %1$d %2$s(s). Next invoice scheduled for: %3$s"
+msgstr ""
+
+#. translators: %1$d: interval number, %2$s: interval type (days/weeks/months), %3$s: next invoice date
+#: Admin/WcPaymentInvoiceAdmin.php:3459
+#, php-format
+msgid "Subscription interval updated to: %1$d %2$s(s). Next invoice will be scheduled when the order is paid: %3$s"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3557
+#: Admin/WcPaymentInvoiceAdmin.php:3600
+#: Admin/WcPaymentInvoiceAdmin.php:3635
+#: Admin/WcPaymentInvoiceAdmin.php:3681
+#: Admin/WcPaymentInvoiceAdmin.php:3730
+#: Includes/WcPaymentInvoicePartial.php:2079
+msgid "Security check failed"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3565
+msgid "Invalid product ID"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3572
+msgid "Product not found"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3608
+#: Admin/WcPaymentInvoiceAdmin.php:3643
+#: Admin/WcPaymentInvoiceAdmin.php:3689
+#: Admin/WcPaymentInvoiceAdmin.php:3738
+msgid "Invalid quote ID"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3615
+#: Admin/WcPaymentInvoiceAdmin.php:3650
+#: Admin/WcPaymentInvoiceAdmin.php:3696
+#: Admin/WcPaymentInvoiceAdmin.php:3745
+msgid "Quote not found"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3620
+msgid "Quote approved - awaiting customer confirmation"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3621
+#: Admin/WcPaymentInvoiceAdmin.php:3656
+msgid "Quote approved by admin"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3625
+#: Admin/WcPaymentInvoiceAdmin.php:3666
+msgid "Quote approved successfully"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3655
+msgid "Orçamento aprovado pelo administrador."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3712
+msgid "Invoice created successfully"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3716
+msgid "Failed to create invoice: "
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3751
+msgid "This is not a quote"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3758
+msgid "Customer email not found"
+msgstr ""
+
+#. translators: %s: quote number
+#: Admin/WcPaymentInvoiceAdmin.php:3777
+#, php-format
+msgid "Orçamento #%s - Link para aprovação"
+msgstr ""
+
+#. translators: %s: quote number
+#: Admin/WcPaymentInvoiceAdmin.php:3816
+#, php-format
+msgid "Orçamento #%s"
+msgstr ""
+
+#. translators: %s: customer name
+#: Admin/WcPaymentInvoiceAdmin.php:3822
+#, php-format
+msgid "Olá %s!"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3825
+#: Includes/WcPaymentInvoiceQuote.php:519
+msgid "Quote Details"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3827
+msgid "Número:"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3828
+msgid "Data de criação:"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3831
+msgid "Válido até:"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3835
+msgid "Valor total:"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3840
+msgid "Seu orçamento está pronto para aprovação!"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3842
+msgid "Visualizar Orçamento"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3847
+msgid "Como proceder:"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3848
+msgid "Clique no botão acima para acessar a página do orçamento"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3849
+msgid "Revise todos os detalhes e itens incluídos"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3850
+msgid "Clique em \"Aprovar\" se estiver de acordo com os termos"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3851
+msgid "Após a aprovação, você receberá instruções para pagamento"
+msgstr ""
+
+#. translators: %s: customer email
+#: Admin/WcPaymentInvoiceAdmin.php:3867
+#, php-format
+msgid "Email do orçamento enviado para o cliente (%s) com template HTML melhorado"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3870
+msgid "Email enviado com sucesso!"
+msgstr ""
+
+#. translators: %s: customer email
+#: Admin/WcPaymentInvoiceAdmin.php:3872
+#, php-format
+msgid "O orçamento foi enviado para %s com um template profissional"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:3876
+msgid "Falha ao enviar o email. Verifique as configurações de email do WordPress."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4031
+msgid "Quote successfully saved"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4039
+msgid "Error on quote generation"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4258
+#: Includes/WcPaymentInvoiceQuote.php:355
+#: Includes/WcPaymentInvoiceQuote.php:407
+#: Includes/WcPaymentInvoiceQuote.php:898
+msgid "Quote Draft"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4259
+#: Includes/WcPaymentInvoiceQuote.php:362
+#: Includes/WcPaymentInvoiceQuote.php:408
+msgid "Quote Pending"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4260
+#: Includes/WcPaymentInvoiceQuote.php:376
+#: Includes/WcPaymentInvoiceQuote.php:410
+msgid "Quote Customer Request"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4261
+#: Includes/WcPaymentInvoiceQuote.php:369
+#: Includes/WcPaymentInvoiceQuote.php:409
+#: Includes/WcPaymentInvoiceQuote.php:902
+msgid "Quote Awaiting Approval"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4262
+#: Includes/WcPaymentInvoiceQuote.php:383
+#: Includes/WcPaymentInvoiceQuote.php:411
+#: Includes/WcPaymentInvoiceQuote.php:904
+msgid "Quote Approved"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4263
+#: Includes/WcPaymentInvoiceQuote.php:390
+#: Includes/WcPaymentInvoiceQuote.php:412
+#: Includes/WcPaymentInvoiceQuote.php:906
+msgid "Quote Cancelled"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4264
+#: Includes/WcPaymentInvoiceQuote.php:397
+#: Includes/WcPaymentInvoiceQuote.php:413
+#: Includes/WcPaymentInvoiceQuote.php:908
+msgid "Quote Expired"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4582
+msgid "Download PDF"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4586
+msgid "Quote link"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4621
+msgid "Send Customer Approval"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4626
+msgid "Generate Invoice"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4631
+msgid "Send"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4636
+msgid "Approval"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4656
+msgid "Quote locked for editing. To edit, update the quote status to Pending."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4808
+#: Admin/WcPaymentInvoiceAdmin.php:4898
+msgid "Falha na verificação de segurança"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4816
+#: Admin/WcPaymentInvoiceAdmin.php:4906
+msgid "ID do orçamento inválido"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4823
+#: Admin/WcPaymentInvoiceAdmin.php:4913
+msgid "Orçamento não encontrado"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4829
+#: Admin/WcPaymentInvoiceAdmin.php:4919
+msgid "Este pedido não é um orçamento."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4836
+msgid "Este orçamento não pode ser aprovado no status atual."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4842
+msgid "Orçamento aprovado pelo cliente."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4850
+msgid "Orçamento aprovado pelo cliente "
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4854
+#: Admin/WcPaymentInvoiceAdmin.php:4937
+msgid " na data: "
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4873
+#: Admin/WcPaymentInvoiceAdmin.php:4882
+msgid "Orçamento aprovado com sucesso!"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4887
+msgid "Erro ao aprovar orçamento: "
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4925
+msgid "Orçamento cancelado pelo cliente."
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4933
+msgid "Orçamento cancelado pelo cliente "
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4943
+msgid "Orçamento cancelado com sucesso!"
+msgstr ""
+
+#: Admin/WcPaymentInvoiceAdmin.php:4948
+msgid "Erro ao cancelar orçamento: "
+msgstr ""
+
+#: Includes/templates/comlogo2/main.php:88
+#: Includes/templates/linknacional/main.php:141
+#: Includes/templates/partialTablesAdmin.php:37
+#: Includes/templates/partialTablesAdmin.php:70
+#: Includes/templates/saturno/main.php:126
+#: Includes/WcPaymentInvoicePartial.php:1259
+#: Includes/WcPaymentInvoicePartial.php:1300
+msgid "Date"
+msgstr ""
+
+#: Includes/templates/comlogo2/main.php:96
+#: Includes/templates/linknacional/main.php:151
+#: Includes/templates/saturno/main.php:136
+msgid "Invoice due date"
+msgstr ""
+
+#: Includes/templates/comlogo2/main.php:125
+#: Includes/templates/linknacional/main.php:115
+#: Includes/templates/saturno/main.php:96
+msgid "Bill To"
+msgstr ""
+
+#: Includes/templates/comlogo2/main.php:146
+#: Includes/templates/linknacional/main.php:167
+#: Includes/templates/saturno/main.php:161
+msgid "Description"
+msgstr ""
+
+#: Includes/templates/comlogo2/main.php:191
+#: Includes/templates/linknacional/main.php:212
+#: Includes/templates/saturno/main.php:208
+msgid "Invoice By Link Nacional"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:3
+#: Includes/WcPaymentInvoiceDonation.php:351
+msgid "Donation type"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:3
+#: Includes/WcPaymentInvoiceDonation.php:358
+msgid "Select the donation type."
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:5
+#: Includes/WcPaymentInvoiceDonation.php:353
+msgid "Fixed Amount (Donate item with fixed value item)"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:6
+#: Includes/WcPaymentInvoiceDonation.php:354
+msgid "Variable Amount (Receive monetary donations)"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:7
+#: Includes/WcPaymentInvoiceDonation.php:355
+msgid "Free (Donate an item)"
+msgstr ""
+
+#. translators: %s: currency symbol
+#: Includes/templates/dokanSettings.php:13
+#: Includes/WcPaymentInvoiceDonation.php:368
+#, php-format
+msgid "Donation amount (%s)"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:15
+#: Includes/WcPaymentInvoiceDonation.php:372
+msgid "Set the fixed donation amount."
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:19
+#: Includes/WcPaymentInvoiceDonation.php:385
+msgid "Preset button values"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:19
+#: Includes/WcPaymentInvoiceDonation.php:386
+msgid "Enter the preset button values separated by comma. E.g.: 10, 20, 25"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:24
+#: Includes/WcPaymentInvoiceDonation.php:397
+msgid "Hide custom amount field"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:24
+#: Includes/WcPaymentInvoiceDonation.php:398
+msgid "Check this option to hide the custom amount field and show only the preset buttons."
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:28
+#: Includes/WcPaymentInvoiceDonation.php:409
+msgid "Text"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:28
+#: Includes/WcPaymentInvoiceDonation.php:411
+msgid "Text to be displayed for free donation."
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:29
+#: Includes/WcPaymentInvoiceDonation.php:43
+#: Includes/WcPaymentInvoiceDonation.php:405
+#: Includes/WcPaymentInvoiceDonation.php:410
+#: Includes/WcPaymentInvoiceDonation.php:862
+msgid "Free"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:34
+#: Includes/WcPaymentInvoiceDonation.php:419
+msgid "Donation Goal Settings"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:39
+#: Includes/WcPaymentInvoiceDonation.php:425
+msgid "Enable donation goal"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:40
+#: Includes/WcPaymentInvoiceDonation.php:426
+msgid "Enable a donation goal for this product. When reached, donations will no longer be accepted."
+msgstr ""
+
+#. translators: %s: currency symbol
+#: Includes/templates/dokanSettings.php:47
+#: Includes/WcPaymentInvoiceDonation.php:438
+#, php-format
+msgid "Goal amount (%s)"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:49
+#: Includes/WcPaymentInvoiceDonation.php:442
+msgid "Set the donation goal amount. When this amount is reached with completed orders, no more donations will be accepted."
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:56
+#: Includes/WcPaymentInvoiceDonation.php:457
+msgid "Show progress bar"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:57
+#: Includes/WcPaymentInvoiceDonation.php:458
+msgid "Display the donation progress bar on the product page."
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:64
+#: Includes/WcPaymentInvoiceDonation.php:465
+msgid "Donation Deadline Settings"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:69
+#: Includes/WcPaymentInvoiceDonation.php:471
+msgid "Enable donation deadline"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:70
+#: Includes/WcPaymentInvoiceDonation.php:472
+msgid "Set a deadline for donations. After this date, no more donations will be accepted."
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:81
+#: Includes/WcPaymentInvoiceDonation.php:484
+msgid "Deadline date and time"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:81
+msgid "Set the deadline date and time for donations."
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:94
+#: Includes/WcPaymentInvoiceDonation.php:502
+msgid "Show countdown timer"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:95
+#: Includes/WcPaymentInvoiceDonation.php:503
+msgid "Display a countdown timer on the product page showing time remaining until deadline."
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:100
+#: Includes/WcPaymentInvoiceDonation.php:516
+msgid "Deadline expired message"
+msgstr ""
+
+#: Includes/templates/dokanSettings.php:100
+#: Includes/WcPaymentInvoiceDonation.php:517
+msgid "Message to display when the donation deadline has passed."
+msgstr ""
+
+#: Includes/templates/myaccount/quotes.php:95
+msgid "No quotes have been made yet."
+msgstr ""
+
+#: Includes/templates/partialTablesAdmin.php:10
+msgid "Partial Payments"
+msgstr ""
+
+#: Includes/templates/partialTablesAdmin.php:24
+msgid "Pedido principal:"
+msgstr ""
+
+#: Includes/templates/partialTablesAdmin.php:36
+#: Includes/templates/partialTablesAdmin.php:65
+msgid "Order"
+msgstr ""
+
+#: Includes/templates/partialTablesAdmin.php:76
+msgid "Billing"
+msgstr ""
+
+#: Includes/templates/partialTablesAdmin.php:77
+msgid "via"
+msgstr ""
+
+#: Includes/templates/partialTablesAdmin.php:79
+msgid "Ship to"
+msgstr ""
+
+#: Includes/templates/partialTablesAdmin.php:85
+msgid "Actions"
+msgstr ""
+
+#: Includes/templates/partialTablesAdmin.php:88
+#: Includes/WcPaymentInvoicePartial.php:1454
+msgid "Completed"
+msgstr ""
+
+#: Includes/templates/partialTablesClient.php:11
+msgid "Total amount:"
+msgstr ""
+
+#. translators: %d: partial payment number
+#: Includes/templates/partialTablesClient.php:21
+#, php-format
+msgid "#%d partial paid:"
+msgstr ""
+
+#: Includes/templates/partialTablesClient.php:30
+#: Includes/templates/partialTablesClient.php:61
+msgid "Fees/Discounts:"
+msgstr ""
+
+#. translators: %d: installment number
+#: Includes/templates/partialTablesClient.php:52
+#, php-format
+msgid "#%d installment (base):"
+msgstr ""
+
+#: Includes/templates/partialTablesClient.php:72
+msgid "Installment paid:"
+msgstr ""
+
+#: Includes/templates/partialTablesClient.php:82
+#: Includes/WcPaymentInvoicePartial.php:4184
+msgid "Remaining to pay:"
+msgstr ""
+
+#: Includes/templates/partialTablesClient.php:90
+#: Includes/WcPaymentInvoicePartial.php:4166
+msgid "Total paid:"
+msgstr ""
+
+#: Includes/templates/partialTablesClient.php:98
+msgid "Partial Payment Details"
+msgstr ""
+
+#: Includes/templates/partialTablesClient.php:108
+msgid "Principal"
+msgstr ""
+
+#. translators: %d: partial payment number
+#: Includes/templates/partialTablesClient.php:113
+#, php-format
+msgid "#%d Partial"
+msgstr ""
+
+#: Includes/templates/saturno/main.php:145
+msgid "Payment method"
+msgstr ""
+
+#: Includes/templates/saturno/main.php:199
+msgid "Payment details"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:66
+#: Includes/WcPaymentInvoiceDonation.php:512
+#: Includes/WcPaymentInvoiceDonation.php:765
+#: Includes/WcPaymentInvoiceDonation.php:1139
+#: Public/partials/donation.php:113
+msgid "The donation period has ended. Thank you for your interest!"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:231
+#: Includes/WcPaymentInvoiceDonation.php:252
 msgid "Enter the amount you want to pay now, the rest can be paid later with other payment methods."
 msgstr ""
 
+#: Includes/WcPaymentInvoiceDonation.php:232
+#: Includes/WcPaymentInvoiceDonation.php:253
 msgid "Pay Partial"
 msgstr ""
 
-msgid "Donations"
+#: Includes/WcPaymentInvoiceDonation.php:267
+#: Includes/WcPaymentInvoiceDonation.php:331
+msgid "Donation"
 msgstr ""
 
-msgid "Donation Settings"
+#: Includes/WcPaymentInvoiceDonation.php:691
+#: Includes/WcPaymentInvoiceDonation.php:709
+#: Includes/WcPaymentInvoiceDonation.php:737
+#: Includes/WcPaymentInvoiceSettings.php:1081
+#: Includes/WcPaymentInvoiceSettings.php:1082
+msgid "Make a donation"
 msgstr ""
 
-msgid "Configure options for the donation product type."
+#: Includes/WcPaymentInvoiceDonation.php:776
+msgid "This donation goal has already been reached. Thank you for your interest!"
 msgstr ""
 
-msgid "Enable \"Donation\" product type"
+#. translators: %s: formatted minimum donation amount
+#: Includes/WcPaymentInvoiceDonation.php:793
+#, php-format
+msgid "Minimum donation amount of %s has been applied automatically."
 msgstr ""
 
-msgid "When enabled, the \"Donation\" product type will be available in the WooCommerce product type selector."
+#. translators: %s: formatted minimum donation amount
+#: Includes/WcPaymentInvoiceDonation.php:816
+#, php-format
+msgid "The minimum donation amount is %s. Your donation amount has been adjusted."
 msgstr ""
 
-msgid "Enable anonymous donation at checkout"
+#. translators: %s: formatted minimum donation amount
+#: Includes/WcPaymentInvoiceDonation.php:825
+#, php-format
+msgid "Invalid donation amount. The minimum donation amount of %s has been applied."
 msgstr ""
 
-msgid "When enabled, a checkbox will appear at checkout allowing the customer to make an anonymous donation with their purchase."
+#: Includes/WcPaymentInvoiceDonation.php:954
+msgid "Donation Progress"
 msgstr ""
 
-msgid "Enable recurring donation at checkout"
+#. translators: %s: donation progress percentage
+#: Includes/WcPaymentInvoiceDonation.php:959
+#, php-format
+msgid "%s%% funded"
 msgstr ""
 
-msgid "When enabled, a checkbox will appear at checkout allowing the customer to make a recurring donation with their purchase."
+#: Includes/WcPaymentInvoiceDonation.php:970
+msgid "Raised:"
 msgstr ""
 
-msgid "Enable Dokan compatibility"
+#: Includes/WcPaymentInvoiceDonation.php:974
+msgid "Goal:"
 msgstr ""
 
-msgid "When enabled, activates Dokan compatibility features for donation products."
+#: Includes/WcPaymentInvoiceDonation.php:979
+#: Includes/WcPaymentInvoicePartial.php:2587
+msgid "Remaining:"
 msgstr ""
 
-msgid "Warning: Disabling the \"Donation\" product type will automatically convert all existing donation products to simple products. Do you want to continue?"
+#: Includes/WcPaymentInvoiceDonation.php:987
+msgid "Goal reached! Thank you for your support."
 msgstr ""
 
+#: Includes/WcPaymentInvoiceDonation.php:1157
+msgid "Time remaining:"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1166
+msgid "Hours"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1170
+msgid "Minutes"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1174
+msgid "Seconds"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1535
+msgid "Doações"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1559
+msgid "Você não tem permissão para acessar esta página."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1611
+msgid "Gerenciar Doações"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1612
+msgid "Crie e configure os diferentes tipos de doação do seu site, seja para receber valores monetários ou para gerenciar a doação de itens."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1617
+msgid "Ver pedidos de doações"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1629
+msgid "Recebimento de Doações Monetárias"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1630
+msgid "Nesta opção, você cria uma campanha para arrecadar valores monetários. É possível configurar a campanha com ou sem uma meta de arrecadação e também definir valores de doação predefinidos (botões) ou deixar o campo de valor aberto para o doador decidir."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1633
+#: Includes/WcPaymentInvoiceDonation.php:1638
+msgid "Receber Doação Monetária"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1645
+msgid "Gratuito (Doação de um item)"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1646
+msgid "Nesta opção, é possível registrar um item para doação gratuitamente. Se o produto for físico (não digital), o cálculo de frete será aplicado no checkout. Caso o beneficiário opte pela \"Entrega em Mãos\" (retirada), o custo do frete não será aplicado."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1649
+#: Includes/WcPaymentInvoiceDonation.php:1654
+msgid "Doar um Item Grátis"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1661
+msgid "Valor Fixo (Doação de item com valor pré-definido)"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1662
+msgid "Nesta opção, é possível registrar um item para doação com um valor simbólico ou que cubra alguns custos para concluir o processo (ex: \"Doar um Sofá por R$ 5,00\"). Se o produto for físico (não digital), o cálculo de frete será aplicado no checkout."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1665
+#: Includes/WcPaymentInvoiceDonation.php:1670
+msgid "Doar um Item com Valor Fixo"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1679
+msgid "Erro!"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceDonation.php:1680
+msgid "Sua conta não permite o recebimento de doações. Para habilitar esta funcionalidade, entre em contato."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:38
+#: Includes/WcPaymentInvoiceEndpoint.php:86
+#: Includes/WcPaymentInvoiceEndpoint.php:577
+msgid "Invalid nonce."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:47
+msgid "Order ID is required."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:52
+#: Includes/WcPaymentInvoiceEndpoint.php:100
+#: Includes/WcPaymentInvoiceEndpoint.php:338
+#: Includes/WcPaymentInvoiceEndpoint.php:504
+#: Includes/WcPaymentInvoiceEndpoint.php:590
+#: Includes/WcPaymentInvoiceEndpoint.php:692
+msgid "Order not found."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:62
+msgid "You do not have permission to create partial payments for this order."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:68
+msgid "User does not match the order owner."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:73
+msgid "Access denied: order too old or invalid session."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:95
+#: Includes/WcPaymentInvoiceEndpoint.php:518
+msgid "Partial order ID is required."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:105
+#: Includes/WcPaymentInvoiceEndpoint.php:524
+msgid "Partial order not found or invalid."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:115
+msgid "You do not have permission to cancel this partial payment."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:121
+msgid "Access denied to cancel this payment."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:332
+#: Includes/WcPaymentInvoiceEndpoint.php:585
+msgid "Invalid parameters."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:379
+msgid "Requested amount exceeds available payment amount."
+msgstr ""
+
+#. translators: %s: link to parent order
+#: Includes/WcPaymentInvoiceEndpoint.php:418
+#: Includes/WcPaymentInvoicePartial.php:293
+#, php-format
+msgid "Partial order created from order %s"
+msgstr ""
+
+#. translators: %s: link to partial order
+#: Includes/WcPaymentInvoiceEndpoint.php:425
+#: Includes/WcPaymentInvoicePartial.php:300
+#, php-format
+msgid "Partial order created: %s"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:458
+#: Includes/WcPaymentInvoicePartial.php:331
+#: Includes/WcPaymentInvoicePartial.php:447
+msgid "Remaining balance (pay later)"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:508
+#: Includes/WcPaymentInvoicePartial.php:3023
+#: Includes/WcPaymentInvoicePartial.php:3812
+msgid "Partial payment cancelled."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:514
+msgid "Pending partial payment cancelled."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:533
+#: Includes/WcPaymentInvoiceEndpoint.php:619
+msgid "Parent order not found."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:538
+msgid "Invalid parent order."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:566
+msgid "Partial payment cancelled successfully."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:598
+msgid "Permission denied."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:602
+msgid "Access denied."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:624
+msgid "Pending child order not found."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:687
+msgid "Invalid order."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceEndpoint.php:772
+msgid "This payment has already been completed."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:141
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:256
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:298
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:324
+#: Includes/WcPaymentInvoiceSettings.php:264
+msgid "Fee"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:142
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:258
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:298
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:325
+#: Includes/WcPaymentInvoiceSettings.php:265
+msgid "Discount"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:542
+msgid "Change default payment method to"
+msgstr ""
+
+#. translators: %s: fee amount (e.g. "R$ 1,00" or "5%")
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:594
+#, php-format
+msgid "Fee: %s"
+msgstr ""
+
+#. translators: %s: discount amount
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:600
+#, php-format
+msgid "Discount: %s"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceFeeOrDiscount.php:740
+msgid "Values may vary depending on the selected installment, shipping, and other fees at checkout."
+msgstr ""
+
+#. translators: %s: OTP verification code
+#: Includes/WcPaymentInvoiceOtpEmail.php:312
+#, php-format
+msgid "Seu código de acesso: %s"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:358
+#: Includes/WcPaymentInvoiceOtpEmail.php:449
+msgid "OTP não está ativado"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:365
+#: Includes/WcPaymentInvoiceOtpEmail.php:456
+msgid "Informe um email válido."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:374
+msgid "Aguarde alguns instantes antes de solicitar um novo código."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:394
+msgid "Erro ao enviar código."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:405
+msgid "Se este email estiver cadastrado, você receberá um código de acesso."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:406
+msgid "Código enviado para seu email."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:463
+msgid "Muitas tentativas inválidas. Tente novamente mais tarde."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:470
+#: Includes/WcPaymentInvoiceOtpEmail.php:678
+msgid "Muitas tentativas inválidas. Solicite um novo código mais tarde."
+msgstr ""
+
+#. translators: %d: número de tentativas restantes
+#: Includes/WcPaymentInvoiceOtpEmail.php:692
+#, php-format
+msgid "Código inválido ou expirado. Tentativas restantes: %d."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:693
+msgid "Código inválido ou expirado."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:707
+msgid "Erro ao criar conta."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:714
+msgid "Usuário não encontrado."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:723
+msgid "Login realizado com sucesso!"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:730
+msgid "Erro ao fazer login."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:760
+msgid "Acesse sua conta"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:761
+msgid "Digite seu email para receber um código de acesso"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:766
+msgid "Seu email"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:772
+msgid "Enviar código"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:780
+msgid "Código de acesso"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:783
+msgid "Digite o código de 6 dígitos enviado para seu email"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:784
+msgid "Voltar e cancelar."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:790
+msgid "Verificar código"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceOtpEmail.php:847
+msgid "Registros tradicionais estão desabilitados."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:48
+#: Includes/WcPaymentInvoicePartial.php:108
+#: Includes/WcPaymentInvoicePartial.php:651
+msgid "Enter a valid amount for partial payment."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:49
+#: Includes/WcPaymentInvoicePartial.php:109
+msgid "Amount below minimum allowed."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:50
+#: Includes/WcPaymentInvoicePartial.php:110
+msgid "The remaining amount cannot be less than the minimum. Adjust the entered amount."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:51
+#: Includes/WcPaymentInvoicePartial.php:111
+msgid "Error: place order button not found."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:52
+#: Includes/WcPaymentInvoicePartial.php:102
+#: Includes/WcPaymentInvoicePartial.php:2647
+#: Includes/WcPaymentInvoiceSplitBlocksIntegration.php:54
+msgid "Split payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:53
+#: Includes/WcPaymentInvoicePartial.php:103
+#: Includes/WcPaymentInvoiceSplitBlocksIntegration.php:55
+msgid "You will pay now:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:54
+#: Includes/WcPaymentInvoicePartial.php:104
+#: Includes/WcPaymentInvoiceSplitBlocksIntegration.php:56
+msgid "Remaining for later:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:55
+#: Includes/WcPaymentInvoicePartial.php:107
+#: Includes/WcPaymentInvoiceSplitBlocksIntegration.php:59
+msgid "Additional fees/discounts:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:56
+#: Includes/WcPaymentInvoicePartial.php:112
+msgid "Entered amount"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:57
+#: Includes/WcPaymentInvoicePartial.php:113
+msgid "Remaining amount"
+msgstr ""
+
+#. translators: %1$s: entered amount, %2$s: adjusted amount
+#: Includes/WcPaymentInvoicePartial.php:59
+#: Includes/WcPaymentInvoicePartial.php:115
+#, php-format
+msgid "The entered amount of %1$s was adjusted to %2$s due to fees or discounts applied to the order."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:60
+#: Includes/WcPaymentInvoicePartial.php:116
+msgid "Previously paid:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:61
+#: Includes/WcPaymentInvoicePartial.php:117
+msgid "Are you sure you want to cancel the pending partial payment? You can start a new split later."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:62
+#: Includes/WcPaymentInvoicePartial.php:118
+msgid "The partial amount must be less than the cart total."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:63
+#: Includes/WcPaymentInvoicePartial.php:119
+msgid "Error processing. Please try again."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:64
+#: Includes/WcPaymentInvoicePartial.php:120
+msgid "Error cancelling. Please try again."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:65
+#: Includes/WcPaymentInvoicePartial.php:121
+msgid "Server error."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:66
+#: Includes/WcPaymentInvoicePartial.php:122
+msgid "Cancel split"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:67
+#: Includes/WcPaymentInvoicePartial.php:123
+msgid "Processing..."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:68
+#: Includes/WcPaymentInvoicePartial.php:124
+msgid "Cancelling..."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:69
+#: Includes/WcPaymentInvoicePartial.php:125
+msgid "Finalizing..."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:70
+#: Includes/WcPaymentInvoicePartial.php:126
+#: Includes/WcPaymentInvoicePartial.php:2647
+msgid "Start partial payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:71
+#: Includes/WcPaymentInvoicePartial.php:127
+msgid "Continue"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:73
+#: Includes/WcPaymentInvoicePartial.php:129
+#: Includes/WcPaymentInvoicePartial.php:2664
+msgid "Continue payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:74
+#: Includes/WcPaymentInvoicePartial.php:130
+msgid "Balance to pay later:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:101
+#: Includes/WcPaymentInvoicePartial.php:2609
+#: Includes/WcPaymentInvoicePartial.php:2627
+#: Includes/WcPaymentInvoiceSplitBlocksIntegration.php:53
+msgid "Check to split the payment."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:105
+#: Includes/WcPaymentInvoiceSplitBlocksIntegration.php:57
+msgid "Unavailable for partial payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:106
+#: Includes/WcPaymentInvoicePartial.php:2621
+#: Includes/WcPaymentInvoiceSplitBlocksIntegration.php:58
+msgid "Maximum allowed amount:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:184
+msgid "Invalid amount."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:188
+msgid "Empty cart."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:194
+msgid "Amount cannot be greater than or equal to total."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:274
+msgid "Amount exceeds available balance."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:496
+#: Includes/WcPaymentInvoicePartial.php:527
+msgid "Partial payment pending"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:503
+#: Includes/WcPaymentInvoicePartial.php:528
+msgid "Partial payment complete"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:510
+#: Includes/WcPaymentInvoicePartial.php:529
+msgid "Partial payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:517
+#: Includes/WcPaymentInvoicePartial.php:530
+msgid "Partial payment cancelled"
+msgstr ""
+
+#. translators: %s: amount to pay
+#: Includes/WcPaymentInvoicePartial.php:647
+#, php-format
+msgid "Are you sure you want to pay %s?"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:648
+msgid "Are you sure you want to cancel this partial payment?"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:652
+msgid "Request error."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:674
+#: Includes/WcPaymentInvoicePartial.php:3537
+msgid "All partial payments have been completed."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:851
+msgid "Payment already completed."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:852
+msgid "Copiar link de pagamento para enviar ao cliente."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:854
+msgid "Payment completed"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:855
+msgid "Copiar link de pagamento"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:879
+#: Includes/WcPaymentInvoicePartial.php:899
+msgid "Link copiado!"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:904
+msgid "Falha ao copiar. Link:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1127
+#: Includes/WcPaymentInvoiceSettings.php:44
+msgid "Faturas"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1147
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1180
+msgid "Error generating invoice PDF"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1226
+#: Includes/WcPaymentInvoicePartial.php:1435
+msgid "New Invoice"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1236
+msgid "Bulk Actions"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1237
+msgid "Change status to on-hold"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1238
+msgid "Change status to processing"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1239
+msgid "Change status to completed"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1256
+#: Includes/WcPaymentInvoicePartial.php:1291
+msgid "Invoice Total"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1260
+#: Includes/WcPaymentInvoicePartial.php:1305
+msgid "Due Date"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1261
+#: Includes/WcPaymentInvoicePartial.php:1308
+msgid "Action"
+msgstr ""
+
+#. translators: %s: invoice number
+#: Includes/WcPaymentInvoicePartial.php:1287
+#, php-format
+msgid "Invoice %s"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1298
+msgid "Guest"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1310
+msgid "Mark Processing"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1315
+msgid "Mark Complete"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1319
+msgid "View"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1322
+#: Includes/WcPaymentInvoicePartial.php:2191
+msgid "Download Invoice"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1327
+msgid "Payment Link"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1337
+msgid "No invoices found."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1444
+msgid "Payer details"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1451
+msgid "Pending payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1452
+msgid "Processing"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1453
+msgid "On hold"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1455
+msgid "Cancelled"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1456
+msgid "Refunded"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1457
+msgid "Failed"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1461
+msgid "Template do PDF da fatura"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1515
+#: Includes/WcPaymentInvoicePartial.php:1662
+msgid "E-mail"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1559
+msgid "Nome"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1563
+msgid "Valor"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1575
+msgid "Adicionar linha"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1583
+msgid "Detalhes em HTML"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1591
+#: Includes/WcPaymentInvoicePartial.php:2598
+#: Includes/WcPaymentInvoiceQuote.php:1028
+#: Includes/WcPaymentInvoiceQuote.php:1149
+msgid "Cancelar"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1664
+msgid "Item name"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1665
+msgid "Item amount"
+msgstr ""
+
+#. translators: %s: field label
+#: Includes/WcPaymentInvoicePartial.php:1671
+#, php-format
+msgid "Required field: %s"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1705
+msgid "At least one item must be added to the invoice."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1721
+msgid "Erro ao criar a fatura"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1795
+msgid "Vendedor"
+msgstr ""
+
+#. translators: %1$s: edit invoice URL, %2$s: vendor name
+#: Includes/WcPaymentInvoicePartial.php:1799
+#, php-format
+msgid "Esta <a href=\"%1$s\" target=\"_blank\">fatura</a> foi criada pelo vendedor: %2$s"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:1933
+#: Includes/WcPaymentInvoicePartial.php:2516
+msgid "Pedido"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2084
+msgid "You do not have permission to download this invoice"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2129
+msgid "Error generating PDF"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2184
+msgid "Invoice Actions"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2197
+msgid "Invoice Payment Link"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2203
+msgid "Compartilhar Link"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2213
+msgid "Compartilhe com"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2224
+msgid "Link de fatura"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2231
+msgid "Ou copie o link"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2257
+msgid "Confira este link de pagamento: "
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2464
+msgid "You have pending partial payments:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2466
+msgid "You started a partial payment and did not complete it:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2581
+msgid "Paid:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2584
+msgid "Pending:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2594
+#: Includes/WcPaymentInvoicePartial.php:2596
+msgid "Continuar"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2619
+msgid "Minimum amount per installment:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2621
+msgid "without fees or discounts"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2640
+msgid "How it works?"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2640
+msgid "You pay a portion now and the rest later. The amount entered will be charged now, and the remaining balance will be available for future payment."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2651
+msgid "Enter the partial payment amount and click \"Split payment\" before finalizing."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2654
+msgid "After checking, wait for the \"Partial Payment\" gateway to appear before proceeding."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2760
+#: Includes/WcPaymentInvoicePartial.php:2892
+msgid "Partial Payment (remaining balance)"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2764
+msgid "Pagamento Parcial"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2907
+msgid "Enter a valid amount."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2911
+#: Includes/WcPaymentInvoicePartial.php:3111
+msgid "Carrinho vazio."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:2918
+msgid "O valor parcial deve ser menor que o total do carrinho."
+msgstr ""
+
+#. translators: %s: minimum partial amount
+#: Includes/WcPaymentInvoicePartial.php:2927
+#, php-format
+msgid "The minimum amount for partial payment is %s."
+msgstr ""
+
+#. translators: %1$s: minimum amount, %2$s: remaining amount
+#: Includes/WcPaymentInvoicePartial.php:2946
+#, php-format
+msgid "The remaining amount (%2$s) cannot be less than the minimum for partial payment (%1$s). Adjust the entered amount."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:3148
+msgid "Frete"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:3175
+#: Includes/WcPaymentInvoicePartialGateway.php:92
+msgid "Partial payment started. Waiting for first payment."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:3181
+msgid "Order status changed to Partial payment."
+msgstr ""
+
+#. translators: %s: remaining amount
+#: Includes/WcPaymentInvoicePartial.php:3584
+#, php-format
+msgid "Partial payment completed. Remaining to pay: %s"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:3730
+msgid "Continue partial payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:3741
+msgid "Cancel partial payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:3879
+msgid "P. parcial"
+msgstr ""
+
+#. translators: %1$s: shipping method title, %2$s: shipping cost
+#: Includes/WcPaymentInvoicePartial.php:4075
+#, php-format
+msgid "Frete escolhido no pagamento anterior: %1$s (%2$s)"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4104
+msgid "Loading payment information..."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4143
+msgid "Payment Processed"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4145
+#: Includes/WcPaymentInvoicePartial.php:4175
+#: Includes/WcPaymentInvoicePartial.php:4301
+msgid "Subtotal + Shipping:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4150
+msgid "installment (base):"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4152
+#: Includes/WcPaymentInvoicePartial.php:4179
+#: Includes/WcPaymentInvoicePartial.php:4306
+msgid "+ Fees/Discounts:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4154
+#: Includes/WcPaymentInvoicePartial.php:4181
+#: Includes/WcPaymentInvoicePartial.php:4308
+msgid "Total charged:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4168
+msgid "Summary of amounts paid in partial payment installments."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4173
+#: Includes/WcPaymentInvoicePartial.php:4299
+msgid "Partial Payment Made"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4177
+#: Includes/WcPaymentInvoicePartial.php:4304
+msgid "Paid now:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4186
+#: Includes/WcPaymentInvoicePartial.php:4214
+#: Includes/WcPaymentInvoicePartial.php:4314
+msgid "Pagar restante"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4197
+#: Includes/WcPaymentInvoiceQuote.php:932
+#: Includes/WcPaymentInvoiceQuote.php:1056
+msgid "Processando..."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4212
+msgid "Erro ao processar. Tente novamente."
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartial.php:4312
+msgid "Saldo restante:"
+msgstr ""
+
+#: Includes/WcPaymentInvoicePartialGateway.php:19
+msgid "Internal gateway to initiate partial payment."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:112
+msgid "Modo orçamento."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:128
+#: Includes/WcPaymentInvoiceQuote.php:143
+#: Includes/WcPaymentInvoiceQuote.php:325
+msgid "Add to quote"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:261
+#: Includes/WcPaymentInvoiceQuote.php:296
+msgid "View quote"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:290
+msgid "Your quotes"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:291
+msgid "Products in quote"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:292
+msgid "Your quotes are currently empty!"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:293
+msgid "Total in quote"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:294
+msgid "items in quote"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:295
+msgid "item in quote"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:297
+msgid "Browse products"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:298
+msgid "Quote updated."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:299
+msgid "Quote updated"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:300
+msgid "Update quote"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:302
+msgid "Shipping, taxes, and discounts calculated for the quote."
+msgstr ""
+
+#. translators: %s: product name
+#: Includes/WcPaymentInvoiceQuote.php:304
+#, php-format
+msgid "%s has been added to your quote."
+msgstr ""
+
+#. translators: %s: product name
+#: Includes/WcPaymentInvoiceQuote.php:306
+#, php-format
+msgid "\"%s\" has been added to your quote."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:516
+msgid "Are you sure you want to cancel this quote?"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:517
+msgid "Approve"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:543
+msgid "Invalid security action."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:548
+msgid "Quote ID not provided."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:556
+msgid "Quote not found."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:561
+msgid "This order is not a quote."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:567
+msgid "This quote cannot be approved in its current status."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:571
+msgid "Quote approved by customer."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:579
+msgid "Quote approved by customer "
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:583
+msgid " on date: "
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:702
+msgid "Quote approved successfully!"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:899
+msgid "Your quote is being prepared."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:900
+msgid "Quote Received"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:901
+msgid "Your quote has been received and is being analyzed."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:903
+msgid "Your quote is ready and awaits your approval."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:905
+msgid "Your quote has been successfully approved."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:907
+msgid "Your quote has been cancelled."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:909
+msgid "Your quote has expired."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:930
+#: Includes/WcPaymentInvoiceQuote.php:1054
+msgid "Tem certeza que deseja aprovar este orçamento?"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:931
+#: Includes/WcPaymentInvoiceQuote.php:1055
+msgid "Tem certeza que deseja cancelar este orçamento?"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:943
+#: Includes/WcPaymentInvoiceQuote.php:1064
+msgid "Detalhes do Orçamento"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:946
+#: Includes/WcPaymentInvoiceQuote.php:1067
+msgid "Orçamento #"
+msgstr ""
+
+#. translators: %s: creation date
+#: Includes/WcPaymentInvoiceQuote.php:950
+#: Includes/WcPaymentInvoiceQuote.php:1071
+#, php-format
+msgid "Criado em %s"
+msgstr ""
+
+#. translators: %s: order status
+#: Includes/WcPaymentInvoiceQuote.php:957
+#: Includes/WcPaymentInvoiceQuote.php:1078
+#, php-format
+msgid "Status: %s"
+msgstr ""
+
+#. translators: %s: expiration date
+#: Includes/WcPaymentInvoiceQuote.php:967
+#: Includes/WcPaymentInvoiceQuote.php:1088
+#, php-format
+msgid "Válido até %s"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:977
+#: Includes/WcPaymentInvoiceQuote.php:1098
+msgid "Produto"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:1002
+#: Includes/WcPaymentInvoiceQuote.php:1123
+msgid "Entrega:"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:1009
+#: Includes/WcPaymentInvoiceQuote.php:1130
+msgid "Impostos:"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:1015
+#: Includes/WcPaymentInvoiceQuote.php:1136
+msgid "Total:"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:1022
+#: Includes/WcPaymentInvoiceQuote.php:1143
+msgid "Ações:"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuote.php:1025
+#: Includes/WcPaymentInvoiceQuote.php:1146
+msgid "Aprovar"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuoteGateway.php:104
+msgid "Awaiting quote approval"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceQuoteGateway.php:107
+msgid "Quote request received. Awaiting approval..."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:52
+msgid "Assinaturas"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:68
+msgid "Taxa ou Descontos"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:75
+msgid "Orçamentos"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:83
+#: Includes/WcPaymentInvoiceSettings.php:992
 msgid "Sell via WhatsApp"
 msgstr ""
 
-msgid "Configure settings for the \"Buy via WhatsApp\" button"
+#: Includes/WcPaymentInvoiceSettings.php:91
+msgid "Donations"
 msgstr ""
 
-msgid "Enable \"Buy via WhatsApp\" button"
+#: Includes/WcPaymentInvoiceSettings.php:99
+msgid "OTP Email"
 msgstr ""
 
-msgid "When enabled, a green \"Buy via WhatsApp\" button with WhatsApp icon will be displayed below the \"Add to cart\" button on product pages. When clicked, it will redirect to WhatsApp with a message containing the product name and price."
+#: Includes/WcPaymentInvoiceSettings.php:214
+#: Includes/WcPaymentInvoiceSettings.php:216
+#: Includes/WcPaymentInvoiceSettings.php:224
+msgid "Show price on product page"
 msgstr ""
 
-msgid "WhatsApp Number"
+#: Includes/WcPaymentInvoiceSettings.php:225
+msgid "Shows the product price with fee/discount applied for this payment method on product pages."
 msgstr ""
 
-msgid "Enter the WhatsApp number in international format (e.g.: 5511999999999)."
+#: Includes/WcPaymentInvoiceSettings.php:230
+msgid "Payment Method Icon"
 msgstr ""
 
-msgid "Enter numbers only (without the + symbol)"
-msgstr ""
-
-msgid "Button text"
-msgstr ""
-
-msgid "Enter the text that will be displayed inside the button"
-msgstr ""
-
-msgid "Buy via WhatsApp"
-msgstr ""
-
-msgid "Message text"
-msgstr ""
-
-msgid "Default message that will be written for the customer to send. Available parameters: %productName% - %price% - %productLink%"
-msgstr ""
-
-msgid "Hello! I am interested in the product: %productName% - Price: %price%. Link: %productLink%"
-msgstr ""
-
+#: Includes/WcPaymentInvoiceSettings.php:233
 msgid "Wallet"
 msgstr ""
 
+#: Includes/WcPaymentInvoiceSettings.php:234
 msgid "Bank"
 msgstr ""
 
+#: Includes/WcPaymentInvoiceSettings.php:235
 msgid "Credit Card"
 msgstr ""
 
+#: Includes/WcPaymentInvoiceSettings.php:236
 msgid "Money"
 msgstr ""
 
+#: Includes/WcPaymentInvoiceSettings.php:237
 msgid "PIX"
 msgstr ""
 
-msgid "Recurring payment"
+#: Includes/WcPaymentInvoiceSettings.php:243
+msgid "Select the icon to be displayed for this payment method."
 msgstr ""
 
+#: Includes/WcPaymentInvoiceSettings.php:249
+#: Includes/WcPaymentInvoiceSettings.php:251
+msgid "Fees/Discounts"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:257
+msgid "Enable this option"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:258
+msgid "Enables fee/discount payment for the payment method."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:267
+msgid "Select fee or discount to be applied when user uses this payment method."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:273
+msgid "Percentage"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:274
+msgid "Fixed Value"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:276
+msgid "Select Percentage or Fixed Value to use in checkout and order calculation."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:282
+msgid "Only integer or decimal numbers are allowed. Examples of allowed numbers: 10 or 10.55. For 30% percentage use 30."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:300
+#: Includes/WcPaymentInvoiceSettings.php:303
+#: Includes/WcPaymentInvoiceSettings.php:305
+#: Includes/WcPaymentInvoiceSettings.php:771
+msgid "Badge on product image"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:312
+msgid "Show badge on product image"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:313
+#: Includes/WcPaymentInvoiceSettings.php:773
+msgid "Display a fee/discount badge on the product image in the shop and product pages."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:318
+msgid "Badge position"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:321
+msgid "↘ Bottom Right"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:322
+msgid "↙ Bottom Left"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:323
+msgid "↗ Top Right"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:324
+msgid "↖ Top Left"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:327
+msgid "Choose where the fee/discount badge appears on the product image."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:396
+msgid "Configure partial payment settings for this payment method"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:403
+msgid "Habilitar pagamento parcial"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:404
+msgid "Habilita o pagamento parcial para o método de pagamento."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:417
+msgid "Selecione o status de pagamento confirmado nesse método. Assim o pagamento parcial será confirmado apenas quando o status for igual ao definido."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:539
+msgid "Invoice Settings"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:540
+msgid "Configure default settings for invoices."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:543
+msgid "Default PDF template for invoices"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:546
+msgid "Select the default PDF template to use for invoices."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:551
+msgid "Logo URL"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:553
+msgid "Maximum recommended width of 460 pixels"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:561
+msgid "Default footer"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:563
+msgid "Conteúdo HTML do rodapé padrão para as faturas"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:567
+msgid "Sender details"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:569
+msgid "Conteúdo HTML dos detalhes do remetente para as faturas"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:573
+msgid "Text before payment link"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:575
+msgid "Conteúdo HTML do texto antes do link de pagamento para as faturas"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:579
+msgid "Email Verification"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:581
+msgid "Enable email verification on the invoice."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:582
+msgid "This feature will enable a text box for the user to enter their email address before displaying the invoice."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:587
+#: Includes/WcPaymentInvoiceSettings.php:589
+msgid "Create invoices for products"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:590
+msgid "By enabling this setting, every purchase order in WooCommerce will have an invoice available in the invoice lists. This feature makes it easier to send a payment link to the user who made a product purchase in the WooCommerce store."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:594
+msgid "Select \"Development\" to test transactions in sandbox mode. Use \"Production\" for real transactions."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:612
+msgid "Subscription Settings"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:613
+msgid "Configure settings for subscription invoices."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:616
+msgid "Invoice issuance lead time"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:618
+msgid "Set the lead time for invoice generation relative to the due date."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:674
+msgid "Partial Payment Settings"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:675
+msgid "Configure settings for partial payments."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:678
+msgid "Partial payments"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:680
+msgid "Enables the partial payment option for the customer at checkout."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:684
+msgid "Enable partial payments"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:688
+msgid "Order status when partial payment is complete"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:692
+msgid "Select the order status to be applied when partial payment is completed. WooCommerce default: Processing."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:697
+msgid "Enable partial payment for orders above"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:699
+msgid "Define the minimum order value for the partial payment option to be displayed at checkout."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:738
+msgid "Fees and Discounts Settings"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:739
+msgid "Configure fees and discounts for each payment method."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:743
+msgid "Show payment discount"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:745
+msgid "Enables the display of discounts for each payment method at checkout."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:750
+msgid "Show fee at payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:752
+msgid "Enables the display of fees for each payment method at checkout."
+msgstr ""
+
+#. translators: %1$d: number of donation products updated, %2$s: formatted minimum amount
+#: Includes/WcPaymentInvoiceSettings.php:893
+#, php-format
+msgid "Updated %1$d donation product with the new minimum amount of %2$s."
+msgid_plural "Updated %1$d donation products with the new minimum amount of %2$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: Includes/WcPaymentInvoiceSettings.php:936
+msgid "Configuração de orçamento"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:939
+msgid "Loja em modo orçamento"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:941
+msgid "Ativa o modo de orçamento global na loja virtual. Quando habilitado, nenhum pagamento poderá ser feito até que o orçamento seja aprovado pelo administrador. Somente após a aprovação, o cliente poderá finalizar o pagamento do orçamento normalmente."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:946
+msgid "Mostrar preço dos produtos"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:948
+msgid "Habilita a exibição dos produtos para o cliente mesmo que o orçamento ainda não tenha sido aprovado."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:953
+msgid "Criar fatura automaticamente"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:955
+msgid "Essa configuração irá gerar automaticamente uma fatura paga pagamento com detalhes do orçamento logo após o orçamento ser aprovado."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:960
+msgid "Cupom de desconto"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:962
+msgid "Essa configuração exibe o campo para o cliente inserir um cupom de desconto ao solicitar um orçamento."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:967
+msgid "Vencimento Padrão de Orçamento"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:969
+msgid "Informe a quantidade em dias que o orçamento deve ser definido como vencido."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:993
+msgid "Configure settings for the \"Buy via WhatsApp\" button"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:996
+msgid "Enable \"Buy via WhatsApp\" button"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:998
+msgid "When enabled, a green \"Buy via WhatsApp\" button with WhatsApp icon will be displayed below the \"Add to cart\" button on product pages. When clicked, it will redirect to WhatsApp with a message containing the product name and price."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1003
+msgid "WhatsApp Number"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1005
+msgid "Enter the WhatsApp number in international format (e.g.: 5511999999999)."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1010
+msgid "Enter numbers only (without the + symbol)"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1014
+msgid "Button text"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1016
+msgid "Enter the text that will be displayed inside the button"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1018
+#: Includes/WcPaymentInvoiceSettings.php:1019
+msgid "Buy via WhatsApp"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1022
+msgid "Message text"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1024
+msgid "Default message that will be written for the customer to send. Available parameters: %productName% - %price% - %productLink%"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1026
+#: Includes/WcPaymentInvoiceSettings.php:1027
+msgid "Hello! I am interested in the product: %productName% - Price: %price%. Link: %productLink%"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1045
+msgid "Donation Settings"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1046
+msgid "Configure options for the donation product type."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1049
+msgid "Enable \"Donation\" product type"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1051
+msgid "When enabled, the \"Donation\" product type will be available in the WooCommerce product type selector."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1056
+msgid "Enable anonymous donation at checkout"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1058
+msgid "When enabled, a checkbox will appear at checkout allowing the customer to make an anonymous donation with their purchase."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1063
+msgid "Enable recurring donation at checkout"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1065
+msgid "When enabled, a checkbox will appear at checkout allowing the customer to make a recurring donation with their purchase."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1070
+msgid "Enable Dokan compatibility"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1072
+msgid "When enabled, activates Dokan compatibility features for donation products."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1077
+msgid "Donation button text"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1079
+msgid "Text displayed on the \"Add to cart\" button for variable donation products. Leave empty to use the default text."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1085
+msgid "Global minimum donation amount"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1087
+msgid "Set the global minimum donation amount for all variable donation products. If a user tries to donate less, this amount will be used instead."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1111
+msgid "Configurações de OTP por Email"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1112
+msgid "Configure as configurações de autenticação OTP (One-Time Password) por email."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1115
+msgid "Modo de Autenticação OTP"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1118
+msgid "Escolha o modo de autenticação OTP. \"Apenas Login\" permite que usuários façam login com OTP (devem ter uma conta existente com senha). \"Registro e Login\" permite tanto o registro quanto o login com OTP (sem necessidade de senha)."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1121
+msgid "Desabilitado"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1122
+msgid "Apenas Login"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1123
+msgid "Registro e Login"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1128
+msgid "Tempo de Expiração do Código"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1130
+msgid "Tempo em minutos para expiração do código OTP. Recomendado entre 10 a 15 minutos."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1173
+msgid "Modern version"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1174
+msgid "Standard version"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1175
+msgid "Enable"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1176
+msgid "Disable"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1177
+msgid "Alert"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSettings.php:1178
+msgid "Warning: Disabling the \"Donation\" product type will automatically convert all existing donation products to simple products. Do you want to continue?"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSubscription.php:78
+msgid "This is a subscription product."
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSubscription.php:186
 msgid "Inherit from product (subscription)"
 msgstr ""
 
+#: Includes/WcPaymentInvoiceSubscription.php:187
 msgid "Inherit from product (one-time payment)"
 msgstr ""
 
+#: Includes/WcPaymentInvoiceSubscription.php:208
+msgid "Recurring payment"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceSubscription.php:214
 msgid "This variation is a subscription"
 msgstr ""
 
+#: Includes/WcPaymentInvoiceSubscription.php:215
 msgid "This variation is a one-time payment"
 msgstr ""
 
+#: Includes/WcPaymentInvoiceSubscription.php:755
 msgid "Subscription paused: the recurrence interval could not be resolved (the subscription product may have been deleted). No new invoice was generated."
+msgstr ""
+
+#. translators: %s: scheduled invoice date
+#: Includes/WcPaymentInvoiceSubscription.php:1222
+#: Includes/WcPaymentInvoiceSubscription.php:1245
+#, php-format
+msgid "Subscription activated and first invoice scheduled for: %s"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceWhatsAppButton.php:51
+msgid "Olá! Tenho interesse no produto: %productName% - Preço: %price%. Link: %productLink%"
+msgstr ""
+
+#: Includes/WcPaymentInvoiceWhatsAppButton.php:83
+msgid "Comprar pelo WhatsApp"
+msgstr ""
+
+#: Public/partials/donation.php:106
+msgid "This donation goal has been reached! Thank you to everyone who contributed."
+msgstr ""
+
+#: Public/js/wc-invoice-quote-blocks.js:11
+msgid "Pagamento por Orçamento"
+msgstr ""
+
+#: Public/js/wc-invoice-quote-blocks.js:12
+msgid "Solicite um orçamento personalizado para seus produtos."
 msgstr ""
