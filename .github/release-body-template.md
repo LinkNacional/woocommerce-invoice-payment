@@ -5,8 +5,8 @@ Tags: subscription, invoice, payment, recorrente, faturas
 Testado até: ${TESTED_UP}
 Versão estável: ${STABLE_TAG}
 Requer PHP: ${REQUIRES_PHP}
-Licença: GPLv3 ou posterior
-URI da Licença: https://www.gnu.org/licenses/gpl-3.0.html
+Licença: GPL-3.0+
+URI da Licença: http://www.gnu.org/licenses/gpl-3.0.txt
 Traduções: Português(Brasil) / Inglês
 
 Extensão para o WooCommerce que simplifica a cobrança online: faturas avulsas ou recorrentes (assinaturas), com link de pagamento seguro.

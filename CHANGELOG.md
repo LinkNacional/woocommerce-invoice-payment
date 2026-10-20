@@ -1,4 +1,4 @@
-# 2.13.3 - 20/10/2026
+# 2.14.0 - 20/10/2026
 * Ajuste: Assinaturas em produtos variáveis (cadência e limite de faturas por variação).
 * Ajuste: Assinatura agendada e cobrada em pedidos pagos (processing), não só em pedidos concluídos.
 * Ajuste: A cadência gravada no pedido é preservada — editar o produto/variação no catálogo não altera assinaturas em andamento.

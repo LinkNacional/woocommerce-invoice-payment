@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: subscription, invoice, payment, recorrente, faturas
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 2.13.3
+Stable tag: 2.14.0
 Requires PHP: 8.2
 License: GPL-3.0+
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -118,7 +118,7 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 
 == Changelog ==
 
-= 2.13.3 = *10/20/2026*
+= 2.14.0 = *10/20/2026*
 * Tweak: Subscriptions for variable products (per-variation interval and invoice limit).
 * Tweak: Subscriptions are scheduled and charged on paid orders (processing), not only on completed ones.
 * Tweak: The interval stored in the order is preserved — editing the product/variation no longer changes running subscriptions.
@@ -336,7 +336,7 @@ The Invoice Payment for WooCommerce plugin is now live and working.
 * Plugin launch.
 
 == Upgrade Notice ==
-= 2.13.3 =
+= 2.14.0 =
 * Security fix for email OTP login and subscription support for variable products. Update as soon as possible.
 
 = 2.0.0 =
